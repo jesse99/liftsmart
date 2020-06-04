@@ -1,2 +1,2 @@
 # liftsmart
-Swift workout app for iOS
+Swift workout app for iOS.
