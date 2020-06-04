@@ -1,0 +1,223 @@
+//  Created by Jesse Vorisek on 5/10/20.
+//  Copyright © 2020 MushinApps. All rights reserved.
+import Foundation
+
+struct RepRange: CustomDebugStringConvertible {
+    let min: Int
+    let max: Int
+    
+    init?(_ reps: Int) {
+        if reps <= 0 {return nil}
+        
+        self.min = reps
+        self.max = reps
+    }
+    
+    init?(min: Int, max: Int) {
+        if min <= 0 {return nil}
+        if min > max {return nil}
+
+        self.min = min
+        self.max = max
+    }
+
+    var label: String {
+        get {
+            if min < max {
+                return "\(min)-\(max) reps"
+            } else {
+                if min == 1 {
+                    return "1 rep"
+                } else {
+                    return "\(min) reps"
+                }
+            }
+        }
+    }
+    
+    var debugDescription: String {
+        return self.label
+    }
+    
+    // TODO: Do we stilll want phash?
+    fileprivate func phash() -> Int {
+        return self.min.hashValue &+ self.max.hashValue
+    }
+}
+
+struct WeightPercent: CustomDebugStringConvertible {
+    let value: Double
+
+    init?(_ value: Double) {
+        // For a barbell 0% means just the bar.
+        // For a dumbbell 0% means no weight which could be useful for warmups when very light weights are used.
+        if value < 0.0 {return nil}
+
+        // Some programs, like CAP3, call for lifting a bit over 100% on some days. But we'll consider it an error if the user tries to lift way over 100%.
+        if value > 1.5 {return nil}
+
+        if value.isNaN {return nil}
+        
+        self.value = value
+    }
+    
+    static func * (lhs: Double, rhs: WeightPercent) -> Double {
+        return lhs * rhs.value
+    }
+
+    var label: String {
+        get {
+            let i = Int(self.value*100)
+            if abs(self.value - Double(i)) < 1.0 {
+                return ""
+            } else {
+                return " @ (\(i))%)"
+            }
+        }
+    }
+    
+    var debugDescription: String {
+        get {
+            return String(format: "%.1f%%", 100.0*self.value)
+        }
+    }
+    
+    fileprivate func phash() -> Int {
+        return self.value.hashValue
+    }
+}
+
+struct RepsSet: CustomDebugStringConvertible {
+    let reps: RepRange
+    let percent: WeightPercent
+    let restSecs: Int
+    
+    init?(reps: RepRange, percent: WeightPercent = WeightPercent(1.0)!, restSecs: Int = 0) {
+        if restSecs < 0 {return nil}
+        
+        self.reps = reps
+        self.percent = percent
+        self.restSecs = restSecs
+    }
+    
+    var debugDescription: String {
+        get {
+            return "\(self.reps.label)\(self.percent.label)"
+        }
+    }
+    
+    fileprivate func phash() -> Int {
+        return self.reps.phash() &+ self.percent.phash() &+ self.restSecs.hashValue
+    }
+}
+
+struct DurationSet: CustomDebugStringConvertible {
+    let secs: Int
+    let restSecs: Int
+    
+    init?(secs: Int, restSecs: Int = 0) {
+        if secs <= 0 {return nil}
+        if restSecs < 0 {return nil}
+
+        self.secs = secs
+        self.restSecs = restSecs
+    }
+
+    var debugDescription: String {
+        get {
+            return "\(self.secs)s"
+        }
+    }
+}
+
+enum Sets: CustomDebugStringConvertible {
+    /// Used for stuff like 3x60s planks.
+    case durations([DurationSet], targetDuration: Int? = nil)
+
+    /// Used for stuff like curls to exhaustion. targetReps is the reps across all sets.
+    case maxReps(restSecs: [Int], targetReps: Int? = nil)
+    
+    /// Used for stuff like 3x5 squat or 3x8-12 lat pulldown.
+    case repRanges(warmups: [RepsSet], worksets: [RepsSet], backoffs: [RepsSet])
+
+//    case untimed(restSecs: [Int])
+    
+    // TODO: Will need some sort of reps target case (for stuff like pullups).
+
+    var debugDescription: String {
+        get {
+            var sets: [String] = []
+            
+            switch self {
+            case .durations(let durations, _):
+                sets = durations.map({$0.debugDescription})
+
+            case .maxReps(let restSecs, _):
+                sets = ["\(restSecs.count) sets"]
+
+            case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
+                sets = worksets.map({$0.debugDescription})
+
+//            case .untimed(restSecs: let secs):
+//                sets = Array(repeating: "untimed", count: secs.count)
+            }
+            
+            if sets.count == 1 {
+                return sets[0]
+
+            } else if sets.all({$0 == sets[0]}) {      // init/validate should ensure that we always have at least one set
+                return "\(sets.count)x\(sets[0])"
+
+            } else {
+                return sets.joined(separator: ", ")
+            }
+        }
+    }
+}
+
+extension Sets {
+    func validate() -> Bool {
+        switch self {
+        case .durations(let durations, targetDuration: let targetDuration):
+            if durations.isEmpty {return false}
+            if let target = targetDuration {
+                if target <= 0 {return false}
+            }
+
+        case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
+            if worksets.isEmpty {return false}
+            
+            // Note that RepRange init takes care of checking min > max.
+            var minReps: Int? = nil
+            var maxReps: Int? = nil
+            for set in worksets {
+                if set.reps.min < set.reps.max {
+                    if minReps == nil {
+                        minReps = set.reps.min
+                        maxReps = set.reps.max
+                    } else {
+                        if minReps! != set.reps.min || maxReps! != set.reps.max {
+                            // Disallow worksets like [4-8, 3-5] so that we can always return something sensible from repRange.
+                            return false
+                        }
+                    }
+                }
+            }
+                
+        case .maxReps(restSecs: let secs, targetReps: let targetReps):
+            if secs.isEmpty {return false}
+            for sec in secs {
+                if sec <= 0 {return false}
+            }
+            if let target = targetReps {
+                if target <= 0 {return false}
+            }
+
+//        case .untimed(restSecs: let secs):
+//            if secs.isEmpty {return false}
+//            if secs.any({$0 < 0}) {return false}
+        }
+        
+       return true
+    }
+}
