@@ -4,6 +4,8 @@ import SwiftUI
 
 struct ExerciseView: View { // TODO: rename this ExerciseDurationsView
     var exercise: Exercise
+    let durations: [DurationSet]
+    let targetDuration: Int?
     @State var start_modal: Bool = false
     @State var timer_modal: Bool = false
     
@@ -19,12 +21,12 @@ struct ExerciseView: View { // TODO: rename this ExerciseDurationsView
 
                 Button("Start", action: onStart)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: 60)}
+                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$timer_modal) {TimerView(duration: 60)}
+                    .sheet(isPresented: self.$timer_modal) {TimerView(duration: self.duration())}
                 Spacer()
             }
             
@@ -48,7 +50,6 @@ struct ExerciseView: View { // TODO: rename this ExerciseDurationsView
     
     func onStart() {
         // TODO:
-        // use proper durations
         // update current (can do this with an onDismiss: callback, probably need another show_timer var)
         // update title and subtitle views (probably need to have them use a @State var)
         // when run out of sets Start buttion needs to change to Done
@@ -64,32 +65,22 @@ struct ExerciseView: View { // TODO: rename this ExerciseDurationsView
         self.timer_modal = true
     }
     
+    func duration() -> Int {
+        var setIndex = 0
+        if let current = exercise.current {
+            setIndex = current.setIndex
+        }
+        
+        return durations[setIndex].secs
+    }
+    
     func title() -> String {
         var setIndex = 0
         if let current = exercise.current {
             setIndex = current.setIndex
         }
         
-        switch exercise.modality.sets {
-        case .durations(let durations, _):
-            return "Set \(setIndex+1) of \(durations.count)"
-
-        case .maxReps(let restSecs, _):
-            return "Set \(setIndex+1) of \(restSecs.count)"
-
-        case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
-            if setIndex < warmups.count {
-                return "Warmup \(setIndex+1) of \(warmups.count)"
-            }
-            setIndex -= warmups.count
-            
-            if setIndex < worksets.count {
-                return "Workset \(setIndex+1) of \(worksets.count)"
-            }
-            setIndex -= worksets.count
-
-            return "Backoff \(setIndex+1) of \(backoffs.count)"
-        }
+        return "Set \(setIndex+1) of \(durations.count)"
     }
 
     func subTitle() -> String {
@@ -98,30 +89,11 @@ struct ExerciseView: View { // TODO: rename this ExerciseDurationsView
             setIndex = current.setIndex
         }
         
-        switch exercise.modality.sets {
-        case .durations(let durations, targetDuration: let targetDuration):
-            if let target = targetDuration {
-                return "\(durations[setIndex]) (target is \(target)x)"
+        if let target = targetDuration {
+            return "\(durations[setIndex]) (target is \(target)x)"
 
-            } else {
-                return "\(durations[setIndex])"
-            }
-
-        case .maxReps(_, _):
-            return ""   // TODO: maybe we should say what last was?
-
-        case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
-            if setIndex < warmups.count {
-                return "\(warmups[setIndex].reps.label) @ \(weight(warmups[setIndex]))"
-            }
-            setIndex -= warmups.count
-            
-            if setIndex < worksets.count {
-                return "\(worksets[setIndex].reps.label) @ \(weight(worksets[setIndex]))"
-            }
-            setIndex -= worksets.count
-
-            return "\(backoffs[setIndex].reps.label) @ \(weight(backoffs[setIndex]))"
+        } else {
+            return "\(durations[setIndex])"
         }
     }
     
@@ -136,9 +108,14 @@ struct ExerciseView: View { // TODO: rename this ExerciseDurationsView
 }
 
 struct ExerciseView_Previews: PreviewProvider {
+    static let durations = [DurationSet(secs: 60, restSecs: 60)!]
+    static let sets = Sets.durations(durations)
+    static let modality = Modality(Apparatus.bodyWeight, sets)
+    static let exercise = Exercise("Burpees", "Burpees", modality)
+
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseView(exercise: program[0].exercises[0])
+            ExerciseView(exercise: exercise, durations: durations, targetDuration: nil)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

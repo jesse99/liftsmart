@@ -44,14 +44,28 @@ struct WorkoutView: View {
     var workout: Workout
     
     var body: some View {
-       // NavigationView {
-            List(workout.exercises) { exercise in
-                NavigationLink(destination: ExerciseView(exercise: exercise)) {
-                    WorkoutRow(exercise: exercise)
-                }
+        List(workout.exercises) { exercise in
+            NavigationLink(destination: self.exerciseView(exercise)) {
+                WorkoutRow(exercise: exercise)
             }
-            .navigationBarTitle(Text(workout.name))
-       // }
+        }
+        .navigationBarTitle(Text(workout.name))
+    }
+    
+    func exerciseView(_ exercise: Exercise) -> AnyView {
+        switch exercise.modality.sets {
+        case .durations(let durations, let targetDuration):
+            return AnyView(ExerciseView(exercise: exercise, durations: durations, targetDuration: targetDuration))
+
+        case .maxReps(_, _):
+            return AnyView(Text("maxReps not implemented"))
+
+        case .repRanges(_, _, _):
+            return AnyView(Text("repRanges not implemented"))
+
+//      case .untimed(restSecs: let secs):
+//          sets = Array(repeating: "untimed", count: secs.count)
+        }
     }
 }
 
