@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct ExerciseView: View { // TODO: rename this ExerciseDurationsView
+struct ExerciseDurationsView: View { // TODO: rename this ExerciseDurationsView
     var exercise: Exercise
     let durations: [DurationSet]
     let targetDuration: Int?
@@ -115,7 +115,7 @@ struct ExerciseView_Previews: PreviewProvider {
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseView(exercise: exercise, durations: durations, targetDuration: nil)
+            ExerciseDurationsView(exercise: exercise, durations: durations, targetDuration: nil)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }
