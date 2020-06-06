@@ -5,12 +5,12 @@ import Foundation
 /// Where the user is now with respect to an Exercise. Unlike Workouts this is information that
 /// is expected to regularly change.
 class Current: CustomDebugStringConvertible {
-    var date: Date          // when the user last finished the exercise
+    var startDate: Date     // when the user last started the exercise
     var weight: Double      // may be 0.0
     var setIndex: Int       // if this is sets.count then the user has finished those sets
 
     init(weight: Double) {
-        self.date = Date()
+        self.startDate = Date()
         self.weight = weight
         self.setIndex = 0
     }

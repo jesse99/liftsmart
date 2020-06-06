@@ -4,13 +4,15 @@ import AVFoundation // for vibrate
 import SwiftUI
 
 struct TimerView: View {
-    @Environment(\.presentationMode) var presentationMode
-    let duration: Int
-    let startTime = Date()
-    var elapsed: Int = 0
-    let timer = Timer.publish(every: 1, tolerance: 0.5, on: .main, in: .common).autoconnect()
-    @State var label: String = ""
-    @State var waiting: Bool = true
+    @Environment(\.presentationMode) private var presentationMode
+    @State var duration: Int
+    @State var rest: Int = 0
+    @State private var startTime = Date()
+    @State private var elapsed: Int = 0
+    private let timer = Timer.publish(every: 1, tolerance: 0.5, on: .main, in: .common).autoconnect()
+    @State private var label: String = ""
+    @State private var waiting: Bool = true
+    @State private var resting: Bool = false
     
     var body: some View {
         VStack {
@@ -22,14 +24,22 @@ struct TimerView: View {
                 Text("\(label)").font(.system(size: 64.0)).foregroundColor(Color.green) // TODO: better to use DarkGreen
             }
             Spacer()
-            Button("Stop Timer", action: onStopTimer).font(.system(size: 20.0))
+            Button(buttonLabel(), action: onStopTimer).font(.system(size: 20.0))
             Spacer()
             Spacer()
         }
     }
     
     func onStopTimer() {
-        self.presentationMode.wrappedValue.dismiss()
+        if self.rest > 0 {
+            self.duration = self.rest
+            self.rest = 0
+            self.startTime = Date()
+            self.elapsed = 0
+            self.resting = true
+        } else {
+            self.presentationMode.wrappedValue.dismiss()
+        }
     }
     
     // This will count down to duration seconds and, if the count down goes far enough past
@@ -52,10 +62,18 @@ struct TimerView: View {
             AudioServicesPlayAlertSound(kSystemSoundID_Vibrate)
         }
     }
+    
+    func buttonLabel() -> String {
+        if resting {
+            return "Stop Resting"
+        } else {
+            return "Stop Timer"
+        }
+    }
 }
 
 struct TimerView_Previews: PreviewProvider {
     static var previews: some View {
-        TimerView(duration: 10)
+        TimerView(duration: 10, rest: 5)
     }
 }

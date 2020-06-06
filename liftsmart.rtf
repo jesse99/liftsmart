@@ -12,8 +12,9 @@
 \deftab816
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
-\f0\fs34 \cf2 class\cf3  \cf4 Current\cf3 : \cf5 CustomDebugStringConvertible\cf3  \{\
-    \cf2 var\cf3  \cf6 date\cf3 : \cf5 Date\cf3           \cf7 // when the user last finished the exercise\cf3 \
+\f0\fs34 \cf2 \
+class\cf3  \cf4 Current\cf3 : \cf5 CustomDebugStringConvertible\cf3  \{\
+    \cf2 var\cf3  \cf6 StartDate\cf3 : \cf5 Date\cf3       \cf7 // when the user last started the exercise\cf3 \
     \cf2 var\cf3  \cf6 weight\cf3 : \cf5 Double\cf3       \cf7 // may be 0.0\cf3 \
     \cf2 var\cf3  \cf6 setIndex\cf3 : \cf5 Int\cf3        \cf7 // if this is sets.count then the user has finished those sets\cf3 \
 \
@@ -60,13 +61,22 @@ Stringify - text renderer\
 Program = Workouts + Plan + Advisor(?)\
 	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor\
 \
-\'95\'a0Get start working\
-\'95\'a0Make sure current gets updated\
-\'95 Get planks working\
-	- probably want to rename ExerciseView to ExerciseDurationsView\
 \'95 Get curls working\
+	- need a maxReps view\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf10 \'95 Workouts view should color code finished exercises\
+	- probably need to reset current if it\'92s been too long\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf10 \'95 Workouts view should color code in-progress \cf10 exercises\cf10 \
 \'95\'a0Program view should say when last workout was\
-\'95 Get notes button working\
+\'95\'a0Make sure current program is useable\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf10 \'95\'a0Get history working somehow\
+\'95 Get persistence working:\
+	- history\
+	- current app state\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf10 \'95 Get notes button working\
 \'95\'a0Get options button working\
 \'95 Hard code some info\
 	- age\

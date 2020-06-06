@@ -1,30 +1,30 @@
-//  Created by Jesse Jones on 5/30/20.
+//  Created by Jesse Jones on 6/6/20.
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct ExerciseDurationsView: View {
+struct ExerciseMaxRepsView: View {
     var exercise: Exercise
-    let durations: [DurationSet]
-    let targetDuration: Int?
+    let restSecs: [Int]
+    let targetReps: Int?
     @State var start_modal: Bool = false
-    @State var duration_modal: Bool = false
+    @State var timer_modal: Bool = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ exercise: Exercise) {
         self.exercise = exercise
 
         switch exercise.modality.sets {
-        case .durations(let d, targetDuration: let t):
-            self.durations = d
-            self.targetDuration = t
+        case .maxReps(let rs, targetReps: let t):
+            self.restSecs = rs
+            self.targetReps = t
         default:
-            assert(false)   // exercise must use durations sets
-            self.durations = []
-            self.targetDuration = nil
+            assert(false)   // exercise must use maxReps sets
+            self.restSecs = []
+            self.targetReps = nil
         }
         
         self.exercise.initCurrent()
-        if self.exercise.current!.setIndex >= self.durations.count {
+        if self.exercise.current!.setIndex >= self.restSecs.count {
             // TODO: May just want to come back to the finished state, especially
             // if we have some sort of history view here.
            self.exercise.current!.setIndex = 0
@@ -34,24 +34,24 @@ struct ExerciseDurationsView: View {
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
-                Text(exercise.name).font(.largeTitle)   // Burpees
+                Text(exercise.name).font(.largeTitle)   // Curls
                 Spacer()
             
                 Text(title()).font(.title)              // Set 1 of 1
-                Text(subTitle()).font(.headline)        // 60s
+                Text(subTitle()).font(.headline)        // "Max Reps"
                 Spacer()
 
                 Button(startLabel(), action: onStart)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration(), rest: self.restSecs())}
+                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$duration_modal) {TimerView(duration: self.duration())}
+                    .sheet(isPresented: self.$timer_modal) {TimerView(duration: self.duration())}
                 Spacer()
             }
-
+            
             Divider()
             HStack {
                 Button("Notes", action: onNotes).font(.callout)
@@ -71,7 +71,7 @@ struct ExerciseDurationsView: View {
     }
     
     func onStart() {
-        if exercise.current!.setIndex < durations.count {
+        if exercise.current!.setIndex < restSecs.count {
             self.start_modal = true
         } else {
             // Pop this view. Note that currently this only works with a real device,
@@ -85,45 +85,33 @@ struct ExerciseDurationsView: View {
     }
     
     func onStartTimer() {
-        self.duration_modal = true
+        self.timer_modal = true
     }
     
-    func duration() -> Int {
-        return durations[exercise.current!.setIndex].secs
-    }
-    
-    func restSecs() -> Int {
-        return durations[exercise.current!.setIndex].restSecs
+    func duration() -> Int {    // TODO: this should be restSec or some such
+        return restSecs[exercise.current!.setIndex]
     }
     
     func title() -> String {
-        if exercise.current!.setIndex < durations.count {
-            return "Set \(exercise.current!.setIndex+1) of \(durations.count)"
-        } else if durations.count == 1 {
+        if exercise.current!.setIndex < restSecs.count {
+            return "Set \(exercise.current!.setIndex+1) of \(restSecs.count)"
+        } else if restSecs.count == 1 {
             return "Finished"
         } else {
-            return "Finished all \(durations.count) sets"
+            return "Finished all \(restSecs.count) sets"
         }
     }
 
     // TODO: If there is an expected weight I think we'd annotate this label.
+    // TODO: Would be nice to do something with history, maybe here or at the bottom of the exercise view.
     func subTitle() -> String {
-        if exercise.current!.setIndex >= durations.count {
-            return ""
-        }
-
-        let duration = durations.last!
-        if let target = targetDuration {
-            return "\(duration) (target is \(target)s)"
-        } else {
-            return "\(duration)"
-        }
+        return "Max Reps"
     }
     
     func startLabel() -> String {
         if exercise.current!.setIndex == 0 {
             return "Start"
-        } else if (exercise.current!.setIndex == durations.count) {
+        } else if (exercise.current!.setIndex == restSecs.count) {
             return "Done"
         } else {
             return "Next"
@@ -140,11 +128,11 @@ struct ExerciseDurationsView: View {
     }
 }
 
-struct ExerciseView_Previews: PreviewProvider {
-    static let durations = [DurationSet(secs: 60, restSecs: 10)!, DurationSet(secs: 30, restSecs: 10)!, DurationSet(secs: 15, restSecs: 10)!]
-    static let sets = Sets.durations(durations)
+struct ExerciseMaxRepsView_Previews: PreviewProvider {
+    static let restSecs = [60, 30, 15]
+    static let sets = Sets.maxReps(restSecs: restSecs)
     static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("Burpees", "Burpees", modality)
+    static let exercise = Exercise("Curls", "Curls", modality)
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in

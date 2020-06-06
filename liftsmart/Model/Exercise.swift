@@ -22,6 +22,18 @@ class Exercise: Hashable, Identifiable {
         self.id = nextID
         nextID += 1
     }
+    
+    func initCurrent() {
+        if let current = self.current {
+            // If it's been a long time since the user started this exercise then
+            // start over.
+            if Date().hoursSinceDate(current.startDate) > 2.0 {
+                self.current = Current(weight: self.expected.weight)
+            }
+        } else {
+            self.current = Current(weight: self.expected.weight)
+        }
+    }
         
     static func ==(lhs: Exercise, rhs: Exercise) -> Bool {
         return lhs.name == rhs.name
