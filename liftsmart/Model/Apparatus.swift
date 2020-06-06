@@ -9,7 +9,7 @@ import Foundation
 //// support barbell, machine, pairedPlates, and singlePlates
 enum Apparatus {
     /// Typically these are unweighted but users can enter an arbitrary weight if they are using a plate,
-    /// kettlebell, chains, milk jug, or whatever.
+    /// kettlebell, chains, milk jug, or whatever (this comes from Expected).
     case bodyWeight
 
     /// In general we want to treat single and paired dumbbells the same (users want to think about the 60 pound dumbbell

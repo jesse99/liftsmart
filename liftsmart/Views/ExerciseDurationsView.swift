@@ -8,8 +8,29 @@ struct ExerciseDurationsView: View {
     let targetDuration: Int?
     @State var start_modal: Bool = false
     @State var timer_modal: Bool = false
-    @State var setIndex: Int = 0
     @Environment(\.presentationMode) private var presentation
+    
+    init(_ exercise: Exercise) {
+        self.exercise = exercise
+
+        switch exercise.modality.sets {
+        case .durations(let d, targetDuration: let target):
+            self.durations = d
+            self.targetDuration = target
+        default:
+            assert(false)   // exercise must use durations sets
+            self.durations = []
+            self.targetDuration = nil
+        }
+        
+        if let current = exercise.current {
+            if current.setIndex >= self.durations.count {
+               current.setIndex = 0
+            }
+        } else {
+            assert(exercise.current != nil) // caller must ensure current is legit
+        }
+    }
     
     var body: some View {
         VStack {
@@ -52,19 +73,19 @@ struct ExerciseDurationsView: View {
     
     func onStart() {
         // TODO:
-        // update current (can do this with an onDismiss: callback, probably need another show_timer var)
         // curent should also be updated if user hits back button mid-set
-        // when come back setIndex should be set to current value
-        if setIndex < durations.count {
+        if exercise.current!.setIndex < durations.count {
             self.start_modal = true
         } else {
             // Pop this view. Note that currently this only works with a real device,
+            self.exercise.current!.date = Date()
+            self.exercise.current!.weight = exercise.expected.weight
             self.presentation.wrappedValue.dismiss()
         }
     }
     
     func onStartCompleted() {
-        self.setIndex += 1
+        self.exercise.current!.setIndex += 1
     }
     
     func onStartTimer() {
@@ -72,16 +93,12 @@ struct ExerciseDurationsView: View {
     }
     
     func duration() -> Int {
-        if setIndex < durations.count {
-            return durations[setIndex].secs
-        } else {
-            return durations.last!.secs
-        }
+        return durations[exercise.current!.setIndex].secs
     }
     
     func title() -> String {
-        if setIndex < durations.count {
-            return "Set \(setIndex+1) of \(durations.count)"
+        if exercise.current!.setIndex < durations.count {
+            return "Set \(exercise.current!.setIndex+1) of \(durations.count)"
         } else if durations.count == 1 {
             return "Finished"
         } else {
@@ -89,8 +106,9 @@ struct ExerciseDurationsView: View {
         }
     }
 
+    // TODO: If there is an expected weight I think we'd annotate this label.
     func subTitle() -> String {
-        if setIndex >= durations.count {
+        if exercise.current!.setIndex >= durations.count {
             return ""
         }
 
@@ -103,9 +121,9 @@ struct ExerciseDurationsView: View {
     }
     
     func startLabel() -> String {
-        if setIndex == 0 {
+        if exercise.current!.setIndex == 0 {
             return "Start"
-        } else if (setIndex == durations.count) {
+        } else if (exercise.current!.setIndex == durations.count) {
             return "Done"
         } else {
             return "Next"
@@ -130,7 +148,7 @@ struct ExerciseView_Previews: PreviewProvider {
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseDurationsView(exercise: exercise, durations: durations, targetDuration: nil)
+            ExerciseDurationsView(exercise)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

@@ -55,7 +55,7 @@ struct WorkoutView: View {
     func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
         case .durations(let durations, let targetDuration):
-            return AnyView(ExerciseDurationsView(exercise: exercise, durations: durations, targetDuration: targetDuration))
+            return AnyView(ExerciseDurationsView(exercise))
 
         case .maxReps(_, _):
             return AnyView(Text("maxReps not implemented"))
