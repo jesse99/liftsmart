@@ -43,7 +43,7 @@ struct ExerciseDurationsView: View {
 
                 Button(startLabel(), action: onStart)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration(), rest: self.restSecs())}
+                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)

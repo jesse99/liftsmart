@@ -6,7 +6,7 @@ import SwiftUI
 struct TimerView: View {
     @Environment(\.presentationMode) private var presentationMode
     @State var duration: Int
-    @State var rest: Int = 0
+    @State var secondDuration: Int = 0    // used to wait twice
     @State private var startTime = Date()
     @State private var elapsed: Int = 0
     private let timer = Timer.publish(every: 1, tolerance: 0.5, on: .main, in: .common).autoconnect()
@@ -31,9 +31,9 @@ struct TimerView: View {
     }
     
     func onStopTimer() {
-        if self.rest > 0 {
-            self.duration = self.rest
-            self.rest = 0
+        if self.secondDuration > 0 {
+            self.duration = self.secondDuration
+            self.secondDuration = 0
             self.startTime = Date()
             self.elapsed = 0
             self.resting = true
@@ -53,7 +53,8 @@ struct TimerView: View {
         } else if secs >= -2*60 {
             self.label = "+" + secsToShortDurationName(-secs)
         } else {
-            self.presentationMode.wrappedValue.dismiss()
+            self.onStopTimer()
+            return
         }
         
         let wasWaiting = self.waiting
@@ -74,6 +75,6 @@ struct TimerView: View {
 
 struct TimerView_Previews: PreviewProvider {
     static var previews: some View {
-        TimerView(duration: 10, rest: 5)
+        TimerView(duration: 10, secondDuration: 5)
     }
 }
