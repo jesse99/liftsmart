@@ -113,6 +113,7 @@ struct ExerciseMaxRepsView: View {
             }
         } else {
             // Pop this view. Note that currently this only works with a real device,
+            self.exercise.current!.date = Date()
             self.exercise.current!.weight = exercise.expected.weight
             self.presentation.wrappedValue.dismiss()
         }

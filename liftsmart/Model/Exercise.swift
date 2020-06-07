@@ -25,9 +25,9 @@ class Exercise: Hashable, Identifiable {
     
     func initCurrent() {
         if let current = self.current {
-            // If it's been a long time since the user started this exercise then
+            // If it's been a long time since the user did this exercise then
             // start over.
-            if Date().hoursSinceDate(current.startDate) > 2.0 {
+            if Date().hoursSinceDate(current.date) > 2.0 {
                 self.current = Current(weight: self.expected.weight)
             }
         } else {
