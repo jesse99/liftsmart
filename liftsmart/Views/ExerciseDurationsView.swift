@@ -8,6 +8,7 @@ struct ExerciseDurationsView: View {
     let targetDuration: Int?
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
+    @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ exercise: Exercise) {
@@ -54,12 +55,20 @@ struct ExerciseDurationsView: View {
 
             Divider()
             HStack {
-                Button("Notes", action: onNotes).font(.callout)
+                // We have to use underway because body will be updated when a @State var changes
+                // but not when some nested field (like exercise.current!.setIndex changes).
+                Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
                 Spacer()
                 // TODO: Do we want a history button? or maybe some sort of details view?
+                Button("Notes", action: onNotes).font(.callout)
                 Button("Options", action: onOptions).font(.callout)
             }.padding()
         }
+    }
+    
+    func onReset() {
+        self.exercise.current!.setIndex = 0
+        self.underway = false
     }
     
     func onNotes() {
@@ -82,6 +91,7 @@ struct ExerciseDurationsView: View {
     
     func onStartCompleted() {
         self.exercise.current!.setIndex += 1
+        self.underway = self.durations.count > 1
     }
     
     func onStartTimer() {

@@ -10,6 +10,7 @@ struct ExerciseMaxRepsView: View {
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
     @State var showingSheet: Bool = false
+    @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ exercise: Exercise) {
@@ -58,8 +59,11 @@ struct ExerciseMaxRepsView: View {
 
             Divider()
             HStack {
-                Button("Notes", action: onNotes).font(.callout)
+                // We have to use underway because body will be updated when a @State var changes
+                // but not when some nested field (like exercise.current!.setIndex changes).
+                Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
                 Spacer()
+                Button("Notes", action: onNotes).font(.callout)
                 // TODO: Do we want a history button? or maybe some sort of details view?
                 Button("Options", action: onOptions).font(.callout)
             }.padding()
@@ -83,6 +87,13 @@ struct ExerciseMaxRepsView: View {
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
         self.startModal = true
         self.completed += reps
+        self.underway = self.restSecs.count > 1
+    }
+    
+    func onReset() {
+        self.completed = 0
+        self.exercise.current!.setIndex = 0
+        self.underway = false
     }
     
     func onNotes() {
@@ -110,6 +121,7 @@ struct ExerciseMaxRepsView: View {
     func onStartCompleted() {
         if expected() == nil {
             self.exercise.current!.setIndex += 1
+            self.underway = self.restSecs.count > 1
         }
     }
     
