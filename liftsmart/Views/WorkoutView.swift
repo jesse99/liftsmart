@@ -21,8 +21,12 @@ struct WorkoutRow: View {
         case .durations(let durations, _):
             sets = durations.map({$0.debugDescription})
 
-        case .maxReps(_, _):
-            break
+        case .maxReps(let restSecs, _):
+            if let reps = exercise.expected.reps {
+                return "\(reps) reps"
+            } else {
+                return "\(restSecs.count) sets"
+            }
 
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
             sets = worksets.map({$0.debugDescription})
@@ -58,7 +62,7 @@ struct WorkoutView: View {
             return AnyView(ExerciseDurationsView(exercise))
 
         case .maxReps(_, _):
-            return AnyView(Text("maxReps not implemented"))
+            return AnyView(ExerciseMaxRepsView(exercise))
 
         case .repRanges(_, _, _):
             return AnyView(Text("repRanges not implemented"))

@@ -18,3 +18,41 @@ func secsToShortDurationName(_ interval: Double) -> String {
         return String(format: "%0.1f days", arguments: [days])
     }
 }
+
+func friendlyWeight(_ weight: Double) -> String {
+    var result: String
+    
+    // Note that weights are always stored as lbs internally.
+    //        let app = UIApplication.shared.delegate as! AppDelegate
+    //        switch app.units()
+    //        {
+    //        case .imperial:
+    //            // Kind of annoying to use three decimal places but people
+    //            // sometimes use 0.625 fractional plates (5/8 lb).
+    result = String(format: "%.3f", weight)
+    //
+    //        case .metric:
+    //            result = String(format: "%.2f", arguments: [weight*Double.lbToKg])
+    //        }
+    
+    while result.hasSuffix("0") {
+        let start = result.index(result.endIndex, offsetBy: -1)
+        let end = result.endIndex
+        result.removeSubrange(start..<end)
+    }
+    if result.hasSuffix(".") {
+        let start = result.index(result.endIndex, offsetBy: -1)
+        let end = result.endIndex
+        result.removeSubrange(start..<end)
+    }
+    
+    return result
+}
+
+func friendlyUnitsWeight(_ weight: Double, plural: Bool = true) -> String {
+    if plural {
+        return friendlyWeight(weight) + " lbs"  // TODO: also kg
+    } else {
+        return friendlyWeight(weight) + " lb"
+    }
+}

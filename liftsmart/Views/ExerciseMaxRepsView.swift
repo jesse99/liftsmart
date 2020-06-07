@@ -6,8 +6,10 @@ struct ExerciseMaxRepsView: View {
     var exercise: Exercise
     let restSecs: [Int]
     let targetReps: Int?
-    @State var start_modal: Bool = false
-    @State var timer_modal: Bool = false
+    @State var completed: Int = 0
+    @State var startModal: Bool = false
+    @State var durationModal: Bool = false
+    @State var showingSheet: Bool = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ exercise: Exercise) {
@@ -38,20 +40,22 @@ struct ExerciseMaxRepsView: View {
                 Spacer()
             
                 Text(title()).font(.title)              // Set 1 of 1
-                Text(subTitle()).font(.headline)        // "Max Reps"
+                Text(subTitle()).font(.headline)        // 10+ Reps or As Many Reps As Possible
                 Spacer()
 
                 Button(startLabel(), action: onStart)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration())}
+                    .actionSheet(isPresented: $showingSheet) {
+                        ActionSheet(title: Text("Reps Completed"), buttons: sheetButtons())}
+                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$timer_modal) {TimerView(duration: self.duration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.duration())}
                 Spacer()
             }
-            
+
             Divider()
             HStack {
                 Button("Notes", action: onNotes).font(.callout)
@@ -60,6 +64,25 @@ struct ExerciseMaxRepsView: View {
                 Button("Options", action: onOptions).font(.callout)
             }.padding()
         }
+    }
+    
+    func sheetButtons() -> [ActionSheet.Button] {
+        var buttons: [ActionSheet.Button] = []
+        
+        let delta = 10  // we'll show +/- this many reps versus expected
+        
+        let reps = expected()!
+        for reps in max(reps - delta, 1)...(reps + delta) {
+            buttons.append(.default(Text("\(reps) Reps"), action: {() -> Void in self.onSheetCompleted(reps)}))
+        }
+        
+        return buttons
+    }
+    
+    func onSheetCompleted(_ reps: Int) {
+        self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
+        self.startModal = true
+        self.completed += reps
     }
     
     func onNotes() {
@@ -72,7 +95,11 @@ struct ExerciseMaxRepsView: View {
     
     func onStart() {
         if exercise.current!.setIndex < restSecs.count {
-            self.start_modal = true
+            if expected() != nil {
+                self.showingSheet = true
+            } else {
+                self.startModal = true
+            }
         } else {
             // Pop this view. Note that currently this only works with a real device,
             self.exercise.current!.weight = exercise.expected.weight
@@ -81,14 +108,16 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onStartCompleted() {
-        self.exercise.current!.setIndex += 1
+        if expected() == nil {
+            self.exercise.current!.setIndex += 1
+        }
     }
     
     func onStartTimer() {
-        self.timer_modal = true
+        self.durationModal = true
     }
     
-    func duration() -> Int {    // TODO: this should be restSec or some such
+    func duration() -> Int {
         return restSecs[exercise.current!.setIndex]
     }
     
@@ -101,29 +130,39 @@ struct ExerciseMaxRepsView: View {
             return "Finished all \(restSecs.count) sets"
         }
     }
-
-    // TODO: If there is an expected weight I think we'd annotate this label.
-    // TODO: Would be nice to do something with history, maybe here or at the bottom of the exercise view.
-    func subTitle() -> String {
-        return "Max Reps"
-    }
     
-    func startLabel() -> String {
-        if exercise.current!.setIndex == 0 {
-            return "Start"
-        } else if (exercise.current!.setIndex == restSecs.count) {
-            return "Done"
+    func subTitle() -> String {
+        if exercise.current!.setIndex >= restSecs.count {
+            return ""
+        }
+        
+        var suffix = ""
+        if exercise.expected.weight > 0.0 {
+            suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
+        }
+
+        if let reps = expected() {
+            return "\(reps)+ Reps \(suffix)"
         } else {
-            return "Next"
+            return "As Many Reps As Possible \(suffix)"
         }
     }
 
-    func weight(_ reps: RepsSet) -> String {
-        if let current = exercise.current {
-            return "\(Int(current.weight * reps.percent)) lbs"  // TODO: need to use apparatus
-            
+    func expected() -> Int? {
+        if let expected = exercise.expected.reps {
+            let remaining = expected - self.completed
+            let reps = remaining/(restSecs.count - exercise.current!.setIndex)
+            return reps
         } else {
-            return reps.percent.label
+            return nil
+        }
+    }
+    
+    func startLabel() -> String {
+        if (exercise.current!.setIndex == restSecs.count) {
+            return "Done"
+        } else {
+            return "Next"
         }
     }
 }
@@ -132,11 +171,11 @@ struct ExerciseMaxRepsView_Previews: PreviewProvider {
     static let restSecs = [60, 30, 15]
     static let sets = Sets.maxReps(restSecs: restSecs)
     static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("Curls", "Curls", modality)
+    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0, reps: 65))
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseDurationsView(exercise)
+            ExerciseMaxRepsView(exercise)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

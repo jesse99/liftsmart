@@ -6,8 +6,8 @@ struct ExerciseDurationsView: View {
     var exercise: Exercise
     let durations: [DurationSet]
     let targetDuration: Int?
-    @State var start_modal: Bool = false
-    @State var duration_modal: Bool = false
+    @State var startModal: Bool = false
+    @State var durationModal: Bool = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ exercise: Exercise) {
@@ -43,12 +43,12 @@ struct ExerciseDurationsView: View {
 
                 Button(startLabel(), action: onStart)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$start_modal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration(), secondDuration: self.restSecs())}
+                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$duration_modal) {TimerView(duration: self.duration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.duration())}
                 Spacer()
             }
 
@@ -72,7 +72,7 @@ struct ExerciseDurationsView: View {
     
     func onStart() {
         if exercise.current!.setIndex < durations.count {
-            self.start_modal = true
+            self.startModal = true
         } else {
             // Pop this view. Note that currently this only works with a real device,
             self.exercise.current!.weight = exercise.expected.weight
@@ -85,7 +85,7 @@ struct ExerciseDurationsView: View {
     }
     
     func onStartTimer() {
-        self.duration_modal = true
+        self.durationModal = true
     }
     
     func duration() -> Int {
@@ -127,15 +127,6 @@ struct ExerciseDurationsView: View {
             return "Done"
         } else {
             return "Next"
-        }
-    }
-
-    func weight(_ reps: RepsSet) -> String {
-        if let current = exercise.current {
-            return "\(Int(current.weight * reps.percent)) lbs"  // TODO: need to use apparatus
-            
-        } else {
-            return reps.percent.label
         }
     }
 }
