@@ -4,12 +4,19 @@ import SwiftUI
 
 struct WorkoutRow: View {
     var exercise: Exercise
+    @State var color: Color = .black
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text(exercise.name).font(.headline)
+            Text(exercise.name)
+                .font(.headline)
+                .onAppear {self.color = self.labelColor()}  // bit of a hack to force WorkoutRow to reload when a nested view changes exercise state
+                .foregroundColor(color)
+
             if !label().isEmpty {
-                Text(label()).font(.subheadline)
+                Text(label())
+                    .font(.subheadline)
+                    .foregroundColor(color)
             }
         }
     }
@@ -40,6 +47,16 @@ struct WorkoutRow: View {
             return "\(sets.count)x\(sets[0])"
         } else {
             return sets.joined(separator: ", ")
+        }
+    }
+    
+    func labelColor() -> Color {
+        if exercise.completed() {
+            return .gray
+        } else if exercise.inProgress() {
+            return .blue
+        } else {
+            return .black
         }
     }
 }

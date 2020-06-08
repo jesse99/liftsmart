@@ -27,11 +27,37 @@ class Exercise: Hashable, Identifiable {
         if let current = self.current {
             // If it's been a long time since the user did this exercise then
             // start over.
-            if Date().hoursSinceDate(current.date) > 2.0 {
+            if Date().hoursSinceDate(current.date) > window {
                 self.current = Current(weight: self.expected.weight)
             }
         } else {
             self.current = Current(weight: self.expected.weight)
+        }
+    }
+        
+    func inProgress() -> Bool {
+        if let current = self.current {
+            return Date().hoursSinceDate(current.date) < window && current.setIndex > 0
+        } else {
+            return false
+        }
+    }
+        
+    func completed() -> Bool {
+        if let current = self.current {
+            switch self.modality.sets {
+            case .durations(let durations, _):
+                return Date().hoursSinceDate(current.date) < window && current.setIndex >= durations.count
+
+            case .maxReps(let restSecs, _):
+                return Date().hoursSinceDate(current.date) < window && current.setIndex >= restSecs.count
+
+            case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
+                let numSets = warmups.count + worksets.count + backoffs.count
+                return Date().hoursSinceDate(current.date) < window && current.setIndex >= numSets
+            }
+        } else {
+            return false
         }
     }
         
@@ -42,4 +68,6 @@ class Exercise: Hashable, Identifiable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.id)
     }
+    
+    private let window:Double = 2.0
 }
