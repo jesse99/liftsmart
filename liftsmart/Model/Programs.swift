@@ -64,7 +64,7 @@ func home() -> Program {
     func curls() -> Exercise {
         let sets = Sets.maxReps(restSecs: [90, 90, 0])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0))
+        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: 65))
     }
 
     let workouts = [Workout("Workout", [

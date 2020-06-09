@@ -167,7 +167,7 @@ struct ExerciseMaxRepsView: View {
             let reps = remaining/(restSecs.count - exercise.current!.setIndex)
             return reps
         } else {
-            return nil
+            return 12
         }
     }
     
@@ -184,7 +184,8 @@ struct ExerciseMaxRepsView_Previews: PreviewProvider {
     static let restSecs = [60, 30, 15]
     static let sets = Sets.maxReps(restSecs: restSecs)
     static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0, reps: 65))
+    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0))
+//    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0, reps: 65))
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
