@@ -5,7 +5,7 @@ import SwiftUI
 struct ExerciseDurationsView: View {
     var exercise: Exercise
     let durations: [DurationSet]
-    let targetDuration: Int?
+    let targetSecs: [Int]
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
     @State var underway: Bool = false
@@ -15,13 +15,13 @@ struct ExerciseDurationsView: View {
         self.exercise = exercise
 
         switch exercise.modality.sets {
-        case .durations(let d, targetDuration: let t):
+        case .durations(let d, targetSecs: let ts):
             self.durations = d
-            self.targetDuration = t
+            self.targetSecs = ts
         default:
             assert(false)   // exercise must use durations sets
             self.durations = []
-            self.targetDuration = nil
+            self.targetSecs = []
         }
         
         self.exercise.initCurrent()
@@ -124,7 +124,8 @@ struct ExerciseDurationsView: View {
         }
 
         let duration = durations[exercise.current!.setIndex]
-        if let target = targetDuration {
+        if targetSecs.count > 0 {
+            let target = targetSecs[exercise.current!.setIndex]
             return "\(duration) (target is \(target)s)"
         } else {
             return "\(duration)"
@@ -144,7 +145,7 @@ struct ExerciseDurationsView: View {
 
 struct ExerciseView_Previews: PreviewProvider {
     static let durations = [DurationSet(secs: 60, restSecs: 10)!, DurationSet(secs: 30, restSecs: 10)!, DurationSet(secs: 15, restSecs: 10)!]
-    static let sets = Sets.durations(durations, targetDuration: 90)
+    static let sets = Sets.durations(durations, targetSecs: [90, 60, 30])
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Burpees", "Burpees", modality)
 

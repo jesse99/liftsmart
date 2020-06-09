@@ -132,7 +132,7 @@ struct DurationSet: CustomDebugStringConvertible {
 
 enum Sets: CustomDebugStringConvertible {
     /// Used for stuff like 3x60s planks.
-    case durations([DurationSet], targetDuration: Int? = nil)
+    case durations([DurationSet], targetSecs: [Int] = [])
 
     /// Used for stuff like curls to exhaustion. targetReps is the reps across all sets.
     case maxReps(restSecs: [Int], targetReps: Int? = nil)
@@ -178,9 +178,10 @@ enum Sets: CustomDebugStringConvertible {
 extension Sets {
     func validate() -> Bool {
         switch self {
-        case .durations(let durations, targetDuration: let targetDuration):
+        case .durations(let durations, targetSecs: let targetSecs):
             if durations.isEmpty {return false}
-            if let target = targetDuration {
+            if targetSecs.count > 0 && targetSecs.count != durations.count {return false}
+            for target in targetSecs {
                 if target <= 0 {return false}
             }
 
