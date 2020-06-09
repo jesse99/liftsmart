@@ -123,7 +123,7 @@ struct ExerciseDurationsView: View {
             return ""
         }
 
-        let duration = durations.last!
+        let duration = durations[exercise.current!.setIndex]
         if let target = targetDuration {
             return "\(duration) (target is \(target)s)"
         } else {
@@ -144,7 +144,7 @@ struct ExerciseDurationsView: View {
 
 struct ExerciseView_Previews: PreviewProvider {
     static let durations = [DurationSet(secs: 60, restSecs: 10)!, DurationSet(secs: 30, restSecs: 10)!, DurationSet(secs: 15, restSecs: 10)!]
-    static let sets = Sets.durations(durations)
+    static let sets = Sets.durations(durations, targetDuration: 90)
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Burpees", "Burpees", modality)
 

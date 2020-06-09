@@ -12,11 +12,7 @@
 \deftab816
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
-\f0\fs34 \cf2 inProgress => blue\
-completed => lightGray\
-else => black\
-\
-class\cf3  \cf4 Current\cf3 : \cf5 CustomDebugStringConvertible\cf3  \{\
+\f0\fs34 \cf2 class\cf3  \cf4 Current\cf3 : \cf5 CustomDebugStringConvertible\cf3  \{\
     \cf2 var\cf3  \cf6 date\cf3 : \cf5 Date\cf3           \cf7 // if setIndex == sets.count then this is date exercise was finished otherwise date exercise was started\cf3 \
     \cf2 var\cf3  \cf6 weight\cf3 : \cf5 Double\cf3       \cf7 // may be 0.0\cf3 \
     \cf2 var\cf3  \cf6 setIndex\cf3 : \cf5 Int\cf3        \cf7 // if this is sets.count then the user has finished those sets\cf3 \
@@ -65,12 +61,16 @@ Program = Workouts + Plan + Advisor(?)\
 	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf10 \'95 Workouts view should color code finished exercises\
-	- probably need to reset current if it\'92s been too long\
+\cf10 \'95\'a0Make sure current program is useable\
+	- durations view subTitle duration is wrong\
+	- durations sets should use an array for targets\
+	- why didn\'92t curls ask for reps?\
+	- can we disable screen dimming when timer is active?\
+		UIApplication.shared.isIdleTimerDisabled = true\
+\'95\'a0Max reps should update expected\
+	- should we ask the user to confirm?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf10 \'95 Workouts view should color code in-progress \cf10 exercises\cf10 \
-\'95\'a0Program view should say when last workout was\
-\'95\'a0Make sure current program is useable\
+\cf10 \'95\'a0Program view should say when last workout was\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf10 \'95\'a0Get history working somehow\
 \'95 Get persistence working:\

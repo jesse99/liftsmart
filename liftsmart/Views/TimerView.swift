@@ -19,12 +19,12 @@ struct TimerView: View {
             Spacer()
             Spacer()
             if self.waiting {
-                Text("\(label)").font(.system(size: 64.0)).onReceive(timer, perform: onTimer)
+                Text("\(label)").font(.system(size: 64.0))
             } else {
                 Text("\(label)").font(.system(size: 64.0)).foregroundColor(Color.green) // TODO: better to use DarkGreen
             }
             Spacer()
-            Button(buttonLabel(), action: onStopTimer).font(.system(size: 20.0))
+            Button(buttonLabel(), action: onStopTimer).font(.system(size: 20.0)).onReceive(timer, perform: onTimer)
             Spacer()
             Spacer()
         }
@@ -37,6 +37,7 @@ struct TimerView: View {
             self.startTime = Date()
             self.elapsed = 0
             self.resting = true
+            self.waiting = true
         } else {
             self.presentationMode.wrappedValue.dismiss()
         }

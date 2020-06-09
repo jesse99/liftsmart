@@ -28,7 +28,7 @@ func home() -> Program {
     }
 
     func burpees3() -> Exercise {
-        let sets = Sets.durations([DurationSet(secs: 15, restSecs: 60)!])
+        let sets = Sets.durations([DurationSet(secs: 30, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Burpees", "Burpees", modality)
     }
@@ -62,7 +62,7 @@ func home() -> Program {
     }
     
     func curls() -> Exercise {
-        let sets = Sets.maxReps(restSecs: [90, 90, 90])
+        let sets = Sets.maxReps(restSecs: [90, 90, 0])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0))
     }
