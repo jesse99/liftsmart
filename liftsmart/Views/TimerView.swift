@@ -27,7 +27,7 @@ struct TimerView: View {
             Button(buttonLabel(), action: onStopTimer).font(.system(size: 20.0)).onReceive(timer, perform: onTimer)
             Spacer()
             Spacer()
-        }
+        }.onAppear {UIApplication.shared.isIdleTimerDisabled = true}
     }
     
     func onStopTimer() {
@@ -39,6 +39,7 @@ struct TimerView: View {
             self.resting = true
             self.waiting = true
         } else {
+            UIApplication.shared.isIdleTimerDisabled = false
             self.presentationMode.wrappedValue.dismiss()
         }
     }
