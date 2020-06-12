@@ -9,6 +9,7 @@ struct ExerciseMaxRepsView: View {
     @State var completed: Int = 0
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
+    @State var updateModal: Bool = false
     @State var showingSheet: Bool = false
     @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
@@ -48,12 +49,21 @@ struct ExerciseMaxRepsView: View {
                     .font(.system(size: 40.0))
                     .actionSheet(isPresented: $showingSheet) {
                         ActionSheet(title: Text("Reps Completed"), buttons: sheetButtons())}
-                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration())}
+//                    .alert(isPresented: $updateModal) { () -> Alert in
+//                        Alert(title: Text("Do you want to updated expected reps?"),
+//                            primaryButton: .default(Text("Yes"), action: {
+//                                self.exercise.expected.reps = self.completed
+//                                self.popView()}),
+//                            secondaryButton: .default(Text("No"), action: {
+//                                self.popView()
+//                            }))}
+                    .sheet(isPresented: self.$startModal) {TimerView(duration: self.duration(-1))}
+                
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.duration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.duration(0))}
                 Spacer()
             }
 
@@ -75,7 +85,7 @@ struct ExerciseMaxRepsView: View {
         
         let delta = 10  // we'll show +/- this many reps versus expected
         
-        let reps = expected()!
+        let reps = expected()
         for reps in max(reps - delta, 1)...(reps + delta) {
             buttons.append(.default(Text("\(reps) Reps"), action: {() -> Void in self.onSheetCompleted(reps)}))
         }
@@ -85,12 +95,14 @@ struct ExerciseMaxRepsView: View {
     
     func onSheetCompleted(_ reps: Int) {
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
-        self.startModal = true
+        self.startModal = duration(-1) > 0
         self.completed += reps
         self.underway = self.restSecs.count > 1
+        print("onSheetCompleted reps=\(reps) setIndex=\(self.exercise.current!.setIndex)")
     }
     
     func onReset() {
+        print("onReset")
         self.completed = 0
         self.exercise.current!.setIndex = 0
         self.underway = false
@@ -106,32 +118,31 @@ struct ExerciseMaxRepsView: View {
     
     func onStart() {
         if exercise.current!.setIndex < restSecs.count {
-            if expected() != nil {
-                self.showingSheet = true
-            } else {
-                self.startModal = true
-            }
+            self.showingSheet = true
+            print("onStart showingSheet")
+//        } else if self.targetReps != nil && self.completed > self.targetReps! {
+//            self.showingSheet = false
+//            self.startModal = false
+//            self.updateModal = true
         } else {
-            // Pop this view. Note that currently this only works with a real device,
-            self.exercise.current!.date = Date()
-            self.exercise.current!.weight = exercise.expected.weight
-            self.presentation.wrappedValue.dismiss()
+            print("onStart pop")
+            self.popView()
         }
     }
     
-    func onStartCompleted() {
-        if expected() == nil {
-            self.exercise.current!.setIndex += 1
-            self.underway = self.restSecs.count > 1
-        }
+    func popView() {
+        // Note that currently this only works with a real device,
+        self.exercise.current!.date = Date()
+        self.exercise.current!.weight = exercise.expected.weight
+        self.presentation.wrappedValue.dismiss()
     }
     
     func onStartTimer() {
         self.durationModal = true
     }
     
-    func duration() -> Int {
-        return restSecs[exercise.current!.setIndex]
+    func duration(_ delta: Int) -> Int {
+        return restSecs[exercise.current!.setIndex + delta]
     }
     
     func title() -> String {
@@ -154,18 +165,18 @@ struct ExerciseMaxRepsView: View {
             suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
         }
 
-        if let reps = expected() {
-            return "\(reps)+ Reps \(suffix)"
-        } else {
-            return "As Many Reps As Possible \(suffix)"
-        }
+        return "\(expected())+ Reps \(suffix)"
     }
 
-    func expected() -> Int? {
+    func expected() -> Int {
         if let expected = exercise.expected.reps {
-            let remaining = expected - self.completed
-            let reps = remaining/(restSecs.count - exercise.current!.setIndex)
-            return reps
+            if exercise.current!.setIndex < restSecs.count {
+                let remaining = expected - self.completed
+                let reps = remaining/(restSecs.count - exercise.current!.setIndex)
+                return reps
+            } else {
+                return 0
+            }
         } else {
             return 12
         }
