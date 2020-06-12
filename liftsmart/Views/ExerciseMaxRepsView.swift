@@ -43,20 +43,21 @@ struct ExerciseMaxRepsView: View {
             
                 Text(title()).font(.title)              // Set 1 of 1
                 Text(subTitle()).font(.headline)        // 10+ Reps or As Many Reps As Possible
+                Text(subSubTitle()).font(.headline)     // Completed 30 reps (target is 90 reps)
                 Spacer()
 
                 Button(startLabel(), action: onStart)
                     .font(.system(size: 40.0))
                     .actionSheet(isPresented: $showingSheet) {
                         ActionSheet(title: Text("Reps Completed"), buttons: sheetButtons())}
-//                    .alert(isPresented: $updateModal) { () -> Alert in
-//                        Alert(title: Text("Do you want to updated expected reps?"),
-//                            primaryButton: .default(Text("Yes"), action: {
-//                                self.exercise.expected.reps = self.completed
-//                                self.popView()}),
-//                            secondaryButton: .default(Text("No"), action: {
-//                                self.popView()
-//                            }))}
+                    .alert(isPresented: $updateModal) { () -> Alert in
+                        Alert(title: Text("Do you want to updated expected reps?"),
+                            primaryButton: .default(Text("Yes"), action: {
+                                self.exercise.expected.reps = self.completed
+                                self.popView()}),
+                            secondaryButton: .default(Text("No"), action: {
+                                self.popView()
+                            }))}
                     .sheet(isPresented: self.$startModal) {TimerView(duration: self.duration(-1))}
                 
                 Spacer().frame(height: 50)
@@ -98,11 +99,9 @@ struct ExerciseMaxRepsView: View {
         self.startModal = duration(-1) > 0
         self.completed += reps
         self.underway = self.restSecs.count > 1
-        print("onSheetCompleted reps=\(reps) setIndex=\(self.exercise.current!.setIndex)")
     }
     
     func onReset() {
-        print("onReset")
         self.completed = 0
         self.exercise.current!.setIndex = 0
         self.underway = false
@@ -119,13 +118,11 @@ struct ExerciseMaxRepsView: View {
     func onStart() {
         if exercise.current!.setIndex < restSecs.count {
             self.showingSheet = true
-            print("onStart showingSheet")
-//        } else if self.targetReps != nil && self.completed > self.targetReps! {
-//            self.showingSheet = false
-//            self.startModal = false
-//            self.updateModal = true
+        } else if self.exercise.expected.reps == nil || self.completed > self.exercise.expected.reps! {
+            self.showingSheet = false
+            self.startModal = false
+            self.updateModal = true
         } else {
-            print("onStart pop")
             self.popView()
         }
     }
@@ -165,7 +162,23 @@ struct ExerciseMaxRepsView: View {
             suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
         }
 
-        return "\(expected())+ Reps \(suffix)"
+        return "\(expected())+ reps \(suffix)"
+    }
+
+    func subSubTitle() -> String {
+        if self.completed > 0 {
+            if let target = self.targetReps {
+                return "Completed \(self.completed) reps (target is \(target) reps)"
+            } else {
+                return "Completed \(self.completed) reps"
+            }
+
+        } else {
+            if let target = self.targetReps {
+                return "Target is \(target) reps"
+            }
+        }
+        return ""
     }
 
     func expected() -> Int {
