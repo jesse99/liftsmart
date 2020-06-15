@@ -129,7 +129,7 @@ struct ExerciseMaxRepsView: View {
     
     func popView() {
         // Note that currently this only works with a real device,
-        self.exercise.current!.date = Date()
+        self.exercise.current!.startDate = Date()
         self.exercise.current!.weight = exercise.expected.weight
         self.presentation.wrappedValue.dismiss()
     }

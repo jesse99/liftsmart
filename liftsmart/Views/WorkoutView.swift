@@ -4,7 +4,14 @@ import SwiftUI
 
 struct WorkoutRow: View {
     var exercise: Exercise
+    var history: History
     @State var color: Color = .black
+    
+    init(exercise: Exercise, history: History) {
+        self.exercise = exercise
+        self.history = history
+        self.color = labelColor()
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -51,9 +58,9 @@ struct WorkoutRow: View {
     }
     
     func labelColor() -> Color {
-        if exercise.completed() {
+        if exercise.recentlyCompleted(history) {
             return .gray
-        } else if exercise.inProgress() {
+        } else if exercise.inProgress(history) {
             return .blue
         } else {
             return .black
@@ -63,14 +70,15 @@ struct WorkoutRow: View {
 
 struct WorkoutView: View {
     var workout: Workout
+    var history: History
     
     var body: some View {
         List(workout.exercises) { exercise in
             NavigationLink(destination: self.exerciseView(exercise)) {
-                WorkoutRow(exercise: exercise)
+                WorkoutRow(exercise: exercise, history: self.history)
             }
         }
-        .navigationBarTitle(Text(workout.name))
+        .navigationBarTitle(Text(workout.name + " Exercises"))
     }
     
     func exerciseView(_ exercise: Exercise) -> AnyView {
@@ -92,6 +100,6 @@ struct WorkoutView: View {
 
 struct WorkoutView_Previews: PreviewProvider {
     static var previews: some View {
-        WorkoutView(workout: program[0])
+        WorkoutView(workout: program[0], history: history)
     }
 }

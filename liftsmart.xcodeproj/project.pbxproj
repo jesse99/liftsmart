@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		372D2231249744B70024C8F3 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2230249744B70024C8F3 /* History.swift */; };
 		37412F5724823F1A00FA78A7 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 37412F5624823F1A00FA78A7 /* Default-568h@2x.png */; };
 		37412F592482426D00FA78A7 /* ExerciseDurationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */; };
 		37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F5A2482D5C400FA78A7 /* WorkoutView.swift */; };
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		372D2230249744B70024C8F3 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
 		37412F5624823F1A00FA78A7 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDurationsView.swift; sourceTree = "<group>"; };
 		37412F5A2482D5C400FA78A7 /* WorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 				37E83135245E248500A135C7 /* Current.swift */,
 				37FB6E8624687D0F00EB4916 /* Exercise.swift */,
 				37FB6E8424687B9400EB4916 /* Expected.swift */,
+				372D2230249744B70024C8F3 /* History.swift */,
 				37FB6E7D24686BC600EB4916 /* Modality.swift */,
 				37FB6E8A246B52ED00EB4916 /* Program.swift */,
 				37DEA436247C46B1008297A2 /* Programs.swift */,
@@ -312,6 +315,7 @@
 				376987C3244B95D30021D0FB /* ContentView.swift in Sources */,
 				37412F592482426D00FA78A7 /* ExerciseDurationsView.swift in Sources */,
 				378D567824843AB9006A041C /* FriendlyStrings.swift in Sources */,
+				372D2231249744B70024C8F3 /* History.swift in Sources */,
 				37881BD1244FF80A00CFB411 /* SequenceExtensions.swift in Sources */,
 				37FB6E89246B52C200EB4916 /* Workout.swift in Sources */,
 				378D567424830271006A041C /* ProgramView.swift in Sources */,

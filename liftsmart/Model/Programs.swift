@@ -77,3 +77,4 @@ func home() -> Program {
 }
 
 let program = home()
+let history = History()

@@ -27,7 +27,7 @@ class Exercise: Hashable, Identifiable {
         if let current = self.current {
             // If it's been a long time since the user did this exercise then
             // start over.
-            if Date().hoursSinceDate(current.date) > window {
+            if Date().hoursSinceDate(current.startDate) > window {
                 self.current = Current(weight: self.expected.weight)
             }
         } else {
@@ -35,32 +35,30 @@ class Exercise: Hashable, Identifiable {
         }
     }
         
-    func inProgress() -> Bool {
+    func inProgress(_ history: History) -> Bool {
         if let current = self.current {
-            return Date().hoursSinceDate(current.date) < window && current.setIndex > 0
+            return Date().hoursSinceDate(current.startDate) < window && current.setIndex > 0 && !recentlyCompleted(history)
         } else {
             return false
         }
     }
         
-    func completed() -> Bool {
-        if let current = self.current {
-            switch self.modality.sets {
-            case .durations(let durations, _):
-                return Date().hoursSinceDate(current.date) < window && current.setIndex >= durations.count
-
-            case .maxReps(let restSecs, _):
-                return Date().hoursSinceDate(current.date) < window && current.setIndex >= restSecs.count
-
-            case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
-                let numSets = warmups.count + worksets.count + backoffs.count
-                return Date().hoursSinceDate(current.date) < window && current.setIndex >= numSets
-            }
+    func recentlyCompleted(_ history: History) -> Bool {
+        if let completed = dateCompleted(history) {
+            return Date().hoursSinceDate(completed) < window
         } else {
             return false
         }
     }
         
+    func dateCompleted(_ history: History) -> Date? {
+        if let records = history.records[self.formalName], let latest = records.last {
+            return latest.completed
+        } else {
+            return nil
+        }
+    }
+    
     static func ==(lhs: Exercise, rhs: Exercise) -> Bool {
         return lhs.name == rhs.name
     }

@@ -7,7 +7,7 @@ struct ContentView: View {
  
     var body: some View {
         TabView(selection: $selection){
-            ProgramView(program: program)
+            ProgramView(program: program, history: history)
                 .font(.title)
                 .tabItem {
                     VStack {
