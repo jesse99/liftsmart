@@ -8,8 +8,8 @@ class History {
         var weight: Double      // may be 0.0
         var label: String       // "3x60s"
 
-        init(_ weight: Double, _ label: String) {
-            self.completed = Date()
+        init(_ date: Date, _ weight: Double, _ label: String) {
+            self.completed = date
             self.weight = weight
             self.label = label
         }
@@ -25,7 +25,8 @@ class History {
     
     // TODO: support user notes?
     func append(_ exercise: Exercise) {
-        let record = Record(exercise.current!.weight, exercise.modality.sets.debugDescription)
+        // Using startDate instead of Date() makes testing a bit easier...
+        let record = Record(exercise.current!.startDate, exercise.current!.weight, exercise.modality.sets.debugDescription)
         self.records[exercise.formalName, default: []].append(record)
     }
 }

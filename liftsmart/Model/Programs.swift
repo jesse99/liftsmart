@@ -76,5 +76,43 @@ func home() -> Program {
     return Program("Home", workouts)
 }
 
-let program = home()
+func home2() -> Program {
+    func burpees() -> Exercise {
+        let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        let e = Exercise("Burpees", "Burpees", modality)
+        e.current = Current(weight: 0.0)
+        e.current!.setIndex = 1
+        return e
+    }
+    
+    func squats() -> Exercise {
+        let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Squats", "Body-weight Squat", modality)
+    }
+    
+    func planks() -> Exercise { // TODO: this should be some sort of progression
+        let durations = [
+            DurationSet(secs: 60, restSecs: 90)!,
+            DurationSet(secs: 60, restSecs: 90)!,
+            DurationSet(secs: 60, restSecs: 90)!]
+        let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Planks", "Front Plank", modality)
+    }
+    
+    func curls() -> Exercise {
+        let sets = Sets.maxReps(restSecs: [90, 90, 0])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: 65))
+    }
+
+    let workouts = [
+        Workout("Lower", [burpees(), squats()]),
+        Workout("Upper", [planks(), curls()])]
+    return Program("Split", workouts)
+}
+
+let program = home2()
 let history = History()

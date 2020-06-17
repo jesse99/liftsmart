@@ -165,9 +165,9 @@
 		37881BCF244FF7DE00CFB411 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				374F97DC248C25A50062EE0B /* DateExtension.swift */,
 				37881BD22455FA7400CFB411 /* DoubleExtensions.swift */,
 				37881BD0244FF80A00CFB411 /* SequenceExtensions.swift */,
-				374F97DC248C25A50062EE0B /* DateExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";

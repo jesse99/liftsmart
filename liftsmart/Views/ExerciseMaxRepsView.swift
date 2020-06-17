@@ -4,6 +4,7 @@ import SwiftUI
 
 struct ExerciseMaxRepsView: View {
     var exercise: Exercise
+    var history: History
     let restSecs: [Int]
     let targetReps: Int?
     @State var completed: Int = 0
@@ -14,8 +15,9 @@ struct ExerciseMaxRepsView: View {
     @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
-    init(_ exercise: Exercise) {
+    init(_ exercise: Exercise, _ history: History) {
         self.exercise = exercise
+        self.history = history
 
         switch exercise.modality.sets {
         case .maxReps(let rs, targetReps: let t):
@@ -129,8 +131,7 @@ struct ExerciseMaxRepsView: View {
     
     func popView() {
         // Note that currently this only works with a real device,
-        self.exercise.current!.startDate = Date()
-        self.exercise.current!.weight = exercise.expected.weight
+        self.history.append(self.exercise)
         self.presentation.wrappedValue.dismiss()
     }
     
@@ -213,7 +214,7 @@ struct ExerciseMaxRepsView_Previews: PreviewProvider {
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseMaxRepsView(exercise)
+            ExerciseMaxRepsView(exercise, History())
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

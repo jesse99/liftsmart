@@ -2,58 +2,124 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+struct Info {
+    let latest: Date?           // date latest exercise was completed
+    let latestIsComplete: Bool  // true if all exercises were completed on latest date
+    let completedAll: Bool      // true if all exercises were ever completed
+}
+
+var infos: [Info] = []
+
 struct ProgramView: View {
     var program: Program
     var history: History
-    
+    @State var suffix: String = ""  // hack to force an update
+
+    init(program: Program, history: History) {
+        self.program = program
+        self.history = history
+        infos = []
+    }
+
     var body: some View {
         NavigationView {
             List(0..<program.count) { i in
                 NavigationLink(destination: WorkoutView(workout: self.program[i], history: self.history)) {
                     VStack(alignment: .leading) {
                         Text(self.program[i].name).font(.title)
-                        Text(self.subTitle(i)).foregroundColor(self.subColor(i)).font(.headline) // 10+ Reps or As Many Reps As Possible
+                            .onDisappear {infos = []}
+                            .onAppear {self.suffix = self.suffix.isEmpty ? " " : ""}
+
+                        Text(self.subData(i).0).foregroundColor(self.subData(i).1).font(.headline) // 10+ Reps or As Many Reps As Possible
                     }
                 }
             }
-            .navigationBarTitle(Text(program.name + " Workouts"))
+            .navigationBarTitle(Text(program.name + " Workouts" + suffix))
         }
         // TODO: have a text view saying how long this program has been run for
         // and also how many times the user has worked out
     }
     
-    func subTitle(_ index: Int) -> String {
-        if isWorkoutInProgress(index) {
-            return "In progress"
+    func subData(_ index: Int) -> (String, Color) {
+        if infos.isEmpty {
+            self.updateInfos()
+        }
+        let info = infos[index]
+        
+        if let last = info.latest {
+            let cal = Calendar.current
+            if cal.isDate(last, inSameDayAs: Date()) {
+                // All exercises were completed today.
+                if info.latestIsComplete {
+                    return ("completed", .black)
+
+                // The user is currently performing the workout but hasn't yet finished it.
+                } else {
+                    return ("in progress", .red)
+                }
+
+            // The workout that was started the longest ago.
+            } else if isOldestWorkout(index, last) {              // workout with the oldest latest
+                return (last.daysName(), .blue)
+
+            // Workout that was started more recently.
+            } else {
+                return (last.daysName(), .black)
+            }
+
         } else {
-            return ""
+            // The user has never started the workout.
+            return ("", .black)
         }
     }
-
-    func subColor(_ index: Int) -> Color {
-        if isWorkoutInProgress(index) {
-            return .red
-        } else {
-            return .black
-        }
-    }
-
-    // Returns the workouts being executed atm (but not those that have finished executing).
-    func isWorkoutInProgress(_ index: Int) -> Bool {
-        func numCompleted(_ workout: Workout) -> Int {
-            var count = 0
+    
+    func updateInfos() {
+        func allOnSameDay(_ dates: [Date]) -> Bool {
             let calendar = Calendar.current
-            for exercise in workout.exercises {
-                if let completed = exercise.dateCompleted(history), calendar.isDate(completed, inSameDayAs: Date()) {
-                    count += 1
+            for date in dates {
+                if !calendar.isDate(date, inSameDayAs: dates[0]) {
+                    return false
                 }
             }
-            return count
+            return true
         }
+                
+        for workout in program {
+            var dates: [Date] = []
+            for exercise in workout.exercises {
+                if let completed = exercise.dateCompleted(history) {
+                    dates.append(completed)
+                }
+            }
+            dates.sort()
+            
+            // TODO: this doesn't actually update infos: maybe use a global?
+            if let last = dates.last {
+                let didAll = dates.count == workout.exercises.count
+                infos.append(Info(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
 
-        let workout = self.program[index]
-        let completed = numCompleted(workout)
-        return completed > 0 && completed < workout.exercises.count
+            } else {
+                infos.append(Info(latest: nil, latestIsComplete: false, completedAll: false))
+            }
+        }
+    }
+
+    func isOldestWorkout(_ index: Int, _ candidate: Date) -> Bool {
+        for (i, info) in infos.enumerated() {
+            if i != index {
+                if let date = info.latest {
+                    if date.compare(candidate) == .orderedAscending {
+                        return false
+                    }
+                }
+                if !info.completedAll {
+                    // If there was a workout that hasn't been completed then we
+                    // can't really say which is the oldest.
+                    return false
+                }
+            }
+        }
+        return infos.count > 1  // oldest doesn't make much sense if there is only one
     }
 }
 
@@ -68,6 +134,7 @@ struct ProgramView_Previews: PreviewProvider {
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Burpees", "Burpees", modality)
             e.current = Current(weight: 0.0)
+            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
             e.current!.setIndex = 1
             return e
         }
@@ -75,7 +142,11 @@ struct ProgramView_Previews: PreviewProvider {
         func squats() -> Exercise {
             let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
             let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise("Squats", "Body-weight Squat", modality)
+            let e = Exercise("Squats", "Body-weight Squat", modality)
+            e.current = Current(weight: 0.0)
+            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
+            e.current!.setIndex = 1
+            return e
         }
         
         func planks() -> Exercise { // TODO: this should be some sort of progression
@@ -85,13 +156,21 @@ struct ProgramView_Previews: PreviewProvider {
                 DurationSet(secs: 60, restSecs: 90)!]
             let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
             let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise("Planks", "Front Plank", modality)
+            let e = Exercise("Planks", "Front Plank", modality)
+            e.current = Current(weight: 0.0)
+            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+            e.current!.setIndex = 1
+            return e
         }
         
         func curls() -> Exercise {
             let sets = Sets.maxReps(restSecs: [90, 90, 0])
             let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: 65))
+            let e = Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: 65))
+            e.current = Current(weight: 0.0)
+            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+            e.current!.setIndex = 1
+            return e
         }
 
         let workouts = [
@@ -103,7 +182,10 @@ struct ProgramView_Previews: PreviewProvider {
     private static func history() -> History {
         let program = ProgramView_Previews.home()
         let history = History()
-        history.append(program[0].exercises.first!)
+        history.append(program[0].exercises[0])
+        history.append(program[0].exercises[1])
+        history.append(program[1].exercises[0])
+        history.append(program[1].exercises[1])
         return history
     }
 }
