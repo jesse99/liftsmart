@@ -6,7 +6,11 @@ class Workout: CustomDebugStringConvertible, Identifiable {
     var name: String
     var exercises: [Exercise]
 
-    init(_ name: String, _ exercises: [Exercise]) {
+    init?(_ name: String, _ exercises: [Exercise]) {
+        if name.isEmpty {return nil}
+        let names = exercises.map {(e) -> String in e.name}
+        if names.count != Set(names).count {return nil}     // exercise names must be unique
+
         self.name = name
         self.exercises = exercises
     }
@@ -31,7 +35,7 @@ class Workout: CustomDebugStringConvertible, Identifiable {
         if let latest = date {
             for exercise in self.exercises {
                 let calendar = Calendar.current
-                if let completed = exercise.dateCompleted(history) {
+                if let completed = exercise.dateCompleted(self, history) {
                     if !calendar.isDate(completed, inSameDayAs: latest) {   // this won't be exactly right if anyone is crazy enough to do workouts at midnight
                         partial = true
                     }

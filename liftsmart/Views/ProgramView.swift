@@ -174,8 +174,8 @@ struct ProgramView_Previews: PreviewProvider {
         }
 
         let workouts = [
-            Workout("Lower", [burpees(), squats()]),
-            Workout("Upper", [planks(), curls()])]
+            Workout("Lower", [burpees(), squats()])!,
+            Workout("Upper", [planks(), curls()])!]
         return Program("Split", workouts)
     }
 

@@ -6,49 +6,49 @@ func home() -> Program {
     func burpees1() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Burpees", "Burpees", modality)
+        return Exercise("Burpees 1", "Burpees", modality)
     }
     
     func squats1() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Squats", "Body-weight Squat", modality)
+        return Exercise("Squats 1", "Body-weight Squat", modality)
     }
     
     func burpees2() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 45, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Burpees", "Burpees", modality)
+        return Exercise("Burpees 2", "Burpees", modality)
     }
     
     func squats2() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 45, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Squats", "Body-weight Squat", modality)
+        return Exercise("Squats 2", "Body-weight Squat", modality)
     }
 
     func burpees3() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 30, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Burpees", "Burpees", modality)
+        return Exercise("Burpees 3", "Burpees", modality)
     }
     
     func squats3() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 30, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Squats", "Body-weight Squat", modality)
+        return Exercise("Squats 3", "Body-weight Squat", modality)
     }
 
     func burpees4() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 15, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Burpees", "Burpees", modality)
+        return Exercise("Burpees 4", "Burpees", modality)
     }
     
     func squats4() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 15, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Squats", "Body-weight Squat", modality)
+        return Exercise("Squats 4", "Body-weight Squat", modality)
     }
 
     func planks() -> Exercise { // TODO: this should be some sort of progression
@@ -72,7 +72,7 @@ func home() -> Program {
         burpees2(), squats2(),
         burpees3(), squats3(),
         burpees4(), squats4(),
-        planks(), curls()])]
+        planks(), curls()])!]
     return Program("Home", workouts)
 }
 
