@@ -35,25 +35,25 @@ class Exercise: Hashable, Identifiable {
         }
     }
         
-    func inProgress(_ history: History) -> Bool {
+    func inProgress(_ workout: Workout, _ history: History) -> Bool {
         if let current = self.current {
-            return Date().hoursSinceDate(current.startDate) < window && current.setIndex > 0 && !recentlyCompleted(history)
+            return Date().hoursSinceDate(current.startDate) < window && current.setIndex > 0 && !recentlyCompleted(workout, history)
         } else {
             return false
         }
     }
         
-    func recentlyCompleted(_ history: History) -> Bool {
-        if let completed = dateCompleted(history) {
+    func recentlyCompleted(_ workout: Workout, _ history: History) -> Bool {
+        if let completed = history.lastCompleted(workout, self) {
             return Date().hoursSinceDate(completed) < window
         } else {
             return false
         }
     }
         
-    func dateCompleted(_ history: History) -> Date? {
-        if let records = history.records[self.formalName], let latest = records.last {
-            return latest.completed
+    func dateCompleted(_ workout: Workout, _ history: History) -> Date? {
+        if let latest = history.lastCompleted(workout, self) {
+            return latest
         } else {
             return nil
         }

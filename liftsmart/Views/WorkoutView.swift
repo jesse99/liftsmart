@@ -3,11 +3,13 @@
 import SwiftUI
 
 struct WorkoutRow: View {
+    let workout: Workout
     var exercise: Exercise
     var history: History
     @State var color: Color = .black
     
-    init(exercise: Exercise, history: History) {
+    init(workout: Workout, exercise: Exercise, history: History) {
+        self.workout = workout
         self.exercise = exercise
         self.history = history
         self.color = labelColor()
@@ -58,9 +60,9 @@ struct WorkoutRow: View {
     }
     
     func labelColor() -> Color {
-        if exercise.recentlyCompleted(history) {
+        if exercise.recentlyCompleted(workout, history) {
             return .gray
-        } else if exercise.inProgress(history) {
+        } else if exercise.inProgress(workout, history) {
             return .blue
         } else {
             return .black
@@ -75,7 +77,7 @@ struct WorkoutView: View {
     var body: some View {
         List(workout.exercises) { exercise in
             NavigationLink(destination: self.exerciseView(exercise)) {
-                WorkoutRow(exercise: exercise, history: self.history)
+                WorkoutRow(workout: self.workout, exercise: exercise, history: self.history)
             }
         }
         .navigationBarTitle(Text(workout.name + " Exercises"))
@@ -84,10 +86,10 @@ struct WorkoutView: View {
     func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
         case .durations(_, _):
-            return AnyView(ExerciseDurationsView(exercise, history))
+            return AnyView(ExerciseDurationsView(workout, exercise, history))
 
         case .maxReps(_, _):
-            return AnyView(ExerciseMaxRepsView(exercise, history))
+            return AnyView(ExerciseMaxRepsView(workout, exercise, history))
 
         case .repRanges(_, _, _):
             return AnyView(Text("repRanges not implemented"))

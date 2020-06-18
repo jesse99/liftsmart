@@ -3,6 +3,7 @@
 import SwiftUI
 
 struct ExerciseDurationsView: View {
+    let workout: Workout
     var exercise: Exercise
     var history: History
     let durations: [DurationSet]
@@ -12,7 +13,8 @@ struct ExerciseDurationsView: View {
     @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
-    init(_ exercise: Exercise, _ history: History) {
+    init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
+        self.workout = workout
         self.exercise = exercise
         self.history = history
 
@@ -86,7 +88,7 @@ struct ExerciseDurationsView: View {
             self.startModal = true
         } else {
             // Pop this view. Note that currently this only works with a real device,
-            self.history.append(self.exercise)
+            self.history.append(self.workout, self.exercise)
             self.presentation.wrappedValue.dismiss()
         }
     }
@@ -149,10 +151,11 @@ struct ExerciseView_Previews: PreviewProvider {
     static let sets = Sets.durations(durations, targetSecs: [90, 60, 30])
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Burpees", "Burpees", modality)
+    static let workout = Workout("Cardio", [exercise])
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseDurationsView(exercise, History())
+            ExerciseDurationsView(workout, exercise, History())
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

@@ -3,6 +3,7 @@
 import SwiftUI
 
 struct ExerciseMaxRepsView: View {
+    let workout: Workout
     var exercise: Exercise
     var history: History
     let restSecs: [Int]
@@ -15,7 +16,8 @@ struct ExerciseMaxRepsView: View {
     @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
-    init(_ exercise: Exercise, _ history: History) {
+    init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
+        self.workout = workout
         self.exercise = exercise
         self.history = history
 
@@ -131,7 +133,7 @@ struct ExerciseMaxRepsView: View {
     
     func popView() {
         // Note that currently this only works with a real device,
-        self.history.append(self.exercise)
+        self.history.append(self.workout, self.exercise)
         self.presentation.wrappedValue.dismiss()
     }
     
@@ -211,10 +213,11 @@ struct ExerciseMaxRepsView_Previews: PreviewProvider {
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0))
 //    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0, reps: 65))
+    static let workout = Workout("Cardio", [exercise])
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseMaxRepsView(exercise, History())
+            ExerciseMaxRepsView(workout, exercise, History())
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

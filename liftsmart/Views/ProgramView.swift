@@ -87,7 +87,7 @@ struct ProgramView: View {
         for workout in program {
             var dates: [Date] = []
             for exercise in workout.exercises {
-                if let completed = exercise.dateCompleted(history) {
+                if let completed = exercise.dateCompleted(workout, history) {
                     dates.append(completed)
                 }
             }
@@ -182,10 +182,10 @@ struct ProgramView_Previews: PreviewProvider {
     private static func history() -> History {
         let program = ProgramView_Previews.home()
         let history = History()
-        history.append(program[0].exercises[0])
-        history.append(program[0].exercises[1])
-        history.append(program[1].exercises[0])
-        history.append(program[1].exercises[1])
+        history.append(program[0], program[0].exercises[0])
+        history.append(program[0], program[0].exercises[1])
+        history.append(program[1], program[1].exercises[0])
+        history.append(program[1], program[1].exercises[1])
         return history
     }
 }

@@ -20,13 +20,22 @@ class History {
             }
         }
     }
-
-    var records: [String: [Record]] = [:]   // keyed by formal name, last record is the most recent
     
     // TODO: support user notes?
-    func append(_ exercise: Exercise) {
+    func append(_ workout: Workout, _ exercise: Exercise) {
         // Using startDate instead of Date() makes testing a bit easier...
         let record = Record(exercise.current!.startDate, exercise.current!.weight, exercise.modality.sets.debugDescription)
         self.records[exercise.formalName, default: []].append(record)
+        
+        let key = workout.name + "-" + exercise.name
+        self.completed[key] = exercise.current!.startDate
     }
+    
+    func lastCompleted(_ workout: Workout, _ exercise: Exercise) -> Date? {
+        let key = workout.name + "-" + exercise.name
+        return self.completed[key]
+    }
+    
+    private var records: [String: [Record]] = [:]   // keyed by formal name, last record is the most recent
+    private var completed: [String: Date] = [:]  // workout.name + exercise.name => date last completed
 }

@@ -16,7 +16,7 @@ class Workout: CustomDebugStringConvertible, Identifiable {
         func lastCompleted() -> Date? {
             var date: Date? = nil
             for exercise in self.exercises {
-                if let candidate = exercise.dateCompleted(history) {
+                if let candidate = exercise.dateCompleted(self, history) {
                     if date == nil || candidate.compare(date!) == .orderedDescending {
                         date = candidate
                     }
