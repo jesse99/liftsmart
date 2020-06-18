@@ -122,7 +122,7 @@ struct ExerciseMaxRepsView: View {
     func onStart() {
         if exercise.current!.setIndex < restSecs.count {
             self.showingSheet = true
-        } else if self.exercise.expected.reps == nil || self.completed > self.exercise.expected.reps! {
+        } else if self.exercise.expected.reps == nil || self.completed != self.exercise.expected.reps! {
             self.showingSheet = false
             self.startModal = false
             self.updateModal = true
