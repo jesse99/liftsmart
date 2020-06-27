@@ -48,12 +48,12 @@ struct ExerciseDurationsView: View {
 
                 Button(startLabel(), action: onStart)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(duration: self.duration(), secondDuration: self.restSecs())}
+                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(duration: self.startDuration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.duration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
                 Spacer()
             }
 
@@ -102,8 +102,16 @@ struct ExerciseDurationsView: View {
         self.durationModal = true
     }
     
-    func duration() -> Int {
+    func startDuration() -> Int {
         return durations[exercise.current!.setIndex].secs
+    }
+    
+    func timerDuration() -> Int {
+        if exercise.current!.setIndex < durations.count {
+            return durations[exercise.current!.setIndex].restSecs
+        } else {
+            return durations.last!.restSecs
+        }
     }
     
     func restSecs() -> Int {

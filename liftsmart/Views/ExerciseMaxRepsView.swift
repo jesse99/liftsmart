@@ -62,13 +62,13 @@ struct ExerciseMaxRepsView: View {
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
                             }))}
-                    .sheet(isPresented: self.$startModal) {TimerView(duration: self.duration(-1))}
+                    .sheet(isPresented: self.$startModal) {TimerView(duration: self.startDuration(-1))}
                 
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.duration(0))}
+                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
                 Spacer()
             }
 
@@ -100,7 +100,7 @@ struct ExerciseMaxRepsView: View {
     
     func onSheetCompleted(_ reps: Int) {
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
-        self.startModal = duration(-1) > 0
+        self.startModal = startDuration(-1) > 0
         self.completed += reps
         self.underway = self.restSecs.count > 1
     }
@@ -141,8 +141,19 @@ struct ExerciseMaxRepsView: View {
         self.durationModal = true
     }
     
-    func duration(_ delta: Int) -> Int {
+    func startDuration(_ delta: Int) -> Int {
         return restSecs[exercise.current!.setIndex + delta]
+    }
+    
+    func timerDuration() -> Int {
+        var secs = 0
+        if exercise.current!.setIndex < restSecs.count {
+            secs = restSecs[exercise.current!.setIndex]
+        } else {
+            secs = restSecs.last!
+        }
+        
+        return secs > 0 ? secs : 60
     }
     
     func title() -> String {

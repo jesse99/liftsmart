@@ -42,3 +42,35 @@ extension Apparatus {
         return true
     }
 }
+
+extension Apparatus: Storable {
+    init(from store: Store) {
+        let tname = store.getStr("type")
+        switch tname {
+        case "bodyWeight":
+            self = .bodyWeight
+            
+        case "dumbbells":
+            let weights = store.getDblArray("weights")
+            let magnets = store.getDblArray("magnets")
+            let paired = store.getBool("paired")
+            self = .dumbbells(weights: weights, magnets: magnets, paired: paired)
+            
+        default:
+            assert(false, "loading apparatus had unknown type: \(tname)"); abort()
+        }
+    }
+    
+    func save(_ store: Store) {
+        switch self {
+        case .bodyWeight:
+            store.addStr("type", "bodyWeight")
+            
+        case .dumbbells(weights: let weights, magnets: let magnets, paired: let paired):
+            store.addStr("type", "dumbbells")
+            store.addDblArray("weights", weights)
+            store.addDblArray("magnets", magnets)
+            store.addBool("paired", paired)
+        }
+    }
+}

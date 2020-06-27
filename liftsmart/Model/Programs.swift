@@ -76,5 +76,5 @@ func home() -> Program {
     return Program("Home", workouts)
 }
 
-let program = home()
-let history = History()
+var program = home()
+var history = History()

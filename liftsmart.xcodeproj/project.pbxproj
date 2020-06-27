@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		372D2231249744B70024C8F3 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2230249744B70024C8F3 /* History.swift */; };
+		372D2233249E8D1B0024C8F3 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2232249E8D1B0024C8F3 /* Store.swift */; };
 		37412F5724823F1A00FA78A7 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 37412F5624823F1A00FA78A7 /* Default-568h@2x.png */; };
 		37412F592482426D00FA78A7 /* ExerciseDurationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */; };
 		37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F5A2482D5C400FA78A7 /* WorkoutView.swift */; };
@@ -48,6 +49,7 @@
 
 /* Begin PBXFileReference section */
 		372D2230249744B70024C8F3 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
+		372D2232249E8D1B0024C8F3 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		37412F5624823F1A00FA78A7 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDurationsView.swift; sourceTree = "<group>"; };
 		37412F5A2482D5C400FA78A7 /* WorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
@@ -122,11 +124,12 @@
 		376987BD244B95D30021D0FB /* liftsmart */ = {
 			isa = PBXGroup;
 			children = (
-				37FB6E7F24687A2E00EB4916 /* Model */,
 				376987BE244B95D30021D0FB /* AppDelegate.swift */,
 				37881BCF244FF7DE00CFB411 /* Extensions */,
 				378D567724843AB9006A041C /* FriendlyStrings.swift */,
+				37FB6E7F24687A2E00EB4916 /* Model */,
 				376987C0244B95D30021D0FB /* SceneDelegate.swift */,
+				372D2232249E8D1B0024C8F3 /* Store.swift */,
 				37881BCC244FE62C00CFB411 /* Views */,
 			);
 			path = liftsmart;
@@ -306,6 +309,7 @@
 				37FB6E8124687A4300EB4916 /* Apparatus.swift in Sources */,
 				37FB6E7E24686BC600EB4916 /* Modality.swift in Sources */,
 				37FB6E8524687B9400EB4916 /* Expected.swift in Sources */,
+				372D2233249E8D1B0024C8F3 /* Store.swift in Sources */,
 				37FB6E8324687A6B00EB4916 /* Sets.swift in Sources */,
 				37FB6E8B246B52ED00EB4916 /* Program.swift in Sources */,
 				376987BF244B95D30021D0FB /* AppDelegate.swift in Sources */,

@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
-struct RepRange: CustomDebugStringConvertible {
+struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int
     
@@ -35,6 +35,16 @@ struct RepRange: CustomDebugStringConvertible {
         }
     }
     
+    init(from store: Store) {
+        self.min = store.getInt("min")
+        self.max = store.getInt("max")
+    }
+    
+    func save(_ store: Store) {
+        store.addInt("min", min)
+        store.addInt("max", max)
+    }
+
     var debugDescription: String {
         return self.label
     }
@@ -45,7 +55,7 @@ struct RepRange: CustomDebugStringConvertible {
     }
 }
 
-struct WeightPercent: CustomDebugStringConvertible {
+struct WeightPercent: CustomDebugStringConvertible, Storable {
     let value: Double
 
     init?(_ value: Double) {
@@ -76,6 +86,14 @@ struct WeightPercent: CustomDebugStringConvertible {
         }
     }
     
+    init(from store: Store) {
+        self.value = store.getDbl("value")
+    }
+    
+    func save(_ store: Store) {
+        store.addDbl("value", value)
+    }
+
     var debugDescription: String {
         get {
             return String(format: "%.1f%%", 100.0*self.value)
@@ -87,7 +105,7 @@ struct WeightPercent: CustomDebugStringConvertible {
     }
 }
 
-struct RepsSet: CustomDebugStringConvertible {
+struct RepsSet: CustomDebugStringConvertible, Storable {
     let reps: RepRange
     let percent: WeightPercent
     let restSecs: Int
@@ -100,6 +118,18 @@ struct RepsSet: CustomDebugStringConvertible {
         self.restSecs = restSecs
     }
     
+    init(from store: Store) {
+        self.reps = store.getObj("reps")
+        self.percent = store.getObj("percent")
+        self.restSecs = store.getInt("restSecs")
+    }
+    
+    func save(_ store: Store) {
+        store.addObj("reps", reps)
+        store.addObj("percent", percent)
+        store.addInt("restSecs", restSecs)
+    }
+
     var debugDescription: String {
         get {
             return "\(self.reps.label)\(self.percent.label)"
@@ -111,7 +141,7 @@ struct RepsSet: CustomDebugStringConvertible {
     }
 }
 
-struct DurationSet: CustomDebugStringConvertible {
+struct DurationSet: CustomDebugStringConvertible, Storable {
     let secs: Int
     let restSecs: Int
     
@@ -121,6 +151,16 @@ struct DurationSet: CustomDebugStringConvertible {
 
         self.secs = secs
         self.restSecs = restSecs
+    }
+
+    init(from store: Store) {
+        self.secs = store.getInt("secs")
+        self.restSecs = store.getInt("restSecs")
+    }
+    
+    func save(_ store: Store) {
+        store.addInt("secs", secs)
+        store.addInt("restSecs", restSecs)
     }
 
     var debugDescription: String {
@@ -220,5 +260,50 @@ extension Sets {
         }
         
        return true
+    }
+}
+
+extension Sets: Storable {
+    init(from store: Store) {
+        let tname = store.getStr("type")
+        switch tname {
+        case "durations":
+            self = .durations(store.getObjArray("durations"), targetSecs: store.getIntArray("targetSecs"))
+            
+        case "maxReps":
+            if store.hasKey("targetReps") {
+                self = .maxReps(restSecs: store.getIntArray("restSecs"), targetReps: store.getInt("targetReps"))
+            } else {
+                self = .maxReps(restSecs: store.getIntArray("restSecs"), targetReps: nil)
+            }
+            
+        case "repRanges":
+            self = .repRanges(warmups: store.getObjArray("warmups"), worksets: store.getObjArray("worksets"), backoffs: store.getObjArray("backoffs"))
+            
+        default:
+            assert(false, "loading apparatus had unknown type: \(tname)"); abort()
+        }
+    }
+    
+    func save(_ store: Store) {
+        switch self {
+        case .durations(let durations, let targetSecs):
+            store.addStr("type", "durations")
+            store.addObjArray("durations", durations)
+            store.addIntArray("targetSecs", targetSecs)
+
+        case .maxReps(let restSecs, let targetReps):
+            store.addStr("type", "maxReps")
+            store.addIntArray("restSecs", restSecs)
+            if let target = targetReps {
+                store.addInt("targetReps", target)
+            }
+
+        case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
+            store.addStr("type", "repRanges")
+            store.addObjArray("warmups", warmups)
+            store.addObjArray("worksets", worksets)
+            store.addObjArray("backoffs", backoffs)
+        }
     }
 }
