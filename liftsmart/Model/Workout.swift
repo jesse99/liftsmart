@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
-class Workout: CustomDebugStringConvertible, Identifiable {
+class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     var name: String
     var exercises: [Exercise]
 
@@ -15,6 +15,16 @@ class Workout: CustomDebugStringConvertible, Identifiable {
         self.exercises = exercises
     }
     
+    required init(from store: Store) {
+        self.name = store.getStr("name")
+        self.exercises = store.getObjArray("exercises")
+    }
+    
+    func save(_ store: Store) {
+        store.addStr("name", name)
+        store.addObjArray("exercises", exercises)
+    }
+
     // Partial is true if not all exercises were completed on that date.
     func dateCompleted(_ history: History) -> (date: Date, partial: Bool)? {
         func lastCompleted() -> Date? {

@@ -6,13 +6,13 @@ var nextID: Int = 0     // TODO: need to persist this
 
 /// An Exercise all the details for how to do a particular movement. It does not
 /// include history or achievement information.
-class Exercise: Hashable, Identifiable {
+class Exercise: Hashable, Identifiable, Storable {
     var name: String             // "Heavy Bench"
     var formalName: String       // "Bench Press"
     var modality: Modality
     var expected: Expected
     var current: Current? = nil // this is reset to nil if it's been too long since the user was doing the exercise
-    let id: Int
+    let id: Int                 // used for hashing
 
     init(_ name: String, _ formalName: String, _ modality: Modality, _ expected: Expected = Expected(weight: 0.0)) {
         self.name = name
@@ -22,7 +22,31 @@ class Exercise: Hashable, Identifiable {
         self.id = nextID
         nextID += 1
     }
+        
+    required init(from store: Store) {
+        self.name = store.getStr("name")
+        self.formalName = store.getStr("formalName")
+        self.modality = store.getObj("modality")
+        self.expected = store.getObj("expected")
+        if store.hasKey("current") {
+            self.current = store.getObj("current")
+        } else {
+            self.current = nil
+        }
+        self.id = store.getInt("id")
+    }
     
+    func save(_ store: Store) {
+        store.addStr("name", name)
+        store.addStr("formalName", formalName)
+        store.addObj("modality", modality)
+        store.addObj("expected", expected)
+        if let c = self.current {
+            store.addObj("current", c)
+        }
+        store.addInt("id", id)
+    }
+
     func initCurrent() {
         if let current = self.current {
             // If it's been a long time since the user did this exercise then

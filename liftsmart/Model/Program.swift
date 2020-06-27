@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
-struct EditNote: CustomDebugStringConvertible {
+struct EditNote: CustomDebugStringConvertible, Storable {
     let date: Date
     let note: String
 
@@ -10,7 +10,17 @@ struct EditNote: CustomDebugStringConvertible {
         self.date = Date()
         self.note = note
     }
+        
+    init(from store: Store) {
+        self.date = store.getDate("date")
+        self.note = store.getStr("note")
+    }
     
+    func save(_ store: Store) {
+        store.addDate("date", date)
+        store.addStr("note", note)
+    }
+
     var debugDescription: String {
         get {
             return self.note
@@ -20,7 +30,7 @@ struct EditNote: CustomDebugStringConvertible {
 
 /// This is the top-level type representing everything that the user is expected to do within a period of time.
 /// For example, three workouts each week.
-class Program: CustomDebugStringConvertible, Sequence {
+class Program: CustomDebugStringConvertible, Sequence, Storable {
     var name: String
 
     init(_ name: String, _ workouts: [Workout]) {
@@ -31,6 +41,18 @@ class Program: CustomDebugStringConvertible, Sequence {
         self.addNote("Created")
     }
         
+    required init(from store: Store) {
+        self.name = store.getStr("name")
+        self.workouts = store.getObjArray("workouts")
+        self.notes = store.getObjArray("notes")
+    }
+    
+    func save(_ store: Store) {
+        store.addStr("name", name)
+        store.addObjArray("workouts", workouts)
+        store.addObjArray("notes", notes)
+    }
+
     var count: Int {
         get {return workouts.count}
     }
