@@ -87,8 +87,12 @@ struct ExerciseDurationsView: View {
         if exercise.current!.setIndex < durations.count {
             self.startModal = true
         } else {
-            // Pop this view. Note that currently this only works with a real device,
             self.history.append(self.workout, self.exercise)
+
+            let app = UIApplication.shared.delegate as! AppDelegate
+            app.saveState()
+            
+            // Pop this view. Note that currently this only works with a real device,
             self.presentation.wrappedValue.dismiss()
         }
     }

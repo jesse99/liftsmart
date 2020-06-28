@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
-var nextID: Int = 0     // TODO: need to persist this
+var nextID: Int = 0
 
 /// An Exercise all the details for how to do a particular movement. It does not
 /// include history or achievement information.
@@ -34,6 +34,10 @@ class Exercise: Hashable, Identifiable, Storable {
             self.current = nil
         }
         self.id = store.getInt("id")
+        
+        if self.id >= nextID {
+            nextID = self.id + 1
+        }
     }
     
     func save(_ store: Store) {

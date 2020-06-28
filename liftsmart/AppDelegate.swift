@@ -81,10 +81,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let store = loadStore(from: "history") {
             history = History(from: store)
         }
+        if let store = loadStore(from: "program") {
+            program = Program(from: store)
+        }
     }
     
     func saveState() {
-//        saveProgram()
+        storeObject(program, to: "program")
         storeObject(history, to: "history")
         
 //        for achievement in achievements {

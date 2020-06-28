@@ -132,8 +132,12 @@ struct ExerciseMaxRepsView: View {
     }
     
     func popView() {
-        // Note that currently this only works with a real device,
         self.history.append(self.workout, self.exercise)
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+        
+        // Note that currently this only works with a real device,
         self.presentation.wrappedValue.dismiss()
     }
     
