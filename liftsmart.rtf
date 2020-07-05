@@ -1,77 +1,100 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2512
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;\f1\fnil\fcharset0 AndaleMono;\f2\froman\fcharset0 Times-Roman;
-\f3\fswiss\fcharset0 Helvetica;\f4\fswiss\fcharset0 Helvetica-Bold;\f5\fswiss\fcharset0 Helvetica-Oblique;
-}
-{\colortbl;\red255\green255\blue255;\red27\green29\blue31;\red37\green127\blue159;\red170\green13\blue145;
-\red0\green0\blue0;\red11\green79\blue121;\red92\green38\blue153;\red15\green104\blue160;\red0\green116\blue0;
-\red63\green110\blue116;\red0\green0\blue233;\red2\green2\blue2;\red0\green0\blue233;\red28\green0\blue207;
-\red46\green13\blue110;\red162\green91\blue55;\red162\green91\blue55;\red196\green26\blue22;\red38\green71\blue75;
-}
-{\*\expandedcolortbl;;\cssrgb\c14118\c15294\c16078;\cssrgb\c16863\c56863\c68627;\csgenericrgb\c66500\c5200\c56900;
-\csgenericrgb\c0\c0\c0;\csgenericrgb\c4314\c30980\c47451;\csgenericrgb\c35900\c14900\c60100;\csgenericrgb\c5882\c40784\c62745;\csgenericrgb\c0\c45600\c0;
-\csgenericrgb\c24700\c43100\c45600;\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\cssrgb\c0\c0\c93333;\csgenericrgb\c11000\c0\c81000;
-\csgenericrgb\c18100\c5200\c43100;\csgenericrgb\c63573\c35812\c21460\c35000;\csgenericrgb\c63573\c35812\c21460;\csgenericrgb\c77000\c10200\c8600;\csgenericrgb\c14900\c27800\c29400;
-}
-\deftab720
-\pard\pardeftab720\partightenfactor0
-
-\f0\fs38 \cf2 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 \strokec2 // Unarchive\
-if let archivedData = try? \cf3 \strokec3 Data\cf2 \strokec2 (contentsOf: fileURL),\
-        let myObject = (try? \cf3 \strokec3 NSKeyedUnarchiver\cf2 \strokec2 .unarchiveTopLevelObjectWithData(archivedData)) as? \cf3 \strokec3 Object\cf2 \strokec2  \{\
-    /// Do anything with the unarchived object\
-    ///\
-    ///\
-\}\
-\
-// Archive the object\
-NSData* data = [NSKeyedArchiver archivedDataWithRootObject:theObject requiringSecureCoding:NO error:nil];\
-\
-// Unarchive the object\
-NSKeyedUnarchiver* unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];\
-unarchiver.requiresSecureCoding = NO;\
-id theCopy = [unarchiver decodeTopLevelObjectForKey:NSKeyedArchiveRootObjectKey error:nil];\
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 AndaleMono;\f1\froman\fcharset0 Times-Roman;\f2\fswiss\fcharset0 Helvetica;
+\f3\fswiss\fcharset0 Helvetica-Bold;\f4\fswiss\fcharset0 Helvetica-Oblique;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red170\green13\blue145;\red15\green104\blue160;
+\red92\green38\blue153;\red63\green110\blue116;\red0\green116\blue0;\red38\green71\blue75;\red46\green13\blue110;
+\red28\green0\blue207;\red11\green79\blue121;\red196\green26\blue22;\red0\green0\blue233;\red2\green2\blue2;
+\red14\green14\blue255;\red162\green91\blue55;\red162\green91\blue55;}
+{\*\expandedcolortbl;;\csgenericrgb\c0\c0\c0;\csgenericrgb\c66500\c5200\c56900;\csgenericrgb\c5882\c40784\c62745;
+\csgenericrgb\c35900\c14900\c60100;\csgenericrgb\c24700\c43100\c45600;\csgenericrgb\c0\c45600\c0;\csgenericrgb\c14900\c27800\c29400;\csgenericrgb\c18100\c5200\c43100;
+\csgenericrgb\c11000\c0\c81000;\csgenericrgb\c4314\c30980\c47451;\csgenericrgb\c77000\c10200\c8600;\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;
+\csgenericrgb\c5500\c5500\c100000;\csgenericrgb\c63573\c35812\c21460\c35000;\csgenericrgb\c63573\c35812\c21460;}
+\deftab816
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
-\f1\fs34 \cf4 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\f0\fs34 \cf2     \cf3 func\cf2  \cf4 initCurrent\cf2 (numSets: \cf5 Int\cf2 ) \{\
+        \cf3 if\cf2  \cf3 let\cf2  current = \cf3 self\cf2 .\cf6 current\cf2  \{\
+            \cf7 // If it's been a long time since the user began the exercise then\cf2 \
+            \cf7 // start over. If the user has finished the exercise then give them\cf2 \
+            \cf7 // the option to do it again.\cf2 \
+            \cf3 if\cf2  \cf5 Date\cf2 ().\cf8 hoursSinceDate\cf2 (current.\cf6 startDate\cf2 ) > \cf6 window\cf2  \cf9 ||\cf2  current.\cf6 setIndex\cf2  \cf9 >=\cf2  numSets \{\
+                \cf3 self\cf2 .\cf6 current\cf2  = \cf6 Current\cf2 (weight: \cf3 self\cf2 .\cf6 expected\cf2 .\cf6 weight\cf2 )\
+            \}\
+        \} \cf3 else\cf2  \{\
+            \cf3 self\cf2 .\cf6 current\cf2  = \cf6 Current\cf2 (weight: \cf3 self\cf2 .\cf6 expected\cf2 .\cf6 weight\cf2 )\
+        \}\
+    \}\
+    \
+    \cf3 var\cf2  \cf4 timer\cf2  = \cf6 RestartableTimer\cf2 (every: \cf5 TimeInterval\cf2 .\cf8 hours\cf2 (\cf10 4\cf2 ))\
+\cf3 \
+\cf2             .\cf9 onReceive\cf2 (\cf6 timer\cf2 .\cf6 timer\cf2 ) \{\cf3 _\cf2  \cf3 in\cf2  \cf3 self\cf2 .\cf8 onTimer\cf2 ()\}\
+            .\cf9 onAppear\cf2  \{\cf3 self\cf2 .\cf8 onAppear\cf2 (); \cf3 self\cf2 .\cf6 timer\cf2 .\cf8 restart\cf2 ()\}\
+            .\cf9 onDisappear\cf2 () \{\cf3 self\cf2 .\cf6 timer\cf2 .\cf8 stop\cf2 ()\}\
+\cf3 \
+\cf2     \cf3 func\cf2  \cf4 onAppear\cf2 () \{\
+        \cf3 if\cf2  \cf6 exercise\cf2 .\cf8 shouldReset\cf2 (numSets: \cf6 durations\cf2 .\cf5 count\cf2 ) \{\
+            \cf8 onReset\cf2 ()\
+        \} \cf3 else\cf2  \{\
+            \cf8 refresh\cf2 ()\
+        \}\
+    \}\
+\cf3 \
+\cf2     \cf3 func\cf2  \cf4 onTimer\cf2 () \{\
+        \cf3 if\cf2  \cf3 self\cf2 .\cf6 exercise\cf2 .\cf6 current\cf2 !.\cf6 setIndex\cf2  \cf9 >\cf2  \cf10 0\cf2  \{\
+            \cf3 self\cf2 .\cf8 onReset\cf2 ()\
+        \}\
+    \}\
+\cf3 \
 \
-class\cf5  \cf6 Current\cf5 : \cf7 CustomDebugStringConvertible\cf5  \{\
-    \cf4 var\cf5  \cf8 startDate\cf5 : \cf7 Date\cf5      \cf9 // date exercise was started\cf5 \
-    \cf4 var\cf5  \cf8 weight\cf5 : \cf7 Double\cf5       \cf9 // may be 0.0\cf5 \
-    \cf4 var\cf5  \cf8 setIndex\cf5 : \cf7 Int\cf5        \cf9 // if this is sets.count then the user has finished those sets\cf5 \
+class\cf2  \cf11 History\cf2 : \cf6 Storable\cf2  \{\
+    \cf3 struct\cf2  \cf11 Record\cf2 : \cf5 CustomDebugStringConvertible\cf2 , \cf6 Storable\cf2  \{\
+        \cf3 var\cf2  \cf4 completed\cf2 : \cf5 Date\cf2      \cf7 // date exercise was finished\cf2 \
+        \cf3 var\cf2  \cf4 weight\cf2 : \cf5 Double\cf2       \cf7 // may be 0.0\cf2 \
+        \cf3 var\cf2  \cf4 label\cf2 : \cf5 String\cf2        \cf7 // "3x60s"\cf2 \
+        \cf3 var\cf2  \cf4 key\cf2 : \cf5 String\cf2          \cf7 // exercise.name + workout.name\cf2 \
+        \cf3 var\cf2  \cf4 note\cf2 : \cf5 String\cf2  = \cf12 ""\cf2    \cf7 // optional arbitrary text set by user\cf2 \
+\cf3 \
+\cf2     \cf3 func\cf2  \cf4 exercise\cf2 (\cf3 _\cf2  workout: \cf6 Workout\cf2 , \cf3 _\cf2  exercise: \cf6 Exercise\cf2 ) -> \cf6 History\cf2 .\cf6 Iterator\cf2  \{\
+\cf3 \
 \
-\cf4 enum\cf5  \cf6 Sets\cf5 : \cf7 CustomDebugStringConvertible\cf5  \{\
-    \cf4 case\cf5  \cf8 durations\cf5 ([\cf10 DurationSet\cf5 ], targetDuration: \cf7 Int\cf5 ? = \cf4 nil\cf5 )\
-    \cf4 case\cf5  \cf8 maxReps\cf5 (restSecs: [\cf7 Int\cf5 ], targetReps: \cf7 Int\cf5 ? = \cf4 nil\cf5 )\
-    \cf4 case\cf5  \cf8 repRanges\cf5 (warmups: [\cf10 RepsSet\cf5 ], worksets: [\cf10 RepsSet\cf5 ], backoffs: [\cf10 RepsSet\cf5 ])\
-\cf4 \
-class\cf5  \cf6 Modality\cf5 : \cf7 CustomDebugStringConvertible\cf5  \{\
-    \cf4 var\cf5  \cf8 apparatus\cf5 : \cf10 Apparatus\cf5 \
-    \cf4 var\cf5  \cf8 sets\cf5 : \cf10 Sets\cf5 \
-\cf4 \
-class\cf5  \cf6 Expected\cf5 : \cf7 CustomDebugStringConvertible\cf5  \{\
-    \cf4 var\cf5  \cf8 weight\cf5 : \cf7 Double\cf5       \cf9 // may be 0.0\cf5 \
-    \cf4 var\cf5  \cf8 reps\cf5 : \cf7 Int\cf5 ?          \cf9 // set for Sets.repsRanges, indicates where the user is within a variable reps set, can also override fixed reps\cf5 \
-\cf4 \
-class\cf5  \cf6 Exercise\cf5 : \cf7 Hashable\cf5 , \cf7 Identifiable\cf5  \{\
-    \cf4 var\cf5  \cf8 name\cf5 : \cf7 String\cf5              \cf9 // "Heavy Bench"\cf5 \
-    \cf4 var\cf5  \cf8 formalName\cf5 : \cf7 String\cf5        \cf9 // "Bench Press"\cf5 \
-    \cf4 var\cf5  \cf8 modality\cf5 : \cf10 Modality\cf5 \
-    \cf4 var\cf5  \cf8 expected\cf5 : \cf10 Expected\cf5 \
-    \cf4 var\cf5  \cf8 current\cf5 : \cf10 Current\cf5 ? = \cf4 nil\cf5  \cf9 // this is reset to nil if it's been too long since the user was doing the exercise\cf5 \
-    \cf4 let\cf5  \cf8 id\cf5 : \cf7 Int\cf5 \
+\
+class\cf2  \cf11 Current\cf2 : \cf5 CustomDebugStringConvertible\cf2  \{\
+    \cf3 var\cf2  \cf4 startDate\cf2 : \cf5 Date\cf2      \cf7 // date exercise was started\cf2 \
+    \cf3 var\cf2  \cf4 weight\cf2 : \cf5 Double\cf2       \cf7 // may be 0.0\cf2 \
+    \cf3 var\cf2  \cf4 setIndex\cf2 : \cf5 Int\cf2        \cf7 // if this is sets.count then the user has finished those sets\cf2 \
+\
+\cf3 enum\cf2  \cf11 Sets\cf2 : \cf5 CustomDebugStringConvertible\cf2  \{\
+    \cf3 case\cf2  \cf4 durations\cf2 ([\cf6 DurationSet\cf2 ], targetDuration: \cf5 Int\cf2 ? = \cf3 nil\cf2 )\
+    \cf3 case\cf2  \cf4 maxReps\cf2 (restSecs: [\cf5 Int\cf2 ], targetReps: \cf5 Int\cf2 ? = \cf3 nil\cf2 )\
+    \cf3 case\cf2  \cf4 repRanges\cf2 (warmups: [\cf6 RepsSet\cf2 ], worksets: [\cf6 RepsSet\cf2 ], backoffs: [\cf6 RepsSet\cf2 ])\
+\cf3 \
+class\cf2  \cf11 Modality\cf2 : \cf5 CustomDebugStringConvertible\cf2  \{\
+    \cf3 var\cf2  \cf4 apparatus\cf2 : \cf6 Apparatus\cf2 \
+    \cf3 var\cf2  \cf4 sets\cf2 : \cf6 Sets\cf2 \
+\cf3 \
+class\cf2  \cf11 Expected\cf2 : \cf5 CustomDebugStringConvertible\cf2  \{\
+    \cf3 var\cf2  \cf4 weight\cf2 : \cf5 Double\cf2       \cf7 // may be 0.0\cf2 \
+    \cf3 var\cf2  \cf4 reps\cf2 : \cf5 Int\cf2 ?          \cf7 // set for Sets.repsRanges, indicates where the user is within a variable reps set, can also override fixed reps\cf2 \
+\cf3 \
+class\cf2  \cf11 Exercise\cf2 : \cf5 Hashable\cf2 , \cf5 Identifiable\cf2  \{\
+    \cf3 var\cf2  \cf4 name\cf2 : \cf5 String\cf2              \cf7 // "Heavy Bench"\cf2 \
+    \cf3 var\cf2  \cf4 formalName\cf2 : \cf5 String\cf2        \cf7 // "Bench Press"\cf2 \
+    \cf3 var\cf2  \cf4 modality\cf2 : \cf6 Modality\cf2 \
+    \cf3 var\cf2  \cf4 expected\cf2 : \cf6 Expected\cf2 \
+    \cf3 var\cf2  \cf4 current\cf2 : \cf6 Current\cf2 ? = \cf3 nil\cf2  \cf7 // this is reset to nil if it's been too long since the user was doing the exercise\cf2 \
+    \cf3 let\cf2  \cf4 id\cf2 : \cf5 Int\cf2 \
 \pard\pardeftab720\partightenfactor0
 
-\f2\fs36 \cf11 \expnd0\expndtw0\kerning0
-\ul \ulc11 \
+\f1\fs36 \cf13 \expnd0\expndtw0\kerning0
+\ul \ulc13 \
 \pard\pardeftab720\partightenfactor0
-{\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/creating-and-combining-views"}}{\fldrslt \cf11 \ulc11 https://developer.apple.com/tutorials/swiftui/creating-and-combining-views}}\
+{\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/creating-and-combining-views"}}{\fldrslt \cf13 \ulc13 https://developer.apple.com/tutorials/swiftui/creating-and-combining-views}}\
 \pard\pardeftab720\partightenfactor0
 
-\fs24 \cf11 \
+\fs24 \cf13 \ulc13 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f3\fs48 \cf12 \kerning1\expnd0\expndtw0 \ulnone Personal - user data, e.g. sex, age, and fitness\
+\f2\fs48 \cf14 \kerning1\expnd0\expndtw0 \ulnone Personal - user data, e.g. sex, age, and fitness\
 Workouts - relatively fixed list of what the user is expected to do, includes edit notes\
 History - historical data for exercises, index by formal name, include exercise name, \
 	maybe also workout(s) name, probably also set info, maybe also routine name\
@@ -82,43 +105,71 @@ Stringify - text renderer\
 \
 Program = Workouts + Plan + Advisor(?)\
 	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor\
+	\
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+
+\f0\fs34 \cf2     @\cf5 State\cf2  \cf3 var\cf2  \cf6 subLabels\cf2 : [\cf5 String\cf2 ] = \cf5 Array\cf2 (repeating: \cf12 ""\cf2 , count: \cf10 200\cf2 )\
+    \cf3 private\cf2  \cf3 let\cf2  \cf4 timer\cf2  = \cf5 Timer\cf2 .\cf9 publish\cf2 (every: \cf5 TimeInterval\cf2 .\cf8 hours\cf2 (\cf10 4\cf2 ), tolerance: \cf5 TimeInterval\cf2 .\cf8 minutes\cf2 (\cf10 30\cf2 ), on: .\cf5 main\cf2 , in: .\cf5 common\cf2 ).\cf9 autoconnect\cf2 ()\
 \
-\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
-
-\f4\b \cf12 Storable\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
-
-\f3\b0 \cf12 - lot of boilerplate\
-- requires var fields\
-+ forward compatible\
-	defaults for missing values\
-	ignores unused values\
-	can use logic to handle larger schema changes\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
-
-\f4\b \cf12 better to use an intermediate dict<name, enum>?
-\f3\b0 \cf12 \
+    \cf7 // Note that updating @State members in init doesn't actually work: \cf15 https://stackoverflow.com/questions/61661581/swiftui-view-apparently-laid-out-before-init-runs\cf2 \
+    \cf3 init\cf2 (history: \cf6 History\cf2 , workout: \cf6 Workout\cf2 , exercise: \cf6 Exercise\cf2 ) \{\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf12 \
+
+\f2\fs48 \cf14 \
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+
+\f0\fs34 \cf2         \cf5 VStack\cf2 () \{\
+            \}\
+            .\cf9 padding\cf2 ()\
+            .\cf9 onAppear\cf2  \{\cf3 self\cf2 .\cf8 refresh\cf2 ()\}\
+            .\cf9 onReceive\cf2 (\cf6 timer\cf2 ) \{\cf3 _\cf2  \cf3 in\cf2  \cf3 self\cf2 .\cf8 refresh\cf2 ()\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+
+\f2\fs48 \cf14 \
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+
+\f0\fs34 \cf2     \cf7 // subLabels will change as time passes so we need the timer to ensure that our UI updates accordingly.\cf2 \
+    \cf7 // labels and notes can change via our nested sheet so we update those when this view appears.\cf2 \
+    \cf3 func\cf2  \cf4 refresh\cf2 () \{\
+        \cf6 subLabels\cf2  = \cf6 items\cf2 .\cf9 map\cf2 (\{$0.\cf6 completed\cf2 .\cf8 daysName\cf2 ()\})    \cf7 // smallest reported interval is days so timer period can be very long\cf2 \
+    \}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+
+\f2\fs48 \cf14 \
+HistoryView needs to use RestartableTimer?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf14 MaxRepsView - onAppear state\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf14 	timer should reset instead of refresh\
+get rid of initCurrent\
+ProgramView - onAppear, long period update labels (may be able to get rid of suffix)\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf14 WorkoutView - \cf14 onAppear\cf14 , long period update labels\
+\
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+
+\f0\fs34 \cf2             .\cf9 navigationBarTitle\cf2 (\cf5 Text\cf2 (\cf6 program\cf2 .\cf6 name\cf2  \cf9 +\cf2  \cf12 " Workouts"\cf2  \cf9 +\cf2  \cf6 suffix\cf2 ))\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+
+\f2\fs48 \cf14 \
+\'95\'a0Get history working somehow:\
+	- exercise inits are only called once\
+	- need some sort of timer to update state\
+		` start in onAppear\
+		` stop in onDisappear\
+		` what should view semantics be?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf14 	- durations exercise should not add a record when done is pressed and already done\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf14 	- max reps exercise should not add a record when done is pressed and already done\
+	- history items are too large?\
+	- get edit note working\
+	- add a history button\
+	- max reps needs a history button\
 \pard\pardeftab720\partightenfactor0
-\cf12 <Application_Home>/Documents\
-	backed up auto-magically by iCloud\
-throw errors? see {\field{\*\fldinst{HYPERLINK "https://docs.swift.org/swift-book/LanguageGuide/ErrorHandling.html"}}{\fldrslt 
-\f2\fs36 \cf13 \expnd0\expndtw0\kerning0
-\ul \ulc13 \outl0\strokewidth0 \strokec13 https://docs.swift.org/swift-book/LanguageGuide/ErrorHandling.html}}\cf12 \
-\
+\cf14 \'95 Should we alternate cardio only and all days?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf12 \'95 Get persistence working:\
-	- need to save current program and nextID (fix the todo as well)\
-	- load current program\
-\'95 In the max reps picker should we highlight expected rep?\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf12 \'95\'a0Get history working somehow\
-\pard\pardeftab720\partightenfactor0
-\cf12 \'95 Should we alternate cardio only and all days?\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf12 \'95 Get notes button working\
+\cf14 \'95 Get notes button working\
 \'95\'a0Get options button working\
 \'95 Hard code some info\
 	- age\
@@ -135,25 +186,25 @@ throw errors? see {\field{\*\fldinst{HYPERLINK "https://docs.swift.org/swift-boo
 \
 \pard\pardeftab720\partightenfactor0
 {\field{\*\fldinst{HYPERLINK "https://www.raywenderlich.com/7242045-swift-package-manager-for-ios"}}{\fldrslt 
-\f2\fs36 \cf11 \expnd0\expndtw0\kerning0
+\f1\fs36 \cf13 \expnd0\expndtw0\kerning0
 \ul https://www.raywenderlich.com/7242045-swift-package-manager-for-ios}}
-\f2\fs36 \cf11 \expnd0\expndtw0\kerning0
-\ul \ulc11 \
+\f1\fs36 \cf13 \expnd0\expndtw0\kerning0
+\ul \ulc13 \
 \pard\pardeftab720\partightenfactor0
 {\field{\*\fldinst{HYPERLINK "https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/"}}{\fldrslt 
-\fs38 \cf11 \ulc11 https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/}}
-\f3\fs48 \cf12 \kerning1\expnd0\expndtw0 \ulnone \
+\fs38 \cf13 \ulc13 https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/}}
+\f2\fs48 \cf14 \kerning1\expnd0\expndtw0 \ulnone \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf12 	\
+\cf14 	\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b \cf12 SwiftUI
-\f3\b0 \
+\f3\b \cf14 SwiftUI
+\f2\b0 \
 \'95\'a0when to use property wrappers: {\field{\*\fldinst{HYPERLINK "https://jaredsinclair.com/2020/05/07/swiftui-cheat-sheet.html"}}{\fldrslt 
-\f2\fs34 \cf11 \expnd0\expndtw0\kerning0
+\f1\fs34 \cf13 \expnd0\expndtw0\kerning0
 \ul https://jaredsinclair.com/2020/05/07/swiftui-cheat-sheet.html}}\
 \'aa property wrapper overview: {\field{\*\fldinst{HYPERLINK "https://swiftwithmajid.com/2019/06/12/understanding-property-wrappers-in-swiftui/"}}{\fldrslt 
-\f2\fs36 \cf11 \expnd0\expndtw0\kerning0
+\f1\fs36 \cf13 \expnd0\expndtw0\kerning0
 \ul https://swiftwithmajid.com/2019/06/12/understanding-property-wrappers-in-swiftui/}}\
 \'95 view.body can only have a single view: can use stacks for multiple groups\
 \'95\'a0List works with identifiable data\
@@ -164,21 +215,21 @@ throw errors? see {\field{\*\fldinst{HYPERLINK "https://docs.swift.org/swift-boo
 	1) embed the List in a NavigationView\
 	2) embed each row view within a NavigationLink (to setup transition to dest view when clicked)\
 	    simple value type elements can use \\.self as the key path, see LanmarkList_Previews in {\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/building-lists-and-navigation"}}{\fldrslt 
-\f2\fs34 \cf11 \expnd0\expndtw0\kerning0
+\f1\fs34 \cf13 \expnd0\expndtw0\kerning0
 \ul https://developer.apple.com/tutorials/swiftui/building-lists-and-navigation}}\
 \'95 ForEach is like List but doesn\'92t have a special appearence\
 	- can use ForEach inside List, see {\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/56535326/what-is-the-difference-between-list-and-foreach-in-swiftui"}}{\fldrslt 
-\f2\fs34 \cf11 \expnd0\expndtw0\kerning0
+\f1\fs34 \cf13 \expnd0\expndtw0\kerning0
 \ul https://stackoverflow.com/questions/56535326/what-is-the-difference-between-list-and-foreach-in-swiftui}}\
 \'95\'a0Views can wrap other views to encapsulate a series of modifiers\
 	- see CircleImage in {\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/building-lists-and-navigation"}}{\fldrslt 
-\f2\fs34 \cf11 \expnd0\expndtw0\kerning0
+\f1\fs34 \cf13 \expnd0\expndtw0\kerning0
 \ul https://developer.apple.com/tutorials/swiftui/building-lists-and-navigation}}\
 \'95 GeometryReader is used to retrieve sizing info from parent view\
 \'95 animations are kind of cool: can fade or slide in and out\
 \'95 can use the @State attribute to mark fields that change over time\
 	- views are structs and structs can\'92t normally change their own fields, see {\field{\*\fldinst{HYPERLINK "https://medium.com/flawless-app-stories/swiftui-understanding-state-8afa23fd9f1f"}}{\fldrslt 
-\f2\fs34 \cf11 \expnd0\expndtw0\kerning0
+\f1\fs34 \cf13 \expnd0\expndtw0\kerning0
 \ul https://medium.com/flawless-app-stories/swiftui-understanding-state-8afa23fd9f1f}}\
 \'95 bindings act as a reference to mutable state\
 \'95 ObservableObjects are bound to a view and loaded from storage\
@@ -186,15 +237,15 @@ throw errors? see {\field{\*\fldinst{HYPERLINK "https://docs.swift.org/swift-boo
 \'95 @EnvironmentObject is used to bind to data passed downward via the environmentObject modifier\
 \'95 previews are used by the Canvas inspector, can use Group to show variations\
 \'95 command-click brings up the structed editing popover\
-\'95 {\field{\*\fldinst{HYPERLINK "https://i.stack.imgur.com/89c8C.png"}}{\fldrslt 
-\f2\fs38 \cf11 \expnd0\expndtw0\kerning0
+\'95 \cf14 font types:\cf14  {\field{\*\fldinst{HYPERLINK "https://i.stack.imgur.com/89c8C.png"}}{\fldrslt 
+\f1\fs38 \cf13 \expnd0\expndtw0\kerning0
 \ul https://i.stack.imgur.com/89c8C.png}}\
 
-\f4\b \
+\f3\b \
 Goals\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f3\b0 \cf12 \'95\'a0Make it a lot easier to change up exercises and plans\
+\f2\b0 \cf14 \'95\'a0Make it a lot easier to change up exercises and plans\
 	- probably want to lean on wizards\
 	- recommend stuff like \
 		` moving on to non-linear progression\
@@ -213,8 +264,8 @@ Goals\
 \'95\'a0Heart rate can tell you if over trained? Can we hook into other app's medical data?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b \cf12 \'95\'a0
-\f3\b0 Do much bettered showing long term trends\
+\f3\b \cf14 \'95\'a0
+\f2\b0 Do much bettered showing long term trends\
 	- both overall and for an exercise\
 	- include actions taken in response to a recommendation\
 	- probably should also allow for user notes\
@@ -225,148 +276,148 @@ Goals\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf12 Workouts Tab
+\f3\b\fs60 \cf14 Workouts Tab
 \fs48 \
 Workouts     
-\f3\b0 \ul \ulc12 Edit
-\f4\b \ulnone \
+\f2\b0 \ul \ulc14 Edit
+\f3\b \ulnone \
 
-\f3\b0 Heavy >        
-\f5\i goes to a Workout view
-\f3\i0 \
+\f2\b0 Heavy >        
+\f4\i goes to a Workout view
+\f2\i0 \
 Light >\
 Medium >\
 	\
 
-\f4\b Heavy     
-\f3\b0 \ul Edit
-\f4\b \ulnone \
+\f3\b Heavy     
+\f2\b0 \ul Edit
+\f3\b \ulnone \
 
-\f3\b0 Bench >        
-\f5\i goes to an Exercise view
-\f3\i0 \
+\f2\b0 Bench >        
+\f4\i goes to an Exercise view
+\f2\i0 \
 Squat >\
 Dead >\
 \
 
-\f4\b Bench     
-\f3\b0 \ul Notes
-\f4\b \ulnone  
-\f3\b0 \ul Edit
-\f4\b \ulnone \
+\f3\b Bench     
+\f2\b0 \ul Notes
+\f3\b \ulnone  
+\f2\b0 \ul Edit
+\f3\b \ulnone \
 
-\f3\b0 Set 1 of 1\
+\f2\b0 Set 1 of 1\
 8 reps @ 125 lbs\
 \ul Done\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf12 \ulnone History Tab
+\f3\b\fs60 \cf14 \ulnone History Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f3\b0 \cf12 should this have a way to see exercises that are not currently used?\
+\f2\b0 \cf14 should this have a way to see exercises that are not currently used?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf12 \
+\f3\b\fs60 \cf14 \
 Advise Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f3\b0 \cf12 tell them if they are on track?\
+\f2\b0 \cf14 tell them if they are on track?\
 can we make the tab red if advise is pending?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf12 \
+\f3\b\fs60 \cf14 \
 Settings Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f3\b0 \cf12 DoB\
+\f2\b0 \cf14 DoB\
 gender\
 level\
 \
 \
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
-\f1\fs34 \cf5     \
-    \cf9 // Returns the currentReps and maximum used for worksets.\cf5 \
-    \cf4 func\cf5  \cf8 repRange\cf5 (currentReps: \cf7 Int\cf5 ?) -> (\cf7 Int\cf5 , \cf7 Int\cf5 ) \{\
-        \cf4 var\cf5  minReps = \cf14 1\cf5 \
-        \cf4 var\cf5  maxReps = \cf14 1\cf5 \
+\f0\fs34 \cf2     \
+    \cf7 // Returns the currentReps and maximum used for worksets.\cf2 \
+    \cf3 func\cf2  \cf4 repRange\cf2 (currentReps: \cf5 Int\cf2 ?) -> (\cf5 Int\cf2 , \cf5 Int\cf2 ) \{\
+        \cf3 var\cf2  minReps = \cf10 1\cf2 \
+        \cf3 var\cf2  maxReps = \cf10 1\cf2 \
         \
-        \cf4 if\cf5  \cf4 let\cf5  set = \cf10 worksets\cf5 .\cf15 first\cf5 (where: \{$0.\cf10 reps\cf5 .\cf10 min\cf5  \cf15 <\cf5  $0.\cf10 reps\cf5 .\cf10 max\cf5 \}) \{\
-            \cf4 if\cf5  \cf4 let\cf5  current = currentReps \{            \cf9 // currentReps only applies if set.minReps < set.maxReps\cf5 \
+        \cf3 if\cf2  \cf3 let\cf2  set = \cf6 worksets\cf2 .\cf9 first\cf2 (where: \{$0.\cf6 reps\cf2 .\cf6 min\cf2  \cf9 <\cf2  $0.\cf6 reps\cf2 .\cf6 max\cf2 \}) \{\
+            \cf3 if\cf2  \cf3 let\cf2  current = currentReps \{            \cf7 // currentReps only applies if set.minReps < set.maxReps\cf2 \
                 minReps = current\
-                maxReps = current \cf15 <\cf5  set.\cf10 reps\cf5 .\cf10 max\cf5  ? set.\cf10 reps\cf5 .\cf10 max\cf5  : current\
-            \} \cf4 else\cf5  \{\
-                minReps = set.\cf10 reps\cf5 .\cf10 min\cf5 \
-                maxReps = set.\cf10 reps\cf5 .\cf10 max\cf5 \
+                maxReps = current \cf9 <\cf2  set.\cf6 reps\cf2 .\cf6 max\cf2  ? set.\cf6 reps\cf2 .\cf6 max\cf2  : current\
+            \} \cf3 else\cf2  \{\
+                minReps = set.\cf6 reps\cf2 .\cf6 min\cf2 \
+                maxReps = set.\cf6 reps\cf2 .\cf6 max\cf2 \
             \}\
 \
-        \} \cf4 else\cf5  \cf4 if\cf5  \cf4 let\cf5  last = \cf10 worksets\cf5 .\cf7 last\cf5  \{\
-            minReps = last.\cf10 reps\cf5 .\cf10 min\cf5 \
-            maxReps = last.\cf10 reps\cf5 .\cf10 max\cf5 \
+        \} \cf3 else\cf2  \cf3 if\cf2  \cf3 let\cf2  last = \cf6 worksets\cf2 .\cf5 last\cf2  \{\
+            minReps = last.\cf6 reps\cf2 .\cf6 min\cf2 \
+            maxReps = last.\cf6 reps\cf2 .\cf6 max\cf2 \
         \}\
         \
-        \cf4 return\cf5  (minReps, maxReps)\
+        \cf3 return\cf2  (minReps, maxReps)\
     \}\
     \
-    \cf16 ///\cf5  \cf17 Returns details about what the user is expected to do for the sets. For example,\cf5 \
-    \cf16 ///\cf5     \cf17 3x5 @ 195 lbs     if reps are all the same\cf5 \
-    \cf16 ///\cf5     \cf17 5,3,1+ @ 195 lbs  if percentages are all the same\cf5 \
-    \cf16 ///\cf5     \cf17 1+ @ 195 lbs      otherwise\cf5 \
-    \cf4 func\cf5  \cf8 summary\cf5 (\cf4 _\cf5  apparatus: \cf10 Apparatus\cf5 ?, \cf4 _\cf5  targetWeight: \cf7 Double\cf5 , \cf4 _\cf5  currentReps: \cf7 Int\cf5 ?) -> \cf7 String\cf5  \{ \cf9 // TODO: not sure presentation stuff belongs here\cf5 \
-        \cf4 func\cf5  \cf8 repsStr\cf5 (\cf4 _\cf5  set: \cf10 Set\cf5 ) -> \cf7 String\cf5  \{\
-            \cf4 if\cf5  \cf4 let\cf5  current = currentReps \{\
-                \cf4 if\cf5  current \cf15 <\cf5  set.\cf10 reps\cf5 .\cf10 max\cf5  \{\
-                    \cf4 return\cf5  \cf18 "\cf5 \\(current)\cf18 -\cf5 \\(set.\cf10 reps\cf5 .\cf10 max\cf5 )\cf18 "\cf5 \
-                \} \cf4 else\cf5  \{\
-                    \cf4 return\cf5  \cf18 "\cf5 \\(current)\cf18 "\cf5 \
+    \cf16 ///\cf2  \cf17 Returns details about what the user is expected to do for the sets. For example,\cf2 \
+    \cf16 ///\cf2     \cf17 3x5 @ 195 lbs     if reps are all the same\cf2 \
+    \cf16 ///\cf2     \cf17 5,3,1+ @ 195 lbs  if percentages are all the same\cf2 \
+    \cf16 ///\cf2     \cf17 1+ @ 195 lbs      otherwise\cf2 \
+    \cf3 func\cf2  \cf4 summary\cf2 (\cf3 _\cf2  apparatus: \cf6 Apparatus\cf2 ?, \cf3 _\cf2  targetWeight: \cf5 Double\cf2 , \cf3 _\cf2  currentReps: \cf5 Int\cf2 ?) -> \cf5 String\cf2  \{ \cf7 // TODO: not sure presentation stuff belongs here\cf2 \
+        \cf3 func\cf2  \cf4 repsStr\cf2 (\cf3 _\cf2  set: \cf6 Set\cf2 ) -> \cf5 String\cf2  \{\
+            \cf3 if\cf2  \cf3 let\cf2  current = currentReps \{\
+                \cf3 if\cf2  current \cf9 <\cf2  set.\cf6 reps\cf2 .\cf6 max\cf2  \{\
+                    \cf3 return\cf2  \cf12 "\cf2 \\(current)\cf12 -\cf2 \\(set.\cf6 reps\cf2 .\cf6 max\cf2 )\cf12 "\cf2 \
+                \} \cf3 else\cf2  \{\
+                    \cf3 return\cf2  \cf12 "\cf2 \\(current)\cf12 "\cf2 \
                 \}\
-            \} \cf4 else\cf5  \{\
-                \cf4 return\cf5  \cf18 "\cf5 \\(set.\cf10 reps\cf5 .\cf10 max\cf5 )\cf18 "\cf5 \
+            \} \cf3 else\cf2  \{\
+                \cf3 return\cf2  \cf12 "\cf2 \\(set.\cf6 reps\cf2 .\cf6 max\cf2 )\cf12 "\cf2 \
             \}\
         \}\
         \
-        \cf4 func\cf5  \cf8 weightStr\cf5 (\cf4 _\cf5  set: \cf10 Set\cf5 ) -> \cf7 String\cf5  \{\
-            \cf4 var\cf5  weight = \cf18 ""\cf5 \
-            \cf4 if\cf5  targetWeight > \cf14 0.0\cf5  \{\
-                \cf4 let\cf5  suffix = set.\cf10 percent\cf5 .\cf10 label\cf5 \
-                \cf4 if\cf5  \cf4 let\cf5  apparatus = apparatus \{\
-                    weight = \cf18 " @ "\cf5  \cf15 +\cf5  apparatus.\cf19 findClosest\cf5 (targetWeight\cf19 *\cf5 set.\cf10 percent\cf5 ).\cf10 label\cf5  \cf15 +\cf5  suffix\
-                \} \cf4 else\cf5  \{\
-                    weight = \cf18 " @ "\cf5  \cf15 +\cf5  \cf19 friendlyUnitsStr\cf5 (targetWeight\cf19 *\cf5 set.\cf10 percent\cf5 ) \cf15 +\cf5  suffix\
+        \cf3 func\cf2  \cf4 weightStr\cf2 (\cf3 _\cf2  set: \cf6 Set\cf2 ) -> \cf5 String\cf2  \{\
+            \cf3 var\cf2  weight = \cf12 ""\cf2 \
+            \cf3 if\cf2  targetWeight > \cf10 0.0\cf2  \{\
+                \cf3 let\cf2  suffix = set.\cf6 percent\cf2 .\cf6 label\cf2 \
+                \cf3 if\cf2  \cf3 let\cf2  apparatus = apparatus \{\
+                    weight = \cf12 " @ "\cf2  \cf9 +\cf2  apparatus.\cf8 findClosest\cf2 (targetWeight\cf8 *\cf2 set.\cf6 percent\cf2 ).\cf6 label\cf2  \cf9 +\cf2  suffix\
+                \} \cf3 else\cf2  \{\
+                    weight = \cf12 " @ "\cf2  \cf9 +\cf2  \cf8 friendlyUnitsStr\cf2 (targetWeight\cf8 *\cf2 set.\cf6 percent\cf2 ) \cf9 +\cf2  suffix\
                 \}\
             \}\
-            \cf4 return\cf5  weight\
+            \cf3 return\cf2  weight\
         \}\
         \
-        \cf4 if\cf5  \cf4 let\cf5  first = \cf10 worksets\cf5 .\cf7 first\cf5  \{\
-            \cf4 let\cf5  sameReps = \cf10 worksets\cf5 .\cf19 all\cf5  \{$0.\cf10 reps\cf5 .\cf10 min\cf5  \cf15 ==\cf5  first.\cf10 reps\cf5 .\cf10 min\cf5  \cf15 &&\cf5  $0.\cf10 reps\cf5 .\cf10 max\cf5  \cf15 ==\cf5  first.\cf10 reps\cf5 .\cf10 max\cf5 \}\
-            \cf4 let\cf5  samePercents = \cf10 worksets\cf5 .\cf19 all\cf5  \{$0.\cf10 percent\cf5 .\cf10 label\cf5  \cf15 ==\cf5  first.\cf10 percent\cf5 .\cf10 label\cf5 \}\
+        \cf3 if\cf2  \cf3 let\cf2  first = \cf6 worksets\cf2 .\cf5 first\cf2  \{\
+            \cf3 let\cf2  sameReps = \cf6 worksets\cf2 .\cf8 all\cf2  \{$0.\cf6 reps\cf2 .\cf6 min\cf2  \cf9 ==\cf2  first.\cf6 reps\cf2 .\cf6 min\cf2  \cf9 &&\cf2  $0.\cf6 reps\cf2 .\cf6 max\cf2  \cf9 ==\cf2  first.\cf6 reps\cf2 .\cf6 max\cf2 \}\
+            \cf3 let\cf2  samePercents = \cf6 worksets\cf2 .\cf8 all\cf2  \{$0.\cf6 percent\cf2 .\cf6 label\cf2  \cf9 ==\cf2  first.\cf6 percent\cf2 .\cf6 label\cf2 \}\
             \
-            \cf4 if\cf5  sameReps \cf15 &&\cf5  samePercents \{\
-                \cf4 return\cf5  \cf18 "\cf5 \\(\cf10 worksets\cf5 .\cf7 count\cf5 )\cf18 x\cf5 \\(\cf19 repsStr\cf5 (first))\\(\cf19 weightStr\cf5 (first))\cf18 "\cf5 \
+            \cf3 if\cf2  sameReps \cf9 &&\cf2  samePercents \{\
+                \cf3 return\cf2  \cf12 "\cf2 \\(\cf6 worksets\cf2 .\cf5 count\cf2 )\cf12 x\cf2 \\(\cf8 repsStr\cf2 (first))\\(\cf8 weightStr\cf2 (first))\cf12 "\cf2 \
 \
-            \} \cf4 else\cf5  \cf4 if\cf5  samePercents \{\
-                \cf4 let\cf5  labels = \cf10 worksets\cf5 .\cf15 map\cf5  \{\cf19 repsStr\cf5 ($0)\}\
-                \cf4 let\cf5  label = labels.\cf15 joined\cf5 (separator: \cf18 ","\cf5 )\
-                \cf4 return\cf5  \cf18 "\cf5 \\(label)\\(\cf19 weightStr\cf5 (first))\cf18 "\cf5 \
+            \} \cf3 else\cf2  \cf3 if\cf2  samePercents \{\
+                \cf3 let\cf2  labels = \cf6 worksets\cf2 .\cf9 map\cf2  \{\cf8 repsStr\cf2 ($0)\}\
+                \cf3 let\cf2  label = labels.\cf9 joined\cf2 (separator: \cf12 ","\cf2 )\
+                \cf3 return\cf2  \cf12 "\cf2 \\(label)\\(\cf8 weightStr\cf2 (first))\cf12 "\cf2 \
             \
-            \} \cf4 else\cf5  \cf4 if\cf5  \cf4 let\cf5  last = \cf10 worksets\cf5 .\cf7 last\cf5  \{\
-                \cf4 return\cf5  \cf18 "\cf5 \\(\cf19 repsStr\cf5 (last))\\(\cf19 weightStr\cf5 (last))\cf18 "\cf5 \
+            \} \cf3 else\cf2  \cf3 if\cf2  \cf3 let\cf2  last = \cf6 worksets\cf2 .\cf5 last\cf2  \{\
+                \cf3 return\cf2  \cf12 "\cf2 \\(\cf8 repsStr\cf2 (last))\\(\cf8 weightStr\cf2 (last))\cf12 "\cf2 \
             \}\
         \}\
-        \cf4 return\cf5  \cf18 ""\cf5 \
+        \cf3 return\cf2  \cf12 ""\cf2 \
     \}\
 \
 \pard\pardeftab720\partightenfactor0
-\cf4 fileprivate\cf5  \cf4 func\cf5  \cf8 phash\cf5 () -> \cf7 Int\cf5  \{\
+\cf3 fileprivate\cf2  \cf3 func\cf2  \cf4 phash\cf2 () -> \cf5 Int\cf2  \{\
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-\cf5     \cf4 return\cf5  \cf4 self\cf5 .apparatus.phash() &+ \cf4 self\cf5 .restSecs.hashValue &+ \cf4 self\cf5 .sets.phash()\
+\cf2     \cf3 return\cf2  \cf3 self\cf2 .apparatus.phash() &+ \cf3 self\cf2 .restSecs.hashValue &+ \cf3 self\cf2 .sets.phash()\
 \}\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f3\fs48 \cf12 \
+\f2\fs48 \cf14 \
 }

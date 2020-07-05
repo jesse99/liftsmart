@@ -12,7 +12,10 @@
 		37412F5724823F1A00FA78A7 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 37412F5624823F1A00FA78A7 /* Default-568h@2x.png */; };
 		37412F592482426D00FA78A7 /* ExerciseDurationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */; };
 		37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F5A2482D5C400FA78A7 /* WorkoutView.swift */; };
+		37455C0024AB07B200C26AD0 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37455BFF24AB07B200C26AD0 /* HistoryView.swift */; };
 		374F97DD248C25A50062EE0B /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374F97DC248C25A50062EE0B /* DateExtension.swift */; };
+		3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */; };
+		3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA6124B1A84A00EF604A /* RestartableTimer.swift */; };
 		376987BF244B95D30021D0FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987BE244B95D30021D0FB /* AppDelegate.swift */; };
 		376987C1244B95D30021D0FB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987C0244B95D30021D0FB /* SceneDelegate.swift */; };
 		376987C3244B95D30021D0FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987C2244B95D30021D0FB /* ContentView.swift */; };
@@ -53,7 +56,10 @@
 		37412F5624823F1A00FA78A7 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDurationsView.swift; sourceTree = "<group>"; };
 		37412F5A2482D5C400FA78A7 /* WorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
+		37455BFF24AB07B200C26AD0 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		374F97DC248C25A50062EE0B /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
+		3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalExtension.swift; sourceTree = "<group>"; };
+		3766CA6124B1A84A00EF604A /* RestartableTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestartableTimer.swift; sourceTree = "<group>"; };
 		376987BB244B95D30021D0FB /* liftsmart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = liftsmart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		376987BE244B95D30021D0FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		376987C0244B95D30021D0FB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -128,6 +134,7 @@
 				37881BCF244FF7DE00CFB411 /* Extensions */,
 				378D567724843AB9006A041C /* FriendlyStrings.swift */,
 				37FB6E7F24687A2E00EB4916 /* Model */,
+				3766CA6124B1A84A00EF604A /* RestartableTimer.swift */,
 				376987C0244B95D30021D0FB /* SceneDelegate.swift */,
 				372D2232249E8D1B0024C8F3 /* Store.swift */,
 				37881BCC244FE62C00CFB411 /* Views */,
@@ -158,6 +165,7 @@
 				376987C2244B95D30021D0FB /* ContentView.swift */,
 				37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */,
 				37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */,
+				37455BFF24AB07B200C26AD0 /* HistoryView.swift */,
 				378D567324830271006A041C /* ProgramView.swift */,
 				378D567524842C95006A041C /* TimerView.swift */,
 				37412F5A2482D5C400FA78A7 /* WorkoutView.swift */,
@@ -171,6 +179,7 @@
 				374F97DC248C25A50062EE0B /* DateExtension.swift */,
 				37881BD22455FA7400CFB411 /* DoubleExtensions.swift */,
 				37881BD0244FF80A00CFB411 /* SequenceExtensions.swift */,
+				3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -305,9 +314,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				378D567624842C95006A041C /* TimerView.swift in Sources */,
+				3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */,
 				374F97DD248C25A50062EE0B /* DateExtension.swift in Sources */,
 				37FB6E8124687A4300EB4916 /* Apparatus.swift in Sources */,
 				37FB6E7E24686BC600EB4916 /* Modality.swift in Sources */,
+				3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */,
 				37FB6E8524687B9400EB4916 /* Expected.swift in Sources */,
 				372D2233249E8D1B0024C8F3 /* Store.swift in Sources */,
 				37FB6E8324687A6B00EB4916 /* Sets.swift in Sources */,
@@ -323,6 +334,7 @@
 				37881BD1244FF80A00CFB411 /* SequenceExtensions.swift in Sources */,
 				37FB6E89246B52C200EB4916 /* Workout.swift in Sources */,
 				378D567424830271006A041C /* ProgramView.swift in Sources */,
+				37455C0024AB07B200C26AD0 /* HistoryView.swift in Sources */,
 				37FB6E8724687D0F00EB4916 /* Exercise.swift in Sources */,
 				37881BD32455FA7400CFB411 /* DoubleExtensions.swift in Sources */,
 				37E83136245E248500A135C7 /* Current.swift in Sources */,

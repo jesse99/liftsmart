@@ -51,11 +51,23 @@ class Exercise: Hashable, Identifiable, Storable {
         store.addInt("id", id)
     }
 
-    func initCurrent() {
+    func shouldReset(numSets: Int) -> Bool {
         if let current = self.current {
-            // If it's been a long time since the user did this exercise then
-            // start over.
-            if Date().hoursSinceDate(current.startDate) > window {
+            // If it's been a long time since the user began the exercise then
+            // start over. If the user has finished the exercise then give them
+            // the option to do it again.
+            return Date().hoursSinceDate(current.startDate) > window || current.setIndex >= numSets
+        } else {
+            return true
+        }
+    }
+        
+    func initCurrent(numSets: Int) {
+        if let current = self.current {
+            // If it's been a long time since the user began the exercise then
+            // start over. If the user has finished the exercise then give them
+            // the option to do it again.
+            if Date().hoursSinceDate(current.startDate) > window || current.setIndex >= numSets {
                 self.current = Current(weight: self.expected.weight)
             }
         } else {

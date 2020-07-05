@@ -11,6 +11,7 @@ struct ExerciseMaxRepsView: View {
     @State var completed: Int = 0
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
+    @State var historyModal: Bool = false
     @State var updateModal: Bool = false
     @State var showingSheet: Bool = false
     @State var underway: Bool = false
@@ -31,12 +32,7 @@ struct ExerciseMaxRepsView: View {
             self.targetReps = nil
         }
         
-        self.exercise.initCurrent()
-        if self.exercise.current!.setIndex >= self.restSecs.count {
-            // TODO: May just want to come back to the finished state, especially
-            // if we have some sort of history view here.
-           self.exercise.current!.setIndex = 0
-        }
+        self.exercise.initCurrent(numSets: self.restSecs.count)
     }
     
     var body: some View {
@@ -77,9 +73,11 @@ struct ExerciseMaxRepsView: View {
                 // We have to use underway because body will be updated when a @State var changes
                 // but not when some nested field (like exercise.current!.setIndex changes).
                 Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
+                Button("History", action: onStartHistory)
+                    .font(.callout)
+                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.history, workout: self.workout, exercise: self.exercise)}
                 Spacer()
                 Button("Notes", action: onNotes).font(.callout)
-                // TODO: Do we want a history button? or maybe some sort of details view?
                 Button("Options", action: onOptions).font(.callout)
             }.padding()
         }
@@ -90,9 +88,10 @@ struct ExerciseMaxRepsView: View {
         
         let delta = 10  // we'll show +/- this many reps versus expected
         
-        let reps = expected()
-        for reps in max(reps - delta, 1)...(reps + delta) {
-            buttons.append(.default(Text("\(reps) Reps"), action: {() -> Void in self.onSheetCompleted(reps)}))
+        let target = expected()
+        for reps in max(target - delta, 1)...(target + delta) {
+            let text = Text("\(reps) Reps") // TODO: would be nice to style this if target == reps but bold() and underline() don't do anything
+            buttons.append(.default(text, action: {() -> Void in self.onSheetCompleted(reps)}))
         }
         
         return buttons
@@ -143,6 +142,10 @@ struct ExerciseMaxRepsView: View {
     
     func onStartTimer() {
         self.durationModal = true
+    }
+    
+    func onStartHistory() {
+        self.historyModal = true
     }
     
     func startDuration(_ delta: Int) -> Int {

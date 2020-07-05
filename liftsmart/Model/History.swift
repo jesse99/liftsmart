@@ -3,27 +3,34 @@
 import Foundation
 
 class History: Storable {
-    struct Record: CustomDebugStringConvertible, Storable {
+    class Record: CustomDebugStringConvertible, Storable {
         var completed: Date     // date exercise was finished
         var weight: Double      // may be 0.0
         var label: String       // "3x60s"
+        var key: String         // exercise.name + workout.name
+        var note: String = ""   // optional arbitrary text set by user
 
-        init(_ date: Date, _ weight: Double, _ label: String) {
+        init(_ date: Date, _ weight: Double, _ label: String, _ key: String) {
             self.completed = date
             self.weight = weight
             self.label = label
+            self.key = key
         }
         
-        init(from store: Store) {
+        required init(from store: Store) {
             self.completed = store.getDate("completed")
             self.weight = store.getDbl("weight")
             self.label = store.getStr("label")
+            self.key = store.getStr("key", ifMissing: "")
+            self.note = store.getStr("note", ifMissing: "")
         }
         
         func save(_ store: Store) {
             store.addDate("completed", completed)
             store.addDbl("weight", weight)
             store.addStr("label", label)
+            store.addStr("key", key)
+            store.addStr("note", note)
         }
 
         var debugDescription: String {
@@ -66,14 +73,13 @@ class History: Storable {
         store.addDateArray("completed-values", values)
     }
 
-    // TODO: support user notes?
-    func append(_ workout: Workout, _ exercise: Exercise) {
+    @discardableResult func append(_ workout: Workout, _ exercise: Exercise) -> History.Record {
         // Using startDate instead of Date() makes testing a bit easier...
-        let record = Record(exercise.current!.startDate, exercise.current!.weight, exercise.modality.sets.debugDescription)
-        self.records[exercise.formalName, default: []].append(record)
-        
         let key = workout.name + "-" + exercise.name
+        let record = Record(exercise.current!.startDate, exercise.current!.weight, exercise.modality.sets.debugDescription, key)
+        self.records[exercise.formalName, default: []].append(record)
         self.completed[key] = exercise.current!.startDate
+        return record
     }
     
     func lastCompleted(_ workout: Workout, _ exercise: Exercise) -> Date? {
@@ -81,6 +87,40 @@ class History: Storable {
         return self.completed[key]
     }
     
+    func exercise(_ workout: Workout, _ exercise: Exercise) -> RecordSequence {
+        return History.RecordSequence(history: self, workout: workout, exercise: exercise)
+    }
+    
+    struct RecordSequence: Sequence {
+        let history: History
+        let workout: Workout
+        let exercise: Exercise
+        
+        func makeIterator() -> History.RecordSequence.Iterator {
+            let key = workout.name + "-" + exercise.name
+            return History.RecordSequence.Iterator(history: self.history, formalName: self.exercise.formalName, key: key)
+        }
+        
+        struct Iterator: IteratorProtocol {
+            let history: History
+            let formalName: String
+            let key: String
+            var index: Int = 0
+            
+            mutating func next() -> Record? {
+                let entries = history.records[formalName] ?? []
+                while index < entries.count {
+                    let result = entries[index]
+                    index += 1
+                    if result.key == key {
+                        return result
+                    }
+                }
+                return nil
+            }
+        }
+    }
+
     private var records: [String: [Record]] = [:]   // keyed by formal name, last record is the most recent
     private var completed: [String: Date] = [:]  // workout.name + exercise.name => date last completed
 }

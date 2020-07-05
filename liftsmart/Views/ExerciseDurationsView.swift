@@ -8,8 +8,13 @@ struct ExerciseDurationsView: View {
     var history: History
     let durations: [DurationSet]
     let targetSecs: [Int]
+    var timer = RestartableTimer(every: TimeInterval.hours(4))
+    @State var title: String = ""
+    @State var subTitle: String = ""
+    @State var startLabel: String = ""
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
+    @State var historyModal: Bool = false
     @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
@@ -27,13 +32,6 @@ struct ExerciseDurationsView: View {
             self.durations = []
             self.targetSecs = []
         }
-        
-        self.exercise.initCurrent()
-        if self.exercise.current!.setIndex >= self.durations.count {
-            // TODO: May just want to come back to the finished state, especially
-            // if we have some sort of history view here.
-           self.exercise.current!.setIndex = 0
-        }
     }
     
     var body: some View {
@@ -42,11 +40,11 @@ struct ExerciseDurationsView: View {
                 Text(exercise.name).font(.largeTitle)   // Burpees
                 Spacer()
             
-                Text(title()).font(.title)              // Set 1 of 1
-                Text(subTitle()).font(.headline)        // 60s
+                Text(self.title).font(.title)              // Set 1 of 1
+                Text(self.subTitle).font(.headline)        // 60s
                 Spacer()
 
-                Button(startLabel(), action: onStart)
+                Button(self.startLabel, action: onStart)
                     .font(.system(size: 40.0))
                     .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(duration: self.startDuration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
@@ -59,20 +57,74 @@ struct ExerciseDurationsView: View {
 
             Divider()
             HStack {
-                // We have to use underway because body will be updated when a @State var changes
-                // but not when some nested field (like exercise.current!.setIndex changes).
                 Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
+                Button("History", action: onStartHistory)
+                    .font(.callout)
+                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.history, workout: self.workout, exercise: self.exercise)}
                 Spacer()
-                // TODO: Do we want a history button? or maybe some sort of details view?
                 Button("Notes", action: onNotes).font(.callout)
                 Button("Options", action: onOptions).font(.callout)
-            }.padding()
+            }
+            .padding()
+            .onReceive(timer.timer) {_ in self.onTimer()}
+            .onAppear {self.onAppear(); self.timer.restart()}
+            .onDisappear() {self.timer.stop()}
+        }
+    }
+    
+    func onAppear() {
+        if exercise.shouldReset(numSets: durations.count) {
+            onReset()
+        } else {
+            refresh()
+        }
+    }
+    
+    func refresh() {
+        if exercise.current!.setIndex < durations.count {
+            self.title = "Set \(exercise.current!.setIndex+1) of \(durations.count)"
+        } else if durations.count == 1 {
+            self.title = "Finished"
+        } else {
+            self.title = "Finished all \(durations.count) sets"
+        }
+
+        // TODO: If there is an expected weight I think we'd annotate subTitle.
+        if exercise.current!.setIndex >= durations.count {
+            self.subTitle = ""
+        }
+
+        if exercise.current!.setIndex < durations.count {
+            let duration = durations[exercise.current!.setIndex]
+            if targetSecs.count > 0 {
+                let target = targetSecs[exercise.current!.setIndex]
+                self.subTitle = "\(duration) (target is \(target)s)"
+            } else {
+                self.subTitle = "\(duration)"
+            }
+        } else {
+            self.subTitle = ""
+        }
+
+        if exercise.current!.setIndex == 0 {
+            self.startLabel = "Start"
+        } else if (exercise.current!.setIndex == durations.count) {
+            self.startLabel = "Done"
+        } else {
+            self.startLabel = "Next"
+        }
+    }
+    
+    func onTimer() {
+        if self.exercise.current!.setIndex > 0 {
+            self.onReset()
         }
     }
     
     func onReset() {
-        self.exercise.current!.setIndex = 0
+        self.exercise.current = Current(weight: self.exercise.expected.weight)
         self.underway = false
+        self.refresh()
     }
     
     func onNotes() {
@@ -100,10 +152,15 @@ struct ExerciseDurationsView: View {
     func onStartCompleted() {
         self.exercise.current!.setIndex += 1
         self.underway = self.durations.count > 1
+        self.refresh()      // note that dismissing a sheet does not call onAppear
     }
     
     func onStartTimer() {
         self.durationModal = true
+    }
+    
+    func onStartHistory() {
+        self.historyModal = true
     }
     
     func startDuration() -> Int {
@@ -120,41 +177,6 @@ struct ExerciseDurationsView: View {
     
     func restSecs() -> Int {
         return durations[exercise.current!.setIndex].restSecs
-    }
-    
-    func title() -> String {
-        if exercise.current!.setIndex < durations.count {
-            return "Set \(exercise.current!.setIndex+1) of \(durations.count)"
-        } else if durations.count == 1 {
-            return "Finished"
-        } else {
-            return "Finished all \(durations.count) sets"
-        }
-    }
-
-    // TODO: If there is an expected weight I think we'd annotate this label.
-    func subTitle() -> String {
-        if exercise.current!.setIndex >= durations.count {
-            return ""
-        }
-
-        let duration = durations[exercise.current!.setIndex]
-        if targetSecs.count > 0 {
-            let target = targetSecs[exercise.current!.setIndex]
-            return "\(duration) (target is \(target)s)"
-        } else {
-            return "\(duration)"
-        }
-    }
-    
-    func startLabel() -> String {
-        if exercise.current!.setIndex == 0 {
-            return "Start"
-        } else if (exercise.current!.setIndex == durations.count) {
-            return "Done"
-        } else {
-            return "Next"
-        }
     }
 }
 
