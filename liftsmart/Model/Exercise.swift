@@ -13,6 +13,7 @@ class Exercise: Hashable, Identifiable, Storable {
     var expected: Expected
     var current: Current? = nil // this is reset to nil if it's been too long since the user was doing the exercise
     let id: Int                 // used for hashing
+    static let window:Double = 2.0
 
     init(_ name: String, _ formalName: String, _ modality: Modality, _ expected: Expected = Expected(weight: 0.0)) {
         self.name = name
@@ -56,28 +57,15 @@ class Exercise: Hashable, Identifiable, Storable {
             // If it's been a long time since the user began the exercise then
             // start over. If the user has finished the exercise then give them
             // the option to do it again.
-            return Date().hoursSinceDate(current.startDate) > window || current.setIndex >= numSets
+            return Date().hoursSinceDate(current.startDate) > Exercise.window || current.setIndex >= numSets
         } else {
             return true
         }
     }
         
-    func initCurrent(numSets: Int) {
-        if let current = self.current {
-            // If it's been a long time since the user began the exercise then
-            // start over. If the user has finished the exercise then give them
-            // the option to do it again.
-            if Date().hoursSinceDate(current.startDate) > window || current.setIndex >= numSets {
-                self.current = Current(weight: self.expected.weight)
-            }
-        } else {
-            self.current = Current(weight: self.expected.weight)
-        }
-    }
-        
     func inProgress(_ workout: Workout, _ history: History) -> Bool {
         if let current = self.current {
-            return Date().hoursSinceDate(current.startDate) < window && current.setIndex > 0 && !recentlyCompleted(workout, history)
+            return Date().hoursSinceDate(current.startDate) < Exercise.window && current.setIndex > 0 && !recentlyCompleted(workout, history)
         } else {
             return false
         }
@@ -85,7 +73,7 @@ class Exercise: Hashable, Identifiable, Storable {
         
     func recentlyCompleted(_ workout: Workout, _ history: History) -> Bool {
         if let completed = history.lastCompleted(workout, self) {
-            return Date().hoursSinceDate(completed) < window
+            return Date().hoursSinceDate(completed) < Exercise.window
         } else {
             return false
         }
@@ -106,6 +94,4 @@ class Exercise: Hashable, Identifiable, Storable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.id)
     }
-    
-    private let window:Double = 2.0
 }

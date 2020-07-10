@@ -10,6 +10,7 @@ class RestartableTimer: ObservableObject {
     private let every: TimeInterval
     private let tolerance: TimeInterval
     
+    // Note that the timer won't fire until the every interval elapses.
     init(every: TimeInterval, tolerance: TimeInterval? = nil) {
         self.every = every
         self.tolerance = tolerance ?? 0.8*every

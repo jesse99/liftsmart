@@ -10,7 +10,7 @@ struct HistoryView: View {
     @State var labels: [String] = Array(repeating: "", count: 200)
     @State var subLabels: [String] = Array(repeating: "", count: 200)
     @State var notes: [String] = Array(repeating: "", count: 200)
-    private let timer = Timer.publish(every: TimeInterval.hours(4), tolerance: TimeInterval.minutes(30), on: .main, in: .common).autoconnect()
+    private let timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
 
     // Note that updating @State members in init doesn't actually work: https://stackoverflow.com/questions/61661581/swiftui-view-apparently-laid-out-before-init-runs
     init(history: History, workout: Workout, exercise: Exercise) {
@@ -42,8 +42,9 @@ struct HistoryView: View {
                 // TODO: probably should have a clear button (with confirm alert)
             }
             .padding()
-            .onAppear {self.refresh()}
-            .onReceive(timer) {_ in self.refresh()}
+            .onAppear {self.refresh(); self.timer.restart()}
+            .onDisappear() {self.timer.stop()}
+            .onReceive(timer.timer) {_ in self.refresh()}
         }
     }
     

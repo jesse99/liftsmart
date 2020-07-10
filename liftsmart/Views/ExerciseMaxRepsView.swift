@@ -8,6 +8,11 @@ struct ExerciseMaxRepsView: View {
     var history: History
     let restSecs: [Int]
     let targetReps: Int?
+    var timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
+    @State var title: String = ""
+    @State var subTitle: String = ""
+    @State var subSubTitle: String = ""
+    @State var startLabel: String = ""
     @State var completed: Int = 0
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
@@ -31,8 +36,6 @@ struct ExerciseMaxRepsView: View {
             self.restSecs = []
             self.targetReps = nil
         }
-        
-        self.exercise.initCurrent(numSets: self.restSecs.count)
     }
     
     var body: some View {
@@ -41,12 +44,12 @@ struct ExerciseMaxRepsView: View {
                 Text(exercise.name).font(.largeTitle)   // Curls
                 Spacer()
             
-                Text(title()).font(.title)              // Set 1 of 1
-                Text(subTitle()).font(.headline)        // 10+ Reps or As Many Reps As Possible
-                Text(subSubTitle()).font(.headline)     // Completed 30 reps (target is 90 reps)
+                Text(title).font(.title)              // Set 1 of 1
+                Text(subTitle).font(.headline)        // 10+ Reps or As Many Reps As Possible
+                Text(subSubTitle).font(.headline)     // Completed 30 reps (target is 90 reps)
                 Spacer()
 
-                Button(startLabel(), action: onStart)
+                Button(startLabel, action: onStart)
                     .font(.system(size: 40.0))
                     .actionSheet(isPresented: $showingSheet) {
                         ActionSheet(title: Text("Reps Completed"), buttons: sheetButtons())}
@@ -79,7 +82,11 @@ struct ExerciseMaxRepsView: View {
                 Spacer()
                 Button("Notes", action: onNotes).font(.callout)
                 Button("Options", action: onOptions).font(.callout)
-            }.padding()
+            }
+            .padding()
+            .onReceive(timer.timer) {_ in self.onTimer()}
+            .onAppear {self.onAppear(); self.timer.restart()}
+            .onDisappear() {self.timer.stop()}
         }
     }
     
@@ -101,13 +108,70 @@ struct ExerciseMaxRepsView: View {
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
         self.startModal = startDuration(-1) > 0
         self.completed += reps
-        self.underway = self.restSecs.count > 1
+        self.refresh()      // note that dismissing a sheet does not call onAppear
+    }
+    
+    func onAppear() {
+        if exercise.shouldReset(numSets: restSecs.count) {
+            onReset()
+        } else {
+            refresh()
+        }
+    }
+
+    func onTimer() {
+        if self.exercise.current!.setIndex > 0 {
+            self.onReset()
+        }
+    }
+
+    func refresh() {
+        self.underway = self.restSecs.count > 1 && exercise.current!.setIndex > 0
+
+        if exercise.current!.setIndex < restSecs.count {
+            title = "Set \(exercise.current!.setIndex+1) of \(restSecs.count)"
+        } else if restSecs.count == 1 {
+            title = "Finished"
+        } else {
+            title = "Finished all \(restSecs.count) sets"
+        }
+
+        if exercise.current!.setIndex >= restSecs.count {
+            subTitle =  ""
+        } else {
+            var suffix = ""
+            if exercise.expected.weight > 0.0 {
+                suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
+            }
+
+            subTitle =  "\(expected())+ reps \(suffix)"
+        }
+
+        subSubTitle = ""
+        if self.completed > 0 {
+            if let target = self.targetReps {
+                subSubTitle = "Completed \(self.completed) reps (target is \(target) reps)"
+            } else {
+                subSubTitle = "Completed \(self.completed) reps"
+            }
+
+        } else {
+            if let target = self.targetReps {
+                subSubTitle = "Target is \(target) reps"
+            }
+        }
+
+        if (exercise.current!.setIndex == restSecs.count) {
+            startLabel = "Done"
+        } else {
+            startLabel = "Next"
+        }
     }
     
     func onReset() {
+        self.exercise.current = Current(weight: self.exercise.expected.weight)
         self.completed = 0
-        self.exercise.current!.setIndex = 0
-        self.underway = false
+        self.refresh()
     }
     
     func onNotes() {
@@ -163,45 +227,6 @@ struct ExerciseMaxRepsView: View {
         return secs > 0 ? secs : 60
     }
     
-    func title() -> String {
-        if exercise.current!.setIndex < restSecs.count {
-            return "Set \(exercise.current!.setIndex+1) of \(restSecs.count)"
-        } else if restSecs.count == 1 {
-            return "Finished"
-        } else {
-            return "Finished all \(restSecs.count) sets"
-        }
-    }
-    
-    func subTitle() -> String {
-        if exercise.current!.setIndex >= restSecs.count {
-            return ""
-        }
-        
-        var suffix = ""
-        if exercise.expected.weight > 0.0 {
-            suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
-        }
-
-        return "\(expected())+ reps \(suffix)"
-    }
-
-    func subSubTitle() -> String {
-        if self.completed > 0 {
-            if let target = self.targetReps {
-                return "Completed \(self.completed) reps (target is \(target) reps)"
-            } else {
-                return "Completed \(self.completed) reps"
-            }
-
-        } else {
-            if let target = self.targetReps {
-                return "Target is \(target) reps"
-            }
-        }
-        return ""
-    }
-
     func expected() -> Int {
         if let expected = exercise.expected.reps {
             if exercise.current!.setIndex < restSecs.count {
@@ -213,14 +238,6 @@ struct ExerciseMaxRepsView: View {
             }
         } else {
             return 12
-        }
-    }
-    
-    func startLabel() -> String {
-        if (exercise.current!.setIndex == restSecs.count) {
-            return "Done"
-        } else {
-            return "Next"
         }
     }
 }

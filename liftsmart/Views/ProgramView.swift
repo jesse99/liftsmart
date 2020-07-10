@@ -8,12 +8,12 @@ struct Info {
     let completedAll: Bool      // true if all exercises were ever completed
 }
 
-var infos: [Info] = []
-
 struct ProgramView: View {
     var program: Program
     var history: History
-    @State var suffix: String = ""  // hack to force an update
+    let timer = RestartableTimer(every: TimeInterval.hours(8))
+    @State var infos: [Info] = []
+    @State var subData: [(String, Color)] = Array(repeating: ("", .black), count: 30)
 
     init(program: Program, history: History) {
         self.program = program
@@ -27,25 +27,27 @@ struct ProgramView: View {
                 NavigationLink(destination: WorkoutView(workout: self.program[i], history: self.history)) {
                     VStack(alignment: .leading) {
                         Text(self.program[i].name).font(.title)
-                            .onDisappear {infos = []}
-                            .onAppear {self.suffix = self.suffix.isEmpty ? " " : ""}
-
-                        Text(self.subData(i).0).foregroundColor(self.subData(i).1).font(.headline) // 10+ Reps or As Many Reps As Possible
+                        Text(self.subData[i].0).foregroundColor(self.subData[i].1).font(.headline) // 10+ Reps or As Many Reps As Possible
                     }
                 }
             }
-            .navigationBarTitle(Text(program.name + " Workouts" + suffix))
+            .navigationBarTitle(Text(program.name + " Workouts"))
+            .onAppear {self.refresh(); self.timer.restart()}
+            .onDisappear {self.timer.stop()}
+            .onReceive(self.timer.timer) {_ in self.refresh()}
         }
         // TODO: have a text view saying how long this program has been run for
         // and also how many times the user has worked out
     }
     
-    func subData(_ index: Int) -> (String, Color) {
-        if infos.isEmpty {
-            self.updateInfos()
-        }
-        let info = infos[index]
-        
+    // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
+    // on this view for a long time.
+    func refresh() {
+        updateInfos()
+        subData = infos.mapi({self.getSubData($0, $1)})
+    }
+    
+    func getSubData(_ index: Int, _ info: Info) -> (String, Color) {
         if let last = info.latest {
             let cal = Calendar.current
             if cal.isDate(last, inSameDayAs: Date()) {
@@ -84,6 +86,7 @@ struct ProgramView: View {
             return true
         }
                 
+        infos = []
         for workout in program {
             var dates: [Date] = []
             for exercise in workout.exercises {
@@ -93,7 +96,6 @@ struct ProgramView: View {
             }
             dates.sort()
             
-            // TODO: this doesn't actually update infos: maybe use a global?
             if let last = dates.last {
                 let didAll = dates.count == workout.exercises.count
                 infos.append(Info(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
