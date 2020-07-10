@@ -149,15 +149,27 @@ struct ExerciseMaxRepsView: View {
 
         subSubTitle = ""
         if self.completed > 0 {
-            if let target = self.targetReps {
-                subSubTitle = "Completed \(self.completed) reps (target is \(target) reps)"
+            if let expected = exercise.expected.reps {
+                if exercise.current!.setIndex < restSecs.count {
+                    subSubTitle = "Did \(self.completed) reps (expecting \(expected) reps)"
+                } else if self.completed == expected {
+                    subSubTitle = "Did all \(expected) expected reps"
+                } else if self.completed < expected {
+                    subSubTitle = "Missed \(expected - self.completed) of \(expected) expected reps"
+                } else {
+                    subSubTitle = "Extra \(self.completed - expected) of \(expected) expected reps"
+                }
             } else {
-                subSubTitle = "Completed \(self.completed) reps"
+                subSubTitle = "Did \(self.completed) reps"
             }
 
         } else {
-            if let target = self.targetReps {
-                subSubTitle = "Target is \(target) reps"
+            if let expected = exercise.expected.reps {
+                if exercise.current!.setIndex < restSecs.count {
+                    subSubTitle = "Expecting \(expected) reps"
+                } else {
+                    subSubTitle = "Expected \(expected) reps"
+                }
             }
         }
 
