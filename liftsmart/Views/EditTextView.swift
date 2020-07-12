@@ -11,9 +11,9 @@ struct EditTextView: View {
     let placeHolder: String
     @State var content: String
     @State var error: String = " "      // use a space instead of empty so layout doesn't shift when there is a real error
-    let type: UIKeyboardType = .default
+    var type: UIKeyboardType = .default
     let autoCorrect: Bool = true
-    let validator: Validator?
+    var validator: Validator?
     let completion: (String) -> Void
     
     var body: some View {
@@ -53,7 +53,7 @@ struct EditTextView: View {
 
 struct EditTextView_Previews: PreviewProvider {
     static var previews: some View {
-        EditTextView(title: "Edit Text", placeHolder: "arbitrary", content: "", validator: nil, completion: done)
+        EditTextView(title: "Edit Text", placeHolder: "arbitrary", content: "", completion: done)
     }
     
     static func done(_ text: String) {

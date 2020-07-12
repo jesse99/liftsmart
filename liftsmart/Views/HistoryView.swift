@@ -54,9 +54,9 @@ struct HistoryView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.subLabels[self.editIndex]), buttons: editButtons())}
         .sheet(isPresented: self.$showEditNote) {
-            EditTextView(title: "Edit Note", placeHolder: "user note", content: self.notes[self.editIndex], validator: nil, completion: self.onEditedNote)}
+            EditTextView(title: "Edit Note", placeHolder: "user note", content: self.notes[self.editIndex], completion: self.onEditedNote)}
         .sheet(isPresented: self.$showEditWeight) {
-            EditTextView(title: "Edit Weight", placeHolder: "", content: friendlyWeight(self.items[self.editIndex].weight), validator: self.onValidWeight, completion: self.onEditedWeight)}
+            EditTextView(title: "Edit Weight", placeHolder: "", content: friendlyWeight(self.items[self.editIndex].weight), type: .decimalPad, validator: self.onValidWeight, completion: self.onEditedWeight)}
     }
     
     // subLabels will change as time passes so we need the timer to ensure that our UI updates accordingly.
