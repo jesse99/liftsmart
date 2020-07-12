@@ -12,6 +12,7 @@ struct HistoryView: View {
     @State var notes: [String] = Array(repeating: "", count: 200)
     @State var showEditActions: Bool = false
     @State var showEditNote: Bool = false
+    @State var showEditWeight: Bool = false
     @State var editIndex: Int = 0
     private let timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
 
@@ -53,7 +54,9 @@ struct HistoryView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.subLabels[self.editIndex]), buttons: editButtons())}
         .sheet(isPresented: self.$showEditNote) {
-            EditTextView(title: "Edit Note", placeHolder: "user note", content: self.notes[self.editIndex], completion: self.onEditedNote)}
+            EditTextView(title: "Edit Note", placeHolder: "user note", content: self.notes[self.editIndex], validator: nil, completion: self.onEditedNote)}
+        .sheet(isPresented: self.$showEditWeight) {
+            EditTextView(title: "Edit Weight", placeHolder: "", content: friendlyWeight(self.items[self.editIndex].weight), validator: self.onValidWeight, completion: self.onEditedWeight)}
     }
     
     // subLabels will change as time passes so we need the timer to ensure that our UI updates accordingly.
@@ -85,8 +88,7 @@ struct HistoryView: View {
     }
     
     func onEditWeight() {
-        // TODO: probably want a new reuseable view for this
-        print("onEditWeight for \(editIndex)")
+        self.showEditWeight = true
     }
 
     func onEditNote() {
@@ -96,6 +98,28 @@ struct HistoryView: View {
     func onEditedNote(_ content: String) {
         self.items[self.editIndex].note = content
         self.refresh()
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+    
+    func onEditedWeight(_ content: String) {
+        self.items[self.editIndex].weight = Double(content)!
+        self.refresh()
+        
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+
+    func onValidWeight(_ content: String) -> String? {
+        if let weight = Double(content) {
+            if weight < 0.0 {
+                return "Weight cannot be negative"
+            }
+            return nil
+        } else {
+            return "Not a number"
+        }
     }
 
     func onDelete() {
