@@ -8,7 +8,7 @@ struct EditTextView: View {
     
     @Environment(\.presentationMode) private var presentationMode
     let title: String
-    let placeHolder: String
+    var placeHolder: String = ""
     @State var content: String
     @State var error: String = " "      // use a space instead of empty so layout doesn't shift when there is a real error
     var type: UIKeyboardType = .default
