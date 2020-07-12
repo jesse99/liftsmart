@@ -5,11 +5,14 @@ import SwiftUI
 struct HistoryView: View {
     var items: [History.Record]
     let title: String
-    let hasNote: Bool
     @Environment(\.presentationMode) private var presentationMode
+    @State var hasNote: Bool = false
     @State var labels: [String] = Array(repeating: "", count: 200)
     @State var subLabels: [String] = Array(repeating: "", count: 200)
     @State var notes: [String] = Array(repeating: "", count: 200)
+    @State var showEditActions: Bool = false
+    @State var showEditNote: Bool = false
+    @State var editIndex: Int = 0
     private let timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
 
     // Note that updating @State members in init doesn't actually work: https://stackoverflow.com/questions/61661581/swiftui-view-apparently-laid-out-before-init-runs
@@ -25,7 +28,6 @@ struct HistoryView: View {
             List(0..<items.count) { i in
                 VStack(alignment: .leading) {
                     HStack {
-                        // TODO: click should allow note to be edited (will have to manually call refresh in onDismiss)
                         Text(self.labels[i]).font(.headline)
                         Spacer()
                         Text(self.subLabels[i]).font(.headline)
@@ -34,6 +36,8 @@ struct HistoryView: View {
                         Text(self.notes[i]).font(.subheadline)
                     }
                 }
+                .contentShape(Rectangle())  // so we can click within spacer
+                .onTapGesture {self.showEditActions = true; self.editIndex = i}
             }
             
             Divider()
@@ -46,6 +50,10 @@ struct HistoryView: View {
             .onDisappear() {self.timer.stop()}
             .onReceive(timer.timer) {_ in self.refresh()}
         }
+        .actionSheet(isPresented: $showEditActions) {
+            ActionSheet(title: Text(self.subLabels[self.editIndex]), buttons: editButtons())}
+        .sheet(isPresented: self.$showEditNote) {
+            EditTextView(title: "Edit Note", placeHolder: "user note", content: self.notes[self.editIndex], completion: self.onEditedNote)}
     }
     
     // subLabels will change as time passes so we need the timer to ensure that our UI updates accordingly.
@@ -54,6 +62,7 @@ struct HistoryView: View {
         labels = items.map({self.label($0)})
         subLabels = items.map({$0.completed.daysName()})    // smallest reported interval is days so timer period can be very long
         notes = items.map({$0.note})
+        self.hasNote = self.items.any({!$0.note.isEmpty})
     }
     
     func label(_ record: History.Record) -> String {
@@ -64,6 +73,35 @@ struct HistoryView: View {
         }
     }
     
+    func editButtons() -> [ActionSheet.Button] {
+        var buttons: [ActionSheet.Button] = []
+        
+        buttons.append(.default(Text("Edit Weight"), action: {self.onEditWeight()}))
+        buttons.append(.default(Text("Edit Note"), action: {self.onEditNote()}))
+        buttons.append(.destructive(Text("Delete Entry"), action: {self.onDelete()}))
+        buttons.append(.cancel(Text("Cancel"), action: {}))
+        
+        return buttons
+    }
+    
+    func onEditWeight() {
+        // TODO: probably want a new reuseable view for this
+        print("onEditWeight for \(editIndex)")
+    }
+
+    func onEditNote() {
+        self.showEditNote = true
+    }
+
+    func onEditedNote(_ content: String) {
+        self.items[self.editIndex].note = content
+        self.refresh()
+    }
+
+    func onDelete() {
+        print("onDelete for \(editIndex)")
+    }
+
     func onDone() {
         self.presentationMode.wrappedValue.dismiss()
     }

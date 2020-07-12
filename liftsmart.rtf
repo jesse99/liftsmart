@@ -13,7 +13,7 @@
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
 \f0\fs34 \cf2 class\cf3  \cf4 History\cf3 : \cf5 Storable\cf3  \{\
-    \cf2 struct\cf3  \cf4 Record\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
+    \cf2 class\cf3  \cf4 Record\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
         \cf2 var\cf3  \cf7 completed\cf3 : \cf6 Date\cf3      \cf8 // date exercise was finished\cf3 \
         \cf2 var\cf3  \cf7 weight\cf3 : \cf6 Double\cf3       \cf8 // may be 0.0\cf3 \
         \cf2 var\cf3  \cf7 label\cf3 : \cf6 String\cf3        \cf8 // "3x60s"\cf3 \
@@ -70,18 +70,17 @@ Stringify - text renderer\
 Program = Workouts + Plan + Advisor(?)\
 	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor\
 	\
-\
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+
+\f0\fs34 \cf3 , onDismiss: \cf2 self\cf3 .refresh        \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 For max reps would be nice to show target and completed\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Get history working somehow:\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	- durations exercise should not add a record when done is pressed and already done\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	- max reps exercise should not add a record when done is pressed and already done\
-	- history items are too large?\
-	- get edit note working\
-	- add a history button\
+
+\f2\fs48 \cf11 \
+\'95\'a0Get history working somehow:\
+	- get edit weight working\
+		` be sure to validate this, use formatter?\
+		` should we allow label to be edited? maybe a TODO\
+	- get delete entry working\
 	- max reps needs a history button\
 \'95\'a0daysAgo should be based on hoursAgo?\
 \pard\pardeftab720\partightenfactor0
@@ -99,6 +98,12 @@ Program = Workouts + Plan + Advisor(?)\
 \'95 Would be nice to easily edit results of last exercise, especially for stuff like pullups.\
 \'95\'a0Would be cool to hard-code some real lifting numbers into history.\
 \'95\'a0Add a wizard to build an initial workout.\
+\'95 Support stuff like leg press:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 	- should we have a DiscreteWeight type?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Support dumbbells\
+\'95\'a0Support barbells\
 \'95\'a0Just have a handful of starter programs. Or maybe just synthesize one based on a wizard?\
 	- then user can edit without worrying about what is built-in or not\
 \
@@ -155,6 +160,9 @@ Program = Workouts + Plan + Advisor(?)\
 \'95 @EnvironmentObject is used to bind to data passed downward via the environmentObject modifier\
 \'95 previews are used by the Canvas inspector, can use Group to show variations\
 \'95 command-click brings up the structed editing popover\
+\'95 button placement: {\field{\*\fldinst{HYPERLINK "https://developer.apple.com/design/human-interface-guidelines/ios/views/alerts/"}}{\fldrslt 
+\f1\fs32 \cf10 \expnd0\expndtw0\kerning0
+\ul \ulc10 https://developer.apple.com/design/human-interface-guidelines/ios/views/alerts/}}\
 \'95 \cf11 font types:\cf11  {\field{\*\fldinst{HYPERLINK "https://i.stack.imgur.com/89c8C.png"}}{\fldrslt 
 \f1\fs38 \cf10 \expnd0\expndtw0\kerning0
 \ul https://i.stack.imgur.com/89c8C.png}}\
