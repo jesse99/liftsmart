@@ -2,101 +2,144 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+struct HistoryEntry: Identifiable {
+    let record: History.Record
+    let label: String
+    let sublabel: String
+    let note: String
+    let id: Int
+
+    init(_ record: History.Record, _ index: Int) {
+        self.record = record
+        
+        if record.weight > 0.0 {
+            self.label = "\(record.label) @ \(friendlyUnitsWeight(record.weight))"
+        } else {
+            self.label = record.label
+        }
+        
+        self.sublabel = record.completed.daysName()
+        self.note = record.note
+        self.id = index
+    }
+}
+
 struct HistoryView: View {
-    var items: [History.Record]
+    enum ActiveSheet {case editNote, editWeight}
+    enum ActiveAlert {case deleteSelected, deleteAll}
+    
+    var history: History
+    let workout: Workout
+    let exercise: Exercise
     let title: String
     @Environment(\.presentationMode) private var presentationMode
+    @State var entries: [HistoryEntry] = []
     @State var hasNote: Bool = false
-    @State var labels: [String] = Array(repeating: "", count: 200)
-    @State var subLabels: [String] = Array(repeating: "", count: 200)
-    @State var notes: [String] = Array(repeating: "", count: 200)
     @State var showEditActions: Bool = false
-    @State var showEditNote: Bool = false
-    @State var showEditWeight: Bool = false
+    @State var showSheet: Bool = false
+    @State var sheetAction: HistoryView.ActiveSheet = .editNote
+    @State var showAlert: Bool = false
+    @State var alertAction: HistoryView.ActiveAlert = .deleteSelected
     @State var editIndex: Int = 0
     private let timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
 
     // Note that updating @State members in init doesn't actually work: https://stackoverflow.com/questions/61661581/swiftui-view-apparently-laid-out-before-init-runs
     init(history: History, workout: Workout, exercise: Exercise) {
-        self.items = Array(history.exercise(workout, exercise).suffix(200).reversed())
+        self.history = history
+        self.workout = workout
+        self.exercise = exercise
         self.title = "\(exercise.name) History"
-        self.hasNote = self.items.any({!$0.note.isEmpty})
+        self.refresh()
     }
 
     var body: some View {
         VStack() {
             Text(title).font(.largeTitle)
-            List(0..<items.count) { i in
+            
+            List(self.entries) {entry in
                 VStack(alignment: .leading) {
                     HStack {
-                        Text(self.labels[i]).font(.headline)
+                        Text(entry.label).font(.headline)
                         Spacer()
-                        Text(self.subLabels[i]).font(.headline)
+                        Text(entry.sublabel).font(.headline)
                     }
                     if self.hasNote {
-                        Text(self.notes[i]).font(.subheadline)
+                        Text(entry.note).font(.subheadline)
                     }
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
-                .onTapGesture {self.showEditActions = true; self.editIndex = i}
+                    .onTapGesture {self.showEditActions = true; self.editIndex = entry.id}
             }
             
             Divider()
             HStack {
                 Button("Done", action: onDone).font(.callout)
-                // TODO: probably should have a clear button (with confirm alert)
             }
             .padding()
             .onAppear {self.refresh(); self.timer.restart()}
             .onDisappear() {self.timer.stop()}
             .onReceive(timer.timer) {_ in self.refresh()}
         }
+            
+        // Views can only have one sheet, see https://stackoverflow.com/questions/58837007/multiple-sheetispresented-doesnt-work-in-swiftui
         .actionSheet(isPresented: $showEditActions) {
-            ActionSheet(title: Text(self.subLabels[self.editIndex]), buttons: editButtons())}
-        .sheet(isPresented: self.$showEditNote) {
-            EditTextView(title: "Edit Note", placeHolder: "user note", content: self.notes[self.editIndex], completion: self.onEditedNote)}
-        .sheet(isPresented: self.$showEditWeight) {
-            EditTextView(title: "Edit Weight", content: friendlyWeight(self.items[self.editIndex].weight), type: .decimalPad, validator: self.onValidWeight, completion: self.onEditedWeight)}
+            ActionSheet(title: Text(self.entries[self.editIndex].sublabel), buttons: editButtons())}
+        .sheet(isPresented: self.$showSheet) {
+            if self.sheetAction == .editNote {
+                EditTextView(title: "Edit Note", placeHolder: "user note", content: self.entries[self.editIndex].note, completion: self.onEditedNote)
+            } else {
+                EditTextView(title: "Edit Weight", content: friendlyWeight(self.entries[self.editIndex].record.weight), type: .decimalPad, validator: self.onValidWeight, completion: self.onEditedWeight)
+            }}
+        .alert(isPresented: $showAlert) {   // and views can only have one alert
+            if self.alertAction == .deleteSelected {
+                return Alert(
+                    title: Text("Confirm delete"),
+                    message: Text("From \(self.entries[self.editIndex].record.completed.daysName())"),
+                    primaryButton: .destructive(Text("Delete")) {self.doDelete()},
+                    secondaryButton: .default(Text("Cancel")))
+            } else {
+                return Alert(
+                    title: Text("Confirm delete all"),
+                    message: Text("All \(self.entries.count) entries"),
+                    primaryButton: .destructive(Text("Delete")) {self.doDeleteAll()},
+                    secondaryButton: .default(Text("Cancel")))
+            }}
     }
     
     // subLabels will change as time passes so we need the timer to ensure that our UI updates accordingly.
     // labels and notes can change via our nested sheet so we update those when this view appears.
     func refresh() {
-        labels = items.map({self.label($0)})
-        subLabels = items.map({$0.completed.daysName()})    // smallest reported interval is days so timer period can be very long
-        notes = items.map({$0.note})
-        self.hasNote = self.items.any({!$0.note.isEmpty})
-    }
-    
-    func label(_ record: History.Record) -> String {
-        if record.weight > 0.0 {
-            return "\(record.label) @ \(friendlyUnitsWeight(record.weight))"
-        } else {
-            return record.label
-        }
+        let items = Array(history.exercise(workout, exercise).suffix(200).reversed())
+        self.entries = items.mapi({HistoryEntry($1, $0)})
+        self.hasNote = self.entries.any({!$0.note.isEmpty})
     }
     
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
         
+        // Could allow label to be edited. Though if the user messes it up it'd be awkward
+        // to undo that.
         buttons.append(.default(Text("Edit Weight"), action: {self.onEditWeight()}))
         buttons.append(.default(Text("Edit Note"), action: {self.onEditNote()}))
         buttons.append(.destructive(Text("Delete Entry"), action: {self.onDelete()}))
+        buttons.append(.destructive(Text("Delete All"), action: {self.onDeleteAll()}))
         buttons.append(.cancel(Text("Cancel"), action: {}))
         
         return buttons
     }
     
     func onEditWeight() {
-        self.showEditWeight = true
+        self.showSheet = true
+        self.sheetAction = .editWeight
     }
 
     func onEditNote() {
-        self.showEditNote = true
+        self.showSheet = true
+        self.sheetAction = .editNote
     }
 
     func onEditedNote(_ content: String) {
-        self.items[self.editIndex].note = content
+        self.entries[self.editIndex].record.note = content
         self.refresh()
 
         let app = UIApplication.shared.delegate as! AppDelegate
@@ -104,7 +147,7 @@ struct HistoryView: View {
     }
     
     func onEditedWeight(_ content: String) {
-        self.items[self.editIndex].weight = Double(content)!
+        self.entries[self.editIndex].record.weight = Double(content)!
         self.refresh()
         
         let app = UIApplication.shared.delegate as! AppDelegate
@@ -121,9 +164,33 @@ struct HistoryView: View {
             return "Not a number"
         }
     }
-
+    
     func onDelete() {
-        print("onDelete for \(editIndex)")
+        self.showAlert = true
+        self.alertAction = .deleteSelected
+    }
+
+    func onDeleteAll() {
+        self.showAlert = true
+        self.alertAction = .deleteAll
+    }
+    
+    func doDelete() {
+        // Note that it's problematic to pass editIndex into history becaise editIndex
+        // indexes into entries which is a transformed version of history.
+        self.history.delete(workout, exercise, self.entries[self.editIndex].record)
+        self.refresh()
+        
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+
+    func doDeleteAll() {
+        self.history.deleteAll(workout, exercise)
+        self.refresh()
+        
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
     }
 
     func onDone() {

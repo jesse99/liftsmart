@@ -82,6 +82,36 @@ class History: Storable {
         return record
     }
     
+    func delete(_ workout: Workout, _ exercise: Exercise, _ record: History.Record) {
+        if var records = self.records[exercise.formalName] {
+            if let index = records.firstIndex(where: {$0 === record}) {
+                records.remove(at: index)
+                self.records[exercise.formalName] = records
+                
+                if index >= records.count {
+                    let key = workout.name + "-" + exercise.name
+                    if let last = records.last {
+                        self.completed[key] = last.completed
+                    } else {
+                        self.completed[key] = nil
+                    }
+                }
+            } else {
+                assert(false)
+            }
+        }
+    }
+    
+    func deleteAll(_ workout: Workout, _ exercise: Exercise) {
+        if var records = self.records[exercise.formalName] {
+            records.removeAll()
+            self.records[exercise.formalName] = records
+
+            let key = workout.name + "-" + exercise.name
+            self.completed[key] = nil
+        }
+    }
+    
     func lastCompleted(_ workout: Workout, _ exercise: Exercise) -> Date? {
         let key = workout.name + "-" + exercise.name
         return self.completed[key]
