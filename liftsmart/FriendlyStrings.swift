@@ -18,6 +18,65 @@ func secsToShortDurationName(_ interval: Double) -> String {
         return String(format: "%0.1f days", arguments: [days])
     }
 }
+extension Date {
+    /// Returns a human readable string for number of days.
+    func friendlyName() -> String {
+        // today always makes sense.
+        let calendar = Calendar.current
+        if calendar.isDate(self, inSameDayAs: Date()) {
+            return "today"
+        }
+
+        // yesterday gets a little funny for people working out through midnight so we'll report hours
+        // if the date is technically yesterday but not too long ago. Note that we want to keep the
+        // reported interval fairly coarse so that we can run timers on a long interval (and avoid chewing
+        // up battery life).
+        let hours = Date().hoursSinceDate(self).rounded()
+        if let candidate = (calendar as NSCalendar).date(byAdding: .day, value: -1, to: Date(), options: .searchBackwards) , calendar.isDate(self, inSameDayAs: candidate) {
+            if hours > 4.0 {
+                return "yesterday"
+            } else {
+                if hours < 1.0 {
+                    return "under an hour ago"
+                }
+                if hours < 2.0 {
+                    return "about an hour ago"
+                }
+                if hours < 24.0 {
+                    return String(format: "%0.0f hours ago", arguments: [hours])
+                }
+            }
+        }
+        
+        for days in 2...31 {
+            if let candidate = (calendar as NSCalendar).date(byAdding: .day, value: -days, to: Date(), options: .searchBackwards) , calendar.isDate(self, inSameDayAs: candidate) {
+                return "\(days) days ago"
+            }
+        }
+        
+        for months in 1...12 {
+            if let candidate = (calendar as NSCalendar).date(byAdding: .month, value: -months, to: Date(), options: .searchBackwards) , (calendar as NSCalendar).isDate(self, equalTo: candidate, toUnitGranularity: .month) {
+                if months == 1 {
+                    return "1 month ago"
+                } else {
+                    return "\(months) months ago"
+                }
+            }
+        }
+        
+        for years in 1...10 {
+            if let candidate = (calendar as NSCalendar).date(byAdding: .year, value: -years, to: Date(), options: .searchBackwards) , (calendar as NSCalendar).isDate(self, equalTo: candidate, toUnitGranularity: .year) {
+                if years == 1 {
+                    return "1 year ago"
+                } else {
+                    return "\(years) years ago"
+                }
+            }
+        }
+        
+        return ">10 years ago"
+    }
+}
 
 func friendlyWeight(_ weight: Double) -> String {
     var result: String

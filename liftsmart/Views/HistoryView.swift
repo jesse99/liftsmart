@@ -18,7 +18,7 @@ struct HistoryEntry: Identifiable {
             self.label = record.label
         }
         
-        self.sublabel = record.completed.daysName()
+        self.sublabel = record.completed.friendlyName()
         self.note = record.note
         self.id = index
     }
@@ -41,7 +41,7 @@ struct HistoryView: View {
     @State var showAlert: Bool = false
     @State var alertAction: HistoryView.ActiveAlert = .deleteSelected
     @State var editIndex: Int = 0
-    private let timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
+    private let timer = RestartableTimer(every: TimeInterval.minutes(30))
 
     // Note that updating @State members in init doesn't actually work: https://stackoverflow.com/questions/61661581/swiftui-view-apparently-laid-out-before-init-runs
     init(history: History, workout: Workout, exercise: Exercise) {
@@ -94,7 +94,7 @@ struct HistoryView: View {
             if self.alertAction == .deleteSelected {
                 return Alert(
                     title: Text("Confirm delete"),
-                    message: Text("From \(self.entries[self.editIndex].record.completed.daysName())"),
+                    message: Text("From \(self.entries[self.editIndex].record.completed.friendlyName())"),
                     primaryButton: .destructive(Text("Delete")) {self.doDelete()},
                     secondaryButton: .default(Text("Cancel")))
             } else {

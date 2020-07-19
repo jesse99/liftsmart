@@ -11,7 +11,7 @@ struct Info {
 struct ProgramView: View {
     var program: Program
     var history: History
-    let timer = RestartableTimer(every: TimeInterval.hours(8))
+    let timer = RestartableTimer(every: TimeInterval.minutes(30))
     @State var infos: [Info] = []
     @State var subData: [(String, Color)] = Array(repeating: ("", .black), count: 30)
 
@@ -62,11 +62,11 @@ struct ProgramView: View {
 
             // The workout that was started the longest ago.
             } else if isOldestWorkout(index, last) {              // workout with the oldest latest
-                return (last.daysName(), .blue)
+                return (last.friendlyName(), .blue)
 
             // Workout that was started more recently.
             } else {
-                return (last.daysName(), .black)
+                return (last.friendlyName(), .black)
             }
 
         } else {
