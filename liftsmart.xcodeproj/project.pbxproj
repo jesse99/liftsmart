@@ -27,6 +27,8 @@
 		376AF37924CC018C00AEAE1C /* Notes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376AF37824CC018C00AEAE1C /* Notes.swift */; };
 		376AF37B24CC053000AEAE1C /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376AF37A24CC053000AEAE1C /* NoteView.swift */; };
 		376AF37E24CCB0AB00AEAE1C /* MDText in Frameworks */ = {isa = PBXBuildFile; productRef = 376AF37D24CCB0AB00AEAE1C /* MDText */; };
+		376AF38124CCE79400AEAE1C /* TextView in Frameworks */ = {isa = PBXBuildFile; productRef = 376AF38024CCE79400AEAE1C /* TextView */; };
+		376AF38324CCE7AD00AEAE1C /* EditNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376AF38224CCE7AD00AEAE1C /* EditNoteView.swift */; };
 		37881BD1244FF80A00CFB411 /* SequenceExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37881BD0244FF80A00CFB411 /* SequenceExtensions.swift */; };
 		37881BD32455FA7400CFB411 /* DoubleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37881BD22455FA7400CFB411 /* DoubleExtensions.swift */; };
 		378D567424830271006A041C /* ProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378D567324830271006A041C /* ProgramView.swift */; };
@@ -78,6 +80,7 @@
 		376987D7244B95D50021D0FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		376AF37824CC018C00AEAE1C /* Notes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
 		376AF37A24CC053000AEAE1C /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
+		376AF38224CCE7AD00AEAE1C /* EditNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNoteView.swift; sourceTree = "<group>"; };
 		37881BD0244FF80A00CFB411 /* SequenceExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceExtensions.swift; sourceTree = "<group>"; };
 		37881BD22455FA7400CFB411 /* DoubleExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleExtensions.swift; sourceTree = "<group>"; };
 		378D567324830271006A041C /* ProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramView.swift; sourceTree = "<group>"; };
@@ -100,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				376AF38124CCE79400AEAE1C /* TextView in Frameworks */,
 				376AF37E24CCB0AB00AEAE1C /* MDText in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,6 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				376987C2244B95D30021D0FB /* ContentView.swift */,
+				376AF38224CCE7AD00AEAE1C /* EditNoteView.swift */,
 				3766CA6324BB797700EF604A /* EditTextView.swift */,
 				37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */,
 				37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */,
@@ -240,6 +245,7 @@
 			name = liftsmart;
 			packageProductDependencies = (
 				376AF37D24CCB0AB00AEAE1C /* MDText */,
+				376AF38024CCE79400AEAE1C /* TextView */,
 			);
 			productName = liftsmart;
 			productReference = 376987BB244B95D30021D0FB /* liftsmart.app */;
@@ -293,6 +299,7 @@
 			mainGroup = 376987B2244B95D30021D0FB;
 			packageReferences = (
 				376AF37C24CCB0AB00AEAE1C /* XCRemoteSwiftPackageReference "MDText" */,
+				376AF37F24CCE79400AEAE1C /* XCRemoteSwiftPackageReference "TextView" */,
 			);
 			productRefGroup = 376987BC244B95D30021D0FB /* Products */;
 			projectDirPath = "";
@@ -358,6 +365,7 @@
 				37FB6E8724687D0F00EB4916 /* Exercise.swift in Sources */,
 				37881BD32455FA7400CFB411 /* DoubleExtensions.swift in Sources */,
 				37E83136245E248500A135C7 /* Current.swift in Sources */,
+				376AF38324CCE7AD00AEAE1C /* EditNoteView.swift in Sources */,
 				37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -631,6 +639,14 @@
 				minimumVersion = 0.0.9;
 			};
 		};
+		376AF37F24CCE79400AEAE1C /* XCRemoteSwiftPackageReference "TextView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kenmueller/TextView";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -638,6 +654,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 376AF37C24CCB0AB00AEAE1C /* XCRemoteSwiftPackageReference "MDText" */;
 			productName = MDText;
+		};
+		376AF38024CCE79400AEAE1C /* TextView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 376AF37F24CCE79400AEAE1C /* XCRemoteSwiftPackageReference "TextView" */;
+			productName = TextView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
