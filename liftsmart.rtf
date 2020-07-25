@@ -1,15 +1,19 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2512
 \cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 AndaleMono;\f1\froman\fcharset0 Times-Roman;\f2\fswiss\fcharset0 Helvetica;
-\f3\fnil\fcharset0 Menlo-Regular;\f4\fswiss\fcharset0 Helvetica-Bold;\f5\fswiss\fcharset0 Helvetica-Oblique;
-}
+\f3\fnil\fcharset0 Menlo-Regular;\f4\fnil\fcharset0 HelveticaNeue;\f5\fswiss\fcharset0 Helvetica-Bold;
+\f6\fswiss\fcharset0 Helvetica-Oblique;}
 {\colortbl;\red255\green255\blue255;\red170\green13\blue145;\red0\green0\blue0;\red11\green79\blue121;
 \red63\green110\blue116;\red92\green38\blue153;\red15\green104\blue160;\red0\green116\blue0;\red196\green26\blue22;
-\red0\green0\blue233;\red2\green2\blue2;\red31\green31\blue31;\red28\green0\blue207;\red46\green13\blue110;
-\red162\green91\blue55;\red162\green91\blue55;\red38\green71\blue75;}
+\red0\green0\blue233;\red2\green2\blue2;\red0\green0\blue233;\red27\green31\blue34;\red203\green35\blue57;
+\red7\green68\blue184;\red244\green246\blue249;\red27\green31\blue34;\red10\green77\blue204;\red255\green255\blue255;
+\red31\green31\blue31;\red14\green14\blue255;\red28\green0\blue207;\red46\green13\blue110;\red162\green91\blue55;
+\red162\green91\blue55;\red38\green71\blue75;}
 {\*\expandedcolortbl;;\csgenericrgb\c66500\c5200\c56900;\csgenericrgb\c0\c0\c0;\csgenericrgb\c4314\c30980\c47451;
 \csgenericrgb\c24700\c43100\c45600;\csgenericrgb\c35900\c14900\c60100;\csgenericrgb\c5882\c40784\c62745;\csgenericrgb\c0\c45600\c0;\csgenericrgb\c77000\c10200\c8600;
-\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\cssrgb\c16078\c16078\c16078;\csgenericrgb\c11000\c0\c81000;\csgenericrgb\c18100\c5200\c43100;
-\csgenericrgb\c63573\c35812\c21460\c35000;\csgenericrgb\c63573\c35812\c21460;\csgenericrgb\c14900\c27800\c29400;}
+\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\cssrgb\c0\c0\c93333;\cssrgb\c14118\c16078\c18039;\cssrgb\c84314\c22745\c28627;
+\cssrgb\c0\c36078\c77255;\cssrgb\c96471\c97255\c98039;\cssrgb\c14118\c16078\c18039;\cssrgb\c1176\c40000\c83922;\cssrgb\c100000\c100000\c100000;
+\cssrgb\c16078\c16078\c16078;\csgenericrgb\c5500\c5500\c100000;\csgenericrgb\c11000\c0\c81000;\csgenericrgb\c18100\c5200\c43100;\csgenericrgb\c63573\c35812\c21460\c35000;
+\csgenericrgb\c63573\c35812\c21460;\csgenericrgb\c14900\c27800\c29400;}
 \deftab816
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
@@ -69,12 +73,54 @@ Advisor - uses personal, edit notes, history, and plan to suggest edits, weight 
 Stringify - text renderer\
 \
 Program = Workouts + Plan + Advisor(?)\
-	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor
-\f3 \cf12 \expnd0\expndtw0\kerning0
-\
+	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor\
+	\
+{\field{\*\fldinst{HYPERLINK "https://github.com/iwasrobbed/Down"}}{\fldrslt 
+\f1\fs24 \cf12 \expnd0\expndtw0\kerning0
+\ul \ulc12 \outl0\strokewidth0 \strokec12 https://github.com/iwasrobbed/Down}}
+\f1\fs24 \cf12 \expnd0\expndtw0\kerning0
+\ul \ulc12 \outl0\strokewidth0 \strokec12 \
+	
+\f2\fs48 \cf11 \kerning1\expnd0\expndtw0 \ulnone \outl0\strokewidth0 wrapper around cmark\
+	doesn\'92t seem to have direct support for SwiftUI\
+	\
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://github.com/Lambdo-Labs/MDText"}}{\fldrslt 
+\f1\fs24 \cf12 \expnd0\expndtw0\kerning0
+\ul \ulc12 \outl0\strokewidth0 \strokec12 https://github.com/Lambdo-Labs/MDText}}	\
+	very simple\
+	does support SwiftUI\
+	\
+\pard\pardeftab720\sl380\partightenfactor0
+
+\f3\fs41\fsmilli20600 \cf13 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec13     \cf14 \strokec14 var\cf13 \strokec13  body\cf14 \strokec14 :\cf13 \strokec13  some View \{\
+        \cf15 \strokec15 MDText\cf13 \strokec13 (\cf15 \strokec15 markdown\cf13 \strokec13 : markdown)\
+    \}\cb16 \
+    \
+    
+\f2\fs48 \cf11 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 	
+\f3\fs41\fsmilli20600 \cf17 \expnd0\expndtw0\kerning0
+menu > file > Swift Packages > Add package dependency...\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs46 \cf17 enter package url:\'a0{\field{\*\fldinst{HYPERLINK "https://github.com/Lambdo-Labs/MDText"}}{\fldrslt \cf18 https://github.com/Lambdo-Labs/MDText}}\cb19 \
+\pard\pardeftab720\sl380\partightenfactor0
+
+\f3\fs48 \cf20 \cb1 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2 \cf11 \kerning1\expnd0\expndtw0 \
 \'95 Get notes button working\
+	- add a simple note view (for now just show the raw markup)\
+	- wire up the note view\
+	- markup view\
+	- edit view, see 
+\f0\fs34 \cf21 https://stackoverflow.com/questions/56471973/how-do-i-create-a-multiline-textfield-in-swiftui
+\f2\fs48 \cf11 \
+	- make sure that userNotes actually persist\
+	- restore default\
+\'95 Make sure buttons with views have the most common action on the right\
 \'95\'a0Get options button working\
 \'95 Hard code some info\
 	- age\
@@ -87,10 +133,8 @@ Program = Workouts + Plan + Advisor(?)\
 \'95\'a0Would be cool to hard-code some real lifting numbers into history.\
 \'95\'a0Add a wizard to build an initial workout.\
 \'95 Support stuff like leg press:\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	- should we have a DiscreteWeight type?\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Support dumbbells\
+	- should we have a DiscreteWeight type?\
+\'95 Support dumbbells\
 \'95\'a0Support barbells\
 \'95\'a0Just have a handful of starter programs. Or maybe just synthesize one based on a wizard?\
 	- then user can edit without worrying about what is built-in or not\
@@ -109,7 +153,7 @@ Program = Workouts + Plan + Advisor(?)\
 \cf11 	\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b \cf11 SwiftUI
+\f5\b \cf11 SwiftUI
 \f2\b0 \
 \'95\'a0when to use property wrappers: {\field{\*\fldinst{HYPERLINK "https://jaredsinclair.com/2020/05/07/swiftui-cheat-sheet.html"}}{\fldrslt 
 \f1\fs34 \cf10 \expnd0\expndtw0\kerning0
@@ -150,12 +194,12 @@ Program = Workouts + Plan + Advisor(?)\
 \'95 command-click brings up the structed editing popover\
 \'95 button placement: {\field{\*\fldinst{HYPERLINK "https://developer.apple.com/design/human-interface-guidelines/ios/views/alerts/"}}{\fldrslt 
 \f1\fs32 \cf10 \expnd0\expndtw0\kerning0
-\ul \ulc10 https://developer.apple.com/design/human-interface-guidelines/ios/views/alerts/}}\
-\'95 \cf11 font types:\cf11  {\field{\*\fldinst{HYPERLINK "https://i.stack.imgur.com/89c8C.png"}}{\fldrslt 
+\ul https://developer.apple.com/design/human-interface-guidelines/ios/views/alerts/}}\
+\'95 font types: {\field{\*\fldinst{HYPERLINK "https://i.stack.imgur.com/89c8C.png"}}{\fldrslt 
 \f1\fs38 \cf10 \expnd0\expndtw0\kerning0
 \ul https://i.stack.imgur.com/89c8C.png}}\
 
-\f4\b \
+\f5\b \
 Goals\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
@@ -178,7 +222,7 @@ Goals\
 \'95\'a0Heart rate can tell you if over trained? Can we hook into other app's medical data?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b \cf11 \'95\'a0
+\f5\b \cf11 \'95\'a0
 \f2\b0 Do much bettered showing long term trends\
 	- both overall and for an exercise\
 	- include actions taken in response to a recommendation\
@@ -190,35 +234,35 @@ Goals\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 Workouts Tab
+\f5\b\fs60 \cf11 Workouts Tab
 \fs48 \
 Workouts     
 \f2\b0 \ul \ulc11 Edit
-\f4\b \ulnone \
+\f5\b \ulnone \
 
 \f2\b0 Heavy >        
-\f5\i goes to a Workout view
+\f6\i goes to a Workout view
 \f2\i0 \
 Light >\
 Medium >\
 	\
 
-\f4\b Heavy     
+\f5\b Heavy     
 \f2\b0 \ul Edit
-\f4\b \ulnone \
+\f5\b \ulnone \
 
 \f2\b0 Bench >        
-\f5\i goes to an Exercise view
+\f6\i goes to an Exercise view
 \f2\i0 \
 Squat >\
 Dead >\
 \
 
-\f4\b Bench     
+\f5\b Bench     
 \f2\b0 \ul Notes
-\f4\b \ulnone  
+\f5\b \ulnone  
 \f2\b0 \ul Edit
-\f4\b \ulnone \
+\f5\b \ulnone \
 
 \f2\b0 Set 1 of 1\
 8 reps @ 125 lbs\
@@ -226,14 +270,14 @@ Dead >\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 \ulnone History Tab
+\f5\b\fs60 \cf11 \ulnone History Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\b0 \cf11 should this have a way to see exercises that are not currently used?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 \
+\f5\b\fs60 \cf11 \
 Advise Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
@@ -242,7 +286,7 @@ Advise Tab
 can we make the tab red if advise is pending?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 \
+\f5\b\fs60 \cf11 \
 Settings Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
@@ -257,13 +301,13 @@ level\
 \f0\fs34 \cf3     \
     \cf8 // Returns the currentReps and maximum used for worksets.\cf3 \
     \cf2 func\cf3  \cf7 repRange\cf3 (currentReps: \cf6 Int\cf3 ?) -> (\cf6 Int\cf3 , \cf6 Int\cf3 ) \{\
-        \cf2 var\cf3  minReps = \cf13 1\cf3 \
-        \cf2 var\cf3  maxReps = \cf13 1\cf3 \
+        \cf2 var\cf3  minReps = \cf22 1\cf3 \
+        \cf2 var\cf3  maxReps = \cf22 1\cf3 \
         \
-        \cf2 if\cf3  \cf2 let\cf3  set = \cf5 worksets\cf3 .\cf14 first\cf3 (where: \{$0.\cf5 reps\cf3 .\cf5 min\cf3  \cf14 <\cf3  $0.\cf5 reps\cf3 .\cf5 max\cf3 \}) \{\
+        \cf2 if\cf3  \cf2 let\cf3  set = \cf5 worksets\cf3 .\cf23 first\cf3 (where: \{$0.\cf5 reps\cf3 .\cf5 min\cf3  \cf23 <\cf3  $0.\cf5 reps\cf3 .\cf5 max\cf3 \}) \{\
             \cf2 if\cf3  \cf2 let\cf3  current = currentReps \{            \cf8 // currentReps only applies if set.minReps < set.maxReps\cf3 \
                 minReps = current\
-                maxReps = current \cf14 <\cf3  set.\cf5 reps\cf3 .\cf5 max\cf3  ? set.\cf5 reps\cf3 .\cf5 max\cf3  : current\
+                maxReps = current \cf23 <\cf3  set.\cf5 reps\cf3 .\cf5 max\cf3  ? set.\cf5 reps\cf3 .\cf5 max\cf3  : current\
             \} \cf2 else\cf3  \{\
                 minReps = set.\cf5 reps\cf3 .\cf5 min\cf3 \
                 maxReps = set.\cf5 reps\cf3 .\cf5 max\cf3 \
@@ -277,14 +321,14 @@ level\
         \cf2 return\cf3  (minReps, maxReps)\
     \}\
     \
-    \cf15 ///\cf3  \cf16 Returns details about what the user is expected to do for the sets. For example,\cf3 \
-    \cf15 ///\cf3     \cf16 3x5 @ 195 lbs     if reps are all the same\cf3 \
-    \cf15 ///\cf3     \cf16 5,3,1+ @ 195 lbs  if percentages are all the same\cf3 \
-    \cf15 ///\cf3     \cf16 1+ @ 195 lbs      otherwise\cf3 \
+    \cf24 ///\cf3  \cf25 Returns details about what the user is expected to do for the sets. For example,\cf3 \
+    \cf24 ///\cf3     \cf25 3x5 @ 195 lbs     if reps are all the same\cf3 \
+    \cf24 ///\cf3     \cf25 5,3,1+ @ 195 lbs  if percentages are all the same\cf3 \
+    \cf24 ///\cf3     \cf25 1+ @ 195 lbs      otherwise\cf3 \
     \cf2 func\cf3  \cf7 summary\cf3 (\cf2 _\cf3  apparatus: \cf5 Apparatus\cf3 ?, \cf2 _\cf3  targetWeight: \cf6 Double\cf3 , \cf2 _\cf3  currentReps: \cf6 Int\cf3 ?) -> \cf6 String\cf3  \{ \cf8 // TODO: not sure presentation stuff belongs here\cf3 \
         \cf2 func\cf3  \cf7 repsStr\cf3 (\cf2 _\cf3  set: \cf5 Set\cf3 ) -> \cf6 String\cf3  \{\
             \cf2 if\cf3  \cf2 let\cf3  current = currentReps \{\
-                \cf2 if\cf3  current \cf14 <\cf3  set.\cf5 reps\cf3 .\cf5 max\cf3  \{\
+                \cf2 if\cf3  current \cf23 <\cf3  set.\cf5 reps\cf3 .\cf5 max\cf3  \{\
                     \cf2 return\cf3  \cf9 "\cf3 \\(current)\cf9 -\cf3 \\(set.\cf5 reps\cf3 .\cf5 max\cf3 )\cf9 "\cf3 \
                 \} \cf2 else\cf3  \{\
                     \cf2 return\cf3  \cf9 "\cf3 \\(current)\cf9 "\cf3 \
@@ -296,31 +340,31 @@ level\
         \
         \cf2 func\cf3  \cf7 weightStr\cf3 (\cf2 _\cf3  set: \cf5 Set\cf3 ) -> \cf6 String\cf3  \{\
             \cf2 var\cf3  weight = \cf9 ""\cf3 \
-            \cf2 if\cf3  targetWeight > \cf13 0.0\cf3  \{\
+            \cf2 if\cf3  targetWeight > \cf22 0.0\cf3  \{\
                 \cf2 let\cf3  suffix = set.\cf5 percent\cf3 .\cf5 label\cf3 \
                 \cf2 if\cf3  \cf2 let\cf3  apparatus = apparatus \{\
-                    weight = \cf9 " @ "\cf3  \cf14 +\cf3  apparatus.\cf17 findClosest\cf3 (targetWeight\cf17 *\cf3 set.\cf5 percent\cf3 ).\cf5 label\cf3  \cf14 +\cf3  suffix\
+                    weight = \cf9 " @ "\cf3  \cf23 +\cf3  apparatus.\cf26 findClosest\cf3 (targetWeight\cf26 *\cf3 set.\cf5 percent\cf3 ).\cf5 label\cf3  \cf23 +\cf3  suffix\
                 \} \cf2 else\cf3  \{\
-                    weight = \cf9 " @ "\cf3  \cf14 +\cf3  \cf17 friendlyUnitsStr\cf3 (targetWeight\cf17 *\cf3 set.\cf5 percent\cf3 ) \cf14 +\cf3  suffix\
+                    weight = \cf9 " @ "\cf3  \cf23 +\cf3  \cf26 friendlyUnitsStr\cf3 (targetWeight\cf26 *\cf3 set.\cf5 percent\cf3 ) \cf23 +\cf3  suffix\
                 \}\
             \}\
             \cf2 return\cf3  weight\
         \}\
         \
         \cf2 if\cf3  \cf2 let\cf3  first = \cf5 worksets\cf3 .\cf6 first\cf3  \{\
-            \cf2 let\cf3  sameReps = \cf5 worksets\cf3 .\cf17 all\cf3  \{$0.\cf5 reps\cf3 .\cf5 min\cf3  \cf14 ==\cf3  first.\cf5 reps\cf3 .\cf5 min\cf3  \cf14 &&\cf3  $0.\cf5 reps\cf3 .\cf5 max\cf3  \cf14 ==\cf3  first.\cf5 reps\cf3 .\cf5 max\cf3 \}\
-            \cf2 let\cf3  samePercents = \cf5 worksets\cf3 .\cf17 all\cf3  \{$0.\cf5 percent\cf3 .\cf5 label\cf3  \cf14 ==\cf3  first.\cf5 percent\cf3 .\cf5 label\cf3 \}\
+            \cf2 let\cf3  sameReps = \cf5 worksets\cf3 .\cf26 all\cf3  \{$0.\cf5 reps\cf3 .\cf5 min\cf3  \cf23 ==\cf3  first.\cf5 reps\cf3 .\cf5 min\cf3  \cf23 &&\cf3  $0.\cf5 reps\cf3 .\cf5 max\cf3  \cf23 ==\cf3  first.\cf5 reps\cf3 .\cf5 max\cf3 \}\
+            \cf2 let\cf3  samePercents = \cf5 worksets\cf3 .\cf26 all\cf3  \{$0.\cf5 percent\cf3 .\cf5 label\cf3  \cf23 ==\cf3  first.\cf5 percent\cf3 .\cf5 label\cf3 \}\
             \
-            \cf2 if\cf3  sameReps \cf14 &&\cf3  samePercents \{\
-                \cf2 return\cf3  \cf9 "\cf3 \\(\cf5 worksets\cf3 .\cf6 count\cf3 )\cf9 x\cf3 \\(\cf17 repsStr\cf3 (first))\\(\cf17 weightStr\cf3 (first))\cf9 "\cf3 \
+            \cf2 if\cf3  sameReps \cf23 &&\cf3  samePercents \{\
+                \cf2 return\cf3  \cf9 "\cf3 \\(\cf5 worksets\cf3 .\cf6 count\cf3 )\cf9 x\cf3 \\(\cf26 repsStr\cf3 (first))\\(\cf26 weightStr\cf3 (first))\cf9 "\cf3 \
 \
             \} \cf2 else\cf3  \cf2 if\cf3  samePercents \{\
-                \cf2 let\cf3  labels = \cf5 worksets\cf3 .\cf14 map\cf3  \{\cf17 repsStr\cf3 ($0)\}\
-                \cf2 let\cf3  label = labels.\cf14 joined\cf3 (separator: \cf9 ","\cf3 )\
-                \cf2 return\cf3  \cf9 "\cf3 \\(label)\\(\cf17 weightStr\cf3 (first))\cf9 "\cf3 \
+                \cf2 let\cf3  labels = \cf5 worksets\cf3 .\cf23 map\cf3  \{\cf26 repsStr\cf3 ($0)\}\
+                \cf2 let\cf3  label = labels.\cf23 joined\cf3 (separator: \cf9 ","\cf3 )\
+                \cf2 return\cf3  \cf9 "\cf3 \\(label)\\(\cf26 weightStr\cf3 (first))\cf9 "\cf3 \
             \
             \} \cf2 else\cf3  \cf2 if\cf3  \cf2 let\cf3  last = \cf5 worksets\cf3 .\cf6 last\cf3  \{\
-                \cf2 return\cf3  \cf9 "\cf3 \\(\cf17 repsStr\cf3 (last))\\(\cf17 weightStr\cf3 (last))\cf9 "\cf3 \
+                \cf2 return\cf3  \cf9 "\cf3 \\(\cf26 repsStr\cf3 (last))\\(\cf26 weightStr\cf3 (last))\cf9 "\cf3 \
             \}\
         \}\
         \cf2 return\cf3  \cf9 ""\cf3 \

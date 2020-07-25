@@ -84,11 +84,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let store = loadStore(from: "program") {
             program = Program(from: store)
         }
+        if let store = loadStore(from: "userNotes") {
+            loadUserNotes(store)
+        }
     }
     
     func saveState() {
         storeObject(program, to: "program")
         storeObject(history, to: "history")
+        storeUserNotes(to: "userNotes")
         
 //        for achievement in achievements {
 //            achievement.save(self)
@@ -145,6 +149,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             saveEncoded(data as AnyObject, to: fileName)
         } catch {
             os_log("Error encoding program %@: %@", type: .error, program.name, error.localizedDescription)
+        }
+    }
+    
+    func storeUserNotes(to fileName: String) {
+        let store = Store()
+        store.addStrArray("userNoteKeys", Array(userNotes.keys))
+        store.addStrArray("userNoteValues", Array(userNotes.values))
+
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        do {
+            let data = try encoder.encode(store)
+            saveEncoded(data as AnyObject, to: fileName)
+        } catch {
+            os_log("Error encoding program %@: %@", type: .error, program.name, error.localizedDescription)
+        }
+    }
+    
+    func loadUserNotes(_ store: Store) {
+        let keys = store.getStrArray("userNoteKeys")
+        let values = store.getStrArray("userNoteValues")
+        
+        userNotes = [:]
+        for (i, key) in keys.enumerated() {
+            userNotes[key] = values[i]
         }
     }
 
