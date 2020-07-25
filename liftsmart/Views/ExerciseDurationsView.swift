@@ -15,6 +15,7 @@ struct ExerciseDurationsView: View {
     @State var startModal: Bool = false
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
+    @State var noteModal: Bool = false
     @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
@@ -62,7 +63,9 @@ struct ExerciseDurationsView: View {
                     .font(.callout)
                     .sheet(isPresented: self.$historyModal) {HistoryView(history: self.history, workout: self.workout, exercise: self.exercise)}
                 Spacer()
-                Button("Notes", action: onNotes).font(.callout)
+                Button("Note", action: onStartNote)
+                    .font(.callout)
+                    .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
                 Button("Options", action: onOptions).font(.callout)
             }
             .padding()
@@ -161,6 +164,10 @@ struct ExerciseDurationsView: View {
     
     func onStartHistory() {
         self.historyModal = true
+    }
+    
+    func onStartNote() {
+        self.noteModal = true
     }
     
     func startDuration() -> Int {
