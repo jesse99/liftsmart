@@ -28,10 +28,10 @@ struct EditTextView: View {
             Text(self.error).foregroundColor(.red)
             Spacer()
             HStack {
-                Button("Cancel", action: onCancel)
+                Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK)
+                Button("OK", action: onOK).font(.callout)
             }.padding()
         }
     }
