@@ -86,13 +86,9 @@ Program = Workouts + Plan + Advisor(?)\
 	
 \f2\b0 red if day matches\
 	\
-let weekday = Calendar.current.component(.weekday, from: Date())		\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf11 \'95\'a0Revise workout:\
-	- maybe instead of workout we should have days workout is expected to be done on\
-	  could even have a reminder\
+	- need cardio workout (any day)\
 	- Crunches\
 	- pistol squat progression, 3x5-8 of these\
 		https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat\
@@ -101,6 +97,7 @@ let weekday = Calendar.current.component(.weekday, from: Date())		\
 	- workout needs a scheduled field? name kind of sucks\
 		findFirstMissingWorkout\
 		findOldestWorkout\
+\'95 ProgramView should be using fuzzy day matching		\
 \'95 Make sure views with buttons have the most common action on the right\
 \'95\'a0Get options button working\
 	- might want to allow everything in the exercise to be edited here\
@@ -114,6 +111,8 @@ let weekday = Calendar.current.component(.weekday, from: Date())		\
 	- maybe via a Weight class\
 	- or maybe just rely on some sort of presentation function\
 \'95 Would be nice to easily edit results of last exercise, especially for stuff like pullups.\
+\'95\'a0May want some sort of notification if a workout is due today\
+	- should have a way to disable this\
 \'95\'a0Would be cool to hard-code some real lifting numbers into history.\
 \'95\'a0Add a wizard to build an initial workout.\
 \'95 Support stuff like leg press:\

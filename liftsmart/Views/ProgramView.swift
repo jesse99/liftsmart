@@ -53,92 +53,69 @@ struct ProgramView: View {
     // It's not always possible to do that with exactness but, if that's the case, we'll provide information
     // to help them decide what to do.
     func getSubData() -> [(String, Color)] {
-        var result: [(String, Color)] = Array(repeating: ("", .black), count: infos.count)
+        var result: [(String, Color)] = []
 
-        // First we'll check to see if they have done an exercise today,
         let cal = Calendar.current
-        for (index, info) in infos.enumerated() {
-            var found = false               // if the user is playing catch-up he may decide to do part of another workout with the current workout
-            if let last = info.latest {
-                if cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
-                    if info.latestIsComplete {
-                        // they've done every exercise within the workout today.
-                        result[index] = ("completed", .black)
-                        found = true
-
-                    } else {
-                        // there are still exercises that haven't been done.
-                        result[index] = ("in progress", .red)
-                        found = true
-                    }
-                }
-            }
-            if found {
-                return result
-            }
-        }
-        
-        // Then we'll check to see if there are workouts that should be performed on this weekday.
         let weekday = cal.component(.weekday, from: Date())
-        let todaysWorkouts = infos.filter({$0.days[weekday - 1]})
-        if !todaysWorkouts.isEmpty {
-            for (index, info) in infos.enumerated() {
-                // If this workout should be performed today then,
-                if todaysWorkouts.findLast({$0.name == info.name}) != nil {
-                    if todaysWorkouts.count == 1 {
-                        // if it's the only workout that should be done today then we have a clear winner.
-                        result[index] = ("today", .red)
-                    } else if todaysWorkouts.count > 1 {
-                        // otherwise we'll tell the user how long it's been so that he can decide.
-                        if let last = info.latest {
-                            result[index] = (last.friendlyName(), .orange)
-                        } else {
-                            result[index] = ("never started", .orange)
-                        }
-                    }
-                }
-            }
-            return result
-        }
-
-        // Then we'll check for workouts that can be performed on any day.
-        let anyWorkouts = infos.filter({isAnyDay($0.days)})
-        if !anyWorkouts.isEmpty {
-            for (index, info) in infos.enumerated() {
-                // For all the workouts that the user could do today we'll tell the user how long
-                // it has been since he has done that workout.
-                if anyWorkouts.findLast({$0.name == info.name}) != nil {
-                    if let last = info.latest {
-                        result[index] = (last.friendlyName(), .orange)
-                    } else {
-                        result[index] = ("never started", .orange)
-                    }
-                }
-            }
-            return result
-        }
-
-        // We're at the point where the only workouts that exist are workouts that are scheduled
-        // for a day and today is not one of those days. So we'll find the upcoming workout and tell
-        // the user when that is due.
-        var found = false
+        let todaysWorkouts = infos.filter({$0.days[weekday - 1]})  // workouts that should be performed today
+        var nextWorkout: (Int, Int)? = nil
         for delta in 1...6 {
-            for (index, info) in infos.enumerated() {
-                if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: Date()) {
-                    let weekday = cal.component(.weekday, from: candidate)
-                    if info.days[weekday - 1] {
-                        if delta == 1 {
-                            result[index] = ("tomorrow", .blue)
-                            found = true
-                        } else {
-                            result[index] = ("in \(delta) days", .blue)
-                            found = true
+            for info in infos {
+                if nextWorkout == nil {
+                    if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: Date()) {
+                        let weekday = cal.component(.weekday, from: candidate)
+                        if info.days[weekday - 1] {
+                            nextWorkout = (weekday, delta)              // next workout scheduled after today
                         }
                     }
                 }
             }
-            if found {
-                break
+        }
+
+        for info in infos {
+            // If the user has done any exercise within the workout today,
+            if let last = info.latest, cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
+                if info.latestIsComplete {
+                    // and they completed every exercise.
+                    result.append(("completed", .black))
+
+                } else {
+                    // there are exercises within the workout that they haven't done.
+                    result.append(("in progress", .red))
+                }
+            
+            // If the workout can be performed on any day (including days on which other workouts are scheduled),
+            } else if isAnyDay(info.days) {
+                if let last = info.latest {
+                    result.append((last.friendlyName(), .orange))
+                } else {
+                    result.append(("never started", .orange))
+                }
+            
+            // If the workout is scheduled for today,
+            } else if todaysWorkouts.findLast({$0.name == info.name}) != nil {
+                if todaysWorkouts.count == 1 {
+                    // if it's the only workout that should be done today then we have a clear winner.
+                    result.append(("today", .red))
+                } else {
+                    // otherwise we'll tell the user how long it's been so that he can decide.
+                    if let last = info.latest {
+                        result.append((last.friendlyName(), .orange))
+                    } else {
+                        result.append(("never started", .orange))
+                    }
+                }
+                
+            // If the workout is on a day that the user should do next and the user has nothing scheduled today,
+            } else if let (weekday, delta) = nextWorkout, info.days[weekday - 1] && todaysWorkouts.isEmpty {
+                if delta == 1 {
+                    result.append(("tomorrow", .blue))
+                } else {
+                    result.append(("in \(delta) days", .blue))
+                }
+
+            } else {
+                result.append(("", .black))
             }
         }
         
@@ -233,8 +210,9 @@ struct ProgramView_Previews: PreviewProvider {
         }
 
         let workouts = [
-            Workout("Lower", [burpees(), squats()], day: nil)!,
-            Workout("Upper", [planks(), curls()], day: .tuesday)!]
+            Workout("Cardio", [burpees(), squats()], day: nil)!,
+            Workout("Lower", [burpees(), squats()], day: .wednesday)!,
+            Workout("Upper", [planks(), curls()], day: .monday)!]
         return Program("Split", workouts)
     }
 
