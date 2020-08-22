@@ -207,7 +207,7 @@ struct HistoryView_Previews: PreviewProvider {
         let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
         let exercise = Exercise("Squats", "Body-weight Squat", modality)
-        let workout = Workout("Lower", [exercise])!
+        let workout = Workout("Lower", [exercise], day: nil)!
 
         let history = History()
         exercise.current = Current(weight: 0.0)

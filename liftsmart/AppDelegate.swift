@@ -81,7 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let store = loadStore(from: "history") {
             history = History(from: store)
         }
-        if let store = loadStore(from: "program") {
+        if let store = loadStore(from: "program2") {
             program = Program(from: store)
         }
         if let store = loadStore(from: "userNotes") {
@@ -90,7 +90,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func saveState() {
-        storeObject(program, to: "program")
+        storeObject(program, to: "program2")
         storeObject(history, to: "history")
         storeUserNotes(to: "userNotes")
         

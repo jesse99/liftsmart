@@ -2,27 +2,38 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
+enum WeekDay: Int {
+    case sunday = 0, monday, tuesday, wednesday, thursday, friday, saturday
+}
+
 class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     var name: String
     var exercises: [Exercise]
+    var days: [Bool]            // indices are Sun, Mon, ..., Sat, true means workout is scheduled for that day, all false means can do the workout any day
 
-    init?(_ name: String, _ exercises: [Exercise]) {
+    init?(_ name: String, _ exercises: [Exercise], day: WeekDay?) {
         if name.isEmpty {return nil}
         let names = exercises.map {(e) -> String in e.name}
         if names.count != Set(names).count {return nil}     // exercise names must be unique
 
         self.name = name
         self.exercises = exercises
+        self.days = Array(repeating: false, count: 7)
+        if let d = day {
+            self.days[d.rawValue] = true
+        }
     }
     
     required init(from store: Store) {
         self.name = store.getStr("name")
         self.exercises = store.getObjArray("exercises")
+        self.days = store.getBoolArray("days", ifMissing: [])
     }
     
     func save(_ store: Store) {
         store.addStr("name", name)
         store.addObjArray("exercises", exercises)
+        store.addBoolArray("days", days)
     }
 
     // Partial is true if not all exercises were completed on that date.

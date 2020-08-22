@@ -631,6 +631,14 @@ let defaultNotes: [String: String] = [
             "Work towards doing this two minutes a day for each leg."],
         links: ["Link": "http://www.active.com/triathlon/articles/the-stretch-that-could-be-the-key-to-saving-your-knees", "Tips": "http://breakingmuscle.com/mobility-recovery/couch-stretch-small-but-important-ways-youre-doing-it-wrong", "Video": "https://www.youtube.com/watch?v=JawPBvtf7Qs"]),
     
+    "Crunches": noteToMarkdown(
+        notes: [
+            "Lay flat on your back.",
+            "Raise your shoulders about 30 degrees off the ground.",
+            "Slowly lower yourself back to the starting position.",
+            "See the link for harder variations.",],
+        links: ["Link": "https://seven.app/articles/essentials/exercise-essentials/everything-you-need-to-know-about-crunches"]),
+    
     "Cuban Rotation": noteToMarkdown(
         notes: [
             "Hold a stick over head with your arms forming 90 degree angles.",
@@ -1063,7 +1071,7 @@ let defaultNotes: [String: String] = [
     
     "Front Scale Leg Lifts": noteToMarkdown(
         notes: [
-            "Relax your shoukders, lock your legs, keep your back straight.",
+            "Relax your shoulders, lock your legs, keep your back straight.",
             "Extend your arms out to either side.",
             "Point your toes and lift one leg off the ground.",
             "Don't lean back.",

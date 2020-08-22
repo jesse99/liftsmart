@@ -192,7 +192,7 @@ struct ExerciseView_Previews: PreviewProvider {
     static let sets = Sets.durations(durations, targetSecs: [90, 60, 30])
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Burpees", "Burpees", modality)
-    static let workout = Workout("Cardio", [exercise])!
+    static let workout = Workout("Cardio", [exercise], day: nil)!
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in

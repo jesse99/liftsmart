@@ -26,6 +26,13 @@ public class Store: Codable, CustomStringConvertible {
         store[key] = .bool(value)
     }
     
+    public func addBoolArray(_ key: String, _ value: [Bool]) {
+        assert(!key.isEmpty, "addBoolArray key was empty")
+        assert(!store.keys.contains(key), "store already contains \(key)")
+        let v = value.map {Value.bool($0)}
+        store[key] = .array(v)
+    }
+
     public func addDate(_ key: String, _ value: Date) {
         assert(!key.isEmpty, "addDate key was empty")
         assert(!store.keys.contains(key), "store already contains \(key)")
@@ -119,6 +126,27 @@ public class Store: Codable, CustomStringConvertible {
         }
     }
     
+    public func getBoolArray(_ key: String, ifMissing: [Bool]? = nil) -> [Bool] {
+        if let e = store[key], case let .array(v) = e {
+            var result: [Bool] = []
+            result.reserveCapacity(v.count)
+            for x in v {
+                if case let .bool(y) = x {
+                    result.append(y)
+                } else if let d = ifMissing {
+                    return d
+                } else {
+                    assert(false); abort()
+                }
+            }
+            return result
+        } else if let d = ifMissing {
+            return d
+        } else {
+            assert(false, "\(key) is missing"); abort()
+        }
+    }
+
     public func getDate(_ key: String, ifMissing: Date? = nil) -> Date {
         if let e = store[key], case let .date(v) = e {
             return v

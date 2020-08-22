@@ -72,7 +72,7 @@ func home() -> Program {
         burpees2(), squats2(),
         burpees3(), squats3(),
         burpees4(), squats4(),
-        planks(), curls()])!]
+        planks(), curls()], day: nil)!]
     return Program("Home", workouts)
 }
 

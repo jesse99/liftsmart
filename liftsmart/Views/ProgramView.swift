@@ -3,9 +3,11 @@
 import SwiftUI
 
 struct Info {
+    let name: String            // workout name (these are unique)
     let latest: Date?           // date latest exercise was completed
     let latestIsComplete: Bool  // true if all exercises were completed on latest date
     let completedAll: Bool      // true if all exercises were ever completed
+    let days: [Bool]
 }
 
 struct ProgramView: View {
@@ -44,35 +46,108 @@ struct ProgramView: View {
     // on this view for a long time.
     func refresh() {
         updateInfos()
-        subData = infos.mapi({self.getSubData($0, $1)})
+        subData = getSubData()
     }
     
-    func getSubData(_ index: Int, _ info: Info) -> (String, Color) {
-        if let last = info.latest {
-            let cal = Calendar.current
-            if cal.isDate(last, inSameDayAs: Date()) {
-                // All exercises were completed today.
-                if info.latestIsComplete {
-                    return ("completed", .black)
+    // The goal here is to highlight what the user should be doing today or what they should be doing next.
+    // It's not always possible to do that with exactness but, if that's the case, we'll provide information
+    // to help them decide what to do.
+    func getSubData() -> [(String, Color)] {
+        var result: [(String, Color)] = Array(repeating: ("", .black), count: infos.count)
 
-                // The user is currently performing the workout but hasn't yet finished it.
-                } else {
-                    return ("in progress", .red)
+        // First we'll check to see if they have done an exercise today,
+        let cal = Calendar.current
+        for (index, info) in infos.enumerated() {
+            var found = false               // if the user is playing catch-up he may decide to do part of another workout with the current workout
+            if let last = info.latest {
+                if cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
+                    if info.latestIsComplete {
+                        // they've done every exercise within the workout today.
+                        result[index] = ("completed", .black)
+                        found = true
+
+                    } else {
+                        // there are still exercises that haven't been done.
+                        result[index] = ("in progress", .red)
+                        found = true
+                    }
                 }
-
-            // The workout that was started the longest ago.
-            } else if isOldestWorkout(index, last) {              // workout with the oldest latest
-                return (last.friendlyName(), .blue)
-
-            // Workout that was started more recently.
-            } else {
-                return (last.friendlyName(), .black)
             }
-
-        } else {
-            // The user has never started the workout.
-            return ("", .black)
+            if found {
+                return result
+            }
         }
+        
+        // Then we'll check to see if there are workouts that should be performed on this weekday.
+        let weekday = cal.component(.weekday, from: Date())
+        let todaysWorkouts = infos.filter({$0.days[weekday - 1]})
+        if !todaysWorkouts.isEmpty {
+            for (index, info) in infos.enumerated() {
+                // If this workout should be performed today then,
+                if todaysWorkouts.findLast({$0.name == info.name}) != nil {
+                    if todaysWorkouts.count == 1 {
+                        // if it's the only workout that should be done today then we have a clear winner.
+                        result[index] = ("today", .red)
+                    } else if todaysWorkouts.count > 1 {
+                        // otherwise we'll tell the user how long it's been so that he can decide.
+                        if let last = info.latest {
+                            result[index] = (last.friendlyName(), .orange)
+                        } else {
+                            result[index] = ("never started", .orange)
+                        }
+                    }
+                }
+            }
+            return result
+        }
+
+        // Then we'll check for workouts that can be performed on any day.
+        let anyWorkouts = infos.filter({isAnyDay($0.days)})
+        if !anyWorkouts.isEmpty {
+            for (index, info) in infos.enumerated() {
+                // For all the workouts that the user could do today we'll tell the user how long
+                // it has been since he has done that workout.
+                if anyWorkouts.findLast({$0.name == info.name}) != nil {
+                    if let last = info.latest {
+                        result[index] = (last.friendlyName(), .orange)
+                    } else {
+                        result[index] = ("never started", .orange)
+                    }
+                }
+            }
+            return result
+        }
+
+        // We're at the point where the only workouts that exist are workouts that are scheduled
+        // for a day and today is not one of those days. So we'll find the upcoming workout and tell
+        // the user when that is due.
+        var found = false
+        for delta in 1...6 {
+            for (index, info) in infos.enumerated() {
+                if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: Date()) {
+                    let weekday = cal.component(.weekday, from: candidate)
+                    if info.days[weekday - 1] {
+                        if delta == 1 {
+                            result[index] = ("tomorrow", .blue)
+                            found = true
+                        } else {
+                            result[index] = ("in \(delta) days", .blue)
+                            found = true
+                        }
+                    }
+                }
+            }
+            if found {
+                break
+            }
+        }
+        
+        return result
+    }
+        
+    // The workout can be performed on any day.
+    private func isAnyDay(_ days: [Bool]) -> Bool {
+        return days.all({!$0})
     }
     
     func updateInfos() {
@@ -98,30 +173,12 @@ struct ProgramView: View {
             
             if let last = dates.last {
                 let didAll = dates.count == workout.exercises.count
-                infos.append(Info(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
+                infos.append(Info(name: workout.name, latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll, days: workout.days))
 
             } else {
-                infos.append(Info(latest: nil, latestIsComplete: false, completedAll: false))
+                infos.append(Info(name: workout.name, latest: nil, latestIsComplete: false, completedAll: false, days: workout.days))
             }
         }
-    }
-
-    func isOldestWorkout(_ index: Int, _ candidate: Date) -> Bool {
-        for (i, info) in infos.enumerated() {
-            if i != index {
-                if let date = info.latest {
-                    if date.compare(candidate) == .orderedAscending {
-                        return false
-                    }
-                }
-                if !info.completedAll {
-                    // If there was a workout that hasn't been completed then we
-                    // can't really say which is the oldest.
-                    return false
-                }
-            }
-        }
-        return infos.count > 1  // oldest doesn't make much sense if there is only one
     }
 }
 
@@ -176,8 +233,8 @@ struct ProgramView_Previews: PreviewProvider {
         }
 
         let workouts = [
-            Workout("Lower", [burpees(), squats()])!,
-            Workout("Upper", [planks(), curls()])!]
+            Workout("Lower", [burpees(), squats()], day: nil)!,
+            Workout("Upper", [planks(), curls()], day: .tuesday)!]
         return Program("Split", workouts)
     }
 
