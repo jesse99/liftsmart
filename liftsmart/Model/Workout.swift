@@ -11,7 +11,7 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     var exercises: [Exercise]
     var days: [Bool]            // indices are Sun, Mon, ..., Sat, true means workout is scheduled for that day, all false means can do the workout any day
 
-    init?(_ name: String, _ exercises: [Exercise], day: WeekDay?) {
+    init?(_ name: String, _ exercises: [Exercise], days: [WeekDay]) {
         if name.isEmpty {return nil}
         let names = exercises.map {(e) -> String in e.name}
         if names.count != Set(names).count {return nil}     // exercise names must be unique
@@ -19,9 +19,13 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         self.name = name
         self.exercises = exercises
         self.days = Array(repeating: false, count: 7)
-        if let d = day {
+        for d in days {
             self.days[d.rawValue] = true
         }
+    }
+    
+    convenience init?(_ name: String, _ exercises: [Exercise], day: WeekDay?) {
+        self.init(name, exercises, days: day != nil ? [day!] : [])
     }
     
     required init(from store: Store) {
