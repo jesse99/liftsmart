@@ -13,13 +13,13 @@ struct ExerciseMaxRepsView: View {
     @State var subTitle: String = ""
     @State var subSubTitle: String = ""
     @State var startLabel: String = ""
-    @State var completed: Int = 0
-    @State var startModal: Bool = false
+    @State var completed: Int = 0  // number of reps the user has done so far
+    @State var startTimer: Bool = false
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
     @State var noteModal: Bool = false
-    @State var updateModal: Bool = false
-    @State var showingSheet: Bool = false
+    @State var updateExpected: Bool = false
+    @State var updateRepsDone: Bool = false
     @State var underway: Bool = false
     @Environment(\.presentationMode) private var presentation
     
@@ -50,11 +50,11 @@ struct ExerciseMaxRepsView: View {
                 Text(subSubTitle).font(.headline)     // Completed 30 reps (target is 90 reps)
                 Spacer()
 
-                Button(startLabel, action: onStart)
+                Button(startLabel, action: onNextOrDone)
                     .font(.system(size: 40.0))
-                    .actionSheet(isPresented: $showingSheet) {
-                        ActionSheet(title: Text("Reps Completed"), buttons: sheetButtons())}
-                    .alert(isPresented: $updateModal) { () -> Alert in
+                    .actionSheet(isPresented: $updateRepsDone) {
+                        ActionSheet(title: Text("Reps Completed"), buttons: repsDoneButtons())}
+                    .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
                                 self.exercise.expected.reps = self.completed
@@ -62,7 +62,7 @@ struct ExerciseMaxRepsView: View {
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
                             }))}
-                    .sheet(isPresented: self.$startModal) {TimerView(duration: self.startDuration(-1))}
+                    .sheet(isPresented: self.$startTimer) {TimerView(duration: self.startDuration(-1))}
                 
                 Spacer().frame(height: 50)
 
@@ -93,7 +93,7 @@ struct ExerciseMaxRepsView: View {
         }
     }
     
-    func sheetButtons() -> [ActionSheet.Button] {
+    func repsDoneButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
         
         let delta = 10  // we'll show +/- this many reps versus expected
@@ -101,15 +101,15 @@ struct ExerciseMaxRepsView: View {
         let target = expected()
         for reps in max(target - delta, 1)...(target + delta) {
             let text = Text("\(reps) Reps") // TODO: would be nice to style this if target == reps but bold() and underline() don't do anything
-            buttons.append(.default(text, action: {() -> Void in self.onSheetCompleted(reps)}))
+            buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
         }
         
         return buttons
     }
     
-    func onSheetCompleted(_ reps: Int) {
+    func onRepsPressed(_ reps: Int) {
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
-        self.startModal = startDuration(-1) > 0
+        self.startTimer = startDuration(-1) > 0
         self.completed += reps
         self.refresh()      // note that dismissing a sheet does not call onAppear
     }
@@ -197,13 +197,13 @@ struct ExerciseMaxRepsView: View {
         print("Pressed options")  // TODO: implement
     }
     
-    func onStart() {
+    func onNextOrDone() {
         if exercise.current!.setIndex < restSecs.count {
-            self.showingSheet = true
+            self.updateRepsDone = true
         } else if self.exercise.expected.reps == nil || self.completed != self.exercise.expected.reps! {
-            self.showingSheet = false
-            self.startModal = false
-            self.updateModal = true
+            self.updateRepsDone = false
+            self.startTimer = false
+            self.updateExpected = true
         } else {
             self.popView()
         }

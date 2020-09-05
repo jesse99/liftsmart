@@ -46,7 +46,7 @@ func home() -> Program {
     }
     
     func squats4() -> Exercise {
-        let sets = Sets.durations([DurationSet(secs: 15, restSecs: 60)!])
+        let sets = Sets.durations([DurationSet(secs: 15, restSecs: 0)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Squats 4", "Body-weight Squat", modality)
     }

@@ -28,7 +28,19 @@ class\cf3  \cf4 Current\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
     \cf2 var\cf3  \cf7 weight\cf3 : \cf6 Double\cf3       \cf8 // may be 0.0\cf3 \
     \cf2 var\cf3  \cf7 setIndex\cf3 : \cf6 Int\cf3        \cf8 // if this is sets.count then the user has finished those sets\cf3 \
 \
-\cf2 enum\cf3  \cf4 Sets\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
+\cf2 struct\cf3  \cf4 RepRange\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
+    \cf2 let\cf3  \cf7 min\cf3 : \cf6 Int\cf3 \
+    \cf2 let\cf3  \cf7 max\cf3 : \cf6 Int\cf3 \
+    \
+\cf2 struct\cf3  \cf4 WeightPercent\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
+    \cf2 let\cf3  \cf7 value\cf3 : \cf6 Double\cf3 \
+\cf2 \
+struct\cf3  \cf4 RepsSet\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
+    \cf2 let\cf3  \cf7 reps\cf3 : \cf5 RepRange\cf3 \
+    \cf2 let\cf3  \cf7 percent\cf3 : \cf5 WeightPercent\cf3 \
+    \cf2 let\cf3  \cf7 restSecs\cf3 : \cf6 Int\cf3 \
+\cf2 \
+enum\cf3  \cf4 Sets\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
     \cf2 case\cf3  \cf7 durations\cf3 ([\cf5 DurationSet\cf3 ], targetDuration: \cf6 Int\cf3 ? = \cf2 nil\cf3 )\
     \cf2 case\cf3  \cf7 maxReps\cf3 (restSecs: [\cf6 Int\cf3 ], targetReps: \cf6 Int\cf3 ? = \cf2 nil\cf3 )\
     \cf2 case\cf3  \cf7 repRanges\cf3 (warmups: [\cf5 RepsSet\cf3 ], worksets: [\cf5 RepsSet\cf3 ], backoffs: [\cf5 RepsSet\cf3 ])\
