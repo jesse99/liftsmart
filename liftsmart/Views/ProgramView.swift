@@ -202,7 +202,7 @@ struct ProgramView_Previews: PreviewProvider {
         func curls() -> Exercise {
             let sets = Sets.maxReps(restSecs: [90, 90, 0])
             let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: 65))
+            let e = Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: [65]))
             e.current = Current(weight: 0.0)
             e.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
             e.current!.setIndex = 1

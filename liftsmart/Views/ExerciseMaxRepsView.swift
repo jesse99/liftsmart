@@ -57,7 +57,7 @@ struct ExerciseMaxRepsView: View {
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
-                                self.exercise.expected.reps = self.completed
+                                self.exercise.expected.reps = [self.completed]
                                 self.popView()}),
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
@@ -152,7 +152,7 @@ struct ExerciseMaxRepsView: View {
 
         subSubTitle = ""
         if self.completed > 0 {
-            if let expected = exercise.expected.reps {
+            if let expected = exercise.expected.reps.first {
                 if exercise.current!.setIndex < restSecs.count {
                     subSubTitle = "Did \(self.completed) reps (expecting \(expected) reps)"
                 } else if self.completed == expected {
@@ -167,7 +167,7 @@ struct ExerciseMaxRepsView: View {
             }
 
         } else {
-            if let expected = exercise.expected.reps {
+            if let expected = exercise.expected.reps.first {
                 if exercise.current!.setIndex < restSecs.count {
                     subSubTitle = "Expecting \(expected) reps"
                 } else {
@@ -200,7 +200,7 @@ struct ExerciseMaxRepsView: View {
     func onNextOrDone() {
         if exercise.current!.setIndex < restSecs.count {
             self.updateRepsDone = true
-        } else if self.exercise.expected.reps == nil || self.completed != self.exercise.expected.reps! {
+        } else if self.exercise.expected.reps.count != 1 || self.completed != self.exercise.expected.reps.first! {
             self.updateRepsDone = false
             self.startTimer = false
             self.updateExpected = true
@@ -247,7 +247,7 @@ struct ExerciseMaxRepsView: View {
     }
     
     func expected() -> Int {
-        if let expected = exercise.expected.reps {
+        if let expected = exercise.expected.reps.first {
             if exercise.current!.setIndex < restSecs.count {
                 let remaining = expected - self.completed
                 let reps = remaining/(restSecs.count - exercise.current!.setIndex)

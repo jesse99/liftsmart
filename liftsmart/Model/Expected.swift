@@ -5,11 +5,14 @@ import Foundation
 /// What the user is expected to do the next time he performs the exercise.
 class Expected: CustomDebugStringConvertible, Storable {
     var weight: Double      // may be 0.0
-    var reps: Int?          // set for Sets.repsRanges, indicates where the user is within a variable reps set, can also override fixed reps
+    
+    // for maxReps this will have one entry for the total reps the user is expected to do
+    // for repRanges this will have entries for each work and backoff set, note that this does override the reps within the set
+    var reps: [Int]         // TODO: may want to reset this if user edits reps (that would also help to avoud reps.count and sets.count getting out of sync)
 
-    init(weight: Double, reps: Int? = nil) {        // TODO: should this be failable?
+    init(weight: Double, reps: [Int] = []) {        // TODO: should this be failable?
         assert(weight >= 0.0)
-        assert(reps == nil || reps! > 0)
+        assert(reps.all({$0 > 0}))
         
         self.weight = weight
         self.reps = reps
@@ -17,18 +20,16 @@ class Expected: CustomDebugStringConvertible, Storable {
     
     required init(from store: Store) {
         self.weight = store.getDbl("weight")
-        if store.hasKey("reps") {
-            self.reps = store.getInt("reps")
+        if store.hasKey("reps2") {
+            self.reps = store.getIntArray("reps2")
         } else {
-            self.reps = nil
+            self.reps = []
         }
     }
     
     func save(_ store: Store) {
         store.addDbl("weight", self.weight)
-        if let reps = self.reps {
-            store.addInt("reps", reps)
-        }
+        store.addIntArray("reps2", reps)
     }
 
     var debugDescription: String {
@@ -37,3 +38,4 @@ class Expected: CustomDebugStringConvertible, Storable {
         }
     }
 }
+

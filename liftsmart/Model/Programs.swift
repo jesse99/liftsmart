@@ -65,13 +65,13 @@ func home() -> Program {
         let reps = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 90)!
         let sets = Sets.repRanges(warmups: [], worksets: [reps, reps, reps], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Crunches", "Crunches", modality, Expected(weight: 9.0, reps: 81))
+        return Exercise("Crunches", "Crunches", modality, Expected(weight: 9.0))
     }
 
     func curls() -> Exercise {
         let sets = Sets.maxReps(restSecs: [90, 90, 0])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: 81))
+        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0))
     }
     
     // https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat

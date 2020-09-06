@@ -51,7 +51,7 @@ class\cf3  \cf4 Modality\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
 \cf2 \
 class\cf3  \cf4 Expected\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
     \cf2 var\cf3  \cf7 weight\cf3 : \cf6 Double\cf3       \cf8 // may be 0.0\cf3 \
-    \cf2 var\cf3  \cf7 reps\cf3 : \cf6 Int\cf3 ?          \cf8 // set for Sets.repsRanges, indicates where the user is within a variable reps set, can also override fixed reps\cf3 \
+    \cf2 var\cf3  \cf7 reps\cf3 : [\cf6 Int\cf3 ]         \cf8 // work and backoff sets for Sets.repsRanges, usually used for variable reps but user can override fixed reps\cf3 \
 \cf2 \
 class\cf3  \cf4 Exercise\cf3 : \cf6 Hashable\cf3 , \cf6 Identifiable\cf3  \{\
     \cf2 var\cf3  \cf7 name\cf3 : \cf6 String\cf3              \cf8 // "Heavy Bench"\cf3 \

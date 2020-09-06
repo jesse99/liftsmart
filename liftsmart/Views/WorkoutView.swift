@@ -38,10 +38,11 @@ struct WorkoutRow: View {
             sets = durations.map({$0.debugDescription})
 
         case .maxReps(let restSecs, _):
-            if let reps = exercise.expected.reps {
-                return "\(reps) reps"
-            } else {
+            if exercise.expected.reps.isEmpty {
                 return "\(restSecs.count) sets"
+            } else {
+                let a: [String] = exercise.expected.reps.map({String($0)})
+                return a.joined(separator: ", ") + " reps"
             }
 
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):

@@ -61,7 +61,7 @@ struct ExerciseRepRangesView: View {
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
-                                self.exercise.expected.reps = self.completed.last!
+                                self.exercise.expected.reps = self.completed
                                 self.popView()}),
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
@@ -100,15 +100,12 @@ struct ExerciseRepRangesView: View {
     func repsDoneButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
         
-        let set = self.worksets.last!
-        let target = expected()
-        assert(target < set.reps.max)
-        
-        for reps in target...set.reps.max {
+        let range = getRepRange()
+        for reps in max(range.min - 3, 0)...range.max {
             let text = Text("\(reps) Reps") // TODO: would be nice to style this if target == reps but bold() and underline() don't do anything
             buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
         }
-        
+
         return buttons
     }
     
@@ -195,16 +192,10 @@ struct ExerciseRepRangesView: View {
             self.refresh()      // note that dismissing a sheet does not call onAppear
 
         case .workset, .backoff:
-            let reps = getRepRange()
-            if reps.min < reps.max && expected() < reps.max {
-                self.updateRepsDone = true
-            } else {
-                self.onRepsPressed(reps.max)
-            }
+            self.updateRepsDone = true
 
         case .done:
-            // TODO: need to check to see if the arrays are different (maybe via an Expected helper)
-            if self.exercise.expected.reps == nil || self.completed.last! != self.exercise.expected.reps! {
+            if !self.completed.elementsEqual(self.exercise.expected.reps) {
                 self.updateRepsDone = false
                 self.startTimer = false
                 self.updateExpected = true
@@ -241,27 +232,6 @@ struct ExerciseRepRangesView: View {
         return .done
     }
     
-    private func getRepsSet(_ delta: Int = 0) -> RepsSet {
-        var i = self.exercise.current!.setIndex + delta
-
-        if i < warmups.count {
-            return warmups[i]
-        }
-        i -= warmups.count
-
-        if i < worksets.count {
-            return worksets[i]
-        }
-        i -= worksets.count
-
-        if i < backoffs.count {
-            return backoffs[i]
-        }
-
-        assert(false)
-        return RepsSet(reps: RepRange(5)!)!
-    }
-
     func popView() {
         self.history.append(self.workout, self.exercise)
 
@@ -300,9 +270,33 @@ struct ExerciseRepRangesView: View {
         return secs > 0 ? secs : 60
     }
     
+    private func getRepsSet(_ delta: Int = 0) -> RepsSet {
+        var i = self.exercise.current!.setIndex + delta
+
+        if i < warmups.count {
+            return warmups[i]
+        }
+        i -= warmups.count
+
+        if i < worksets.count {
+            return worksets[i]
+        }
+        i -= worksets.count
+
+        if i < backoffs.count {
+            return backoffs[i]
+        }
+
+        assert(false)
+        return RepsSet(reps: RepRange(5)!)!
+    }
+
     private func getRepRange() -> RepRange {
         let reps = getRepsSet().reps
-        if let expected = exercise.expected.reps {
+
+        let i = self.exercise.current!.setIndex - warmups.count
+        if i < exercise.expected.reps.count {
+            let expected = exercise.expected.reps[i]
             if expected < reps.max {
                 return RepRange(min: expected, max: reps.max)!
             } else {
@@ -314,8 +308,9 @@ struct ExerciseRepRangesView: View {
     }
 
     private func expected() -> Int {
-        if let expected = exercise.expected.reps {
-            return expected
+        let i = self.exercise.current!.setIndex - warmups.count
+        if i < exercise.expected.reps.count {
+            return exercise.expected.reps[i]
         } else {
             let reps = getRepsSet().reps
             return reps.min
@@ -324,9 +319,6 @@ struct ExerciseRepRangesView: View {
 }
 
 // TODO:
-// change Expected.reps to an array
-// use three fixed reps
-// use three variable reps
 // use warmups
 // use backoff
 // use WeightPercent
@@ -340,7 +332,7 @@ struct ExerciseRepRangesView_Previews: PreviewProvider {
     static let workset:RepsSet = RepsSet(reps: reps, percent: WeightPercent(1.0)!, restSecs: 60)!
     static let sets = Sets.repRanges(warmups: [], worksets: [workset, workset, workset], backoffs: [])
     static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("OHP", "OHP", modality, Expected(weight: 120.0, reps: 5))
+    static let exercise = Exercise("OHP", "OHP", modality, Expected(weight: 120.0, reps: [6, 5, 4]))
     static let workout = Workout("Strength", [exercise], day: nil)!
 
     static var previews: some View {
