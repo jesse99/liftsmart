@@ -81,7 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let store = loadStore(from: "history") {
             history = History(from: store)
         }
-        if let store = loadStore(from: "program2") {
+        if let store = loadStore(from: "program3") {
             program = Program(from: store)
         }
         if let store = loadStore(from: "userNotes") {

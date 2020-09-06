@@ -9,7 +9,6 @@ struct ExerciseRepRangesView: View {
     let warmups: [RepsSet]
     let worksets: [RepsSet]
     let backoffs: [RepsSet]
-//    let targetReps: Int?
     var timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
     @State var setTitle: String = ""
     @State var percentTitle: String = ""
@@ -47,7 +46,7 @@ struct ExerciseRepRangesView: View {
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
-                Group {     // we're using groups to work around the 10 item limit in VStacks
+                Group {
                     Text(exercise.name).font(.largeTitle)   // OHP
                     Spacer()
                 
@@ -159,7 +158,7 @@ struct ExerciseRepRangesView: View {
             let display = percent.value >= 0.01 && percent.value <= 0.99
             self.percentTitle = display ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
 
-            let suffix = weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+            let suffix = percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
             self.repsTitle =  getRepRange().label + suffix
             self.platesTitle = ""        // TODO: needs to use apparatus
             self.startLabel = "Next"

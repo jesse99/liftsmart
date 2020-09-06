@@ -34,7 +34,7 @@ func home() -> Program {
     }
     
     func squats3() -> Exercise {
-        let sets = Sets.durations([DurationSet(secs: 30, restSecs: 60)!])
+        let sets = Sets.durations([DurationSet(secs: 40, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Squats 3", "Body-weight Squat", modality)
     }
@@ -46,7 +46,7 @@ func home() -> Program {
     }
     
     func squats4() -> Exercise {
-        let sets = Sets.durations([DurationSet(secs: 15, restSecs: 0)!])
+        let sets = Sets.durations([DurationSet(secs: 30, restSecs: 0)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Squats 4", "Body-weight Squat", modality)
     }
@@ -65,7 +65,7 @@ func home() -> Program {
         let reps = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 90)!
         let sets = Sets.repRanges(warmups: [], worksets: [reps, reps, reps], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Crunches", "Crunches", modality, Expected(weight: 9.0))
+        return Exercise("Crunches", "Crunches", modality)
     }
 
     func curls() -> Exercise {
@@ -76,7 +76,7 @@ func home() -> Program {
     
     // https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
     func splitSquats() -> Exercise {
-        let warmup = RepsSet(reps: RepRange(12)!, restSecs: 90)!
+        let warmup = RepsSet(reps: RepRange(12)!, percent: WeightPercent(0.0)!, restSecs: 90)!
         let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 90)!
         let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)

@@ -132,7 +132,10 @@ struct RepsSet: CustomDebugStringConvertible, Storable {
 
     var debugDescription: String {
         get {
-            return "\(self.reps.label)\(self.percent.label)"
+            let display = self.percent.value >= 0.01 && self.percent.value <= 0.99
+            let suffix = display ? " @ \(self.percent.label)" : ""
+
+            return "\(self.reps.label)\(suffix)"
         }
     }
     
