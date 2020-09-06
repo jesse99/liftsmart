@@ -61,22 +61,15 @@ func home() -> Program {
         return Exercise("Planks", "Front Plank", modality)
     }
     
-    func crunches() -> Exercise {
-        let reps = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 90)!
-        let sets = Sets.repRanges(warmups: [], worksets: [reps, reps, reps], backoffs: [])
-        let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Crunches", "Crunches", modality)
-    }
-
     func curls() -> Exercise {
         let sets = Sets.maxReps(restSecs: [90, 90, 0])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0))
+        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: [74]))
     }
     
     // https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
     func splitSquats() -> Exercise {
-        let warmup = RepsSet(reps: RepRange(12)!, percent: WeightPercent(0.0)!, restSecs: 90)!
+        let warmup = RepsSet(reps: RepRange(8)!, percent: WeightPercent(0.0)!, restSecs: 60)!
         let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 90)!
         let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
@@ -93,7 +86,7 @@ func home() -> Program {
 //        planks(), curls()], days: [.monday, .wednesday, .friday])!
     let cardio = Workout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil)!
     let strength = Workout("Strength", [
-        splitSquats(), crunches(), curls()], days: [.monday, .wednesday, .friday])!
+        splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday])!
 
     let workouts = [strength, cardio]
     return Program("Home", workouts)
