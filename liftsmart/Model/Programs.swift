@@ -67,6 +67,40 @@ func home() -> Program {
         return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: [74]))
     }
     
+    func shoulderFlexion() -> Exercise {
+        let work = RepsSet(reps: RepRange(min: 8, max: 12)!, restSecs: 30)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Shoulder Flexion", "Single Shoulder Flexion", modality)
+    }
+    
+    func bicepsStretch() -> Exercise {
+        let durations = [
+            DurationSet(secs: 15, restSecs: 30)!,
+            DurationSet(secs: 15, restSecs: 30)!,
+            DurationSet(secs: 15, restSecs: 30)!]
+        let sets = Sets.durations(durations)
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Biceps Stretch", "Wall Biceps Stretch", modality)
+    }
+    
+    func externalRotation() -> Exercise {
+        let work = RepsSet(reps: RepRange(15)!, restSecs: 30)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("External Rotation", "Lying External Rotation", modality)
+    }
+    
+    func sleeperStretch() -> Exercise {
+        let durations = [
+            DurationSet(secs: 30, restSecs: 30)!,
+            DurationSet(secs: 30, restSecs: 30)!,
+            DurationSet(secs: 30, restSecs: 30)!]
+        let sets = Sets.durations(durations)
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Sleeper Stretch", "Sleeper Stretch", modality)
+    }
+
     // https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
     func splitSquats() -> Exercise {
         let warmup = RepsSet(reps: RepRange(8)!, percent: WeightPercent(0.0)!, restSecs: 60)!
@@ -85,10 +119,12 @@ func home() -> Program {
 //    let strength = Workout("Strength", [
 //        planks(), curls()], days: [.monday, .wednesday, .friday])!
     let cardio = Workout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil)!
+    let rehab = Workout("Rehab", [
+        shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.monday, .tuesday, .wednesday, .thursday, .friday])!
     let strength = Workout("Strength", [
         splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday])!
 
-    let workouts = [strength, cardio]
+    let workouts = [strength, cardio, rehab]
     return Program("Home", workouts)
 }
 

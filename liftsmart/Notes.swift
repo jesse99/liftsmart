@@ -1538,6 +1538,16 @@ let defaultNotes: [String: String] = [
             "Can help to try to screw heels inward."],
         links: ["The Definitive Guide": "http://strengtheory.com/how-to-squat/", "Candito Video": "https://www.youtube.com/watch?v=zoZWgTrZLd8", "Stronglifts": "http://stronglifts.com/squat/", "Catching Squat up to Deadlift": "http://strengtheory.com/help-squat-catch-deadlift/"]),
     
+    "Lying External Rotation": noteToMarkdown(
+        notes: [
+            "Lie down on your side with your injured arm on top.",
+            "Rest your head against your other arm and bend your knees.",
+            "Bend the injured arm ninety degrees with your hand down and palm facing your body.",
+            "Keep your elbow tucked against your body and raise your forearm until it's parallel with the ground.",
+            "Slowly lower your arm back down.",
+            "Difficulty can be used by using a very light weight."],
+        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
+        
     "Lying Leg Curls": noteToMarkdown(
         notes: [
             "Lay on your back on a bench with your legs hanging off the end.",
@@ -2299,6 +2309,13 @@ let defaultNotes: [String: String] = [
             "Slightly bend the knee your weight is resting on."],
         links: ["Link": "http://tonygentilcore.com/2009/06/exercises-you-should-be-doing-1-legged-barbell-rdl/"]),
     
+    "Single Shoulder Flexion": noteToMarkdown(
+        notes: [
+            "Stand up with your arms at your sides.",
+            "Keeping your arm straight raise it forward and up until it points to the ceiling.",
+            "Hold for five secons and return to the starting position."],
+        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
+    
     "Situp (intro)": noteToMarkdown(
         notes: [
             "Lie down with feet slightly apart and hands at your sides.",
@@ -2330,6 +2347,17 @@ let defaultNotes: [String: String] = [
             "Keep upper arms stationary."],
         links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/ez-bar-skullcrusher"]),
     
+    "Sleeper Stretch": noteToMarkdown(
+        notes: [
+            "Lie down on your injured side.",
+            "Use a pillow for your head and bend your knees.",
+            "Bend the elbow of your injured arm so that your fingers point to the ceiling.",
+            "Use your other arm to gently push your injured arm to the floor.",
+            "Resist the motion to feel the stretch and keep your shoulder blades pushed together.",
+            "Hold the stretch 30 seconds.",
+            ],
+        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
+        
     "Sliding Leg Curl": noteToMarkdown(
         notes: [
             "Lay down on your back.",
@@ -2672,6 +2700,14 @@ let defaultNotes: [String: String] = [
             "While keeping your front heel on the floor, drive your knees forward.",
             "Your rear heel should be off the floor."],
         links: ["Video": "https://www.youtube.com/watch?v=eGjJkurZlGw"]),
+    
+    "Wall Biceps Stretch": noteToMarkdown(
+        notes: [
+            "Face a wall standing about six inches away.",
+            "With your palm down touch the thumb side of your hand to the wall.",
+            "Keep your arm straight and turn your body away from your arm until you feel the bicep stretch.",
+            "Hold for about fifteen seconds."],
+        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
     
     "Wall Extensions": noteToMarkdown(
         notes: [
