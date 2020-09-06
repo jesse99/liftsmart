@@ -81,7 +81,7 @@ struct WeightPercent: CustomDebugStringConvertible, Storable {
             if abs(self.value - Double(i)) < 1.0 {
                 return ""
             } else {
-                return " @ (\(i))%)"
+                return "\(i)%"
             }
         }
     }

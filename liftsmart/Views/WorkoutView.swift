@@ -93,8 +93,7 @@ struct WorkoutView: View {
             return AnyView(ExerciseMaxRepsView(workout, exercise, history))
 
         case .repRanges(_, _, _):
-            assert(false)
-//            return AnyView(ExerciseRepRangesView(workout, exercise, history))
+            return AnyView(ExerciseRepRangesView(workout, exercise, history))
 
 //      case .untimed(restSecs: let secs):
 //          sets = Array(repeating: "untimed", count: secs.count)

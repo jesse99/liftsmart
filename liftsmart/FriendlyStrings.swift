@@ -18,6 +18,7 @@ func secsToShortDurationName(_ interval: Double) -> String {
         return String(format: "%0.1f days", arguments: [days])
     }
 }
+
 extension Date {
     /// Returns a human readable string for number of days.
     func friendlyName() -> String {

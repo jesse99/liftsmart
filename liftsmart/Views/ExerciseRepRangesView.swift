@@ -11,8 +11,10 @@ struct ExerciseRepRangesView: View {
     let backoffs: [RepsSet]
 //    let targetReps: Int?
     var timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
-    @State var title: String = ""
-    @State var subTitle: String = ""
+    @State var setTitle: String = ""
+    @State var percentTitle: String = ""
+    @State var repsTitle: String = ""
+    @State var platesTitle: String = ""
     @State var startLabel: String = ""
     @State var completed: [Int] = []  // number of reps the user has done so far (not counting warmup)
     @State var startTimer: Bool = false
@@ -45,13 +47,17 @@ struct ExerciseRepRangesView: View {
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
-                Text(exercise.name).font(.largeTitle)   // OHP
-                Spacer()
-            
-                Text(title).font(.title)              // WorkSet 1 of 3
-                // TODO: 75% of 120 lbs
-                Text(subTitle).font(.headline)        // 3-5 reps @ 120 lbs
-                // TODO: 25 + 10 + 2.5
+                Group {     // we're using groups to work around the 10 item limit in VStacks
+                    Text(exercise.name).font(.largeTitle)   // OHP
+                    Spacer()
+                
+                    Text(setTitle).font(.title)         // WorkSet 1 of 3
+                    Text(percentTitle).font(.headline)  // 75% of 120 lbs
+                    Spacer().frame(height: 25)
+
+                    Text(repsTitle).font(.title)        // 3-5 reps @ 120 lbs
+                    Text(platesTitle).font(.headline)   // 25 + 10 + 2.5
+                }
                 Spacer()
 
                 Button(startLabel, action: onNextOrDone)
@@ -101,8 +107,12 @@ struct ExerciseRepRangesView: View {
         var buttons: [ActionSheet.Button] = []
         
         let range = getRepRange()
+        let expect = expected()
         for reps in max(range.min - 3, 0)...range.max {
-            let text = Text("\(reps) Reps") // TODO: would be nice to style this if target == reps but bold() and underline() don't do anything
+            // TODO: better to use bold() or underline() but they don't do anything
+            let str = reps == expect ? "•• \(reps) Reps ••" : "\(reps) Reps"
+            let text = Text(str)
+            
             buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
         }
 
@@ -110,9 +120,9 @@ struct ExerciseRepRangesView: View {
     }
     
     func onRepsPressed(_ reps: Int) {
-        self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
+        self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before percentTitle gets evaluated
         self.startTimer = startDuration(-1) > 0
-        self.completed.append(reps)  // TODO: also handle fixed reps case
+        self.completed.append(reps)
         self.refresh()      // note that dismissing a sheet does not call onAppear
     }
     
@@ -134,40 +144,47 @@ struct ExerciseRepRangesView: View {
     func refresh() {
         let count = warmups.count + worksets.count + backoffs.count
         self.underway = count > 1 && exercise.current!.setIndex > 0
+        
+        switch stage() {
+        case .done:
+            self.setTitle = "Finished"
+            self.repsTitle =  ""
+            self.percentTitle = ""
+            self.platesTitle = ""
+            self.startLabel = "Done"
+            
+        default:
+            let percent = getRepsSet().percent
+            let weight = exercise.expected.weight * percent
+            let display = percent.value >= 0.01 && percent.value <= 0.99
+            self.percentTitle = display ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
+
+            let suffix = weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+            self.repsTitle =  getRepRange().label + suffix
+            self.platesTitle = ""        // TODO: needs to use apparatus
+            self.startLabel = "Next"
+        }
 
         switch stage() {
         case .warmup:
             let i = exercise.current!.setIndex
-            self.title = "Warmup \(i+1) of \(warmups.count)"
-            self.subTitle =  getRepRange().label + getWeightLabel()
-            self.startLabel = "Next"
+            self.setTitle = "Warmup \(i+1) of \(warmups.count)"
 
         case .workset:
             let i = exercise.current!.setIndex - warmups.count
-            self.title = "Workset \(i+1) of \(worksets.count)"
-            self.subTitle =  getRepRange().label + getWeightLabel()
-            self.startLabel = "Next"
+            self.setTitle = "Workset \(i+1) of \(worksets.count)"
 
         case .backoff:
             let i = exercise.current!.setIndex - warmups.count - worksets.count
-            self.title = "Backoff \(i+1) of \(backoffs.count)"
-            self.subTitle =  getRepRange().label + getWeightLabel()
-            self.startLabel = "Next"
+            self.setTitle = "Backoff \(i+1) of \(backoffs.count)"
 
         case .done:
-            self.title = "Finished"
-            self.subTitle =  ""
+            self.setTitle = "Finished"
+            self.repsTitle =  ""
+            self.percentTitle = ""
+            self.platesTitle = ""
             self.startLabel = "Done"
         }
-    }
-    
-    // TODO: think we need to scale Expected.weight by set.percent (note that WeightPercent overloads *)
-    private func getWeightLabel() -> String {
-//        var label = ""
-//        if exercise.expected.weight > 0.0 {
-//            label = " @ " + friendlyUnitsWeight(exercise.expected.weight)
-//        }
-        return ""
     }
     
     func onReset() {
@@ -293,46 +310,55 @@ struct ExerciseRepRangesView: View {
 
     private func getRepRange() -> RepRange {
         let reps = getRepsSet().reps
-
-        let i = self.exercise.current!.setIndex - warmups.count
-        if i < exercise.expected.reps.count {
-            let expected = exercise.expected.reps[i]
-            if expected < reps.max {
-                return RepRange(min: expected, max: reps.max)!
-            } else {
-                return RepRange(expected)!
-            }
-        } else {
+        switch stage() {
+        case .warmup:
             return reps
+
+        default:
+            let i = self.exercise.current!.setIndex -  warmups.count
+            if i < exercise.expected.reps.count {
+                let expected = exercise.expected.reps[i]
+                if expected < reps.max {
+                    return RepRange(min: expected, max: reps.max)!
+                } else {
+                    return RepRange(expected)!
+                }
+            } else {
+                return reps
+            }
         }
     }
 
     private func expected() -> Int {
-        let i = self.exercise.current!.setIndex - warmups.count
-        if i < exercise.expected.reps.count {
-            return exercise.expected.reps[i]
-        } else {
-            let reps = getRepsSet().reps
-            return reps.min
+        switch stage() {
+        case .warmup:
+            return getRepsSet().reps.min
+
+        default:
+            let i = self.exercise.current!.setIndex -  warmups.count
+            if i < exercise.expected.reps.count {
+                return exercise.expected.reps[i]
+            } else {
+                return getRepsSet().reps.min
+            }
         }
     }
 }
 
-// TODO:
-// use warmups
-// use backoff
-// use WeightPercent
-// mismatched worksets, eg 8-12, 6-10, 4-6
-//    should ask reps after each workset
-//    then what? make Expected.reps an array?
-//    might be better to just ask for reps after each workset
-// review TODOs
 struct ExerciseRepRangesView_Previews: PreviewProvider {
-    static let reps = RepRange(min: 4, max: 8)!
-    static let workset:RepsSet = RepsSet(reps: reps, percent: WeightPercent(1.0)!, restSecs: 60)!
-    static let sets = Sets.repRanges(warmups: [], worksets: [workset, workset, workset], backoffs: [])
+    static let reps1 = RepRange(min: 8, max: 12)!
+    static let reps2 = RepRange(min: 6, max: 10)!
+    static let reps3 = RepRange(min: 4, max: 6)!
+    static let warm1 = RepsSet(reps: RepRange(8)!, percent: WeightPercent(0.33)!)!
+    static let warm2 = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.66)!)!
+//    static let workset = RepsSet(reps: reps, percent: WeightPercent(1.0)!, restSecs: 60)!
+//    static let backoff = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.8)!)!
+    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(0.8)!, restSecs: 60)!
+    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(0.9)!, restSecs: 60)!
+    static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0)!)!
+    static let sets = Sets.repRanges(warmups: [warm1, warm2], worksets: [work1, work2, work3], backoffs: [])
     static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("OHP", "OHP", modality, Expected(weight: 120.0, reps: [6, 5, 4]))
+    static let exercise = Exercise("OHP", "OHP", modality, Expected(weight: 120.0))
     static let workout = Workout("Strength", [exercise], day: nil)!
 
     static var previews: some View {

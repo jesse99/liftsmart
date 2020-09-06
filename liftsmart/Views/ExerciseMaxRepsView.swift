@@ -100,7 +100,10 @@ struct ExerciseMaxRepsView: View {
         
         let target = expected()
         for reps in max(target - delta, 1)...(target + delta) {
-            let text = Text("\(reps) Reps") // TODO: would be nice to style this if target == reps but bold() and underline() don't do anything
+            // TODO: better to use bold() or underline() but they don't do anything
+            let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
+            let text = Text(str)
+
             buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
         }
         
