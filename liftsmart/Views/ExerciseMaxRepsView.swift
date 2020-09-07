@@ -95,16 +95,20 @@ struct ExerciseMaxRepsView: View {
     
     func repsDoneButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
-        
-        let delta = 10  // we'll show +/- this many reps versus expected
-        
-        let target = expected()
-        for reps in max(target - delta, 1)...(target + delta) {
-            // TODO: better to use bold() or underline() but they don't do anything
-            let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
-            let text = Text(str)
-
-            buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
+                
+        if let target = expected() {
+            let delta = 10  // we'll show +/- this many reps versus expected
+            for reps in max(target - delta, 1)...(target + delta) {
+                // TODO: better to use bold() or underline() but they don't do anything
+                let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
+                let text = Text(str)
+                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
+            }
+        } else {
+            for reps in 1...40 {
+                let text = Text("\(reps) Reps")
+                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
+            }
         }
         
         return buttons
@@ -150,7 +154,11 @@ struct ExerciseMaxRepsView: View {
                 suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
             }
 
-            subTitle =  "\(expected())+ reps \(suffix)"
+            if let target = expected() {
+                subTitle =  "\(target)+ reps \(suffix)"
+            } else {
+                subTitle =  "AMRAP \(suffix)"
+            }
         }
 
         subSubTitle = ""
@@ -249,7 +257,7 @@ struct ExerciseMaxRepsView: View {
         return secs > 0 ? secs : 60
     }
     
-    func expected() -> Int {
+    func expected() -> Int? {
         if let expected = exercise.expected.reps.first {
             if exercise.current!.setIndex < restSecs.count {
                 let remaining = expected - self.completed
@@ -259,7 +267,7 @@ struct ExerciseMaxRepsView: View {
                 return 0
             }
         } else {
-            return 12
+            return nil
         }
     }
 }
