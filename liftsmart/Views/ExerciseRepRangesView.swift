@@ -159,7 +159,7 @@ struct ExerciseRepRangesView: View {
             self.percentTitle = display ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
 
             let suffix = percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
-            self.repsTitle =  getRepRange().label + suffix
+            self.repsTitle = getRepRange().label + suffix
             self.platesTitle = ""        // TODO: needs to use apparatus
             self.startLabel = "Next"
         }

@@ -101,7 +101,7 @@ func home() -> Program {
         return Exercise("Sleeper Stretch", "Sleeper Stretch", modality)
     }
 
-    // https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
+    // progression: https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
     func splitSquats() -> Exercise {
         let warmup = RepsSet(reps: RepRange(8)!, percent: WeightPercent(0.0)!, restSecs: 60)!
         let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 90)!
@@ -124,7 +124,7 @@ func home() -> Program {
     let strength = Workout("Strength", [
         splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday])!
 
-    let workouts = [strength, cardio, rehab]
+    let workouts = [rehab, strength, cardio]
     return Program("Home", workouts)
 }
 

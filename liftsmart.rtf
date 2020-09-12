@@ -41,7 +41,7 @@ struct\cf3  \cf4 RepsSet\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Stor
     \cf2 let\cf3  \cf7 restSecs\cf3 : \cf6 Int\cf3 \
 \cf2 \
 enum\cf3  \cf4 Sets\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
-    \cf2 case\cf3  \cf7 durations\cf3 ([\cf5 DurationSet\cf3 ], targetDuration: \cf6 Int\cf3 ? = \cf2 nil\cf3 )\
+    \cf2 case\cf3  \cf7 durations\cf3 ([\cf5 DurationSet\cf3 ], targetSecs: [\cf6 Int\cf3 ] = [])\
     \cf2 case\cf3  \cf7 maxReps\cf3 (restSecs: [\cf6 Int\cf3 ], targetReps: \cf6 Int\cf3 ? = \cf2 nil\cf3 )\
     \cf2 case\cf3  \cf7 repRanges\cf3 (warmups: [\cf5 RepsSet\cf3 ], worksets: [\cf5 RepsSet\cf3 ], backoffs: [\cf5 RepsSet\cf3 ])\
 \cf2 \
@@ -88,17 +88,8 @@ Program = Workouts + Plan + Advisor(?)\
 
 \f2\fs48 \cf11 \cb1 \kerning1\expnd0\expndtw0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Revise workout:\
-	- for max reps with no expected use a large rep range for buttons\
-	- pistol squat progression, 3x5-8 of these\
-		https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat\
-		do this before the cardio squats\
-	- probably should have cardio 5 days/week and strength 3 days/week\
-	- workout needs a scheduled field? name kind of sucks\
-		findFirstMissingWorkout\
-		findOldestWorkout\
+\cf11 \'95 Workout screen isn\'92t using expected rep range\
 \'95 ProgramView should be using fuzzy day matching		\
-\'95 Make sure views with buttons have the most common action on the right\
 \'95\'a0Get options button working\
 	- might want to allow everything in the exercise to be edited here\
 	- may be able to use code to assemble views for the current exercise\

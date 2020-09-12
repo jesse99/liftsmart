@@ -2704,7 +2704,7 @@ let defaultNotes: [String: String] = [
     "Wall Biceps Stretch": noteToMarkdown(
         notes: [
             "Face a wall standing about six inches away.",
-            "With your palm down touch the thumb side of your hand to the wall.",
+            "Extend your arm along the wall and with your palm down touch the thumb side of your hand to the wall.",
             "Keep your arm straight and turn your body away from your arm until you feel the bicep stretch.",
             "Hold for about fifteen seconds."],
         links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
