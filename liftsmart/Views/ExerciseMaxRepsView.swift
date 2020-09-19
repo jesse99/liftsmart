@@ -278,7 +278,7 @@ struct ExerciseMaxRepsView_Previews: PreviewProvider {
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0))
 //    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0, reps: 65))
-    static let workout = Workout("Cardio", [exercise], day: nil)!
+    static let workout = createWorkout("Cardio", [exercise], day: nil).unwrap()
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in

@@ -178,7 +178,7 @@ struct WorkoutView_Previews: PreviewProvider {
     static let dsets = Sets.durations([set1, set2, set3, set4, set5, set6, set7], targetSecs: [])
     static let m3 = Modality(Apparatus.bodyWeight, dsets)
     static let planks = Exercise("Planks", "Planks", m3)
-    static let workout = Workout("Strength", [ohp, curls, planks], day: nil)!
+    static let workout = createWorkout("Strength", [ohp, curls, planks], day: nil).unwrap()
 
     static var previews: some View {
         WorkoutView(workout: workout, history: history)

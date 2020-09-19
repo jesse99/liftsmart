@@ -118,11 +118,11 @@ func home() -> Program {
 //        planks(), curls()], day: nil)!
 //    let strength = Workout("Strength", [
 //        planks(), curls()], days: [.monday, .wednesday, .friday])!
-    let cardio = Workout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil)!
-    let rehab = Workout("Rehab", [
-        shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.monday, .tuesday, .wednesday, .thursday, .friday])!
-    let strength = Workout("Strength", [
-        splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday])!
+    let cardio = createWorkout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil).unwrap()
+    let rehab = createWorkout("Rehab", [
+        shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.monday, .tuesday, .wednesday, .thursday, .friday]).unwrap()
+    let strength = createWorkout("Strength", [
+        splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday]).unwrap()
 
     let workouts = [rehab, strength, cardio]
     return Program("Home", workouts)

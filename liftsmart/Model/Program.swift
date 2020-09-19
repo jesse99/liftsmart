@@ -61,6 +61,20 @@ class Program: CustomDebugStringConvertible, Sequence, Storable {
         return self.workouts[index]
     }
     
+    func addWorkout(_ name: String) -> String? {
+        if self.workouts.first(where: {$0.name == name}) != nil {
+            return "There is already a workout named '\(name)'."
+        }
+        
+        switch createWorkout(name, [], day: nil) {
+        case .left(let err):
+            return err
+        case .right(let workout):
+            self.workouts.append(workout)
+            return nil
+        }
+    }
+    
     func delete(_ index: Int) {
         self.workouts.remove(at: index)
     }

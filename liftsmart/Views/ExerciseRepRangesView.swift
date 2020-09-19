@@ -358,7 +358,7 @@ struct ExerciseRepRangesView_Previews: PreviewProvider {
     static let sets = Sets.repRanges(warmups: [warm1, warm2], worksets: [work1, work2, work3], backoffs: [])
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("OHP", "OHP", modality, Expected(weight: 120.0))
-    static let workout = Workout("Strength", [exercise], day: nil)!
+    static let workout = createWorkout("Strength", [exercise], day: nil).unwrap()
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in

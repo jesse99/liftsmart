@@ -51,7 +51,7 @@ struct ProgramView: View {
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout)
-                        .sheet(isPresented: self.$editModal) {EditListView(title: "Workouts", names: self.onNames, delete: self.onDelete)}
+                        .sheet(isPresented: self.$editModal) {EditListView(title: "Workouts", names: self.onNames, add: self.onAdd, delete: self.onDelete, addPrompt: "Workout")}
                 }
                 .padding()
             }
@@ -71,6 +71,21 @@ struct ProgramView: View {
     private func onDelete(_ index: Int) {
         self.program.delete(index)
         self.refresh()
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+    
+    func onAdd(_ name: String) -> String? {
+        if let err = self.program.addWorkout(name) {
+            return err
+        } else {
+            self.refresh()
+
+            let app = UIApplication.shared.delegate as! AppDelegate
+            app.saveState()
+            return nil
+        }
     }
 
     // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
@@ -122,6 +137,11 @@ struct ProgramView: View {
         // It's not always possible to do that with exactness but, if that's the case, we'll provide information
         // to help them decide what to do.
         func initSubLabels(_ completions: [ExerciseCompletions]) {
+            // The workout can be performed on any day.
+            func isAnyDay(_ days: [Bool]) -> Bool {
+                return days.all({!$0})
+            }
+
             let cal = Calendar.current
             let weekday = cal.component(.weekday, from: Date())
             let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
@@ -191,11 +211,6 @@ struct ProgramView: View {
         let completions = initEntries()
         initSubLabels(completions)
     }
-        
-    // The workout can be performed on any day.
-    private func isAnyDay(_ days: [Bool]) -> Bool {
-        return days.all({!$0})
-    }
 }
 
 struct ProgramView_Previews: PreviewProvider {
@@ -249,9 +264,9 @@ struct ProgramView_Previews: PreviewProvider {
         }
 
         let workouts = [
-            Workout("Cardio", [burpees(), squats()], day: nil)!,
-            Workout("Lower", [burpees(), squats()], day: .wednesday)!,
-            Workout("Upper", [planks(), curls()], day: .monday)!]
+            createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
+            createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),
+            createWorkout("Upper", [planks(), curls()], day: .monday).unwrap()]
         return Program("Split", workouts)
     }
 

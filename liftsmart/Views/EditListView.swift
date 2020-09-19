@@ -27,8 +27,10 @@ struct EditListView: View {
     typealias MoveUpFn = (Int) -> Void
     
     @State var entries: [ListEntry] = []
+    @State var errText = ""
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
+    @State var showSheet: Bool = false
     @Environment(\.presentationMode) private var presentationMode
     let title: String
     var names: NamesFn
@@ -36,6 +38,7 @@ struct EditListView: View {
     var delete: DeleteFn?
     var moveDown: MoveDownFn?
     var moveUp: MoveUpFn?
+    var addPrompt = "Entry"
     
     // TODO: have an optional red error message label at the bottom
     var body: some View {
@@ -44,12 +47,17 @@ struct EditListView: View {
             
             List(self.entries) {entry in
                 VStack(alignment: .leading) {
-                    Text(entry.name).font(.headline)
+                    if entry.id == self.entries.last!.id && self.add != nil {
+                        Text(entry.name).font(.headline).italic()
+                    } else {
+                        Text(entry.name).font(.headline)
+                    }
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
                     .onTapGesture {self.showEditActions = true; self.editIndex = entry.index}
             }
-            
+            Text(self.errText).foregroundColor(.red).font(.callout)
+
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
@@ -62,22 +70,45 @@ struct EditListView: View {
         }
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
+        .sheet(isPresented: self.$showSheet) {
+            EditTextView(title: "Edit \(self.addPrompt)", content: "", completion: self.onDoAdd)
+        }
     }
 
     func refresh() {
         self.entries = self.names().mapi({ListEntry($1, $0)})
+        if self.add != nil {
+            self.entries.append(ListEntry("Add", self.entries.count))
+        }
     }
     
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
         
-        if let delete = self.delete {
-            buttons.append(.default(Text("Delete"), action: {delete(self.editIndex); self.refresh()}))
+        if self.add != nil && self.editIndex == self.entries.count - 1 {
+            buttons.append(.default(Text("New \(addPrompt)"), action: {self.onAdd()}))
+        } else {
+            if let delete = self.delete {
+                buttons.append(.default(Text("Delete"), action: {delete(self.editIndex); self.refresh()}))
+            }
         }
         
         buttons.append(.cancel(Text("Cancel"), action: {}))
         
         return buttons
+    }
+    
+    func onAdd() {
+        self.showSheet = true
+    }
+    
+    func onDoAdd(_ name: String) {
+        if let err = self.add!(name) {
+            self.errText = err
+        } else {
+            self.errText = ""
+            self.refresh()
+        }
     }
 
     func onCancel() {
@@ -94,14 +125,23 @@ struct EditListView_Previews: PreviewProvider {
     static var names = ["Alpha", "Beta", "Gamma"]
     
     static var previews: some View {
-        EditListView(title: "Workouts", names: onNames, delete: onDelete)
+        EditListView(title: "Workouts", names: onNames, add: onAdd, delete: onDelete, addPrompt: "Workout")
     }
     
     static func onNames() -> [String] {
         return names
     }
-
+    
     static func onDelete(_ index: Int) {
         names.remove(at: index)
+    }
+
+    static func onAdd(_ name: String) -> String? {
+        if names.contains(name) {
+            return "\(name) already exists."
+        } else {
+            names.append(name)
+            return nil
+        }
     }
 }

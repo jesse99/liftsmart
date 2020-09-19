@@ -6,26 +6,30 @@ enum WeekDay: Int {
     case sunday = 0, monday, tuesday, wednesday, thursday, friday, saturday
 }
 
+func createWorkout(_ name: String, _ exercises: [Exercise], days: [WeekDay]) -> Either<String, Workout> {
+    if name.isEmpty {return .left("Workout name cannot be empty")}
+    let names = exercises.map {(e) -> String in e.name}
+    if names.count != Set(names).count {return .left("Exercise names must be unique")}
+
+    return .right(Workout(name, exercises, days: days))
+}
+
+func createWorkout(_ name: String, _ exercises: [Exercise], day: WeekDay?) -> Either<String, Workout> {
+   return createWorkout(name, exercises, days: day != nil ? [day!] : [])
+}
+
 class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     var name: String
     var exercises: [Exercise]
     var days: [Bool]            // indices are Sun, Mon, ..., Sat, true means workout is scheduled for that day, all false means can do the workout any day
 
-    init?(_ name: String, _ exercises: [Exercise], days: [WeekDay]) {
-        if name.isEmpty {return nil}
-        let names = exercises.map {(e) -> String in e.name}
-        if names.count != Set(names).count {return nil}     // exercise names must be unique
-
+    fileprivate init(_ name: String, _ exercises: [Exercise], days: [WeekDay]) {
         self.name = name
         self.exercises = exercises
         self.days = Array(repeating: false, count: 7)
         for d in days {
             self.days[d.rawValue] = true
         }
-    }
-    
-    convenience init?(_ name: String, _ exercises: [Exercise], day: WeekDay?) {
-        self.init(name, exercises, days: day != nil ? [day!] : [])
     }
     
     required init(from store: Store) {
