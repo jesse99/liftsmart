@@ -5,20 +5,14 @@ import SwiftUI
 var programEntryId = 0
 
 struct ProgramEntry: Identifiable {
+    let id: Int
     let workout: Workout
-    let latest: Date?           // date latest exercise was completed
-    let latestIsComplete: Bool  // true if all exercises were completed on latest date
-    let completedAll: Bool      // true if all exercises were ever completed
     var subLabel = ""           // these are initialized using a second pass
     var subColor = Color.black
-    let id: Int
 
-    init(_ workout: Workout, latest: Date?, latestIsComplete: Bool, completedAll: Bool) {
-        self.workout = workout
-        self.latest = latest
-        self.latestIsComplete = latestIsComplete
-        self.completedAll = completedAll
+    init(_ workout: Workout) {
         self.id = programEntryId
+        self.workout = workout
         programEntryId += 1
     }
 }
@@ -82,7 +76,13 @@ struct ProgramView: View {
     // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
     // on this view for a long time.
     func refresh() {
-        func initEntries() {
+        struct ExerciseCompletions {
+            let latest: Date?           // date latest exercise was completed
+            let latestIsComplete: Bool  // true if all exercises were completed on latest date
+            let completedAll: Bool      // true if all exercises were ever completed
+        }
+
+        func initEntries() -> [ExerciseCompletions] {
             func allOnSameDay(_ dates: [Date]) -> Bool {
                 let calendar = Calendar.current
                 for date in dates {
@@ -93,6 +93,7 @@ struct ProgramView: View {
                 return true
             }
                     
+            var completions: [ExerciseCompletions] = []
             entries = []
             for workout in program {
                 var dates: [Date] = []
@@ -105,18 +106,22 @@ struct ProgramView: View {
                 
                 if let last = dates.last {
                     let didAll = dates.count == workout.exercises.count
-                    entries.append(ProgramEntry(workout, latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
+                    completions.append(ExerciseCompletions(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
+                    entries.append(ProgramEntry(workout))
 
                 } else {
-                    entries.append(ProgramEntry(workout, latest: nil, latestIsComplete: false, completedAll: false))
+                    completions.append(ExerciseCompletions(latest: nil, latestIsComplete: false, completedAll: false))
+                    entries.append(ProgramEntry(workout))
                 }
             }
+            
+            return completions
         }
         
         // The goal here is to highlight what the user should be doing today or what they should be doing next.
         // It's not always possible to do that with exactness but, if that's the case, we'll provide information
         // to help them decide what to do.
-        func initSubLabels() {
+        func initSubLabels(_ completions: [ExerciseCompletions]) {
             let cal = Calendar.current
             let weekday = cal.component(.weekday, from: Date())
             let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
@@ -134,10 +139,13 @@ struct ProgramView: View {
                 }
             }
 
-            for var entry in entries {
+            for i in 0..<entries.count {
+                var entry = entries[i]
+                let completion = completions[i]
+                
                 // If the user has done any exercise within the workout today,
-                if let last = entry.latest, cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
-                    if entry.latestIsComplete {
+                if let last = completion.latest, cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
+                    if completion.latestIsComplete {
                         // and they completed every exercise.
                         entry.subLabel = "completed"
 
@@ -149,7 +157,7 @@ struct ProgramView: View {
                 
                 // If the workout can be performed on any day (including days on which other workouts are scheduled),
                 } else if isAnyDay(entry.workout.days) {
-                    if let last = entry.latest {
+                    if let last = completion.latest {
                         entry.subLabel = last.friendlyName()
                     } else {
                         entry.subLabel = "never started"
@@ -164,7 +172,7 @@ struct ProgramView: View {
                         entry.subColor = .red
                     } else {
                         // otherwise we'll tell the user how long it's been so that he can decide.
-                        if let last = entry.latest {
+                        if let last = completion.latest {
                             entry.subLabel = last.friendlyName()
                         } else {
                             entry.subLabel = "never started"
@@ -180,9 +188,8 @@ struct ProgramView: View {
             }
         }
 
-        // TODO: separate out latest, latestIsComplete, and completedAll
-        initEntries()
-        initSubLabels()
+        let completions = initEntries()
+        initSubLabels(completions)
     }
         
     // The workout can be performed on any day.
