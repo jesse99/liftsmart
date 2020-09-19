@@ -60,6 +60,10 @@ class Program: CustomDebugStringConvertible, Sequence, Storable {
     subscript(_ index: Int) -> Workout {
         return self.workouts[index]
     }
+    
+    func delete(_ index: Int) {
+        self.workouts.remove(at: index)
+    }
 
     func makeIterator() -> Program.Iterator {
         return Program.Iterator(program: self)

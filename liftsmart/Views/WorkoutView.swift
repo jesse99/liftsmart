@@ -7,7 +7,7 @@ struct WorkoutRow: View {
     var exercise: Exercise
     var history: History
     @State var color: Color = .black
-    
+
     init(workout: Workout, exercise: Exercise, history: History) {
         self.workout = workout
         self.exercise = exercise
@@ -101,16 +101,41 @@ struct WorkoutRow: View {
 struct WorkoutView: View {
     var workout: Workout
     var history: History
-    
+    @State var editModal = false
+
     var body: some View {
-        List(workout.exercises) { exercise in
-            NavigationLink(destination: self.exerciseView(exercise)) {
-                WorkoutRow(workout: self.workout, exercise: exercise, history: self.history)
+        VStack {
+            List(workout.exercises) { exercise in
+                NavigationLink(destination: self.exerciseView(exercise)) {
+                    WorkoutRow(workout: self.workout, exercise: exercise, history: self.history)
+                }
             }
+            .navigationBarTitle(Text(workout.name + " Exercises"))
+            Divider()
+            HStack {
+                Spacer()
+                Button("Edit", action: onEdit)
+                    .font(.callout)
+                    .sheet(isPresented: self.$editModal) {EditListView(title: "Exercises", names: self.onNames, delete: self.onDelete)}
+            }
+            .padding()
         }
-        .navigationBarTitle(Text(workout.name + " Exercises"))
     }
     
+    // TODO: need a way to edit days (maybe a custom button?)
+    private func onEdit() {
+        self.editModal = true
+    }
+    
+    private func onNames() -> [String] {
+        return self.workout.exercises.map({$0.name})
+    }
+
+    private func onDelete(_ index: Int) {
+        self.workout.exercises.remove(at: index)
+//        self.refresh()
+    }
+
     func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
         case .durations(_, _):

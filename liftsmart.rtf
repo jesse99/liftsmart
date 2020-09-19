@@ -1,6 +1,6 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2512
 \cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 AndaleMono;\f1\froman\fcharset0 Times-Roman;\f2\fswiss\fcharset0 Helvetica;
-\f3\fnil\fcharset0 HelveticaNeue;\f4\fswiss\fcharset0 Helvetica-Bold;\f5\fswiss\fcharset0 Helvetica-Oblique;
+\f3\fswiss\fcharset0 Helvetica-Bold;\f4\fnil\fcharset0 HelveticaNeue;\f5\fswiss\fcharset0 Helvetica-Oblique;
 }
 {\colortbl;\red255\green255\blue255;\red170\green13\blue145;\red0\green0\blue0;\red11\green79\blue121;
 \red63\green110\blue116;\red92\green38\blue153;\red15\green104\blue160;\red0\green116\blue0;\red196\green26\blue22;
@@ -81,20 +81,102 @@ Advisor - uses personal, edit notes, history, and plan to suggest edits, weight 
 Stringify - text renderer\
 \
 Program = Workouts + Plan + Advisor(?)\
-	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor
-\f3\fs46 \cf12 \cb13 \expnd0\expndtw0\kerning0
+	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor\
+	\
+	\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 ProgramView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 delete workout\
+	program view has to be more dynamic\
+	might need a @State variable for WorkoutInfo\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf11 add/delete/move workout\
+edit notes?\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf11 \ul \ulc11 EditList\cf11 \ulnone    click\
+Cardio    delete, move down\
+Lower\
+Upper\
+[Add]      new workout\
+\
+[Cancel]   [OK]\
+\
+save program to a tmp file\
+then cancel could load the old program from tmp file\
+should do a save after an edit\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 WorkoutView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 edit name\
+add/delete/move exercise\
+edit days\
+make sure sequences like edit program, edit workout, edit program work
+\f3\b \cf11 \
+
+\f2\b0 \cf11 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 MaxRepsView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 edit name/formalName\
+edit modality     could use code to reuseably assemble these views\
+edit expected\
+edit current?\
+edit rest\
+edit targetReps\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 DurationsView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 RepRangesView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 NoteView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 already have an EditNoteView\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 HistoryView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\b \cf11 TimerView?
+\f2\b0 \cf11 	
+\f4\fs46 \cf12 \cb13 \expnd0\expndtw0\kerning0
 \
 \pard\pardeftab720\sl380\partightenfactor0
 
 \f2\fs48 \cf11 \cb1 \kerning1\expnd0\expndtw0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Workout screen isn\'92t using expected rep range\
-\'95 ProgramView should be using fuzzy day matching		\
-\'95\'a0Get options button working\
+\cf11 \'95\'a0Get options button working\
 	- might want to allow everything in the exercise to be edited here\
 	- may be able to use code to assemble views for the current exercise\
 	- maybe call it Edit\
-\'95 Hard code some info\
+\'95 Is Current.weight being used correctly?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 ProgramView should be using fuzzy day matching		\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Hard code some info\
 	- age\
 	- sex\
 	- fitness level\
@@ -127,7 +209,7 @@ Program = Workouts + Plan + Advisor(?)\
 \cf11 	\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b \cf11 SwiftUI
+\f3\b \cf11 SwiftUI
 \f2\b0 \
 \'95\'a0when to use property wrappers: {\field{\*\fldinst{HYPERLINK "https://jaredsinclair.com/2020/05/07/swiftui-cheat-sheet.html"}}{\fldrslt 
 \f1\fs34 \cf10 \expnd0\expndtw0\kerning0
@@ -173,7 +255,7 @@ Program = Workouts + Plan + Advisor(?)\
 \f1\fs38 \cf10 \expnd0\expndtw0\kerning0
 \ul https://i.stack.imgur.com/89c8C.png}}\
 
-\f4\b \
+\f3\b \
 Goals\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
@@ -196,7 +278,7 @@ Goals\
 \'95\'a0Heart rate can tell you if over trained? Can we hook into other app's medical data?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b \cf11 \'95\'a0
+\f3\b \cf11 \'95\'a0
 \f2\b0 Do much bettered showing long term trends\
 	- both overall and for an exercise\
 	- include actions taken in response to a recommendation\
@@ -208,11 +290,11 @@ Goals\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 Workouts Tab
+\f3\b\fs60 \cf11 Workouts Tab
 \fs48 \
 Workouts     
 \f2\b0 \ul \ulc11 Edit
-\f4\b \ulnone \
+\f3\b \ulnone \
 
 \f2\b0 Heavy >        
 \f5\i goes to a Workout view
@@ -221,9 +303,9 @@ Light >\
 Medium >\
 	\
 
-\f4\b Heavy     
+\f3\b Heavy     
 \f2\b0 \ul Edit
-\f4\b \ulnone \
+\f3\b \ulnone \
 
 \f2\b0 Bench >        
 \f5\i goes to an Exercise view
@@ -232,11 +314,11 @@ Squat >\
 Dead >\
 \
 
-\f4\b Bench     
+\f3\b Bench     
 \f2\b0 \ul Notes
-\f4\b \ulnone  
+\f3\b \ulnone  
 \f2\b0 \ul Edit
-\f4\b \ulnone \
+\f3\b \ulnone \
 
 \f2\b0 Set 1 of 1\
 8 reps @ 125 lbs\
@@ -244,14 +326,14 @@ Dead >\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 \ulnone History Tab
+\f3\b\fs60 \cf11 \ulnone History Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\b0 \cf11 should this have a way to see exercises that are not currently used?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 \
+\f3\b\fs60 \cf11 \
 Advise Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
@@ -260,7 +342,7 @@ Advise Tab
 can we make the tab red if advise is pending?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f4\b\fs60 \cf11 \
+\f3\b\fs60 \cf11 \
 Settings Tab
 \fs48 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0

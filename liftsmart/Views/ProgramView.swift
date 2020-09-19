@@ -2,160 +2,192 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct Info {
-    let name: String            // workout name (these are unique)
+var programEntryId = 0
+
+struct ProgramEntry: Identifiable {
+    let workout: Workout
     let latest: Date?           // date latest exercise was completed
     let latestIsComplete: Bool  // true if all exercises were completed on latest date
     let completedAll: Bool      // true if all exercises were ever completed
-    let days: [Bool]
+    var subLabel = ""           // these are initialized using a second pass
+    var subColor = Color.black
+    let id: Int
+
+    init(_ workout: Workout, latest: Date?, latestIsComplete: Bool, completedAll: Bool) {
+        self.workout = workout
+        self.latest = latest
+        self.latestIsComplete = latestIsComplete
+        self.completedAll = completedAll
+        self.id = programEntryId
+        programEntryId += 1
+    }
 }
 
 struct ProgramView: View {
     var program: Program
     var history: History
     let timer = RestartableTimer(every: TimeInterval.minutes(30))
-    @State var infos: [Info] = []
-    @State var subData: [(String, Color)] = Array(repeating: ("", .black), count: 30)
+    @State var entries: [ProgramEntry] = []
+    @State var editModal = false
 
     init(program: Program, history: History) {
         self.program = program
         self.history = history
-        infos = []
+        self.refresh()
     }
 
     var body: some View {
         NavigationView {
-            List(0..<program.count) { i in
-                NavigationLink(destination: WorkoutView(workout: self.program[i], history: self.history)) {
-                    VStack(alignment: .leading) {
-                        Text(self.program[i].name).font(.title)
-                        Text(self.subData[i].0).foregroundColor(self.subData[i].1).font(.headline) // 10+ Reps or As Many Reps As Possible
+            VStack {
+                List(self.entries) {entry in
+                    NavigationLink(destination: WorkoutView(workout: entry.workout, history: self.history)) {
+                        VStack(alignment: .leading) {
+                            Text(entry.workout.name).font(.title)
+                            Text(entry.subLabel).foregroundColor(entry.subColor).font(.headline) // 10+ Reps or As Many Reps As Possible
+                        }
                     }
                 }
+                .navigationBarTitle(Text(program.name + " Workouts"))
+                .onAppear {self.refresh(); self.timer.restart()}
+                .onDisappear {self.timer.stop()}
+                .onReceive(self.timer.timer) {_ in self.refresh()}
+                
+                Divider()
+                HStack {
+                    Spacer()
+                    Button("Edit", action: onEdit)
+                        .font(.callout)
+                        .sheet(isPresented: self.$editModal) {EditListView(title: "Workouts", names: self.onNames, delete: self.onDelete)}
+                }
+                .padding()
             }
-            .navigationBarTitle(Text(program.name + " Workouts"))
-            .onAppear {self.refresh(); self.timer.restart()}
-            .onDisappear {self.timer.stop()}
-            .onReceive(self.timer.timer) {_ in self.refresh()}
         }
         // TODO: have a text view saying how long this program has been run for
         // and also how many times the user has worked out
     }
     
+    private func onEdit() {
+        self.editModal = true
+    }
+    
+    private func onNames() -> [String] {
+        return self.program.map({$0.name})
+    }
+
+    private func onDelete(_ index: Int) {
+        self.program.delete(index)
+        self.refresh()
+    }
+
     // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
     // on this view for a long time.
     func refresh() {
-        updateInfos()
-        subData = getSubData()
-    }
-    
-    // The goal here is to highlight what the user should be doing today or what they should be doing next.
-    // It's not always possible to do that with exactness but, if that's the case, we'll provide information
-    // to help them decide what to do.
-    func getSubData() -> [(String, Color)] {
-        var result: [(String, Color)] = []
+        func initEntries() {
+            func allOnSameDay(_ dates: [Date]) -> Bool {
+                let calendar = Calendar.current
+                for date in dates {
+                    if !calendar.isDate(date, inSameDayAs: dates[0]) {
+                        return false
+                    }
+                }
+                return true
+            }
+                    
+            entries = []
+            for workout in program {
+                var dates: [Date] = []
+                for exercise in workout.exercises {
+                    if let completed = exercise.dateCompleted(workout, history) {
+                        dates.append(completed)
+                    }
+                }
+                dates.sort()
+                
+                if let last = dates.last {
+                    let didAll = dates.count == workout.exercises.count
+                    entries.append(ProgramEntry(workout, latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
 
-        let cal = Calendar.current
-        let weekday = cal.component(.weekday, from: Date())
-        let todaysWorkouts = infos.filter({$0.days[weekday - 1]})  // workouts that should be performed today
-        var nextWorkout: (Int, Int)? = nil
-        for delta in 1...6 {
-            for info in infos {
-                if nextWorkout == nil {
-                    if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: Date()) {
-                        let weekday = cal.component(.weekday, from: candidate)
-                        if info.days[weekday - 1] {
-                            nextWorkout = (weekday, delta)              // next workout scheduled after today
+                } else {
+                    entries.append(ProgramEntry(workout, latest: nil, latestIsComplete: false, completedAll: false))
+                }
+            }
+        }
+        
+        // The goal here is to highlight what the user should be doing today or what they should be doing next.
+        // It's not always possible to do that with exactness but, if that's the case, we'll provide information
+        // to help them decide what to do.
+        func initSubLabels() {
+            let cal = Calendar.current
+            let weekday = cal.component(.weekday, from: Date())
+            let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
+            var nextWorkout: (Int, Int)? = nil
+            for delta in 1...6 {
+                for entry in entries {
+                    if nextWorkout == nil {
+                        if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: Date()) {
+                            let weekday = cal.component(.weekday, from: candidate)
+                            if entry.workout.days[weekday - 1] {
+                                nextWorkout = (weekday, delta)              // next workout scheduled after today
+                            }
                         }
                     }
                 }
             }
-        }
 
-        for info in infos {
-            // If the user has done any exercise within the workout today,
-            if let last = info.latest, cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
-                if info.latestIsComplete {
-                    // and they completed every exercise.
-                    result.append(("completed", .black))
+            for var entry in entries {
+                // If the user has done any exercise within the workout today,
+                if let last = entry.latest, cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
+                    if entry.latestIsComplete {
+                        // and they completed every exercise.
+                        entry.subLabel = "completed"
 
-                } else {
-                    // there are exercises within the workout that they haven't done.
-                    result.append(("in progress", .red))
-                }
-            
-            // If the workout can be performed on any day (including days on which other workouts are scheduled),
-            } else if isAnyDay(info.days) {
-                if let last = info.latest {
-                    result.append((last.friendlyName(), .orange))
-                } else {
-                    result.append(("never started", .orange))
-                }
-            
-            // If the workout is scheduled for today,
-            } else if todaysWorkouts.findLast({$0.name == info.name}) != nil {
-                if todaysWorkouts.count == 1 {
-                    // if it's the only workout that should be done today then we have a clear winner.
-                    result.append(("today", .red))
-                } else {
-                    // otherwise we'll tell the user how long it's been so that he can decide.
-                    if let last = info.latest {
-                        result.append((last.friendlyName(), .orange))
                     } else {
-                        result.append(("never started", .orange))
+                        // there are exercises within the workout that they haven't done.
+                        entry.subLabel = "in progress"
+                        entry.subColor = .red
                     }
-                }
                 
-            // If the workout is on a day that the user should do next and the user has nothing scheduled today,
-            } else if let (weekday, delta) = nextWorkout, info.days[weekday - 1] && todaysWorkouts.isEmpty {
-                if delta == 1 {
-                    result.append(("tomorrow", .blue))
-                } else {
-                    result.append(("in \(delta) days", .blue))
-                }
+                // If the workout can be performed on any day (including days on which other workouts are scheduled),
+                } else if isAnyDay(entry.workout.days) {
+                    if let last = entry.latest {
+                        entry.subLabel = last.friendlyName()
+                    } else {
+                        entry.subLabel = "never started"
+                    }
+                    entry.subColor = .orange
 
-            } else {
-                result.append(("", .black))
+                // If the workout is scheduled for today,
+                } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil {
+                    if todaysWorkouts.count == 1 {
+                        // if it's the only workout that should be done today then we have a clear winner.
+                        entry.subLabel = "today"
+                        entry.subColor = .red
+                    } else {
+                        // otherwise we'll tell the user how long it's been so that he can decide.
+                        if let last = entry.latest {
+                            entry.subLabel = last.friendlyName()
+                        } else {
+                            entry.subLabel = "never started"
+                        }
+                        entry.subColor = .orange
+                    }
+                    
+                // If the workout is on a day that the user should do next and the user has nothing scheduled today,
+                } else if let (weekday, delta) = nextWorkout, entry.workout.days[weekday - 1] && todaysWorkouts.isEmpty {
+                    entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
+                    entry.subColor = .blue
+                }
             }
         }
-        
-        return result
+
+        // TODO: separate out latest, latestIsComplete, and completedAll
+        initEntries()
+        initSubLabels()
     }
         
     // The workout can be performed on any day.
     private func isAnyDay(_ days: [Bool]) -> Bool {
         return days.all({!$0})
-    }
-    
-    func updateInfos() {
-        func allOnSameDay(_ dates: [Date]) -> Bool {
-            let calendar = Calendar.current
-            for date in dates {
-                if !calendar.isDate(date, inSameDayAs: dates[0]) {
-                    return false
-                }
-            }
-            return true
-        }
-                
-        infos = []
-        for workout in program {
-            var dates: [Date] = []
-            for exercise in workout.exercises {
-                if let completed = exercise.dateCompleted(workout, history) {
-                    dates.append(completed)
-                }
-            }
-            dates.sort()
-            
-            if let last = dates.last {
-                let didAll = dates.count == workout.exercises.count
-                infos.append(Info(name: workout.name, latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll, days: workout.days))
-
-            } else {
-                infos.append(Info(name: workout.name, latest: nil, latestIsComplete: false, completedAll: false, days: workout.days))
-            }
-        }
     }
 }
 
