@@ -51,6 +51,12 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         let exercise = Exercise(name, "", modality)
         self.exercises.append(exercise)
     }
+    
+    func moveExercise(_ index: Int, by: Int) {
+        assert(by != 0)
+        let exercise = self.exercises.remove(at: index)
+        self.exercises.insert(exercise, at: index + by)
+    }
 
     // Partial is true if not all exercises were completed on that date.
     func dateCompleted(_ history: History) -> (date: Date, partial: Bool)? {

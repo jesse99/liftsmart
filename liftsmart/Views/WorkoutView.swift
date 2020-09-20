@@ -116,7 +116,7 @@ struct WorkoutView: View {
                 Spacer()
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditListView(title: "Exercises", names: self.onNames, add: self.onAdd, delete: self.onDelete, addPrompt: "Exercise")}
+                    .sheet(isPresented: self.$editModal) {EditListView(title: "Exercises", names: self.onNames, add: self.onAdd, delete: self.onDelete, moveDown: self.onMoveDown, moveUp: self.onMoveUp, addPrompt: "Exercise")}
             }
             .padding()
         }
@@ -130,10 +130,23 @@ struct WorkoutView: View {
     private func onNames() -> [String] {
         return self.workout.exercises.map({$0.name})
     }
+    
+    private func onMoveUp(_ index: Int) {
+        self.workout.moveExercise(index, by: -1)
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+
+    private func onMoveDown(_ index: Int) {
+        self.workout.moveExercise(index, by: 1)
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
 
     private func onDelete(_ index: Int) {
         self.workout.exercises.remove(at: index)
-//        self.refresh()
         
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
@@ -141,7 +154,6 @@ struct WorkoutView: View {
     
     func onAdd(_ name: String) -> String? {
         self.workout.addExercise(name)
-//        self.refresh()
 
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
