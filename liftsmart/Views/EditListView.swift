@@ -88,6 +88,14 @@ struct EditListView: View {
         if self.add != nil && self.editIndex == self.entries.count - 1 {
             buttons.append(.default(Text("New \(addPrompt)"), action: {self.onAdd()}))
         } else {
+            let len = self.add != nil ? self.entries.count - 1 : self.entries.count
+            
+            if let move = self.moveUp, self.editIndex != 0 && len > 1 {
+                buttons.append(.default(Text("Move Up"), action: {move(self.editIndex); self.refresh()}))
+            }
+            if let move = self.moveDown, self.editIndex < len - 1 && len > 1 {
+                buttons.append(.default(Text("Move Down"), action: {move(self.editIndex); self.refresh()}))
+            }
             if let delete = self.delete {
                 buttons.append(.default(Text("Delete"), action: {delete(self.editIndex); self.refresh()}))
             }

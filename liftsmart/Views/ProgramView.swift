@@ -51,7 +51,7 @@ struct ProgramView: View {
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout)
-                        .sheet(isPresented: self.$editModal) {EditListView(title: "Workouts", names: self.onNames, add: self.onAdd, delete: self.onDelete, addPrompt: "Workout")}
+                        .sheet(isPresented: self.$editModal) {EditListView(title: "Workouts", names: self.onNames, add: self.onAdd, delete: self.onDelete, moveDown: self.onMoveDown, moveUp: self.onMoveUp, addPrompt: "Workout")}
                 }
                 .padding()
             }
@@ -67,7 +67,23 @@ struct ProgramView: View {
     private func onNames() -> [String] {
         return self.program.map({$0.name})
     }
+    
+    private func onMoveUp(_ index: Int) {
+        self.program.moveWorkout(index, by: -1)
+        self.refresh()
 
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+
+    private func onMoveDown(_ index: Int) {
+        self.program.moveWorkout(index, by: 1)
+        self.refresh()
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+    
     private func onDelete(_ index: Int) {
         self.program.delete(index)
         self.refresh()

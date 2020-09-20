@@ -75,6 +75,12 @@ class Program: CustomDebugStringConvertible, Sequence, Storable {
         }
     }
     
+    func moveWorkout(_ index: Int, by: Int) {
+        assert(by != 0)
+        let workout = self.workouts.remove(at: index)
+        self.workouts.insert(workout, at: index + by)        
+    }
+
     func delete(_ index: Int) {
         self.workouts.remove(at: index)
     }
