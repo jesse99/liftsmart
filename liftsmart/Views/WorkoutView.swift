@@ -116,7 +116,7 @@ struct WorkoutView: View {
                 Spacer()
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditListView(title: "Exercises", names: self.onNames, delete: self.onDelete)}
+                    .sheet(isPresented: self.$editModal) {EditListView(title: "Exercises", names: self.onNames, add: self.onAdd, delete: self.onDelete, addPrompt: "Exercise")}
             }
             .padding()
         }
@@ -134,6 +134,18 @@ struct WorkoutView: View {
     private func onDelete(_ index: Int) {
         self.workout.exercises.remove(at: index)
 //        self.refresh()
+        
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+    }
+    
+    func onAdd(_ name: String) -> String? {
+        self.workout.addExercise(name)
+//        self.refresh()
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
+        return nil
     }
 
     func exerciseView(_ exercise: Exercise) -> AnyView {
