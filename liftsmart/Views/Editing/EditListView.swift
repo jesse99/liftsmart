@@ -40,7 +40,6 @@ struct EditListView: View {
     var moveUp: MoveUpFn?
     var addPrompt = "Entry"
     
-    // TODO: have an optional red error message label at the bottom
     var body: some View {
         VStack {
             Text(self.title).font(.largeTitle)
@@ -153,3 +152,4 @@ struct EditListView_Previews: PreviewProvider {
         }
     }
 }
+

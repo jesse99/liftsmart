@@ -51,7 +51,7 @@ struct ProgramView: View {
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout)
-                        .sheet(isPresented: self.$editModal) {EditListView(title: "Workouts", names: self.onNames, add: self.onAdd, delete: self.onDelete, moveDown: self.onMoveDown, moveUp: self.onMoveUp, addPrompt: "Workout")}
+                        .sheet(isPresented: self.$editModal) {EditProgramView(program: self.program)}
                 }
                 .padding()
             }
@@ -62,46 +62,6 @@ struct ProgramView: View {
     
     private func onEdit() {
         self.editModal = true
-    }
-    
-    private func onNames() -> [String] {
-        return self.program.map({$0.name})
-    }
-    
-    private func onMoveUp(_ index: Int) {
-        self.program.moveWorkout(index, by: -1)
-        self.refresh()
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-    }
-
-    private func onMoveDown(_ index: Int) {
-        self.program.moveWorkout(index, by: 1)
-        self.refresh()
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-    }
-    
-    private func onDelete(_ index: Int) {
-        self.program.delete(index)
-        self.refresh()
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-    }
-    
-    func onAdd(_ name: String) -> String? {
-        if let err = self.program.addWorkout(name) {
-            return err
-        } else {
-            self.refresh()
-
-            let app = UIApplication.shared.delegate as! AppDelegate
-            app.saveState()
-            return nil
-        }
     }
 
     // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
