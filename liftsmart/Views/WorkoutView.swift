@@ -116,50 +116,16 @@ struct WorkoutView: View {
                 Spacer()
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditListView(title: "Exercises", names: self.onNames, add: self.onAdd, delete: self.onDelete, moveDown: self.onMoveDown, moveUp: self.onMoveUp, addPrompt: "Exercise")}
+                    .sheet(isPresented: self.$editModal) {EditWorkoutView(workout: self.workout)}
             }
             .padding()
         }
     }
     
-    // TODO: need a way to edit days (maybe a custom button?)
     private func onEdit() {
         self.editModal = true
     }
     
-    private func onNames() -> [String] {
-        return self.workout.exercises.map({$0.name})
-    }
-    
-    private func onMoveUp(_ index: Int) {
-        self.workout.moveExercise(index, by: -1)
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-    }
-
-    private func onMoveDown(_ index: Int) {
-        self.workout.moveExercise(index, by: 1)
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-    }
-
-    private func onDelete(_ index: Int) {
-        self.workout.exercises.remove(at: index)
-        
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-    }
-    
-    func onAdd(_ name: String) -> String? {
-        self.workout.addExercise(name)
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-        return nil
-    }
-
     func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
         case .durations(_, _):

@@ -155,8 +155,44 @@ Program = Workouts + Plan + Advisor(?)\
             \cf2 return\cf3  \cf2 nil\cf3 \
         \}\
     \}\
+    \
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97    \
 
 \fs38 \
+
+\fs34     \cf2 private\cf3  \cf2 func\cf3  \cf7 onNames\cf3 () -> [\cf6 String\cf3 ] \{\
+        \cf2 return\cf3  \cf2 self\cf3 .\cf5 workout\cf3 .\cf5 exercises\cf3 .\cf13 map\cf3 (\{$0.\cf5 name\cf3 \})\
+    \}\
+    \
+    \cf2 private\cf3  \cf2 func\cf3  \cf7 onMoveUp\cf3 (\cf2 _\cf3  index: \cf6 Int\cf3 ) \{\
+        \cf2 self\cf3 .\cf5 workout\cf3 .\cf14 moveExercise\cf3 (index, by: \cf12 -1\cf3 )\
+\
+        \cf2 let\cf3  app = \cf6 UIApplication\cf3 .\cf6 shared\cf3 .\cf6 delegate\cf3  \cf2 as\cf3 ! \cf5 AppDelegate\cf3 \
+        app.\cf14 saveState\cf3 ()\
+    \}\
+\
+    \cf2 private\cf3  \cf2 func\cf3  \cf7 onMoveDown\cf3 (\cf2 _\cf3  index: \cf6 Int\cf3 ) \{\
+        \cf2 self\cf3 .\cf5 workout\cf3 .\cf14 moveExercise\cf3 (index, by: \cf12 1\cf3 )\
+\
+        \cf2 let\cf3  app = \cf6 UIApplication\cf3 .\cf6 shared\cf3 .\cf6 delegate\cf3  \cf2 as\cf3 ! \cf5 AppDelegate\cf3 \
+        app.\cf14 saveState\cf3 ()\
+    \}\
+\
+    \cf2 private\cf3  \cf2 func\cf3  \cf7 onDelete\cf3 (\cf2 _\cf3  index: \cf6 Int\cf3 ) \{\
+        \cf2 self\cf3 .\cf5 workout\cf3 .\cf5 exercises\cf3 .\cf13 remove\cf3 (at: index)\
+        \
+        \cf2 let\cf3  app = \cf6 UIApplication\cf3 .\cf6 shared\cf3 .\cf6 delegate\cf3  \cf2 as\cf3 ! \cf5 AppDelegate\cf3 \
+        app.\cf14 saveState\cf3 ()\
+    \}\
+    \
+    \cf2 func\cf3  \cf7 onAdd\cf3 (\cf2 _\cf3  name: \cf6 String\cf3 ) -> \cf6 String\cf3 ? \{\
+        \cf2 self\cf3 .\cf5 workout\cf3 .\cf14 addExercise\cf3 (name)\
+\
+        \cf2 let\cf3  app = \cf6 UIApplication\cf3 .\cf6 shared\cf3 .\cf6 delegate\cf3  \cf2 as\cf3 ! \cf5 AppDelegate\cf3 \
+        app.\cf14 saveState\cf3 ()\
+        \cf2 return\cf3  \cf2 nil\cf3 \
+    \}\
+\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f3\b\fs48 \cf11 \
@@ -164,13 +200,11 @@ ProgramView\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\b0 \cf11 Name: [Strength]\
-	create an EditProgramView with just name and cancel/ok\
+	make EditWorkout look like EditProgram\
+	turn EditList into a reuseable view\
+	update EditProgram\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	should we make EditList some sort of embeddable view?\
-	or just duplicate some code? that doesn\'92t look too bad\'85\
-		would make it easier to add different types of workouts\
-		which could make editing exercises easier (eg change type could be remove and re-add)\
-might be nice to allow disabling workout\
+\cf11 might be nice to allow disabling workout\
 	add enabled flag to workout\
 	add disable/enable items to dropdown\
 	if disabled render in gray when editing\
