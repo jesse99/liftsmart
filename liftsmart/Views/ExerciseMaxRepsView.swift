@@ -100,7 +100,7 @@ struct ExerciseMaxRepsView: View {
         let delta = 10  // we'll show +/- this many reps versus expected
         if let last = self.lastReps {
             let target = expected() ?? 0
-            for reps in max(last - delta, 1)...last {
+            for reps in max(last - delta, 1)...(last + 2) {
                 // TODO: better to use bold() or underline() but they don't do anything
                 let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
                 let text = Text(str)
