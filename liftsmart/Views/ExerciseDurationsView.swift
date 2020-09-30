@@ -109,12 +109,10 @@ struct ExerciseDurationsView: View {
             self.subTitle = ""
         }
 
-        if exercise.current!.setIndex == 0 {
-            self.startLabel = "Start"
-        } else if (exercise.current!.setIndex == durations.count) {
+        if (exercise.current!.setIndex == durations.count) {
             self.startLabel = "Done"
         } else {
-            self.startLabel = "Next"
+            self.startLabel = "Start"
         }
     }
     
