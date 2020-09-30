@@ -272,9 +272,10 @@ struct ExerciseMaxRepsView: View {
     func expected() -> Int? {
         if let expected = exercise.expected.reps.first {
             if exercise.current!.setIndex < restSecs.count {
-                let remaining = expected - self.completed
-                let reps = remaining/(restSecs.count - exercise.current!.setIndex)
-                return reps
+                let remaining = Double(expected - self.completed)
+                let numSets = Double(restSecs.count - exercise.current!.setIndex)
+                let reps = (remaining/numSets).rounded()
+                return Int(reps)
             } else {
                 return 0
             }
