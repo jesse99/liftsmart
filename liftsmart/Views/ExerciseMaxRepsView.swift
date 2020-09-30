@@ -13,7 +13,8 @@ struct ExerciseMaxRepsView: View {
     @State var subTitle: String = ""
     @State var subSubTitle: String = ""
     @State var startLabel: String = ""
-    @State var completed: Int = 0  // number of reps the user has done so far
+    @State var completed: Int = 0   // number of reps the user has done so far
+    @State var lastReps: Int? = nil // number of reps user did in the last set
     @State var startTimer: Bool = false
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
@@ -96,14 +97,23 @@ struct ExerciseMaxRepsView: View {
     func repsDoneButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
                 
-        if let target = expected() {
-            let delta = 10  // we'll show +/- this many reps versus expected
-            for reps in max(target - delta, 1)...(target + delta) {
+        let delta = 10  // we'll show +/- this many reps versus expected
+        if let last = self.lastReps {
+            let target = expected() ?? 0
+            for reps in max(last - delta, 1)...last {
                 // TODO: better to use bold() or underline() but they don't do anything
                 let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
                 let text = Text(str)
                 buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
             }
+
+        } else if let target = expected() {
+            for reps in max(target - delta, 1)...(target + delta) {
+                let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
+                let text = Text(str)
+                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
+            }
+            
         } else {
             for reps in 1...40 {
                 let text = Text("\(reps) Reps")
@@ -118,6 +128,7 @@ struct ExerciseMaxRepsView: View {
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
         self.startTimer = startDuration(-1) > 0
         self.completed += reps
+        self.lastReps = reps
         self.refresh()      // note that dismissing a sheet does not call onAppear
     }
     
@@ -197,6 +208,7 @@ struct ExerciseMaxRepsView: View {
     func onReset() {
         self.exercise.current = Current(weight: self.exercise.expected.weight)
         self.completed = 0
+        self.lastReps = nil
         self.refresh()
     }
     
