@@ -97,8 +97,8 @@ struct ExerciseMaxRepsView: View {
     func repsDoneButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
                 
-        let delta = 10  // we'll show +/- this many reps versus expected
         if let last = self.lastReps {
+            let delta = 12  // we'll show +/- this many reps versus expected
             let target = expected() ?? 0
             for reps in max(last - delta, 1)...(last + 2) {
                 // TODO: better to use bold() or underline() but they don't do anything
@@ -108,6 +108,7 @@ struct ExerciseMaxRepsView: View {
             }
 
         } else if let target = expected() {
+            let delta = 10
             for reps in max(target - delta, 1)...(target + delta) {
                 let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
                 let text = Text(str)

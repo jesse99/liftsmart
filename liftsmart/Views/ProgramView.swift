@@ -181,6 +181,8 @@ struct ProgramView: View {
                     entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
                     entry.subColor = .blue
                 }
+                
+                entries[i] = entry
             }
         }
 
