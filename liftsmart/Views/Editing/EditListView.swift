@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-/// Reuseable view that supports editing a list of generic items.
+///// Reuseable view that supports editing a list of generic items.
 //struct EditListView<Entry: Identifiable>: View {
 //    typealias NamesFn = () -> [String]
 //    typealias AddFn = (String) -> String?   // returns an error message if the add failed

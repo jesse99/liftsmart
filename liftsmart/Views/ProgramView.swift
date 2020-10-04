@@ -51,7 +51,7 @@ struct ProgramView: View {
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout)
-                        .sheet(isPresented: self.$editModal) {EditProgramView(program: self.program)}
+                        .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditProgramView(program: self.program)}
                 }
                 .padding()
             }
