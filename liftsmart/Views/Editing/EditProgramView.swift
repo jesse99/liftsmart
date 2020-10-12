@@ -20,6 +20,7 @@ struct EditProgramEntry: Identifiable {
 
 struct EditProgramView: View {
     var program: Program
+    @State var name = ""
     @State var entries: [EditProgramEntry] = []
     @State var errText = ""
     @State var showEditActions: Bool = false
@@ -30,6 +31,15 @@ struct EditProgramView: View {
     var body: some View {
         VStack {
             Text("Edit Program").font(.largeTitle)
+
+            HStack {
+                Text("Name:").font(.headline)
+                TextField("", text: self.$name)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .keyboardType(.default)
+                    .disableAutocorrection(false)
+            }.padding()
+            Divider()
 
             List(self.entries) {entry in
                 VStack(alignment: .leading) {
@@ -61,6 +71,8 @@ struct EditProgramView: View {
     }
 
     func refresh() {
+        self.name = program.name
+
         self.entries = self.program.mapi({EditProgramEntry($1.name, $0)})
         self.entries.append(EditProgramEntry("Add", self.entries.count))
     }
@@ -116,6 +128,8 @@ struct EditProgramView: View {
     }
 
     func onOK() {
+        self.program.name = self.name
+
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
         self.presentationMode.wrappedValue.dismiss()

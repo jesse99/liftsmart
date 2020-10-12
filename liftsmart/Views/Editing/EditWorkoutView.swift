@@ -40,7 +40,6 @@ struct EditWorkoutView: View {
                     .disableAutocorrection(false)
             }.padding()
             Divider()
-//            Spacer()
             
             List(self.entries) {entry in
                 VStack(alignment: .leading) {
@@ -72,7 +71,7 @@ struct EditWorkoutView: View {
     }
 
     func refresh() {
-        self.name = program.name
+        self.name = workout.name
 
         self.entries = self.workout.exercises.mapi({EditWorkoutEntry($1.name, $0)})
         self.entries.append(EditWorkoutEntry("Add", self.entries.count))
