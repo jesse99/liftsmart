@@ -2,10 +2,30 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+var editWorkoutID: Int = 0
+
+struct EditWorkoutEntry: Identifiable {
+    let name: String
+    let id: Int     // can't use this as an index because ids should change when entries change
+    let index: Int
+
+    init(_ name: String, _ index: Int) {
+        self.name = name
+        self.id = editWorkoutID
+        self.index = index
+        
+        editWorkoutID += 1
+    }
+}
+
 struct EditWorkoutView: View {
     let workout: Workout
     @State var name = ""
-//    @State var entries: [ListEntry] = []  
+    @State var entries: [EditWorkoutEntry] = []
+    @State var errText = ""
+    @State var showEditActions: Bool = false
+    @State var editIndex: Int = 0
+    @State var showSheet: Bool = false
     @Environment(\.presentationMode) private var presentationMode
     
     var body: some View {
@@ -19,7 +39,21 @@ struct EditWorkoutView: View {
                     .keyboardType(.default)
                     .disableAutocorrection(false)
             }.padding()
-            Spacer()
+            Divider()
+//            Spacer()
+            
+            List(self.entries) {entry in
+                VStack(alignment: .leading) {
+                    if self.entries.last != nil && entry.id == self.entries.last!.id {
+                        Text(entry.name).font(.headline).italic()
+                    } else {
+                        Text(entry.name).font(.headline)
+                    }
+                }
+                .contentShape(Rectangle())  // so we can click within spacer
+                    .onTapGesture {self.showEditActions = true; self.editIndex = entry.index}
+            }
+            Text(self.errText).foregroundColor(.red).font(.callout)
 
             Divider()
             HStack {
@@ -31,18 +65,72 @@ struct EditWorkoutView: View {
             .padding()
             .onAppear {self.refresh()}
         }
+        .actionSheet(isPresented: $showEditActions) {
+            ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
+        .sheet(isPresented: self.$showSheet) {
+            EditTextView(title: "Exercise Name", content: "", completion: self.doAdd)}
     }
 
     func refresh() {
         self.name = program.name
+
+        self.entries = self.workout.exercises.mapi({EditWorkoutEntry($1.name, $0)})
+        self.entries.append(EditWorkoutEntry("Add", self.entries.count))
+    }
+    
+    func editButtons() -> [ActionSheet.Button] {
+        var buttons: [ActionSheet.Button] = []
+
+        if self.editIndex == self.entries.count - 1 {
+            buttons.append(.default(Text("New Workout"), action: {self.onAdd()}))
+        } else {
+            let len = self.entries.count - 1
+
+            if self.editIndex != 0 && len > 1 {
+                buttons.append(.default(Text("Move Up"), action: {self.doMove(by: -1); self.refresh()}))
+            }
+            if self.editIndex < len - 1 && len > 1 {
+                buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1); self.refresh()}))
+            }
+            buttons.append(.default(Text("Delete"), action: {self.doDelete(); self.refresh()}))
+        }
+
+        buttons.append(.cancel(Text("Cancel"), action: {}))
+
+        return buttons
+    }
+    
+    func onAdd() {
+        self.showSheet = true
     }
 
+    func doAdd(_ name: String) {
+        self.workout.addExercise(name)
+
+        self.errText = ""
+        self.refresh()
+    }
+
+    private func doDelete() {
+        self.workout.exercises.remove(at: self.editIndex)
+        self.refresh()
+    }
+
+    private func doMove(by: Int) {
+        self.workout.moveExercise(self.editIndex, by: by)
+        self.refresh()
+    }
+    
     func onCancel() {
+        // TODO: need to revert changes
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        self.workout.name = self.name   // TODO: save changes
+        self.workout.name = self.name
+
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
         self.presentationMode.wrappedValue.dismiss()
     }
 }

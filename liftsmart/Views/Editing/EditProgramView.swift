@@ -33,7 +33,7 @@ struct EditProgramView: View {
 
             List(self.entries) {entry in
                 VStack(alignment: .leading) {
-                    if entry.id == self.entries.last!.id {
+                    if self.entries.last != nil && entry.id == self.entries.last!.id {
                         Text(entry.name).font(.headline).italic()
                     } else {
                         Text(entry.name).font(.headline)
@@ -57,8 +57,7 @@ struct EditProgramView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
-            EditTextView(title: "Workout Name", content: "", completion: self.doAdd)
-        }
+            EditTextView(title: "Workout Name", content: "", completion: self.doAdd)}
     }
 
     func refresh() {
@@ -98,34 +97,27 @@ struct EditProgramView: View {
         } else {
             self.errText = ""
             self.refresh()
-
-            let app = UIApplication.shared.delegate as! AppDelegate
-            app.saveState()
         }
     }
 
     private func doDelete() {
         self.program.delete(self.editIndex)
         self.refresh()
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
     }
 
     private func doMove(by: Int) {
         self.program.moveWorkout(self.editIndex, by: by)
         self.refresh()
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
     }
 
     func onCancel() {
-        // TODO: call a cancel callback
+        // TODO: need to revert changes
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.saveState()
         self.presentationMode.wrappedValue.dismiss()
     }
 }
