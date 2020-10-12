@@ -7,7 +7,7 @@ var programEntryId = 0
 struct ProgramEntry: Identifiable {
     let id: Int
     let workout: Workout
-    var subLabel = ""           // these are initialized using a second pass
+    var subLabel = ""           // label and color are initialized using a second pass
     var subColor = Color.black
 
     init(_ workout: Workout) {

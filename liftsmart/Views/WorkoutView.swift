@@ -2,35 +2,39 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct WorkoutRow: View {
-    let workout: Workout
-    var exercise: Exercise
-    var history: History
-    @State var color: Color = .black
+var workoutEntryId = 0
 
-    init(workout: Workout, exercise: Exercise, history: History) {
-        self.workout = workout
+struct WorkoutEntry: Identifiable {
+    let id: Int
+    let exercise: Exercise
+    var label: String
+    var color: Color
+
+    init(_ workout: Workout, _ exercise: Exercise) {
+        self.id = workoutEntryId
         self.exercise = exercise
-        self.history = history
-        self.color = labelColor()
-    }
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(exercise.name)
-                .font(.headline)
-                .onAppear {self.color = self.labelColor()}  // bit of a hack to force WorkoutRow to reload when a nested view changes exercise state
-                .foregroundColor(color)
-
-            if !label().isEmpty {
-                Text(label())
-                    .font(.subheadline)
-                    .foregroundColor(color)
-            }
-        }
+        self.label = WorkoutEntry.getLabel(workout, exercise)
+        self.color = WorkoutEntry.getColor(workout, exercise)
+        workoutEntryId += 1
     }
     
-    private func label() -> String {
+    private static func getLabel(_ workout: Workout, _ exercise: Exercise) -> String {
+        func getExpectedReps(_ i: Int) -> Int? {
+            return i < exercise.expected.reps.count ? exercise.expected.reps[i] : nil
+        }
+
+        func getRepsLabel(_ index: Int, _ workset: RepsSet) -> String {
+            var result = ""
+            
+            let min = max(workset.reps.min, getExpectedReps(index) ?? 0)
+            let max = workset.reps.max
+            if let reps = RepRange(min: min, max: max), let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
+                result = set.debugDescription
+            }
+            
+            return result
+        }
+
         var sets: [String] = []
         var limit = 5
         
@@ -50,7 +54,7 @@ struct WorkoutRow: View {
             }
 
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
-            sets = worksets.mapi(repsSetLabel)
+            sets = worksets.mapi(getRepsLabel)
             limit = 2
         }
         
@@ -71,7 +75,7 @@ struct WorkoutRow: View {
         }
     }
     
-    private func labelColor() -> Color {
+    private static func getColor(_ workout: Workout, _ exercise: Exercise) -> Color {
         if exercise.recentlyCompleted(workout, history) {
             return .gray
         } else if exercise.inProgress(workout, history) {
@@ -80,48 +84,47 @@ struct WorkoutRow: View {
             return .black
         }
     }
-    
-    private func repsSetLabel(_ index: Int, _ workset: RepsSet) -> String {
-        var result = ""
-        
-        let min = max(workset.reps.min, expectedReps(index) ?? 0)
-        let max = workset.reps.max
-        if let reps = RepRange(min: min, max: max), let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
-            result = set.debugDescription
-        }
-        
-        return result
-    }
-    
-    func expectedReps(_ i: Int) -> Int? {
-        return i < exercise.expected.reps.count ? exercise.expected.reps[i] : nil
-    }
 }
 
 struct WorkoutView: View {
     var workout: Workout
     var history: History
+    @State var entries: [WorkoutEntry] = []
     @State var editModal = false
 
     var body: some View {
         VStack {
-            List(workout.exercises) { exercise in
-                NavigationLink(destination: self.exerciseView(exercise)) {
-                    WorkoutRow(workout: self.workout, exercise: exercise, history: self.history)
+            List(self.entries) {entry in
+                NavigationLink(destination: self.exerciseView(entry.exercise)) {
+                    VStack(alignment: .leading) {
+                        Text(entry.exercise.name).font(.headline).foregroundColor(entry.color)
+                        if !entry.label.isEmpty {
+                            Text(entry.label).font(.subheadline).foregroundColor(entry.color)
+                        }
+                    }
                 }
             }
             .navigationBarTitle(Text(workout.name + " Exercises"))
+            .onAppear {self.refresh()}
+            
             Divider()
             HStack {
                 Spacer()
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditWorkoutView(workout: self.workout)}
+                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditWorkoutView(workout: self.workout)}
             }
             .padding()
         }
     }
     
+    func refresh() {
+        entries = []
+        for exercise in workout.exercises {
+            entries.append(WorkoutEntry(workout, exercise))
+        }
+    }
+
     private func onEdit() {
         self.editModal = true
     }
