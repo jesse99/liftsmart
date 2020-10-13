@@ -6,11 +6,13 @@ var editProgramID: Int = 0
 
 struct EditProgramEntry: Identifiable {
     let name: String
+    let color: Color
     let id: Int     // can't use this as an index because ids should change when entries change
     let index: Int
 
-    init(_ name: String, _ index: Int) {
+    init(_ name: String, _ color: Color, _ index: Int) {
         self.name = name
+        self.color = color
         self.id = editProgramID
         self.index = index
         
@@ -18,6 +20,8 @@ struct EditProgramEntry: Identifiable {
     }
 }
 
+// TODO: Might be nice to allow user to support program snapshots. Would need to be able
+// to create these, delete them, and load them. Would need a warning when loading.
 struct EditProgramView: View {
     var program: Program
     @State var name = ""
@@ -44,9 +48,9 @@ struct EditProgramView: View {
             List(self.entries) {entry in
                 VStack(alignment: .leading) {
                     if self.entries.last != nil && entry.id == self.entries.last!.id {
-                        Text(entry.name).font(.headline).italic()
+                        Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
                     } else {
-                        Text(entry.name).font(.headline)
+                        Text(entry.name).foregroundColor(entry.color).font(.headline)
                     }
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
@@ -73,8 +77,8 @@ struct EditProgramView: View {
     func refresh() {
         self.name = program.name
 
-        self.entries = self.program.mapi({EditProgramEntry($1.name, $0)})
-        self.entries.append(EditProgramEntry("Add", self.entries.count))
+        self.entries = self.program.mapi({EditProgramEntry($1.name, $1.enabled ? .black : .gray, $0)})
+        self.entries.append(EditProgramEntry("Add", .black, self.entries.count))
     }
 
     func editButtons() -> [ActionSheet.Button] {
@@ -91,7 +95,12 @@ struct EditProgramView: View {
             if self.editIndex < len - 1 && len > 1 {
                 buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1); self.refresh()}))
             }
-            buttons.append(.default(Text("Delete"), action: {self.doDelete(); self.refresh()}))
+            if self.program[self.editIndex].enabled {
+                buttons.append(.default(Text("Disable Workout"), action: {self.onToggleEnabled()}))
+            } else {
+                buttons.append(.default(Text("Enable Workout"), action: {self.onToggleEnabled()}))
+            }
+            buttons.append(.default(Text("Delete Workout"), action: {self.doDelete(); self.refresh()}))
         }
 
         buttons.append(.cancel(Text("Cancel"), action: {}))
@@ -110,6 +119,11 @@ struct EditProgramView: View {
             self.errText = ""
             self.refresh()
         }
+    }
+    
+    private func onToggleEnabled() {
+        self.program[self.editIndex].enabled = !self.program[self.editIndex].enabled
+        self.refresh()
     }
 
     private func doDelete() {

@@ -20,11 +20,13 @@ func createWorkout(_ name: String, _ exercises: [Exercise], day: WeekDay?) -> Ei
 
 class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     var name: String
+    var enabled: Bool           // true if the user wants to perform this workout
     var exercises: [Exercise]   // exercise names don't have to be unique
     var days: [Bool]            // indices are Sun, Mon, ..., Sat, true means workout is scheduled for that day, all false means can do the workout any day
 
     fileprivate init(_ name: String, _ exercises: [Exercise], days: [WeekDay]) {
         self.name = name
+        self.enabled = true
         self.exercises = exercises
         self.days = Array(repeating: false, count: 7)
         for d in days {
@@ -34,12 +36,14 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     
     required init(from store: Store) {
         self.name = store.getStr("name")
+        self.enabled = store.getBool("enabled", ifMissing: true)
         self.exercises = store.getObjArray("exercises")
         self.days = store.getBoolArray("days", ifMissing: [])
     }
     
     func save(_ store: Store) {
         store.addStr("name", name)
+        store.addBool("enabled", enabled)
         store.addObjArray("exercises", exercises)
         store.addBoolArray("days", days)
     }

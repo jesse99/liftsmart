@@ -7,7 +7,7 @@ var programEntryId = 0
 struct ProgramEntry: Identifiable {
     let id: Int
     let workout: Workout
-    var subLabel = ""           // label and color are initialized using a second pass
+    var subLabel = ""           // subLabel and color are initialized using a second pass
     var subColor = Color.black
 
     init(_ workout: Workout) {
@@ -87,22 +87,24 @@ struct ProgramView: View {
             var completions: [ExerciseCompletions] = []
             entries = []
             for workout in program {
-                var dates: [Date] = []
-                for exercise in workout.exercises {
-                    if let completed = exercise.dateCompleted(workout, history) {
-                        dates.append(completed)
+                if workout.enabled {
+                    var dates: [Date] = []
+                    for exercise in workout.exercises {
+                        if let completed = exercise.dateCompleted(workout, history) {
+                            dates.append(completed)
+                        }
                     }
-                }
-                dates.sort()
-                
-                if let last = dates.last {
-                    let didAll = dates.count == workout.exercises.count
-                    completions.append(ExerciseCompletions(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
-                    entries.append(ProgramEntry(workout))
+                    dates.sort()
+                    
+                    if let last = dates.last {
+                        let didAll = dates.count == workout.exercises.count
+                        completions.append(ExerciseCompletions(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
+                        entries.append(ProgramEntry(workout))
 
-                } else {
-                    completions.append(ExerciseCompletions(latest: nil, latestIsComplete: false, completedAll: false))
-                    entries.append(ProgramEntry(workout))
+                    } else {
+                        completions.append(ExerciseCompletions(latest: nil, latestIsComplete: false, completedAll: false))
+                        entries.append(ProgramEntry(workout))
+                    }
                 }
             }
             
