@@ -6,11 +6,13 @@ var editWorkoutID: Int = 0
 
 struct EditWorkoutEntry: Identifiable {
     let name: String
+    let color: Color
     let id: Int     // can't use this as an index because ids should change when entries change
     let index: Int
 
-    init(_ name: String, _ index: Int) {
+    init(_ name: String, _ color: Color, _ index: Int) {
         self.name = name
+        self.color = color
         self.id = editWorkoutID
         self.index = index
         
@@ -44,9 +46,9 @@ struct EditWorkoutView: View {
             List(self.entries) {entry in
                 VStack(alignment: .leading) {
                     if self.entries.last != nil && entry.id == self.entries.last!.id {
-                        Text(entry.name).font(.headline).italic()
+                        Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
                     } else {
-                        Text(entry.name).font(.headline)
+                        Text(entry.name).foregroundColor(entry.color).font(.headline)
                     }
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
@@ -73,15 +75,15 @@ struct EditWorkoutView: View {
     func refresh() {
         self.name = workout.name
 
-        self.entries = self.workout.exercises.mapi({EditWorkoutEntry($1.name, $0)})
-        self.entries.append(EditWorkoutEntry("Add", self.entries.count))
+        self.entries = self.workout.exercises.mapi({EditWorkoutEntry($1.name, $1.enabled ? .black : .gray, $0)})
+        self.entries.append(EditWorkoutEntry("Add", .black, self.entries.count))
     }
     
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
         if self.editIndex == self.entries.count - 1 {
-            buttons.append(.default(Text("New Workout"), action: {self.onAdd()}))
+            buttons.append(.default(Text("New Exercise"), action: {self.onAdd()}))
         } else {
             let len = self.entries.count - 1
 
@@ -91,7 +93,12 @@ struct EditWorkoutView: View {
             if self.editIndex < len - 1 && len > 1 {
                 buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1); self.refresh()}))
             }
-            buttons.append(.default(Text("Delete"), action: {self.doDelete(); self.refresh()}))
+            if self.workout.exercises[self.editIndex].enabled {
+                buttons.append(.default(Text("Disable Exercise"), action: {self.onToggleEnabled()}))
+            } else {
+                buttons.append(.default(Text("Enable Exercise"), action: {self.onToggleEnabled()}))
+            }
+            buttons.append(.default(Text("Delete Exercise"), action: {self.doDelete(); self.refresh()}))
         }
 
         buttons.append(.cancel(Text("Cancel"), action: {}))
@@ -107,6 +114,11 @@ struct EditWorkoutView: View {
         self.workout.addExercise(name)
 
         self.errText = ""
+        self.refresh()
+    }
+
+    private func onToggleEnabled() {
+        self.workout.exercises[self.editIndex].enabled = !self.workout.exercises[self.editIndex].enabled
         self.refresh()
     }
 

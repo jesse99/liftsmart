@@ -121,7 +121,9 @@ struct WorkoutView: View {
     func refresh() {
         entries = []
         for exercise in workout.exercises {
-            entries.append(WorkoutEntry(workout, exercise))
+            if exercise.enabled {
+                entries.append(WorkoutEntry(workout, exercise))
+            }
         }
     }
 

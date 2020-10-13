@@ -8,6 +8,7 @@ var nextID: Int = 0
 /// include history or achievement information.
 class Exercise: Hashable, Identifiable, Storable {
     var name: String             // "Heavy Bench"
+    var enabled: Bool            // true if the user wants to perform this workout
     var formalName: String       // "Bench Press"
     var modality: Modality
     var expected: Expected
@@ -17,6 +18,7 @@ class Exercise: Hashable, Identifiable, Storable {
 
     init(_ name: String, _ formalName: String, _ modality: Modality, _ expected: Expected = Expected(weight: 0.0)) {
         self.name = name
+        self.enabled = true
         self.formalName = formalName
         self.modality = modality
         self.expected = expected
@@ -26,6 +28,7 @@ class Exercise: Hashable, Identifiable, Storable {
         
     required init(from store: Store) {
         self.name = store.getStr("name")
+        self.enabled = store.getBool("enabled", ifMissing: true)
         self.formalName = store.getStr("formalName")
         self.modality = store.getObj("modality")
         self.expected = store.getObj("expected")
@@ -43,6 +46,7 @@ class Exercise: Hashable, Identifiable, Storable {
     
     func save(_ store: Store) {
         store.addStr("name", name)
+        store.addBool("enabled", enabled)
         store.addStr("formalName", formalName)
         store.addObj("modality", modality)
         store.addObj("expected", expected)
