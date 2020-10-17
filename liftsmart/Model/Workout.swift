@@ -48,6 +48,20 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         store.addBoolArray("days", days)
     }
     
+    func clone() -> Workout {
+        let store = Store()
+        store.addObj("self", self)
+        let result: Workout = store.getObj("self")
+        return result
+    }
+        
+    func restore(_ original: Workout) {
+        self.name = original.name
+        self.enabled = original.enabled
+        self.exercises = original.exercises
+        self.days = original.days
+    }
+
     func addExercise(_ name: String) {
         let durations = [DurationSet(secs: 60, restSecs: 60)!]
         let sets = Sets.durations(durations)

@@ -21,7 +21,8 @@ struct EditWorkoutEntry: Identifiable {
 }
 
 struct EditWorkoutView: View {
-    let workout: Workout
+    var workout: Workout
+    let original: Workout
     @State var name = ""
     @State var entries: [EditWorkoutEntry] = []
     @State var errText = ""
@@ -29,6 +30,11 @@ struct EditWorkoutView: View {
     @State var editIndex: Int = 0
     @State var showSheet: Bool = false
     @Environment(\.presentationMode) private var presentationMode
+    
+    init(workout: Workout) {
+        self.workout = workout
+        self.original = workout.clone()
+    }
     
     var body: some View {
         VStack {
@@ -133,8 +139,7 @@ struct EditWorkoutView: View {
     }
     
     func onCancel() {
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.loadState()
+        self.workout.restore(self.original)
         self.presentationMode.wrappedValue.dismiss()
     }
 
