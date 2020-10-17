@@ -133,7 +133,8 @@ struct EditWorkoutView: View {
     }
     
     func onCancel() {
-        // TODO: need to revert changes
+        let app = UIApplication.shared.delegate as! AppDelegate
+        app.loadState()
         self.presentationMode.wrappedValue.dismiss()
     }
 

@@ -52,6 +52,19 @@ class Program: CustomDebugStringConvertible, Sequence, Storable {
         store.addObjArray("workouts", workouts)
         store.addObjArray("notes", notes)
     }
+    
+    func clone() -> Program {
+        let store = Store()
+        store.addObj("self", self)
+        let result: Program = store.getObj("self")
+        return result
+    }
+        
+    func restore(_ original: Program) {
+        self.name = original.name
+        self.workouts = original.workouts
+        self.notes = original.notes
+    }
 
     var count: Int {
         get {return workouts.count}

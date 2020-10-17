@@ -20,10 +20,12 @@ struct EditProgramEntry: Identifiable {
     }
 }
 
+// TODO: Allow notes to be edited?
 // TODO: Might be nice to allow user to support program snapshots. Would need to be able
 // to create these, delete them, and load them. Would need a warning when loading.
 struct EditProgramView: View {
     var program: Program
+    let original: Program
     @State var name = ""
     @State var entries: [EditProgramEntry] = []
     @State var errText = ""
@@ -31,6 +33,11 @@ struct EditProgramView: View {
     @State var editIndex: Int = 0
     @State var showSheet: Bool = false
     @Environment(\.presentationMode) private var presentationMode
+    
+    init(program: Program) {
+        self.program = program
+        self.original = program.clone()
+    }
 
     var body: some View {
         VStack {
@@ -137,7 +144,7 @@ struct EditProgramView: View {
     }
 
     func onCancel() {
-        // TODO: need to revert changes
+        self.program.restore(self.original)
         self.presentationMode.wrappedValue.dismiss()
     }
 
