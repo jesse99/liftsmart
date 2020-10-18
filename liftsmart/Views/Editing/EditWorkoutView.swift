@@ -24,6 +24,14 @@ struct EditWorkoutView: View {
     var workout: Workout
     let original: Workout
     @State var name = ""
+    @State var daysLabel = ""
+    @State var monLabel = ""
+    @State var tuesLabel = ""
+    @State var wedLabel = ""
+    @State var thursLabel = ""
+    @State var friLabel = ""
+    @State var satLabel = ""
+    @State var sunLabel = ""
     @State var entries: [EditWorkoutEntry] = []
     @State var errText = ""
     @State var showEditActions: Bool = false
@@ -37,30 +45,42 @@ struct EditWorkoutView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack() {
             Text("Edit Workout").font(.largeTitle)
 
-            HStack {
-                Text("Name:").font(.headline)
-                TextField("", text: self.$name)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.default)
-                    .disableAutocorrection(false)
-            }.padding()
-            Divider()
-            
-            List(self.entries) {entry in
-                VStack(alignment: .leading) {
-                    if self.entries.last != nil && entry.id == self.entries.last!.id {
-                        Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
-                    } else {
-                        Text(entry.name).foregroundColor(entry.color).font(.headline)
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Name:").font(.headline)
+                    TextField("", text: self.$name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(false)
+                }.padding(.leading)
+                Menu(self.daysLabel) {
+                    Button(self.sunLabel, action: {self.toggleDay(.sunday)})
+                    Button(self.monLabel, action:{self.toggleDay(.monday)})
+                    Button(self.tuesLabel, action:{self.toggleDay(.tuesday)})
+                    Button(self.wedLabel, action:{self.toggleDay(.wednesday)})
+                    Button(self.thursLabel, action:{self.toggleDay(.thursday)})
+                    Button(self.friLabel, action:{self.toggleDay(.friday)})
+                    Button(self.satLabel, action:{self.toggleDay(.saturday)})
+                    Button("Cancel", action: {})
+                }.font(.callout).padding(.leading)
+                //Divider()
+                
+                List(self.entries) {entry in
+                    VStack() {
+                        if self.entries.last != nil && entry.id == self.entries.last!.id {
+                            Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
+                        } else {
+                            Text(entry.name).foregroundColor(entry.color).font(.headline)
+                        }
                     }
+                    .contentShape(Rectangle())  // so we can click within spacer
+                        .onTapGesture {self.showEditActions = true; self.editIndex = entry.index}
                 }
-                .contentShape(Rectangle())  // so we can click within spacer
-                    .onTapGesture {self.showEditActions = true; self.editIndex = entry.index}
+                Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
             }
-            Text(self.errText).foregroundColor(.red).font(.callout)
 
             Divider()
             HStack {
@@ -77,9 +97,76 @@ struct EditWorkoutView: View {
         .sheet(isPresented: self.$showSheet) {
             EditTextView(title: "Exercise Name", content: "", completion: self.doAdd)}
     }
+    
+    func toggleDay(_ day: WeekDay) {
+        self.workout.days[day.rawValue] = !self.workout.days[day.rawValue]
+        self.refresh()
+    }
 
     func refresh() {
+        func daysStr(_ days: [Bool]) -> String {
+            assert(days.count == 7)
+            if days == [false, false, false, false, false, false, false] {
+                return "Any Day"
+            }
+
+            if days == [true, true, true, true, true, true, true] {
+                return "Every Day"
+            }
+
+            var labels: [String] = []
+            let weekDays = days == [false, true, true, true, true, true, false]
+            if weekDays {
+                labels.append("Week Days")
+            }
+
+            let weekEnds = days == [true, false, false, false, false, false, true]
+            if weekEnds {
+                labels.append("Week Ends")
+            }
+            
+            if !weekEnds && days[0] {
+                labels.append("Sunday")
+            }
+            if !weekDays {
+                if days[1] {
+                    labels.append("Monday")
+                }
+                if days[2] {
+                    labels.append("Tuesday")
+                }
+                if days[3] {
+                    labels.append("Wednesday")
+                }
+                if days[4] {
+                    labels.append("Thursday")
+                }
+                if days[5] {
+                    labels.append("Friday")
+                }
+            }
+            if !weekEnds && days[6] {
+                labels.append("Saturday")
+            }
+            return labels.joined(separator: ", ")
+        }
+        
+        func buttonStr(_ day: WeekDay) -> String {
+            let modifier = self.workout.days[day.rawValue] ? "Remove " : "Add "
+            let label = String(describing: day)
+            return modifier + label
+        }
+        
         self.name = workout.name
+        self.daysLabel = daysStr(workout.days)
+
+        self.monLabel = buttonStr(.monday)
+        self.tuesLabel = buttonStr(.tuesday)
+        self.wedLabel = buttonStr(.wednesday)
+        self.thursLabel = buttonStr(.thursday)
+        self.friLabel = buttonStr(.friday)
+        self.satLabel = buttonStr(.saturday)
+        self.sunLabel = buttonStr(.sunday)
 
         self.entries = self.workout.exercises.mapi({EditWorkoutEntry($1.name, $1.enabled ? .black : .gray, $0)})
         self.entries.append(EditWorkoutEntry("Add", .black, self.entries.count))

@@ -121,3 +121,4 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         }
     }
 }
+
