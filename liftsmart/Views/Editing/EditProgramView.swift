@@ -50,7 +50,6 @@ struct EditProgramView: View {
                     .keyboardType(.default)
                     .disableAutocorrection(false)
             }.padding()
-            //Divider()
 
             List(self.entries) {entry in
                 VStack(alignment: .leading) {

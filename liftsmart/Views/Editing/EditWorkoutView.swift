@@ -33,7 +33,7 @@ struct EditWorkoutView: View {
     @State var satLabel = ""
     @State var sunLabel = ""
     @State var entries: [EditWorkoutEntry] = []
-    @State var errText = ""
+    @State var errText = "bad news"
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
     @State var showSheet: Bool = false
@@ -66,7 +66,6 @@ struct EditWorkoutView: View {
                     Button(self.satLabel, action:{self.toggleDay(.saturday)})
                     Button("Cancel", action: {})
                 }.font(.callout).padding(.leading)
-                //Divider()
                 
                 List(self.entries) {entry in
                     VStack() {
@@ -79,8 +78,8 @@ struct EditWorkoutView: View {
                     .contentShape(Rectangle())  // so we can click within spacer
                         .onTapGesture {self.showEditActions = true; self.editIndex = entry.index}
                 }
-                Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
             }
+            Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
 
             Divider()
             HStack {
