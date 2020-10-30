@@ -19,6 +19,7 @@ struct ExerciseMaxRepsView: View {
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
     @State var noteModal: Bool = false
+    @State var editModal = false
     @State var updateExpected: Bool = false
     @State var updateRepsDone: Bool = false
     @State var underway: Bool = false
@@ -86,6 +87,9 @@ struct ExerciseMaxRepsView: View {
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
                 Button("Options", action: onOptions).font(.callout)
+                Button("Edit", action: onEdit)
+                    .font(.callout)
+                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditMaxRepsView(workout: self.workout, exercise: self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -131,6 +135,10 @@ struct ExerciseMaxRepsView: View {
         self.completed += reps
         self.lastReps = reps
         self.refresh()      // note that dismissing a sheet does not call onAppear
+    }
+    
+    private func onEdit() {
+        self.editModal = true
     }
     
     func onAppear() {

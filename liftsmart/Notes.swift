@@ -3,7 +3,7 @@
 import Foundation
 
 private func noteToMarkdown(notes: [String], links: [String: String]) -> String {
-    let ammended = notes.map {"• " + $0}    // TODO: use * once we have a markdown library that 
+    let ammended = notes.map {"• " + $0}    // TODO: use * once we have a markdown library that supports lists
     var text = ammended.joined(separator: "\n")
     text += "\n\n"
     

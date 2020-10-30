@@ -55,6 +55,22 @@ class Exercise: Hashable, Identifiable, Storable {
         }
         store.addInt("id", id)
     }
+    
+    func clone() -> Exercise {
+        let store = Store()
+        store.addObj("self", self)
+        let result: Exercise = store.getObj("self")
+        return result
+    }
+        
+    func restore(_ original: Exercise) {
+        assert(self.id == original.id)
+        self.name = original.name
+        self.enabled = original.enabled
+        self.formalName = original.formalName
+        self.modality = original.modality
+        self.expected = original.expected
+    }
 
     func shouldReset(numSets: Int) -> Bool {
         if let current = self.current {
