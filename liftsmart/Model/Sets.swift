@@ -2,6 +2,43 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
+func restToStr(_ secs: Int) -> String {
+    if secs <= 0 {
+        return "0s"
+
+    } else if secs <= 60 {
+        return "\(secs)s"
+    
+    } else {
+        return String.init(format: "%.1fm", Double(secs)/60.0)
+    }
+}
+
+func strToRest(_ inText: String) -> Either<String, Int> {
+    func convert(_ text: String, scaleBy: Double) -> Either<String, Int> {
+        if var secs = Double(text) {
+            secs *= scaleBy
+            if secs < 0.0 {
+                return .left("Rest should be positive (not \(secs))")
+            } else {
+                return .right(Int(secs))
+            }
+        } else {
+            return .left("Expected a rest value (not \(text))")
+        }
+    }
+    
+    let txt = inText.trimmingCharacters(in: .whitespaces)
+    switch txt.last ?? "\u{3}" {
+    case "\u{3}": return .left("Expected a rest time but found nothing") // End-of-text
+    case "m": return convert(String(txt.dropLast()), scaleBy: 60.0)
+    case "s": return convert(String(txt.dropLast()), scaleBy: 1.0)
+    case "0"..."9": return convert(txt, scaleBy: 1.0)
+    case ".": return convert(txt, scaleBy: 1.0)
+    default: return .left("Time units are 's' and 'm' (not \(txt.last!))")
+    }
+}
+
 struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int

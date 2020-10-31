@@ -10,6 +10,8 @@ struct EditMaxRepsView: View {
     let original: Exercise
     @State var name = ""
     @State var reps = ""
+    @State var target = ""
+    @State var rest = ""
     @State var errText = ""
     @State var errColor = Color.red
     @State var showHelp = false
@@ -23,7 +25,6 @@ struct EditMaxRepsView: View {
     }
 
     // TODO:
-    // rest
     // target reps
     // weight (probably need a new view for non-bodyweight apparatus)
     // formal name (will need a new view for this)
@@ -52,7 +53,15 @@ struct EditMaxRepsView: View {
                         .onChange(of: self.reps, perform: self.onEditedReps)
                     Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                // rest
+                HStack {
+                    Text("Rest:").font(.headline)
+                    TextField("", text: self.$rest)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.rest, perform: self.onEditedRest)
+                    Button("?", action: onRestHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 // target reps
                 // apparatus (conditional)
             }
@@ -80,6 +89,14 @@ struct EditMaxRepsView: View {
     func refresh() {
         self.name = exercise.name
         self.reps = exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])"
+        
+        switch exercise.modality.sets {
+        case .maxReps(restSecs: let r, targetReps: let t):
+            self.rest = r.map({restToStr($0)}).joined(separator: " ")
+            self.target = t != nil ? "\(t!)" : ""
+        default:
+            assert(false)
+        }
     }
     
     func hasError() -> Bool {
@@ -122,18 +139,23 @@ struct EditMaxRepsView: View {
         }
     }
     
-    func onEditedRest(_ text: String) {
+    func onEditedRest(_ inText: String) {
         // Note that we don't use comma separated lists because that's more visual noise and
         // because some locales use commas for the decimal points.
+        let text = inText.trimmingCharacters(in: .whitespaces)
+        if text.isEmpty {
+            self.errText = "Rest needs at least one set"
+            self.errColor = .red
+            return
+        }
         for token in text.split(separator: " ") {
-            if let reps = Int(token) {
-                if reps <= 0 {
-                    self.errText = "Reps should be greater than zero (found \(reps))"
-                    self.errColor = .red
-                }
-            } else {
-                self.errText = "Expected a number for reps (found '\(token)')"
+            switch strToRest(String(token)) {
+            case .right(_):
+                self.errText = ""
+            case .left(let err):
+                self.errText = err
                 self.errColor = .red
+                return                  // bail on the first error
             }
         }
     }
@@ -149,6 +171,11 @@ struct EditMaxRepsView: View {
         self.showHelp = true
     }
     
+    func onRestHelp() {
+        self.helpText = "The amount of time to rest after each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
+        self.showHelp = true
+    }
+    
     func onCancel() {
         self.exercise.restore(self.original)
         self.presentationMode.wrappedValue.dismiss()
@@ -157,6 +184,10 @@ struct EditMaxRepsView: View {
     func onOK() {
         self.exercise.name = self.name.trimmingCharacters(in: .whitespaces)
         self.exercise.expected.reps = self.reps.isEmpty ? [] : [Int(self.reps)!]    // TODO: use isEmptyOrBlank
+        
+        let target = Int(self.target)
+        let rest = self.rest.split(separator: " ").map({strToRest(String($0)).unwrap()})
+        exercise.modality.sets = .maxReps(restSecs: rest, targetReps: target)
 
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()

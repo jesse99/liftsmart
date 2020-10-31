@@ -6,8 +6,6 @@ struct ExerciseMaxRepsView: View {
     let workout: Workout
     var exercise: Exercise
     var history: History
-    let restSecs: [Int]
-    let targetReps: Int?
     var timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
     @State var title: String = ""
     @State var subTitle: String = ""
@@ -15,6 +13,8 @@ struct ExerciseMaxRepsView: View {
     @State var startLabel: String = ""
     @State var completed: Int = 0   // number of reps the user has done so far
     @State var lastReps: Int? = nil // number of reps user did in the last set
+    @State var restSecs: [Int] = []
+    @State var targetReps: Int? = nil
     @State var startTimer: Bool = false
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
@@ -29,16 +29,6 @@ struct ExerciseMaxRepsView: View {
         self.workout = workout
         self.exercise = exercise
         self.history = history
-
-        switch exercise.modality.sets {
-        case .maxReps(let rs, targetReps: let t):
-            self.restSecs = rs
-            self.targetReps = t
-        default:
-            assert(false)   // exercise must use maxReps sets
-            self.restSecs = []
-            self.targetReps = nil
-        }
     }
     
     var body: some View {
@@ -86,7 +76,6 @@ struct ExerciseMaxRepsView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
-                Button("Options", action: onOptions).font(.callout)
                 Button("Edit", action: onEdit)
                     .font(.callout)
                     .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditMaxRepsView(workout: self.workout, exercise: self.exercise)}
@@ -156,6 +145,16 @@ struct ExerciseMaxRepsView: View {
     }
 
     func refresh() {
+        switch exercise.modality.sets {
+        case .maxReps(let rs, targetReps: let t):
+            self.restSecs = rs
+            self.targetReps = t
+        default:
+            assert(false)   // exercise must use maxReps sets
+            self.restSecs = []
+            self.targetReps = nil
+        }
+
         self.underway = self.restSecs.count > 1 && exercise.current!.setIndex > 0
 
         if exercise.current!.setIndex < restSecs.count {
@@ -224,11 +223,7 @@ struct ExerciseMaxRepsView: View {
     func onNotes() {
         print("Pressed options")  // TODO: implement
     }
-    
-    func onOptions() {
-        print("Pressed options")  // TODO: implement
-    }
-    
+        
     func onNextOrDone() {
         if exercise.current!.setIndex < restSecs.count {
             self.updateRepsDone = true
