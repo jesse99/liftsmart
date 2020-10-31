@@ -8,7 +8,7 @@ class Expected: CustomDebugStringConvertible, Storable {
     
     // for maxReps this will have one entry for the total reps the user is expected to do
     // for repRanges this will have entries for each work and backoff set, note that this does override the reps within the set
-    var reps: [Int]         // TODO: may want to reset this if user edits reps (that would also help to avoud reps.count and sets.count getting out of sync)
+    var reps: [Int]         // TODO: may want to reset this if user edits reps (that would also help to avoid reps.count and sets.count getting out of sync)
 
     init(weight: Double, reps: [Int] = []) {        // TODO: should this be failable?
         assert(weight >= 0.0)
