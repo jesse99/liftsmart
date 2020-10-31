@@ -25,7 +25,6 @@ struct EditMaxRepsView: View {
     }
 
     // TODO:
-    // target reps
     // weight (probably need a new view for non-bodyweight apparatus)
     // formal name (will need a new view for this)
     var body: some View {
@@ -62,7 +61,15 @@ struct EditMaxRepsView: View {
                         .onChange(of: self.rest, perform: self.onEditedRest)
                     Button("?", action: onRestHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                // target reps
+                HStack {
+                    Text("Target Reps:").font(.headline)
+                    TextField("", text: self.$target)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.numberPad)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.target, perform: self.onEditedTarget)
+                    Button("?", action: onTargetHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 // apparatus (conditional)
             }
             Spacer()
@@ -160,6 +167,24 @@ struct EditMaxRepsView: View {
         }
     }
 
+    func onEditedTarget(_ inText: String) {
+        let text = inText.trimmingCharacters(in: .whitespaces)
+        if text.isEmpty {
+            return
+        }
+        if let reps = Int(text) {
+            if reps <= 0 {
+                self.errText = "Target reps should be greater than zero (found \(reps))"
+                self.errColor = .red
+            } else {
+                self.errText = ""
+            }
+        } else {
+            self.errText = "Expected a number for target reps (found '\(text)')"
+            self.errColor = .red
+        }
+    }
+    
     // TODO: Ideally this woule be some sort of markdown popup anchored at the corresponding view.
     func onNameHelp() {
         self.helpText = "Your name for the exercise, e.g. 'Light OHP'."
@@ -173,6 +198,11 @@ struct EditMaxRepsView: View {
     
     func onRestHelp() {
         self.helpText = "The amount of time to rest after each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
+        self.showHelp = true
+    }
+    
+    func onTargetHelp() {
+        self.helpText = "The goal for this particular exercise. Often when the goal is reached weight is increased or a harder variant of the exercise is used. Empty means that there is no target,"
         self.showHelp = true
     }
     

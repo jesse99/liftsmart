@@ -14,7 +14,6 @@ struct ExerciseMaxRepsView: View {
     @State var completed: Int = 0   // number of reps the user has done so far
     @State var lastReps: Int? = nil // number of reps user did in the last set
     @State var restSecs: [Int] = []
-    @State var targetReps: Int? = nil
     @State var startTimer: Bool = false
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
@@ -146,13 +145,11 @@ struct ExerciseMaxRepsView: View {
 
     func refresh() {
         switch exercise.modality.sets {
-        case .maxReps(let rs, targetReps: let t):
+        case .maxReps(let rs, targetReps: _):   // TODO: shouldn't we do something with targetReps? wizard?
             self.restSecs = rs
-            self.targetReps = t
         default:
             assert(false)   // exercise must use maxReps sets
             self.restSecs = []
-            self.targetReps = nil
         }
 
         self.underway = self.restSecs.count > 1 && exercise.current!.setIndex > 0
