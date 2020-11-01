@@ -10,6 +10,7 @@ struct EditMaxRepsView: View {
     let original: Exercise
     @State var name = ""
     @State var reps = ""
+    @State var weight = "0.0"
     @State var target = ""
     @State var rest = ""
     @State var errText = ""
@@ -25,7 +26,6 @@ struct EditMaxRepsView: View {
     }
 
     // TODO:
-    // weight (probably need a new view for non-bodyweight apparatus)
     // formal name (will need a new view for this)
     var body: some View {
         VStack() {
@@ -42,7 +42,15 @@ struct EditMaxRepsView: View {
                     Button("?", action: onNameHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 // formal name
-                // weight
+                HStack {
+                    Text("Weight:").font(.headline)
+                    TextField("", text: self.$weight)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.decimalPad)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.weight, perform: self.onEditedWeight)
+                    Button("?", action: onWeightHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 HStack {
                     Text("Reps:").font(.headline)
                     TextField("", text: self.$reps)
@@ -96,6 +104,7 @@ struct EditMaxRepsView: View {
     func refresh() {
         self.name = exercise.name
         self.reps = exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])"
+        self.weight = String(format: "%.3f", exercise.expected.weight)
         
         switch exercise.modality.sets {
         case .maxReps(restSecs: let r, targetReps: let t):
@@ -142,6 +151,20 @@ struct EditMaxRepsView: View {
             }
         } else {
             self.errText = "Expected a number for reps (found '\(text)')"
+            self.errColor = .red
+        }
+    }
+    
+    func onEditedWeight(_ text: String) {
+        if let weight = Double(text) {
+            if weight < 0.0 {
+                self.errText = "Weight cannot be negative (found \(weight))"
+                self.errColor = .red
+            } else {
+                self.errText = ""
+            }
+        } else {
+            self.errText = "Expected a floating point number for weight (found '\(text)')"
             self.errColor = .red
         }
     }
@@ -196,6 +219,15 @@ struct EditMaxRepsView: View {
         self.showHelp = true
     }
     
+    // TODO:
+    // Probably want to handle weight differently for different apparatus. For example, for barbell
+    // could use a picker like formal name uses: user can type in a weight and then is able to see
+    // all the nearby weights and select one if he wants.
+    func onWeightHelp() {
+        self.helpText = "An arbitrary weight. For stuff like barbells the app will use the closest supported weight below this weight."
+        self.showHelp = true
+    }
+    
     func onRestHelp() {
         self.helpText = "The amount of time to rest after each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
         self.showHelp = true
@@ -214,6 +246,7 @@ struct EditMaxRepsView: View {
     func onOK() {
         self.exercise.name = self.name.trimmingCharacters(in: .whitespaces)
         self.exercise.expected.reps = self.reps.isEmpty ? [] : [Int(self.reps)!]    // TODO: use isEmptyOrBlank
+        self.exercise.expected.weight = Double(self.weight)!
         
         let target = Int(self.target)
         let rest = self.rest.split(separator: " ").map({strToRest(String($0)).unwrap()})
