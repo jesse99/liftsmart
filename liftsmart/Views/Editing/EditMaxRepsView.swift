@@ -9,6 +9,7 @@ struct EditMaxRepsView: View {
     var exercise: Exercise
     let original: Exercise
     @State var name = ""
+    @State var formalName = ""
     @State var reps = ""
     @State var weight = "0.0"
     @State var target = ""
@@ -17,6 +18,7 @@ struct EditMaxRepsView: View {
     @State var errColor = Color.red
     @State var showHelp = false
     @State var helpText = ""
+    @State var formalNameModal = false
     @Environment(\.presentationMode) private var presentationMode
     
     init(workout: Workout, exercise: Exercise) {
@@ -25,8 +27,6 @@ struct EditMaxRepsView: View {
         self.original = exercise.clone()
     }
 
-    // TODO:
-    // formal name (will need a new view for this)
     var body: some View {
         VStack() {
             Text("Edit Exercise").font(.largeTitle)
@@ -41,7 +41,14 @@ struct EditMaxRepsView: View {
                         .onChange(of: self.name, perform: self.onEditedName)
                     Button("?", action: onNameHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                // formal name
+                HStack {
+                    Text("Formal Name:").font(.headline)
+                    Button(self.formalName, action: {self.formalNameModal = true})
+                        .font(.callout)
+                        .sheet(isPresented: self.$formalNameModal) {PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: self.onMatchFormalName, confirm: onEditedFormalName)}
+                    Spacer()
+                    Button("?", action: onFormalNameHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 HStack {
                     Text("Weight:").font(.headline)
                     TextField("", text: self.$weight)
@@ -103,6 +110,7 @@ struct EditMaxRepsView: View {
     
     func refresh() {
         self.name = exercise.name
+        self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.reps = exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])"
         self.weight = String(format: "%.3f", exercise.expected.weight)
         
@@ -139,6 +147,42 @@ struct EditMaxRepsView: View {
         } else {
             self.errText = ""
         }
+    }
+    
+    func onMatchFormalName(_ inText: String) -> [String] {
+        var names: [String] = []
+        
+        // TODO: better to do a proper fuzzy search
+        let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+
+        // First match any custom names defined by the user.
+        for candidate in userNotes.keys {
+            if defaultNotes[candidate] == nil {
+                let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+                if haystack.contains(needle) {
+                    names.append(candidate)
+                }
+            }
+        }
+        
+        // Then match the standard names.
+        for candidate in defaultNotes.keys {
+            let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+            if haystack.contains(needle) {
+                names.append(candidate)
+            }
+            
+            // Not much point in showing the user a huge list of names.
+            if names.count >= 100 {
+                break
+            }
+        }
+
+        return names
+    }
+    
+    func onEditedFormalName(_ text: String) {
+        self.formalName = text
     }
     
     func onEditedReps(_ text: String) {
@@ -214,6 +258,11 @@ struct EditMaxRepsView: View {
         self.showHelp = true
     }
     
+    func onFormalNameHelp() {
+        self.helpText = "The actual name for the exercise, e.g. 'Overhead Press'. This is used to lookup notes for the exercise."
+        self.showHelp = true
+    }
+    
     func onRepsHelp() {
         self.helpText = "The number of reps you expect to do across all the sets, e.g. '60'."
         self.showHelp = true
@@ -245,6 +294,7 @@ struct EditMaxRepsView: View {
 
     func onOK() {
         self.exercise.name = self.name.trimmingCharacters(in: .whitespaces)
+        self.exercise.formalName = self.formalName
         self.exercise.expected.reps = self.reps.isEmpty ? [] : [Int(self.reps)!]    // TODO: use isEmptyOrBlank
         self.exercise.expected.weight = Double(self.weight)!
         

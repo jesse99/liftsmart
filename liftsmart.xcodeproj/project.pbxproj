@@ -14,6 +14,7 @@
 		37412F592482426D00FA78A7 /* ExerciseDurationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */; };
 		37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F5A2482D5C400FA78A7 /* WorkoutView.swift */; };
 		37455C0024AB07B200C26AD0 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37455BFF24AB07B200C26AD0 /* HistoryView.swift */; };
+		374896D5254F31C60030D7B2 /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374896D4254F31C60030D7B2 /* PickerView.swift */; };
 		374F97DD248C25A50062EE0B /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374F97DC248C25A50062EE0B /* DateExtension.swift */; };
 		3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */; };
 		3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA6124B1A84A00EF604A /* RestartableTimer.swift */; };
@@ -69,6 +70,7 @@
 		37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDurationsView.swift; sourceTree = "<group>"; };
 		37412F5A2482D5C400FA78A7 /* WorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
 		37455BFF24AB07B200C26AD0 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		374896D4254F31C60030D7B2 /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		374F97DC248C25A50062EE0B /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalExtension.swift; sourceTree = "<group>"; };
 		3766CA6124B1A84A00EF604A /* RestartableTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestartableTimer.swift; sourceTree = "<group>"; };
@@ -193,6 +195,7 @@
 				3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */,
 				37455BFF24AB07B200C26AD0 /* HistoryView.swift */,
 				376AF37A24CC053000AEAE1C /* NoteView.swift */,
+				374896D4254F31C60030D7B2 /* PickerView.swift */,
 				378D567324830271006A041C /* ProgramView.swift */,
 				378D567524842C95006A041C /* TimerView.swift */,
 				37412F5A2482D5C400FA78A7 /* WorkoutView.swift */,
@@ -380,6 +383,7 @@
 				37DEA437247C46B1008297A2 /* Programs.swift in Sources */,
 				376987C1244B95D30021D0FB /* SceneDelegate.swift in Sources */,
 				376AF37924CC018C00AEAE1C /* Notes.swift in Sources */,
+				374896D5254F31C60030D7B2 /* PickerView.swift in Sources */,
 				376987C3244B95D30021D0FB /* ContentView.swift in Sources */,
 				37412F592482426D00FA78A7 /* ExerciseDurationsView.swift in Sources */,
 				378D567824843AB9006A041C /* FriendlyStrings.swift in Sources */,

@@ -71,7 +71,6 @@ struct HistoryView: View {
                     .onTapGesture {self.showEditActions = true; self.editIndex = entry.id}
             }
             
-            Divider()
             HStack {
                 Button("Done", action: onDone).font(.callout)
             }
