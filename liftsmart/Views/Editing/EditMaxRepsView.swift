@@ -2,9 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-var editMaxRepsID: Int = 0
-
-struct EditMaxRepsView: View {
+struct EditMaxRepsView: View, NameContext {
     let workout: Workout
     var exercise: Exercise
     let original: Exercise
@@ -32,15 +30,7 @@ struct EditMaxRepsView: View {
             Text("Edit Exercise").font(.largeTitle)
 
             VStack(alignment: .leading) {
-                HStack {
-                    Text("Name:").font(.headline)
-                    TextField("", text: self.$name)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.default)
-                        .disableAutocorrection(true)
-                        .onChange(of: self.name, perform: self.onEditedName)
-                    Button("?", action: onNameHelp).font(.callout).padding(.trailing)
-                }.padding(.leading)
+                createnameView(text: self.$name, self)
                 HStack {
                     Text("Formal Name:").font(.headline)
                     Button(self.formalName, action: {self.formalNameModal = true})
@@ -125,28 +115,6 @@ struct EditMaxRepsView: View {
     
     func hasError() -> Bool {
         return !self.errText.isEmpty && self.errColor == .red
-    }
-    
-    func onEditedName(_ text: String) {
-        func isDuplicateName(_ name: String) -> Bool {
-            for candidate in self.workout.exercises {
-                if candidate !== self.exercise && candidate.name == name {
-                    return true
-                }
-            }
-            return false
-        }
-        
-        let name = text.trimmingCharacters(in: .whitespaces)
-        if name.isEmpty {
-            self.errText = "Name cannot be empty"
-            self.errColor = .red
-        } else if isDuplicateName(name) {
-            self.errText = "Name matches another exercise in the workout"
-            self.errColor = .orange
-        } else {
-            self.errText = ""
-        }
     }
     
     func onMatchFormalName(_ inText: String) -> [String] {
@@ -250,12 +218,6 @@ struct EditMaxRepsView: View {
             self.errText = "Expected a number for target reps (found '\(text)')"
             self.errColor = .red
         }
-    }
-    
-    // TODO: Ideally this woule be some sort of markdown popup anchored at the corresponding view.
-    func onNameHelp() {
-        self.helpText = "Your name for the exercise, e.g. 'Light OHP'."
-        self.showHelp = true
     }
     
     func onFormalNameHelp() {
