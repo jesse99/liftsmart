@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditMaxRepsView: View, NameContext {
+struct EditMaxRepsView: View, EditContext {
     let workout: Workout
     var exercise: Exercise
     let original: Exercise
@@ -30,24 +30,9 @@ struct EditMaxRepsView: View, NameContext {
             Text("Edit Exercise").font(.largeTitle)
 
             VStack(alignment: .leading) {
-                createnameView(text: self.$name, self)
-                HStack {
-                    Text("Formal Name:").font(.headline)
-                    Button(self.formalName, action: {self.formalNameModal = true})
-                        .font(.callout)
-                        .sheet(isPresented: self.$formalNameModal) {PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: self.onMatchFormalName, confirm: onEditedFormalName)}
-                    Spacer()
-                    Button("?", action: onFormalNameHelp).font(.callout).padding(.trailing)
-                }.padding(.leading)
-                HStack {
-                    Text("Weight:").font(.headline)
-                    TextField("", text: self.$weight)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.decimalPad)
-                        .disableAutocorrection(true)
-                        .onChange(of: self.weight, perform: self.onEditedWeight)
-                    Button("?", action: onWeightHelp).font(.callout).padding(.trailing)
-                }.padding(.leading)
+                createNameView(text: self.$name, self)
+                createFormalNameView(text: self.$formalName, modal: self.$formalNameModal, self)
+                createWeightView(text: self.$weight, self)
                 HStack {
                     Text("Reps:").font(.headline)
                     TextField("", text: self.$reps)
@@ -57,15 +42,7 @@ struct EditMaxRepsView: View, NameContext {
                         .onChange(of: self.reps, perform: self.onEditedReps)
                     Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                HStack {
-                    Text("Rest:").font(.headline)
-                    TextField("", text: self.$rest)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.default)
-                        .disableAutocorrection(true)
-                        .onChange(of: self.rest, perform: self.onEditedRest)
-                    Button("?", action: onRestHelp).font(.callout).padding(.trailing)
-                }.padding(.leading)
+                createRestView(text: self.$rest, self)
                 HStack {
                     Text("Target Reps:").font(.headline)
                     TextField("", text: self.$target)
@@ -117,42 +94,6 @@ struct EditMaxRepsView: View, NameContext {
         return !self.errText.isEmpty && self.errColor == .red
     }
     
-    func onMatchFormalName(_ inText: String) -> [String] {
-        var names: [String] = []
-        
-        // TODO: better to do a proper fuzzy search
-        let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
-
-        // First match any custom names defined by the user.
-        for candidate in userNotes.keys {
-            if defaultNotes[candidate] == nil {
-                let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
-                if haystack.contains(needle) {
-                    names.append(candidate)
-                }
-            }
-        }
-        
-        // Then match the standard names.
-        for candidate in defaultNotes.keys {
-            let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
-            if haystack.contains(needle) {
-                names.append(candidate)
-            }
-            
-            // Not much point in showing the user a huge list of names.
-            if names.count >= 100 {
-                break
-            }
-        }
-
-        return names
-    }
-    
-    func onEditedFormalName(_ text: String) {
-        self.formalName = text
-    }
-    
     func onEditedReps(_ text: String) {
         if let reps = Int(text) {
             if reps <= 0 {
@@ -166,42 +107,7 @@ struct EditMaxRepsView: View, NameContext {
             self.errColor = .red
         }
     }
-    
-    func onEditedWeight(_ text: String) {
-        if let weight = Double(text) {
-            if weight < 0.0 {
-                self.errText = "Weight cannot be negative (found \(weight))"
-                self.errColor = .red
-            } else {
-                self.errText = ""
-            }
-        } else {
-            self.errText = "Expected a floating point number for weight (found '\(text)')"
-            self.errColor = .red
-        }
-    }
-    
-    func onEditedRest(_ inText: String) {
-        // Note that we don't use comma separated lists because that's more visual noise and
-        // because some locales use commas for the decimal points.
-        let text = inText.trimmingCharacters(in: .whitespaces)
-        if text.isEmpty {
-            self.errText = "Rest needs at least one set"
-            self.errColor = .red
-            return
-        }
-        for token in text.split(separator: " ") {
-            switch strToRest(String(token)) {
-            case .right(_):
-                self.errText = ""
-            case .left(let err):
-                self.errText = err
-                self.errColor = .red
-                return                  // bail on the first error
-            }
-        }
-    }
-
+        
     func onEditedTarget(_ inText: String) {
         let text = inText.trimmingCharacters(in: .whitespaces)
         if text.isEmpty {
@@ -219,31 +125,12 @@ struct EditMaxRepsView: View, NameContext {
             self.errColor = .red
         }
     }
-    
-    func onFormalNameHelp() {
-        self.helpText = "The actual name for the exercise, e.g. 'Overhead Press'. This is used to lookup notes for the exercise."
-        self.showHelp = true
-    }
-    
+        
     func onRepsHelp() {
         self.helpText = "The number of reps you expect to do across all the sets, e.g. '60'."
         self.showHelp = true
     }
-    
-    // TODO:
-    // Probably want to handle weight differently for different apparatus. For example, for barbell
-    // could use a picker like formal name uses: user can type in a weight and then is able to see
-    // all the nearby weights and select one if he wants.
-    func onWeightHelp() {
-        self.helpText = "An arbitrary weight. For stuff like barbells the app will use the closest supported weight below this weight."
-        self.showHelp = true
-    }
-    
-    func onRestHelp() {
-        self.helpText = "The amount of time to rest after each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
-        self.showHelp = true
-    }
-    
+        
     func onTargetHelp() {
         self.helpText = "The goal for this particular exercise. Often when the goal is reached weight is increased or a harder variant of the exercise is used. Empty means that there is no target,"
         self.showHelp = true
