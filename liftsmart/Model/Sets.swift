@@ -14,23 +14,23 @@ func restToStr(_ secs: Int) -> String {
     }
 }
 
-func strToRest(_ inText: String) -> Either<String, Int> {
+func strToRest(_ inText: String, label: String = "rest") -> Either<String, Int> {
     func convert(_ text: String, scaleBy: Double) -> Either<String, Int> {
         if var secs = Double(text) {
             secs *= scaleBy
             if secs < 0.0 {
-                return .left("Rest should be positive (not \(secs))")
+                return .left("\(label.capitalized) should be positive (not \(secs))")
             } else {
                 return .right(Int(secs))
             }
         } else {
-            return .left("Expected a rest value (not \(text))")
+            return .left("Expected a \(label) value (not \(text))")
         }
     }
     
     let txt = inText.trimmingCharacters(in: .whitespaces)
     switch txt.last ?? "\u{3}" {
-    case "\u{3}": return .left("Expected a rest time but found nothing") // End-of-text
+    case "\u{3}": return .left("Expected a \(label) time but found nothing") // End-of-text
     case "m": return convert(String(txt.dropLast()), scaleBy: 60.0)
     case "s": return convert(String(txt.dropLast()), scaleBy: 1.0)
     case "0"..."9": return convert(txt, scaleBy: 1.0)

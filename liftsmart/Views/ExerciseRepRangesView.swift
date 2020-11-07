@@ -93,7 +93,7 @@ struct ExerciseRepRangesView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
-                Button("Options", action: onOptions).font(.callout)
+                Button("Edit", action: onEdit).font(.callout)
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -196,8 +196,8 @@ struct ExerciseRepRangesView: View {
         print("Pressed options")  // TODO: implement
     }
     
-    func onOptions() {
-        print("Pressed options")  // TODO: implement
+    func onEdit() {
+        print("Pressed edit")  // TODO: implement
     }
     
     func onNextOrDone() {

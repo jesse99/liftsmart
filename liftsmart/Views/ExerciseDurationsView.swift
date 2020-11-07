@@ -13,6 +13,7 @@ struct ExerciseDurationsView: View {
     @State var subTitle: String = ""
     @State var startLabel: String = ""
     @State var startModal: Bool = false
+    @State var editModal = false
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
     @State var noteModal: Bool = false
@@ -66,7 +67,9 @@ struct ExerciseDurationsView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
-                Button("Options", action: onOptions).font(.callout)
+                Button("Edit", action: onEdit)
+                    .font(.callout)
+                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditDurationsView(workout: self.workout, exercise: self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -132,8 +135,8 @@ struct ExerciseDurationsView: View {
         print("Pressed options")  // TODO: implement
     }
     
-    func onOptions() {
-        print("Pressed options")  // TODO: implement
+    func onEdit() {
+        self.editModal = true
     }
     
     func onStart() {

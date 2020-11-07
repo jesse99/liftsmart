@@ -67,6 +67,7 @@ struct EditMaxRepsView: View, EditContext {
             .padding()
             .onAppear {self.refresh()}
         }
+//        .modifier(ShowHelp(showing: $showHelp, context: self))
         .alert(isPresented: $showHelp) {   // and views can only have one alert
             return Alert(
                 title: Text("Help"),
@@ -167,7 +168,7 @@ struct EditMaxRepsView_Previews: PreviewProvider {
     static let workout = createWorkout("Strength", [curls()], day: nil).unwrap()
 
     static var previews: some View {
-        EditMaxRepsView(workout: workout, exercise: curls())
+        EditMaxRepsView(workout: workout, exercise: workout.exercises[0])
     }
 }
 

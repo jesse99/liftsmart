@@ -13,6 +13,23 @@ protocol EditContext {
     var helpText: String {get set}
 }
 
+// TODO: Not using this because it does not work the first time a help button is clicked (there's no help text).
+// It does work once you click a different help button.
+struct ShowHelp: ViewModifier {
+    let showing: Binding<Bool>
+    let context: EditContext
+    
+    func body(content: Content) -> some View {
+        return content
+            .alert(isPresented: showing) {
+                return Alert(
+                    title: Text("Help"),
+                    message: Text(context.helpText),
+                    dismissButton: .default(Text("OK")))
+            }
+    }
+}
+
 func createNameView(text: Binding<String>, _ context: EditContext) -> some View {
     func editedName(_ text: String, _ inContext: EditContext) {
         func isDuplicateName(_ name: String) -> Bool {
@@ -146,8 +163,10 @@ func createWeightView(text: Binding<String>, _ context: EditContext) -> some Vie
     }.padding(.leading)
 }
 
+typealias ExtraValidator = (String) -> String?   // additional validation
+
 // This is for a list of rest times.
-func createRestView(text: Binding<String>, _ context: EditContext) -> some View {
+func createRestView(text: Binding<String>, _ context: EditContext, extra: ExtraValidator? = nil) -> some View {
     func editedRest(_ inText: String, _ inContext: EditContext) {
         // Note that we don't use comma separated lists because that's more visual noise and
         // because some locales use commas for the decimal points.
@@ -161,13 +180,19 @@ func createRestView(text: Binding<String>, _ context: EditContext) -> some View 
         for token in text.split(separator: " ") {
             switch strToRest(String(token)) {
             case .right(_):
-                context.errText = ""
+                break
             case .left(let err):
                 context.errText = err
                 context.errColor = .red
                 return                  // bail on the first error
             }
         }
+        if let e = extra, let err = e(text) {
+            context.errText = err
+            context.errColor = .red
+            return
+        }
+        context.errText = ""
     }
 
     func restHelp(_ inContext: EditContext) {
