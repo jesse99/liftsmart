@@ -3,6 +3,67 @@
 import Foundation
 
 func home() -> Program {
+    // https://www.defrancostraining.com/joe-ds-qlimber-11q-flexibility-routine/
+    func formRolling() -> Exercise {
+        let work = RepsSet(reps: RepRange(15)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Foam Rolling", "IT-Band Foam Roll", modality)
+    }
+
+    func ironCross() -> Exercise {
+        let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Bent-knee Iron Cross", "Bent-knee Iron Cross", modality)
+    }
+
+    func vSit() -> Exercise {
+        let work = RepsSet(reps: RepRange(15)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Roll-over into V-sit", "Roll-over into V-sit", modality)
+    }
+
+    func frog() -> Exercise {
+        let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Rocking Frog Stretch", "Rocking Frog Stretch", modality)
+    }
+
+    func fireHydrant() -> Exercise {
+        let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Fire Hydrant Hip Circle", "Fire Hydrant Hip Circle", modality)
+    }
+
+    func mountain() -> Exercise {
+        let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Mountain Climber", "Mountain Climber", modality)
+    }
+
+    func cossack() -> Exercise {
+        let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Cossack Squat", "Seated Piriformis Stretch", modality)
+    }
+
+    func piriformis() -> Exercise {
+        let sets = Sets.durations([DurationSet(secs: 30, restSecs: 0)!, DurationSet(secs: 30, restSecs: 0)!])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Piriformis Stretch", "Cossack Squat", modality)
+    }
+
+    
+    
+    
+    
+    
     func burpees1() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
@@ -118,15 +179,17 @@ func home() -> Program {
 //        planks(), curls()], day: nil)!
 //    let strength = Workout("Strength", [
 //        planks(), curls()], days: [.monday, .wednesday, .friday])!
-    let cardio = createWorkout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil).unwrap()
+//    let cardio = createWorkout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil).unwrap()
     let rehab = createWorkout("Rehab", [
-        shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.monday, .tuesday, .wednesday, .thursday, .friday]).unwrap()
-    let strength = createWorkout("Strength", [
-        splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday]).unwrap()
+                                shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
+    let mobility = createWorkout("Mobility", [formRolling(), ironCross(), vSit(), frog(), fireHydrant(), mountain(), cossack(), piriformis()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
+//    let strength = createWorkout("Strength", [
+//        splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday]).unwrap()
 
-    let workouts = [rehab, strength, cardio]
+    let workouts = [rehab, mobility]
     return Program("Home", workouts)
 }
 
 var program = home()
 var history = History()
+
