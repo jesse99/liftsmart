@@ -4,10 +4,12 @@
 }
 {\colortbl;\red255\green255\blue255;\red170\green13\blue145;\red0\green0\blue0;\red11\green79\blue121;
 \red63\green110\blue116;\red92\green38\blue153;\red15\green104\blue160;\red0\green116\blue0;\red196\green26\blue22;
-\red0\green0\blue233;\red2\green2\blue2;\red27\green31\blue34;\red255\green255\blue255;}
+\red0\green0\blue233;\red2\green2\blue2;\red38\green71\blue75;\red28\green0\blue207;\red27\green31\blue34;
+\red255\green255\blue255;}
 {\*\expandedcolortbl;;\csgenericrgb\c66500\c5200\c56900;\csgenericrgb\c0\c0\c0;\csgenericrgb\c4314\c30980\c47451;
 \csgenericrgb\c24700\c43100\c45600;\csgenericrgb\c35900\c14900\c60100;\csgenericrgb\c5882\c40784\c62745;\csgenericrgb\c0\c45600\c0;\csgenericrgb\c77000\c10200\c8600;
-\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\cssrgb\c14118\c16078\c18039;\cssrgb\c100000\c100000\c100000;}
+\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\csgenericrgb\c14900\c27800\c29400;\csgenericrgb\c11000\c0\c81000;\cssrgb\c14118\c16078\c18039;
+\cssrgb\c100000\c100000\c100000;}
 \deftab816
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
@@ -63,10 +65,10 @@ class\cf3  \cf4 Exercise\cf3 : \cf6 Hashable\cf3 , \cf6 Identifiable\cf3  \{\
 \f1\fs36 \cf10 \expnd0\expndtw0\kerning0
 \ul \ulc10 \
 \pard\pardeftab720\partightenfactor0
-{\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/creating-and-combining-views"}}{\fldrslt \cf10 \ulc10 https://developer.apple.com/tutorials/swiftui/creating-and-combining-views}}\
+{\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/creating-and-combining-views"}}{\fldrslt \cf10 https://developer.apple.com/tutorials/swiftui/creating-and-combining-views}}\
 \pard\pardeftab720\partightenfactor0
 
-\fs24 \cf10 \ulc10 \
+\fs24 \cf10 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\fs48 \cf11 \kerning1\expnd0\expndtw0 \ulnone Personal - user data, e.g. sex, age, and fitness\
@@ -84,7 +86,37 @@ Program = Workouts + Plan + Advisor(?)\
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
 \f0\fs34 \cf3 \
-\cf2 struct\cf3  \cf4 DurationSet\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+
+\fs36 \cf3         \cf12 bodyweight\cf3 (\cf9 "Foam Rolling"\cf3 ,            \cf9 "IT-Band Foam Roll"\cf3 ,         \cf13 1\cf3 , by: \cf13 15\cf3 ),\
+        \cf12 bodyweight\cf3 (\cf9 "Bent-knee Iron Cross"\cf3 ,    \cf9 "Bent-knee Iron Cross"\cf3 ,      \cf13 1\cf3 , by: \cf13 10\cf3 ),\
+        \cf12 bodyweight\cf3 (\cf9 "Roll-over into V-sit"\cf3 ,    \cf9 "Roll-over into V-sit"\cf3 ,      \cf13 1\cf3 , by: \cf13 15\cf3 ),\
+        \cf12 bodyweight\cf3 (\cf9 "Rocking Frog Stretch"\cf3 ,    \cf9 "Rocking Frog Stretch"\cf3 ,      \cf13 1\cf3 , by: \cf13 10\cf3 ),\
+        \cf12 bodyweight\cf3 (\cf9 "Fire Hydrant Hip Circle"\cf3 , \cf9 "Fire Hydrant Hip Circle"\cf3 ,   \cf13 1\cf3 , by: \cf13 10\cf3 ),\
+        \cf12 bodyweight\cf3 (\cf9 "Mountain Climber"\cf3 ,        \cf9 "Mountain Climber"\cf3 ,          \cf13 1\cf3 , by: \cf13 10\cf3 ),\
+        \cf12 bodyweight\cf3 (\cf9 "Cossack Squat"\cf3 ,           \cf9 "Cossack Squat"\cf3 ,             \cf13 1\cf3 , by: \cf13 10\cf3 ),\
+        \cf12 bodyweight\cf3 (\cf9 "Piriformis Stretch"\cf3 ,      \cf9 "Seated Piriformis Stretch"\cf3 , \cf13 2\cf3 , secs: \cf13 30\cf3 ),\
+\
+
+\fs34     \cf9 "Circuit1"\cf3 : \cf12 createNote\cf3 (\
+        notes: [],\
+        links: [\cf9 "Link"\cf3 : \cf9 "https://experiencelife.com/article/the-dumbbell-complex-workout"\cf3 ]),\
+    \
+    \cf9 "Circuit2"\cf3 : \cf12 createNote\cf3 (\
+        notes: [],\
+        links: [\cf9 "Link"\cf3 : \cf9 "https://experiencelife.com/article/the-dumbbell-complex-workout"\cf3 ]),\
+    \
+    \cf9 "Circuit3"\cf3 : \cf12 createNote\cf3 (\
+        notes: [],\
+        links: [\cf9 "Link"\cf3 : \cf9 "https://experiencelife.com/article/the-dumbbell-complex-workout"\cf3 ]),\
+\
+PerryComplex\
+DBCircuit\
+fixedSubTitle was used to avoid finding a weight    \
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+\cf2 \
+\
+struct\cf3  \cf4 DurationSet\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
     \cf2 let\cf3  \cf7 secs\cf3 : \cf6 Int\cf3 \
     \cf2 let\cf3  \cf7 restSecs\cf3 : \cf6 Int\cf3 \
 
@@ -99,6 +131,27 @@ enum\cf3  \cf4 Sets\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\fs48 \cf11 \
+is there a good body-weight routine?\
+3 days of strength and other 2 some sort of cardio-like routine?\
+	or a mobility routine?\
+\
+sat
+\f3\b  sun mon 
+\f2\b0 tues
+\f3\b  wed thurs 
+\f2\b0 fri\
+S    S             S              S       S
+\f3\b \
+
+\f2\b0 \
+Worked out 35 times.  
+\f3\b no one really cares about this
+\f2\b0 \
+2, 4, 8, 10 days ago \
+\
+3x in the last week, 10x in the last month\
+\
+\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f3\b \cf11 RepRangesView\
@@ -110,14 +163,6 @@ Weight\
 Durations: [30m 10m 20]  \
 Target: [30m 10m 20]\
 Rest: [30s 30s 0]\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-
-\f3\b \cf11 NoteView\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-
-\f2\b0 \cf11 already have an EditNoteView\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
@@ -127,9 +172,16 @@ Rest: [30s 30s 0]\
 \f2\b0 \cf11 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
+\f3\b \cf11 NoteView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 already have an EditNoteView\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+
 \f3\b \cf11 TimerView?
 \f2\b0 	
-\f4\fs46 \cf12 \cb13 \expnd0\expndtw0\kerning0
+\f4\fs46 \cf14 \cb15 \expnd0\expndtw0\kerning0
 \
 \pard\pardeftab720\sl380\partightenfactor0
 
@@ -170,10 +222,10 @@ Rest: [30s 30s 0]\
 \f1\fs36 \cf10 \expnd0\expndtw0\kerning0
 \ul https://www.raywenderlich.com/7242045-swift-package-manager-for-ios}}
 \f1\fs36 \cf10 \expnd0\expndtw0\kerning0
-\ul \ulc10 \
+\ul \
 \pard\pardeftab720\partightenfactor0
 {\field{\*\fldinst{HYPERLINK "https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/"}}{\fldrslt 
-\fs38 \cf10 \ulc10 https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/}}
+\fs38 \cf10 https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/}}
 \f2\fs48 \cf11 \kerning1\expnd0\expndtw0 \ulnone \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf11 	\
@@ -299,7 +351,8 @@ Dead >\
 
 \f2\b0 \cf11 Set 1 of 1\
 8 reps @ 125 lbs\
-\ul Done\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \ul Done\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
