@@ -163,6 +163,10 @@ struct ExerciseRepRangesView: View {
             self.platesTitle = ""        // TODO: needs to use apparatus
             self.startLabel = "Next"
         }
+        
+        if !exercise.overridePercent.isEmpty {
+            self.percentTitle = exercise.overridePercent
+        }
 
         switch stage() {
         case .warmup:

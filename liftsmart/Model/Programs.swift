@@ -58,10 +58,15 @@ func home() -> Program {
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Piriformis Stretch", "Cossack Squat", modality)
     }
+    
+    // https://www.builtlean.com/2012/04/10/dumbbell-complex
+    func perry() -> Exercise {
+        let work = RepsSet(reps: RepRange(6)!, restSecs: 60)!   // TODO: ideally woulf use no rest
+        let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])  // TODO: want to do up to six sets
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Complex", "Perry Complex", modality, overridePercent: "Squat, Lunge, Row, Curl&Press")
+    }
 
-    
-    
-    
     
     
     func burpees1() -> Exercise {
@@ -180,16 +185,15 @@ func home() -> Program {
 //    let strength = Workout("Strength", [
 //        planks(), curls()], days: [.monday, .wednesday, .friday])!
 //    let cardio = createWorkout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil).unwrap()
-    let rehab = createWorkout("Rehab", [
-                                shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
+    let rehab = createWorkout("Rehab", [shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
     let mobility = createWorkout("Mobility", [formRolling(), ironCross(), vSit(), frog(), fireHydrant(), mountain(), cossack(), piriformis()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
+    let complex = createWorkout("Complex", [perry()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
 //    let strength = createWorkout("Strength", [
 //        splitSquats(), planks(), curls()], days: [.monday, .wednesday, .friday]).unwrap()
 
-    let workouts = [rehab, mobility]
+    let workouts = [rehab, mobility, complex]
     return Program("Home", workouts)
 }
 
 var program = home()
 var history = History()
-

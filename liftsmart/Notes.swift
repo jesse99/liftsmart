@@ -1749,7 +1749,11 @@ let defaultNotes: [String: String] = [
         links: ["Stronglifts": "http://stronglifts.com/barbell-row/", "Video": "https://www.youtube.com/watch?v=Weu9HMHdiDA"]),
     
     "Perry Complex": noteToMarkdown(
-        notes: [],
+        notes: [
+            "Start with a weight you can curl&press 10 times.",
+            "Don't let the dumbbell touch the floor during a set.",
+            "For lunges and curl&press do six reps for each side.",
+            "Aim for no rest between sets."],
         links: ["Link": "https://www.builtlean.com/2012/04/10/dumbbell-complex"]),
     
     "Pike Pushup": noteToMarkdown(
