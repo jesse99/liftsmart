@@ -119,6 +119,28 @@ struct ProgramView: View {
             func isAnyDay(_ days: [Bool]) -> Bool {
                 return days.all({!$0})
             }
+            
+            func ageInDays(_ workout: Workout) -> Double {
+                let now = Date()
+                if let completed = workout.dateCompleted(history) {
+                    return now.daysSinceDate(completed.0)
+                } else {
+                    // If the workout has never been completed then we'll just use a really old date
+                    // so that we can avoid special casing.
+                    return now.daysSinceDate(Date(timeIntervalSinceReferenceDate: 0))
+                }
+            }
+
+            func oldestWorkout(_ entries: [ProgramEntry]) -> Workout? {
+                let oldest = entries.max { (lhs, rhs) -> Bool in
+                    return ageInDays(lhs.workout) < ageInDays(rhs.workout)
+                }
+                return oldest != nil ? oldest?.workout : nil
+            }
+            
+            func agesMatch(_ oldest: Workout, _ workout: Workout) -> Bool {
+                return abs(ageInDays(oldest) - ageInDays(workout)) <= 0.3   // same day if they are within +/- 8 hours (for those whackos who workout through midnight)
+            }
 
             let cal = Calendar.current
             let weekday = cal.component(.weekday, from: Date())
@@ -164,17 +186,15 @@ struct ProgramView: View {
 
                 // If the workout is scheduled for today,
                 } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil {
-                    if todaysWorkouts.count == 1 {
-                        // if it's the only workout that should be done today then we have a clear winner.
+                    if let oldest = oldestWorkout(todaysWorkouts) {
                         entry.subLabel = "today"
-                        entry.subColor = .red
-                    } else {
-                        // otherwise we'll tell the user how long it's been so that he can decide.
-                        if let last = completion.latest {
-                            entry.subLabel = last.friendlyName()
+                        if agesMatch(oldest, entry.workout) {
+                            entry.subColor = .red
                         } else {
-                            entry.subLabel = "never started"
+                            entry.subColor = .orange
                         }
+                    } else {
+                        entry.subLabel = "never started"
                         entry.subColor = .orange
                     }
                     
@@ -214,7 +234,7 @@ struct ProgramView_Previews: PreviewProvider {
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Squats", "Body-weight Squat", modality)
             e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
+            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
             e.current!.setIndex = 1
             return e
         }
@@ -244,6 +264,8 @@ struct ProgramView_Previews: PreviewProvider {
         }
 
         let workouts = [
+            createWorkout("Temp1", [planks(), curls()], day: .friday).unwrap(),
+            createWorkout("Temp2", [squats()], day: .friday).unwrap(),
             createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
             createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),
             createWorkout("Upper", [planks(), curls()], day: .monday).unwrap()]
