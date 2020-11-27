@@ -263,8 +263,10 @@ let defaultNotes: [String: String] = [
     "Bent-knee Iron Cross": noteToMarkdown(
         notes: [
             "Lie on your back with your legs tucked into your chest and your arms spread outwards.",
-            "Keeping legs tucked and shoulders on the floor rotate your legs from side to side."],
-        links: ["Video": "https://www.youtube.com/watch?v=2HYWl009bq0", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
+            "Tuck your knees so that your upper legs are at a ninety angle to the floor"
+            "Keeping legs tucked and shoulders on the floor slowly rotate your legs from side to side.",
+            "Turn your head in the opposite direction as your legs."],
+        links: ["Video": "https://www.youtube.com/watch?v=2HYWl009bq0", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
     
     "Bent Over Dumbbell Row": noteToMarkdown(
         notes: [
@@ -611,14 +613,13 @@ let defaultNotes: [String: String] = [
     
     "Cossack Squat": noteToMarkdown(
         notes: [
-            "Stand with legs stretched out wide and toes out a bit.",
-            "Squat down on one leg so that the other leg is stretched straight out away from you.",
-            "Stand up and squat down on the other leg.",
-            "Heels should remain on the floor though toes can come up.",
+            "Take a wide squat stance with toes pointed out a bit.",
+            "Move your hips over and down so that one leg gets stretched.",
+            "The stretched out leg should have the hell on the ground and the toes pointed up.",
             "Back should remain flat.",
             "Difficulty can be lessened by balancing yourself with your hands on the ground.",
             "Difficulty can be increased by holding your hands over your chest."],
-        links: ["Video": "https://www.youtube.com/watch?v=tpczTeSkHz0", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
+        links: ["Video": "https://www.youtube.com/watch?v=tpczTeSkHz0", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
     
     "Couch Stretch": noteToMarkdown(
         notes: [
@@ -989,7 +990,7 @@ let defaultNotes: [String: String] = [
             "Raise one leg, pull knee into your butt, and rotate your knee in a circle.",
             "After circling in one direction do the same in the other direction.",
             "Try and make the biggest circle you can."],
-        links: ["Video": "https://www.youtube.com/watch?v=f-GRxDrMC4Y", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
+        links: ["Video": "https://www.youtube.com/watch?v=f-GRxDrMC4Y", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
     
     "Foam Roll Lats": noteToMarkdown(
         notes: [
@@ -1611,7 +1612,7 @@ let defaultNotes: [String: String] = [
             "Keep arms straight.",
             "Bring one leg up and plant your foot outside your arm.",
             "Sink back leg down and repeat with other leg."],
-        links: ["Video": "https://www.youtube.com/watch?v=flT4TIMYvzI", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
+        links: ["Video": "https://www.youtube.com/watch?v=flT4TIMYvzI", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
     
     "Negative Handstand Pushup": noteToMarkdown(
         notes: [
@@ -2054,10 +2055,12 @@ let defaultNotes: [String: String] = [
     "Rocking Frog Stretch": noteToMarkdown(
         notes: [
             "Get on your hands and knees.",
-            "Raise your knees an inch off the ground.",
+            "Spread your legs out about 3-6 inches wider than your shoulders.",
+            "Turn your toes so that they are facing outwards.",
+            "Bend your elbows and rest your torso on your forearms.",
             "Slowly rock your body forward and backward.",
-            "Keep your back flat and your knees the same distance from the ground."],
-        links: ["Video": "https://www.youtube.com/watch?v=RirF9aNKtQU", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
+            "When you are are as far back as you can go pause for two seconds."],
+        links: ["Video": "https://www.youtube.com/watch?v=iKugmxlcE9E&ab_channel=ConnorBrowne", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
     
     "Roll-over into V-sit": noteToMarkdown(
         notes: [
@@ -2068,7 +2071,7 @@ let defaultNotes: [String: String] = [
             "Bring your arms forward so that your palms rest on the ground between your legs.",
             "Try to increase the range of motion with each rep.",
             "Difficulty can be reduced by pulling on your ankles as you roll back."],
-        links: ["Video": "https://www.youtube.com/watch?v=NcBo0wRDCCE", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
+        links: ["Video": "https://www.youtube.com/watch?v=NcBo0wRDCCE", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
     
     "Romanian Deadlift": noteToMarkdown(
         notes: [
@@ -2218,7 +2221,7 @@ let defaultNotes: [String: String] = [
             "Sit down on a chair and cross your legs.",
             "Pull your knee up and lean your chest forward slightly.",
             "Back should remain straight."],
-        links: ["Video": "https://www.youtube.com/watch?v=DE-GGsRtb6k", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
+        links: ["Video": "https://www.youtube.com/watch?v=DE-GGsRtb6k", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
     
     "Seated Triceps Press": noteToMarkdown(
         notes: [
