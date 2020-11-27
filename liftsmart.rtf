@@ -4,12 +4,12 @@
 }
 {\colortbl;\red255\green255\blue255;\red170\green13\blue145;\red0\green0\blue0;\red11\green79\blue121;
 \red63\green110\blue116;\red92\green38\blue153;\red15\green104\blue160;\red0\green116\blue0;\red196\green26\blue22;
-\red0\green0\blue233;\red2\green2\blue2;\red38\green71\blue75;\red28\green0\blue207;\red46\green13\blue110;
-\red27\green31\blue34;\red255\green255\blue255;}
+\red0\green0\blue233;\red2\green2\blue2;\red0\green0\blue0;\red27\green31\blue34;\red255\green255\blue255;
+}
 {\*\expandedcolortbl;;\csgenericrgb\c66500\c5200\c56900;\csgenericrgb\c0\c0\c0;\csgenericrgb\c4314\c30980\c47451;
 \csgenericrgb\c24700\c43100\c45600;\csgenericrgb\c35900\c14900\c60100;\csgenericrgb\c5882\c40784\c62745;\csgenericrgb\c0\c45600\c0;\csgenericrgb\c77000\c10200\c8600;
-\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\csgenericrgb\c14900\c27800\c29400;\csgenericrgb\c11000\c0\c81000;\csgenericrgb\c18100\c5200\c43100;
-\cssrgb\c14118\c16078\c18039;\cssrgb\c100000\c100000\c100000;}
+\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\cssrgb\c0\c0\c0;\cssrgb\c14118\c16078\c18039;\cssrgb\c100000\c100000\c100000;
+}
 \deftab816
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
@@ -83,70 +83,23 @@ Stringify - text renderer\
 Program = Workouts + Plan + Advisor(?)\
 	could have hashtable of Exercise to Current+History, maybe also Plan and Advisor\
 	\
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-
-\f0\fs34 \cf3 \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-\cf2 func\cf3  \cf7 PerryComplex\cf3 () -> \cf5 Program\cf3  \{\
-    \cf2 let\cf3  exercises = [\
-        \cf12 dumbbell2\cf3 (\cf9 "Complex"\cf3 , \cf9 "Perry Complex"\cf3 , \cf9 ""\cf3 , \cf9 "6"\cf3 .\cf12 x\cf3 (\cf13 5\cf3 ), restMins: \cf13 0.75\cf3 , \
-        fixedSubTitle: \cf9 "Squat, Lunge, Row, Curl&Press"\cf3 )]\
-    \
-    \cf2 let\cf3  workouts = [\
-        \cf5 Workout\cf3 (\cf9 "Complex"\cf3 , [\cf9 "Complex"\cf3 ], scheduled: \cf2 false\cf3 , optional: [])]\
-    \
-    \cf2 let\cf3  tags: [\cf5 Program\cf3 .\cf5 Tags\cf3 ] = [.\cf12 beginner\cf3 , .\cf12 conditioning\cf3 , .\cf12 dumbbell\cf3 ] \cf14 +\cf3  \cf5 anyAge\cf3  \cf14 +\cf3  \cf5 anyDays\cf3  \cf14 +\cf3  \cf5 anySex\cf3 \
-    \
-    \cf2 let\cf3  description = \cf9 """\cf3 \
-\cf9 This is a program from [Marc Perry](https://www.builtlean.com/2012/04/10/dumbbell-complex/). It's a complex which means each exercise is done with the same set of weights, the weights should not leave your hands until a set is done, and you should aim for not resting until a set is finished.\cf3 \
-\
-\cf9 **Workout**\cf3 \
-\cf9 * DB Front Squat 6 reps\cf3 \
-\cf9 * DB Forward Lunges 6 reps\cf3 \
-\cf9 * DB Bent-over Row 6 reps\cf3 \
-\cf9 * DB Curl & Press 6 reps\cf3 \
-\
-\cf9 **Notes**\cf3 \
-\cf9 * Start with a weight that you can do for 10-15 reps for the hardest exercise.\cf3 \
-\cf9 * If your grip becomes a problem you can use straps.\cf3 \
-\cf9 """\cf3 \
-    \cf2 return\cf3  \cf5 Program\cf3 (\cf9 "Perry DB Complex"\cf3 , workouts, exercises, tags, description)\
-\}\
-\
-PerryComplex\
-DBCircuit, looks harder\
-fixedSubTitle was used to avoid finding a weight    \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-\cf2 \
-\
-struct\cf3  \cf4 DurationSet\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf5 Storable\cf3  \{\
-    \cf2 let\cf3  \cf7 secs\cf3 : \cf6 Int\cf3 \
-    \cf2 let\cf3  \cf7 restSecs\cf3 : \cf6 Int\cf3 \
-
-\fs38 \cf2 \
-enum\cf3  \cf4 Sets\cf3 : \cf6 CustomDebugStringConvertible\cf3  \{\
-    \cf2 case\cf3  \cf7 durations\cf3 ([\cf5 DurationSet\cf3 ], targetSecs: [\cf6 Int\cf3 ] = [])\
-
-\fs34 \
-
-\fs38     @\cf6 State\cf3  \cf2 var\cf3  \cf7 durations\cf3  = \cf9 ""\cf3 \
-    @\cf6 State\cf3  \cf2 var\cf3  \cf7 rest\cf3  = \cf9 ""\cf3 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
-\f2\fs48 \cf11 \
-is there a good body-weight routine?\
-3 days of strength and other 2 some sort of cardio-like routine?\
-	or a mobility routine?\
-\
-sat
-\f3\b  sun mon 
-\f2\b0 tues
-\f3\b  wed thurs 
-\f2\b0 fri\
-S    S             S              S       S
-\f3\b \
+\f3\b \cf11 program view needs to say today\
+rocking frog stretch video is broken\
+should have a wider range of reps to choose from\
+use a split\
+\pard\pardeftab720\partightenfactor0
 
-\f2\b0 \
+\f2\b0\fs36 \cf0 \expnd0\expndtw0\kerning0
+Should be able to add notes to a program 
+\f0\fs34 \cf3 \kerning1\expnd0\expndtw0 \
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+\cf3 DBCircuit, looks harder
+\f3\b\fs48 \cf11 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+
+\f2\b0 \cf11 \
 Worked out 35 times.  
 \f3\b no one really cares about this
 \f2\b0 \
@@ -184,7 +137,7 @@ Rest: [30s 30s 0]\
 
 \f3\b \cf11 TimerView?
 \f2\b0 	
-\f4\fs46 \cf15 \cb16 \expnd0\expndtw0\kerning0
+\f4\fs46 \cf13 \cb14 \expnd0\expndtw0\kerning0
 \
 \pard\pardeftab720\sl380\partightenfactor0
 

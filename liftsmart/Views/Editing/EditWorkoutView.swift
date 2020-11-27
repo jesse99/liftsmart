@@ -33,7 +33,7 @@ struct EditWorkoutView: View {
     @State var satLabel = ""
     @State var sunLabel = ""
     @State var entries: [EditWorkoutEntry] = []
-    @State var errText = "bad news"
+    @State var errText = ""
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
     @State var showSheet: Bool = false

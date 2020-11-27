@@ -15,11 +15,12 @@ struct NoteView: View {
     var body: some View {
         VStack {
             Text(self.formalName).font(.largeTitle)
-            MDText(markdown: self.markup).padding()
+            MDText(markdown: self.markup).font(.callout)
+                .padding()
             Spacer()
             HStack {
                 Button("Revert", action: onRevert)
-                    .font(.callout)
+                    .font(.body)
                     .disabled(!self.hasUserNote)
                 Button("Edit", action: onEdit)
                     .font(.callout)

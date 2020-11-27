@@ -40,7 +40,7 @@ func home() -> Program {
     }
 
     func mountain() -> Exercise {
-        let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
+        let work = RepsSet(reps: RepRange(10)!, restSecs: 30)!
         let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Mountain Climber", "Mountain Climber", modality)
@@ -50,18 +50,18 @@ func home() -> Program {
         let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
         let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Cossack Squat", "Seated Piriformis Stretch", modality)
+        return Exercise("Cossack Squat", "Cossack Squat", modality)
     }
 
     func piriformis() -> Exercise {
         let sets = Sets.durations([DurationSet(secs: 30, restSecs: 0)!, DurationSet(secs: 30, restSecs: 0)!])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Piriformis Stretch", "Cossack Squat", modality)
+        return Exercise("Piriformis Stretch", "Seated Piriformis Stretch", modality)
     }
     
     // https://www.builtlean.com/2012/04/10/dumbbell-complex
     func perry() -> Exercise {
-        let work = RepsSet(reps: RepRange(6)!, restSecs: 60)!   // TODO: ideally woulf use no rest
+        let work = RepsSet(reps: RepRange(6)!, restSecs: 30)!   // TODO: ideally woulf use no rest
         let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])  // TODO: want to do up to six sets
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Complex", "Perry Complex", modality, overridePercent: "Squat, Lunge, Row, Curl&Press")
@@ -134,7 +134,7 @@ func home() -> Program {
     }
     
     func shoulderFlexion() -> Exercise {
-        let work = RepsSet(reps: RepRange(min: 8, max: 12)!, restSecs: 30)!
+        let work = RepsSet(reps: RepRange(min: 8, max: 12)!, restSecs: 0)!
         let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Shoulder Flexion", "Single Shoulder Flexion", modality)
@@ -144,14 +144,14 @@ func home() -> Program {
         let durations = [
             DurationSet(secs: 15, restSecs: 30)!,
             DurationSet(secs: 15, restSecs: 30)!,
-            DurationSet(secs: 15, restSecs: 30)!]
+            DurationSet(secs: 15, restSecs: 0)!]
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Biceps Stretch", "Wall Biceps Stretch", modality)
     }
     
     func externalRotation() -> Exercise {
-        let work = RepsSet(reps: RepRange(15)!, restSecs: 30)!
+        let work = RepsSet(reps: RepRange(15)!, restSecs: 0)!
         let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("External Rotation", "Lying External Rotation", modality)
@@ -161,7 +161,7 @@ func home() -> Program {
         let durations = [
             DurationSet(secs: 30, restSecs: 30)!,
             DurationSet(secs: 30, restSecs: 30)!,
-            DurationSet(secs: 30, restSecs: 30)!]
+            DurationSet(secs: 30, restSecs: 0)!]
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Sleeper Stretch", "Sleeper Stretch", modality)

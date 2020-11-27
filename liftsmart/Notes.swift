@@ -2055,7 +2055,7 @@ let defaultNotes: [String: String] = [
         notes: [
             "Get on your hands and knees.",
             "Raise your knees an inch off the ground.",
-            "Rock your body forward and backward.",
+            "Slowly rock your body forward and backward.",
             "Keep your back flat and your knees the same distance from the ground."],
         links: ["Video": "https://www.youtube.com/watch?v=RirF9aNKtQU", "Limber 11": "https://imgur.com/gallery/iEsaS"]),
     
@@ -2317,7 +2317,7 @@ let defaultNotes: [String: String] = [
         notes: [
             "Stand up with your arms at your sides.",
             "Keeping your arm straight raise it forward and up until it points to the ceiling.",
-            "Hold for five secons and return to the starting position."],
+            "Hold for five seconds and return to the starting position."],
         links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
     
     "Situp (intro)": noteToMarkdown(
