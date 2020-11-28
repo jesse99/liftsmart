@@ -41,6 +41,7 @@
 		378D567824843AB9006A041C /* FriendlyStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378D567724843AB9006A041C /* FriendlyStrings.swift */; };
 		379461FB251FB962006774A0 /* EditProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379461FA251FB962006774A0 /* EditProgramView.swift */; };
 		379461FE251FF98D006774A0 /* EditWorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379461FD251FF98D006774A0 /* EditWorkoutView.swift */; };
+		37A1FF252572C2250063121D /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37A1FF242572C2250063121D /* AuthenticationServices.framework */; };
 		37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */; };
 		37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D0F8E52516C6A7000FAAC7 /* Either.swift */; };
 		37DEA437247C46B1008297A2 /* Programs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DEA436247C46B1008297A2 /* Programs.swift */; };
@@ -101,6 +102,8 @@
 		378D567724843AB9006A041C /* FriendlyStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendlyStrings.swift; sourceTree = "<group>"; };
 		379461FA251FB962006774A0 /* EditProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProgramView.swift; sourceTree = "<group>"; };
 		379461FD251FF98D006774A0 /* EditWorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWorkoutView.swift; sourceTree = "<group>"; };
+		37A1FF222572C2250063121D /* liftsmart.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = liftsmart.entitlements; sourceTree = "<group>"; };
+		37A1FF242572C2250063121D /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 		37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMaxRepsView.swift; sourceTree = "<group>"; };
 		37D0F8E52516C6A7000FAAC7 /* Either.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Either.swift; sourceTree = "<group>"; };
 		37DEA436247C46B1008297A2 /* Programs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Programs.swift; sourceTree = "<group>"; };
@@ -119,6 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37A1FF252572C2250063121D /* AuthenticationServices.framework in Frameworks */,
 				376AF38124CCE79400AEAE1C /* TextView in Frameworks */,
 				376AF37E24CCB0AB00AEAE1C /* MDText in Frameworks */,
 			);
@@ -143,6 +147,7 @@
 				376987C6244B95D50021D0FB /* Preview Content */,
 				376987BC244B95D30021D0FB /* Products */,
 				37E83137245E24F300A135C7 /* Support */,
+				37A1FF232572C2250063121D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -158,6 +163,7 @@
 		376987BD244B95D30021D0FB /* liftsmart */ = {
 			isa = PBXGroup;
 			children = (
+				37A1FF222572C2250063121D /* liftsmart.entitlements */,
 				376987BE244B95D30021D0FB /* AppDelegate.swift */,
 				37D0F8E52516C6A7000FAAC7 /* Either.swift */,
 				37881BCF244FF7DE00CFB411 /* Extensions */,
@@ -230,6 +236,14 @@
 				379461FD251FF98D006774A0 /* EditWorkoutView.swift */,
 			);
 			path = Editing;
+			sourceTree = "<group>";
+		};
+		37A1FF232572C2250063121D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				37A1FF242572C2250063121D /* AuthenticationServices.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		37E83137245E24F300A135C7 /* Support */ = {
@@ -560,6 +574,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = liftsmart/liftsmart.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"liftsmart/Preview Content\"";
 				DEVELOPMENT_TEAM = KR7DPSRLLX;
@@ -580,6 +595,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = liftsmart/liftsmart.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"liftsmart/Preview Content\"";
 				DEVELOPMENT_TEAM = KR7DPSRLLX;

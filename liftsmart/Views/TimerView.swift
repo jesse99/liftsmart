@@ -31,6 +31,10 @@ struct TimerView: View {
     }
     
     func onStopTimer() {
+        timerRunning = false
+        let center = UNUserNotificationCenter.current()
+        center.removeAllPendingNotificationRequests()
+        
         if self.secondDuration > 0 {
             self.duration = self.secondDuration
             self.secondDuration = 0
@@ -58,6 +62,10 @@ struct TimerView: View {
             self.onStopTimer()
             return
         }
+
+        // Timers don't run in the background so we'll use a local notification via sceneDidEnterBackground.
+        timerRunning = true
+        timerSecs = secs
         
         let wasWaiting = self.waiting
         self.waiting = secs > 0.0
