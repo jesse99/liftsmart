@@ -97,7 +97,8 @@ struct ProgramView: View {
                     dates.sort()
                     
                     if let last = dates.last {
-                        let didAll = dates.count == workout.exercises.count
+                        let count = workout.exercises.count {$0.enabled}
+                        let didAll = dates.count >= count
                         completions.append(ExerciseCompletions(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
                         entries.append(ProgramEntry(workout))
 
