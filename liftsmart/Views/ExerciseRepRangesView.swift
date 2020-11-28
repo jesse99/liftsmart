@@ -107,7 +107,7 @@ struct ExerciseRepRangesView: View {
         
         let range = getRepRange()
         let expect = expected()
-        for reps in max(range.min - 3, 0)...range.max {
+        for reps in max(range.min - 6, 0)...range.max {
             // TODO: better to use bold() or underline() but they don't do anything
             let str = reps == expect ? "•• \(reps) Reps ••" : "\(reps) Reps"
             let text = Text(str)

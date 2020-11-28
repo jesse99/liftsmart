@@ -263,7 +263,7 @@ let defaultNotes: [String: String] = [
     "Bent-knee Iron Cross": noteToMarkdown(
         notes: [
             "Lie on your back with your legs tucked into your chest and your arms spread outwards.",
-            "Tuck your knees so that your upper legs are at a ninety angle to the floor"
+            "Tuck your knees so that your upper legs are at a ninety angle to the floor.",
             "Keeping legs tucked and shoulders on the floor slowly rotate your legs from side to side.",
             "Turn your head in the opposite direction as your legs."],
         links: ["Video": "https://www.youtube.com/watch?v=2HYWl009bq0", "Gallery": "https://imgur.com/gallery/iEsaS", "Notes": "https://www.bodybuilding.com/fun/limber-11-the-only-lower-body-warm-up-youll-ever-need.html"]),
@@ -615,7 +615,7 @@ let defaultNotes: [String: String] = [
         notes: [
             "Take a wide squat stance with toes pointed out a bit.",
             "Move your hips over and down so that one leg gets stretched.",
-            "The stretched out leg should have the hell on the ground and the toes pointed up.",
+            "The stretched out leg should have the heel on the ground and the toes pointed up.",
             "Back should remain flat.",
             "Difficulty can be lessened by balancing yourself with your hands on the ground.",
             "Difficulty can be increased by holding your hands over your chest."],
@@ -2485,6 +2485,14 @@ let defaultNotes: [String: String] = [
             "Place one hand on the support.",
             "With the other hand grab your ankle and pull your foot back to your butt."],
         links: ["Link": "http://www.exrx.net/Stretches/Quadriceps/Standing.html"]),
+    
+    "Standing Triceps Press": noteToMarkdown(
+        notes: [
+            "Stand with feet about shoulder width apart.",
+            "Start with the dumbbells behind your head.",
+            "Raise the weights until your arms point straight upwards.",
+            "Minimize the motion in your upper arms."],
+        links: ["Link": "https://www.anabolicaliens.com/blog/overhead-triceps-extension-exercise"]),
     
     "Standing Wide Leg Straddle": noteToMarkdown(
         notes: [
