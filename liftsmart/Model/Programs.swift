@@ -107,16 +107,17 @@ func home() -> Program {
     // progression: https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
     func splitSquats() -> Exercise {
         let warmup = RepsSet(reps: RepRange(8)!, percent: WeightPercent(0.0)!, restSecs: 60)!
-        let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 120)!
+        let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 3*60)!
         let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 9.0))
     }
 
     func lunge() -> Exercise {
-        let warmup = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.0)!, restSecs: 60)!
+        let warmup = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.0)!, restSecs: 30)!
         let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 120)!
-        let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
+        let work2 = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work2], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Lunge", "Dumbbell Lunge", modality, Expected(weight: 9.0))
     }
