@@ -49,6 +49,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to undo the changes made on entering the background.
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

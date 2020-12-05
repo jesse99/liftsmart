@@ -34,6 +34,7 @@ struct TimerView: View {
         timerRunning = false
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
         
         if self.secondDuration > 0 {
             self.duration = self.secondDuration
