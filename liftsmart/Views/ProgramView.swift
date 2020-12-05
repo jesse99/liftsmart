@@ -90,8 +90,10 @@ struct ProgramView: View {
                 if workout.enabled {
                     var dates: [Date] = []
                     for exercise in workout.exercises {
-                        if let completed = exercise.dateCompleted(workout, history) {
-                            dates.append(completed)
+                        if exercise.enabled {
+                            if let completed = exercise.dateCompleted(workout, history) {
+                                dates.append(completed)
+                            }
                         }
                     }
                     dates.sort()
