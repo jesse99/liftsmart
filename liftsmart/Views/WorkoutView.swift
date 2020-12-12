@@ -34,6 +34,32 @@ struct WorkoutEntry: Identifiable {
             
             return result
         }
+        
+        func dedupe(_ sets: [String]) -> [String] {
+            func numDupes(_ i: Int) -> Int {
+                var count = 1
+                while i+count < sets.count && sets[i] == sets[i+count] {
+                    count += 1
+                }
+                return count
+            }
+                        
+            var i = 0
+            var result: [String] = []
+            while i < sets.count {
+                let count = numDupes(i)
+                if count > 1 {
+                    result.append("\(count)x\(sets[i])")
+                    i += count
+                    
+                } else {
+                    result.append(sets[i])
+                    i += 1
+                }
+            }
+            
+            return result
+        }
 
         var sets: [String] = []
         var limit = 5
@@ -62,9 +88,8 @@ struct WorkoutEntry: Identifiable {
             return ""
         } else if sets.count == 1 {
             return sets[0]
-        } else if sets.all({$0 == sets[0]}) {
-            return "\(sets.count)x\(sets[0])"
         } else {
+            let sets = dedupe(sets)
             let prefix = sets.prefix(limit)
             let result = prefix.joined(separator: ", ")
             if prefix.count < sets.count {
@@ -157,7 +182,7 @@ struct WorkoutView_Previews: PreviewProvider {
     static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0)!)!
     static let rsets = Sets.repRanges(warmups: [], worksets: [work1, work2, work3], backoffs: [])
     static let m1 = Modality(Apparatus.bodyWeight, rsets)
-    static let ohp = Exercise("OHP", "OHP", m1, Expected(weight: 120.0, reps: [10, 8, 5]))
+    static let ohp = Exercise("OHP", "OHP", m1, Expected(weight: 120.0, reps: [10, 10, 10]))
     
     static let msets = Sets.maxReps(restSecs: [60, 60, 60, 60, 60, 60], targetReps: 130)
     static let m2 = Modality(Apparatus.bodyWeight, msets)
