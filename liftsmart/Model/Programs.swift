@@ -50,7 +50,7 @@ func home() -> Program {
         let work = RepsSet(reps: RepRange(10)!, restSecs: 0)!
         let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Cossack Squat", "Cossack Squat", modality)
+        return Exercise("Cossack Squat", "Cossack Squat", modality, Expected(weight: 0.0, reps: [8]))
     }
 
     func piriformis() -> Exercise {
@@ -106,38 +106,37 @@ func home() -> Program {
     // Lower
     // progression: https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
     func splitSquats() -> Exercise {
-        let warmup = RepsSet(reps: RepRange(8)!, percent: WeightPercent(0.0)!, restSecs: 60)!
+        let warmup = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.0)!, restSecs: 90)!
         let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 3*60)!
         let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 9.0))
+        return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
     }
 
     func lunge() -> Exercise {
-        let warmup = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.0)!, restSecs: 30)!
-        let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 120)!
+        let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 150)!
         let work2 = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 0)!
-        let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work2], backoffs: [])
+        let sets = Sets.repRanges(warmups: [], worksets: [work, work, work2], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Lunge", "Dumbbell Lunge", modality, Expected(weight: 9.0))
+        return Exercise("Lunge", "Dumbbell Lunge", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
     }
 
     // Upper
     func planks() -> Exercise { // TODO: this should be some sort of progression
         let durations = [
-            DurationSet(secs: 40, restSecs: 90)!,
-            DurationSet(secs: 40, restSecs: 90)!,
-            DurationSet(secs: 40, restSecs: 90)!]
+            DurationSet(secs: 45, restSecs: 90)!,
+            DurationSet(secs: 45, restSecs: 90)!,
+            DurationSet(secs: 45, restSecs: 90)!]
         let sets = Sets.durations(durations, targetSecs: [2*60, 2*60, 2*60])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Front Plank", "Front Plank", modality)
     }
     
     func pikePushup() -> Exercise {
-        let work = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 120)!
+        let work = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 150)!
         let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Pike Pushup", "Pike Pushup", modality)
+        return Exercise("Pike Pushup", "Pike Pushup", modality, Expected(weight: 0.0, reps: [7, 7, 7]))
     }
 
     func reversePlank() -> Exercise { // TODO: this should be some sort of progression
@@ -150,18 +149,19 @@ func home() -> Program {
         return Exercise("Reverse Plank", "Reverse Plank", modality)
     }
     
-    func tricepPress() -> Exercise {
-        let work = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 90)!
+    func latRaise() -> Exercise {
+        let work = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 120)!
         let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Triceps Press", "Standing Triceps Press", modality)
+        return Exercise("Lateral Raise", "Side Lateral Raise", modality, Expected(weight: 8.2, reps: [12, 12, 12]))
     }
 
-    func latRaise() -> Exercise {
-        let work = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 90)!
-        let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
+    func tricepPress() -> Exercise {
+        let work1 = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 120)!
+        let work2 = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 0)!
+        let sets = Sets.repRanges(warmups: [], worksets: [work1, work1, work2], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Lateral Raise", "Side Lateral Raise", modality)
+        return Exercise("Triceps Press", "Standing Triceps Press", modality, Expected(weight: 8.2, reps: [11, 11, 11]))
     }
 
 //    let cardio = createWorkout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil).unwrap()
@@ -169,7 +169,7 @@ func home() -> Program {
     let mobility = createWorkout("Mobility", [formRolling(), ironCross(), vSit(), frog(), fireHydrant(), mountain(), cossack(), piriformis()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
 //    let complex = createWorkout("Complex", [perry()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
     let lower = createWorkout("Lower", [splitSquats(), lunge()], days: [.tuesday, .thursday, .saturday]).unwrap()
-    let upper = createWorkout("Upper", [planks(), pikePushup(), reversePlank(), tricepPress(), latRaise()], days: [.friday, .sunday]).unwrap()
+    let upper = createWorkout("Upper", [planks(), pikePushup(), reversePlank(), latRaise(), tricepPress()], days: [.friday, .sunday]).unwrap()
 
     let workouts = [rehab, mobility, lower, upper]
     return Program("Home", workouts)
