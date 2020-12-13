@@ -118,6 +118,12 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onRepsPressed(_ reps: Int) {
+        self.exercise.current!.actualReps.append("\(reps) reps")
+        if exercise.expected.weight > 0.0 {
+            self.exercise.current!.actualWeights.append(friendlyUnitsWeight(exercise.expected.weight))
+        } else {
+            self.exercise.current!.actualWeights.append("")
+        }
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
         self.startTimer = startDuration(-1) > 0
         self.completed += reps

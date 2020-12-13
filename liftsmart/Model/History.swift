@@ -6,7 +6,7 @@ class History: Storable {
     class Record: CustomDebugStringConvertible, Storable {
         var completed: Date     // date exercise was finished
         var weight: Double      // may be 0.0
-        var label: String       // "3x60s"
+        var label: String       // "3x60s" includes weight if that was used
         var key: String         // exercise.name + workout.name
         var note: String = ""   // optional arbitrary text set by user
 
@@ -74,9 +74,30 @@ class History: Storable {
     }
 
     @discardableResult func append(_ workout: Workout, _ exercise: Exercise) -> History.Record {
+        func getActual(_ current: Current) -> String {
+            if current.actualWeights.all({$0 == ""}) {
+                return dedupe(current.actualReps).joined(separator: ", ")
+            }
+
+            if current.actualWeights.all({$0 == current.actualWeights[0]}) {
+                return dedupe(current.actualReps).joined(separator: ", ") + " @ " + current.actualWeights[0]
+            }
+            
+            var actual: [String] = []
+            for i in 0...current.actualReps.count {
+                if i < current.actualWeights.count && current.actualWeights[i] != "" {
+                    actual.append("\(current.actualReps[i]) @ \(current.actualWeights[i])")
+                } else {
+                    actual.append(current.actualReps[i])
+                }
+            }
+            
+            return dedupe(actual).joined(separator: ", ")
+        }
+        
         // Using startDate instead of Date() makes testing a bit easier...
         let key = workout.name + "-" + exercise.name
-        let record = Record(exercise.current!.startDate, exercise.current!.weight, exercise.modality.sets.debugDescription, key)
+        let record = Record(exercise.current!.startDate, exercise.current!.weight, getActual(exercise.current!), key)
         self.records[exercise.formalName, default: []].append(record)
         self.completed[key] = exercise.current!.startDate
         return record

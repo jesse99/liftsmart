@@ -119,6 +119,16 @@ struct ExerciseRepRangesView: View {
     }
     
     func onRepsPressed(_ reps: Int) {
+        self.exercise.current!.actualReps.append("\(reps) reps")
+
+        let percent = getRepsSet().percent
+        let weight = exercise.expected.weight * percent
+        if percent.value >= 0.01 && weight >= 0.1 {
+            self.exercise.current!.actualWeights.append(friendlyUnitsWeight(weight))
+        } else {
+            self.exercise.current!.actualWeights.append("")
+        }
+
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before percentTitle gets evaluated
         self.startTimer = startDuration(-1) > 0
         self.completed.append(reps)

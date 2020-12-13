@@ -35,32 +35,6 @@ struct WorkoutEntry: Identifiable {
             return result
         }
         
-        func dedupe(_ sets: [String]) -> [String] {
-            func numDupes(_ i: Int) -> Int {
-                var count = 1
-                while i+count < sets.count && sets[i] == sets[i+count] {
-                    count += 1
-                }
-                return count
-            }
-                        
-            var i = 0
-            var result: [String] = []
-            while i < sets.count {
-                let count = numDupes(i)
-                if count > 1 {
-                    result.append("\(count)x\(sets[i])")
-                    i += count
-                    
-                } else {
-                    result.append(sets[i])
-                    i += 1
-                }
-            }
-            
-            return result
-        }
-
         var sets: [String] = []
         var limit = 5
         

@@ -11,13 +11,7 @@ struct HistoryEntry: Identifiable {
 
     init(_ record: History.Record, _ index: Int) {
         self.record = record
-        
-        if record.weight > 0.0 {
-            self.label = "\(record.label) @ \(friendlyUnitsWeight(record.weight))"
-        } else {
-            self.label = record.label
-        }
-        
+        self.label = record.label
         self.sublabel = record.completed.friendlyName()
         self.note = record.note
         self.id = index

@@ -154,6 +154,9 @@ struct ExerciseDurationsView: View {
     }
     
     func onStartCompleted() {
+        let duration = durations[exercise.current!.setIndex]
+        self.exercise.current!.actualReps.append("\(duration)")
+        self.exercise.current!.actualWeights.append("")
         self.exercise.current!.setIndex += 1
         self.underway = self.durations.count > 1
         self.refresh()      // note that dismissing a sheet does not call onAppear
