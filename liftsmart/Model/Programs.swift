@@ -149,6 +149,12 @@ func home() -> Program {
         return Exercise("Reverse Plank", "Reverse Plank", modality)
     }
     
+    func curls() -> Exercise {
+        let sets = Sets.maxReps(restSecs: [90, 90, 90])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 16.4, reps: [30]))
+     }
+
     func latRaise() -> Exercise {
         let work = RepsSet(reps: RepRange(min: 4, max: 12)!, restSecs: 120)!
         let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
@@ -169,7 +175,7 @@ func home() -> Program {
     let mobility = createWorkout("Mobility", [formRolling(), ironCross(), vSit(), frog(), fireHydrant(), mountain(), cossack(), piriformis()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
 //    let complex = createWorkout("Complex", [perry()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
     let lower = createWorkout("Lower", [splitSquats(), lunge()], days: [.tuesday, .thursday, .saturday]).unwrap()
-    let upper = createWorkout("Upper", [planks(), pikePushup(), reversePlank(), latRaise(), tricepPress()], days: [.friday, .sunday]).unwrap()
+    let upper = createWorkout("Upper", [planks(), pikePushup(), reversePlank(), curls(), latRaise(), tricepPress()], days: [.friday, .sunday]).unwrap()
 
     let workouts = [rehab, mobility, lower, upper]
     return Program("Home", workouts)
