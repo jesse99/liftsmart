@@ -104,7 +104,7 @@ struct WorkoutView: View {
                 }
             }
             .navigationBarTitle(Text(workout.name + " Exercises"))
-            .onAppear {print("Workout appear"); self.refresh()}
+            .onAppear {self.refresh()}
             
             Divider()
             HStack {

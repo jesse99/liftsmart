@@ -166,8 +166,15 @@ struct ProgramView: View {
                 var entry = entries[i]
                 let completion = completions[i]
                 
+                var doneToday = false
+                var doneRecently = false
+                if let last = completion.latest {
+                    doneToday = cal.isDate(last, inSameDayAs: Date())
+                    doneRecently = Date().hoursSinceDate(last) < 2
+                }
+                
                 // If the user has done any exercise within the workout today,
-                if let last = completion.latest, cal.isDate(last, inSameDayAs: Date()) {  // TODO: all these same/next day checks should be fuzzy
+                if doneToday && doneRecently {  // TODO: all these same/next day checks should be fuzzy
                     if completion.latestIsComplete {
                         // and they completed every exercise.
                         entry.subLabel = "completed"
@@ -188,7 +195,7 @@ struct ProgramView: View {
                     entry.subColor = .orange
 
                 // If the workout is scheduled for today,
-                } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil {
+                } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil && !doneToday {
                     if let oldest = oldestWorkout(todaysWorkouts) {
                         entry.subLabel = "today"
                         if agesMatch(oldest, entry.workout) {
@@ -201,8 +208,9 @@ struct ProgramView: View {
                         entry.subColor = .orange
                     }
                     
-                // If the workout is on a day that the user should do next and the user has nothing scheduled today,
-                } else if let (weekday, delta) = nextWorkout, entry.workout.days[weekday - 1] && todaysWorkouts.isEmpty {
+                // If the workout is on a day that the user should do next and the user has nothing scheduled today or
+                // has done the exercise today but not recently,
+                } else if let (weekday, delta) = nextWorkout, (entry.workout.days[weekday - 1] && todaysWorkouts.isEmpty) || doneToday {
                     entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
                     entry.subColor = .blue
                 }
