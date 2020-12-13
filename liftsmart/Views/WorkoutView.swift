@@ -26,7 +26,7 @@ struct WorkoutEntry: Identifiable {
         func getRepsLabel(_ index: Int, _ workset: RepsSet) -> String {
             var result = ""
             
-            let min = max(workset.reps.min, getExpectedReps(index) ?? 0)
+            let min = getExpectedReps(index) ?? workset.reps.min
             let max = workset.reps.max
             if let reps = RepRange(min: min, max: max), let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
                 result = set.debugDescription
@@ -104,7 +104,7 @@ struct WorkoutView: View {
                 }
             }
             .navigationBarTitle(Text(workout.name + " Exercises"))
-            .onAppear {self.refresh()}
+            .onAppear {print("Workout appear"); self.refresh()}
             
             Divider()
             HStack {

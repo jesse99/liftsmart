@@ -97,8 +97,8 @@ struct ExerciseRepRangesView: View {
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
-            .onAppear {self.onAppear(); self.timer.restart()}
-            .onDisappear() {self.timer.stop()}
+            .onAppear {print("reps appear"); self.onAppear(); self.timer.restart()}
+            .onDisappear() {print("reps disappear"); self.timer.stop()}
         }
     }
     
