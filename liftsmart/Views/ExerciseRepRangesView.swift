@@ -20,6 +20,7 @@ struct ExerciseRepRangesView: View {
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
     @State var noteModal: Bool = false
+    @State var editModal = false
     @State var updateExpected: Bool = false
     @State var updateRepsDone: Bool = false
     @State var underway: Bool = false
@@ -93,7 +94,9 @@ struct ExerciseRepRangesView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
-                Button("Edit", action: onEdit).font(.callout)
+                Button("Edit", action: onEdit)
+                    .font(.callout)
+                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditRepRangesView(workout: self.workout, exercise: self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -205,13 +208,9 @@ struct ExerciseRepRangesView: View {
         self.completed = []
         self.refresh()
     }
-    
-    func onNotes() {
-        print("Pressed options")  // TODO: implement
-    }
-    
+        
     func onEdit() {
-        print("Pressed edit")  // TODO: implement
+        self.editModal = true
     }
     
     func onNextOrDone() {
