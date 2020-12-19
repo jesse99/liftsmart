@@ -1547,7 +1547,7 @@ let defaultNotes: [String: String] = [
             "Keep your elbow tucked against your body and raise your forearm until it's parallel with the ground.",
             "Slowly lower your arm back down.",
             "Difficulty can be used by using a very light weight."],
-        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
+        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://bodybuilding-wizard.com/wp-content/uploads/2015/03/side-lying-dumbbell-external-rotation-3-1.jpg"]),
         
     "Lying Leg Curls": noteToMarkdown(
         notes: [
@@ -2321,7 +2321,7 @@ let defaultNotes: [String: String] = [
             "Stand up with your arms at your sides.",
             "Keeping your arm straight raise it forward and up until it points to the ceiling.",
             "Hold for five seconds and return to the starting position."],
-        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
+        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://myhealth.alberta.ca/HealthTopics/breast-cancer-surgery/PublishingImages/12Active-Shoulder-Flex.jpg"]),
     
     "Situp (intro)": noteToMarkdown(
         notes: [
@@ -2722,7 +2722,7 @@ let defaultNotes: [String: String] = [
             "Extend your arm along the wall and with your palm down touch the thumb side of your hand to the wall.",
             "Keep your arm straight and turn your body away from your arm until you feel the bicep stretch.",
             "Hold for about fifteen seconds."],
-        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.summitmedicalgroup.com/media/db/relayhealth-images/xbicepte_2.jpg"]),
+        links: ["Link": "https://www.healthline.com/health/fitness-exercise/bicep-tendonitis-exercises", "Picture": "https://www.triathlete.com/wp-content/uploads/sites/4/2016/12/1-1-3.jpg"]),
     
     "Wall Extensions": noteToMarkdown(
         notes: [
