@@ -29,7 +29,7 @@ struct WorkoutEntry: Identifiable {
             let min = getExpectedReps(index) ?? workset.reps.min
             let max = workset.reps.max
             if case .right(let reps) = RepRange.create(min: min, max: max) {
-                if let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
+                if case .right(let set) = RepsSet.create(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
                     result = set.debugDescription
                 }
             }
