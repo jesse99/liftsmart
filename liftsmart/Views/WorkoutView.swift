@@ -28,10 +28,11 @@ struct WorkoutEntry: Identifiable {
             
             let min = getExpectedReps(index) ?? workset.reps.min
             let max = workset.reps.max
-            if let reps = RepRange(min: min, max: max), let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
-                result = set.debugDescription
+            if case .right(let reps) = RepRange.create(min: min, max: max) {
+                if let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
+                    result = set.debugDescription
+                }
             }
-            
             return result
         }
         
@@ -148,13 +149,8 @@ struct WorkoutView: View {
 }
 
 struct WorkoutView_Previews: PreviewProvider {
-    static let reps1 = RepRange(min: 8, max: 12)!
-    static let reps2 = RepRange(min: 6, max: 10)!
-    static let reps3 = RepRange(min: 4, max: 6)!
-    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(0.8)!, restSecs: 60)!
-    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(0.9)!, restSecs: 60)!
-    static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0)!)!
-    static let rsets = Sets.repRanges(warmups: [], worksets: [work1, work2, work3], backoffs: [])
+    static let work = createReps(reps: [8...12, 6...10, 4...6], percent: [80, 90, 100], rest: [60, 60, 0])
+    static let rsets = Sets.repRanges(warmups: [], worksets: work, backoffs: [])
     static let m1 = Modality(Apparatus.bodyWeight, rsets)
     static let ohp = Exercise("OHP", "OHP", m1, Expected(weight: 120.0, reps: [10, 10, 10]))
     

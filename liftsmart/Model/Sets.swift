@@ -44,19 +44,20 @@ struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int
     
-    init?(_ reps: Int) {
-        if reps <= 0 {return nil}
-        
-        self.min = reps
-        self.max = reps
-    }
-    
-    init?(min: Int, max: Int) {
-        if min <= 0 {return nil}
-        if min > max {return nil}
-
+    fileprivate init(_ min: Int, _ max: Int) {
         self.min = min
         self.max = max
+    }
+    
+    static func create(_ min: Int) -> Either<String, RepRange> {
+        if min <= 0 {return .left("Min rep cannot be negative")}
+        return .right(RepRange(min, min))
+    }
+    
+    static func create(min: Int, max: Int) -> Either<String, RepRange> {
+        if min <= 0 {return .left("Min rep cannot be negative")}
+        if min > max {return .left("Min rep cannot be larger than max rep")}
+        return .right(RepRange(min, max))
     }
     
     // INT(-INT)?
@@ -69,16 +70,7 @@ struct RepRange: CustomDebugStringConvertible, Storable {
         if (min == nil) || (sep != nil && max == nil) || !scanner.isAtEnd {
             return .left("Expected a rep or rep range, e.g. 4 or 4-8")
         }
-        if min! < 0 {
-            return .left("Reps cannot be negative")
-        }
-        if sep == nil && max == nil {
-            return .right(RepRange(min!)!)
-        }
-        if min! > max! {
-            return .left("Min reps must be smaller than max reps")
-        }
-        return .right(RepRange(min: min!, max: max!)!)
+        return RepRange.create(min: min!, max: max ?? min!)
     }
 
     var label: String {

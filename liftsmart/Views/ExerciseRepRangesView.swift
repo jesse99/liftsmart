@@ -317,7 +317,7 @@ struct ExerciseRepRangesView: View {
         }
 
         assert(false)
-        return RepsSet(reps: RepRange(5)!)!
+        return RepsSet(reps: RepRange.create(5).unwrap())!
     }
 
     private func getRepRange() -> RepRange {
@@ -331,9 +331,9 @@ struct ExerciseRepRangesView: View {
             if i < exercise.expected.reps.count {
                 let expected = exercise.expected.reps[i]
                 if expected < reps.max {
-                    return RepRange(min: expected, max: reps.max)!
+                    return RepRange.create(min: expected, max: reps.max).unwrap()
                 } else {
-                    return RepRange(expected)!
+                    return RepRange.create(expected).unwrap()
                 }
             } else {
                 return reps
@@ -358,17 +358,9 @@ struct ExerciseRepRangesView: View {
 }
 
 struct ExerciseRepRangesView_Previews: PreviewProvider {
-    static let reps1 = RepRange(min: 8, max: 12)!
-    static let reps2 = RepRange(min: 6, max: 10)!
-    static let reps3 = RepRange(min: 4, max: 6)!
-    static let warm1 = RepsSet(reps: RepRange(8)!, percent: WeightPercent(0.33)!)!
-    static let warm2 = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.66)!)!
-//    static let workset = RepsSet(reps: reps, percent: WeightPercent(1.0)!, restSecs: 60)!
-//    static let backoff = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.8)!)!
-    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(0.8)!, restSecs: 60)!
-    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(0.9)!, restSecs: 60)!
-    static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0)!)!
-    static let sets = Sets.repRanges(warmups: [warm1, warm2], worksets: [work1, work2, work3], backoffs: [])
+    static let warmup = createReps(reps: [8, 4], percent: [33, 66], rest: [0, 0])
+    static let work = createReps(reps: [8...12, 6...10, 4...6], percent: [80, 90, 100], rest: [60, 90, 0])
+    static let sets = Sets.repRanges(warmups: warmup, worksets: work, backoffs: [])
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("OHP", "OHP", modality, Expected(weight: 120.0))
     static let workout = createWorkout("Strength", [exercise], day: nil).unwrap()
