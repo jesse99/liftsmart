@@ -79,6 +79,22 @@ extension Date {
     }
 }
 
+func friendlyFloat(_ str: String) -> String {
+    var result = str
+    while result.hasSuffix("0") {
+        let start = result.index(result.endIndex, offsetBy: -1)
+        let end = result.endIndex
+        result.removeSubrange(start..<end)
+    }
+    if result.hasSuffix(".") {
+        let start = result.index(result.endIndex, offsetBy: -1)
+        let end = result.endIndex
+        result.removeSubrange(start..<end)
+    }
+    
+    return result
+}
+
 func friendlyWeight(_ weight: Double) -> String {
     var result: String
     
@@ -95,18 +111,7 @@ func friendlyWeight(_ weight: Double) -> String {
     //            result = String(format: "%.2f", arguments: [weight*Double.lbToKg])
     //        }
     
-    while result.hasSuffix("0") {
-        let start = result.index(result.endIndex, offsetBy: -1)
-        let end = result.endIndex
-        result.removeSubrange(start..<end)
-    }
-    if result.hasSuffix(".") {
-        let start = result.index(result.endIndex, offsetBy: -1)
-        let end = result.endIndex
-        result.removeSubrange(start..<end)
-    }
-    
-    return result
+    return friendlyFloat(result)
 }
 
 func friendlyUnitsWeight(_ weight: Double, plural: Bool = true) -> String {

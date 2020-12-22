@@ -13,7 +13,7 @@ struct EditDurationsView: View, EditContext {
     @State var target = ""
     @State var rest = ""
     @State var errText = ""
-    @State var errColor = Color.red
+    @State var errColor = Color.red   // this is required by EditContext
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false

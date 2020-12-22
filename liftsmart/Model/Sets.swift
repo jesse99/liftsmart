@@ -10,7 +10,8 @@ func restToStr(_ secs: Int) -> String {
         return "\(secs)s"
     
     } else {
-        return String.init(format: "%.1fm", Double(secs)/60.0)
+        let s = friendlyFloat(String.init(format: "%.1f", Double(secs)/60.0))
+        return s + "m"
     }
 }
 
@@ -57,6 +58,28 @@ struct RepRange: CustomDebugStringConvertible, Storable {
         self.min = min
         self.max = max
     }
+    
+    // INT(-INT)?
+    static func create(_ text: String) -> Either<String, RepRange> {
+        let scanner = Scanner(string: text)
+        
+        let min = scanner.scanInt()
+        let sep = scanner.scanString("-")
+        let max = scanner.scanInt()
+        if (min == nil) || (sep != nil && max == nil) || !scanner.isAtEnd {
+            return .left("Expected a rep or rep range, e.g. 4 or 4-8")
+        }
+        if min! < 0 {
+            return .left("Reps cannot be negative")
+        }
+        if sep == nil && max == nil {
+            return .right(RepRange(min!)!)
+        }
+        if min! > max! {
+            return .left("Min reps must be smaller than max reps")
+        }
+        return .right(RepRange(min: min!, max: max!)!)
+    }
 
     var label: String {
         get {
@@ -68,6 +91,16 @@ struct RepRange: CustomDebugStringConvertible, Storable {
                 } else {
                     return "\(min) reps"
                 }
+            }
+        }
+    }
+    
+    var editable: String {
+        get {
+            if min < max {
+                return "\(min)-\(max)"
+            } else {
+                return "\(min)"
             }
         }
     }
@@ -108,18 +141,42 @@ struct WeightPercent: CustomDebugStringConvertible, Storable {
         self.value = value
     }
     
+    // INT
+    static func create(_ text: String) -> Either<String, WeightPercent> {
+        let scanner = Scanner(string: text)
+        
+        let p = scanner.scanDouble()
+        if p == nil || !scanner.isAtEnd {
+            return .left("Expected percent, e.g. 80")
+        }
+        if p! < 0 {
+            return .left("Percent cannot be negative")
+        }
+        if p! > 150 {
+            return .left("Percent is too big")
+        }
+        return .right(WeightPercent(p!/100.0)!)
+    }
+
     static func * (lhs: Double, rhs: WeightPercent) -> Double {
         return lhs * rhs.value
     }
 
-    var label: String {
+    var editable: String {
         get {
             let i = Int(self.value*100)
             if abs(self.value - Double(i)) < 1.0 {
-                return ""
+                return "0"
             } else {
-                return "\(i)%"
+                return "\(i)"
             }
+        }
+    }
+    
+    var label: String {
+        get {
+            let e = self.editable;
+            return e == "0" ? "" : e+"%";
         }
     }
     

@@ -12,6 +12,9 @@ struct EditRepRangesView: View, EditContext {
     @State var errText = ""
     @State var errColor = Color.red
     @State var showHelp = false
+    @State var showRepsSet = false
+    @State var repsSetName = ""
+    @State var repsSet = [RepsSet(reps: RepRange(10)!)!]
     @State var helpText = ""
     @State var formalNameModal = false
     @Environment(\.presentationMode) private var presentationMode
@@ -30,9 +33,30 @@ struct EditRepRangesView: View, EditContext {
                 createNameView(text: self.$name, self)
                 createFormalNameView(text: self.$formalName, modal: self.$formalNameModal, self)
                 createWeightView(text: self.$weight, self)
-                // TODO: warmups
-                // TODO: worksets
-                // TODO: backoff
+                HStack {
+                    Button("Warmups", action: self.onWarmups).font(.callout)
+                    Spacer()
+                    Button("?", action: {
+                        self.helpText = "Optional sets to be done with a lighter weight."
+                        self.showHelp = true
+                    }).font(.callout).padding(.trailing)
+                }.padding(.leading)
+                HStack {
+                    Button("Work Sets", action: self.onWorkSets).font(.callout)
+                    Spacer()
+                    Button("?", action: {
+                        self.helpText = "Sets to be done with 100% or so of the weight."
+                        self.showHelp = true
+                    }).font(.callout).padding(.trailing)
+                }.padding(.leading)
+                HStack {
+                    Button("Backoff", action: self.onBackoff).font(.callout)
+                    Spacer()
+                    Button("?", action: {
+                        self.helpText = "Optional sets to be done with a reduced weight."
+                        self.showHelp = true
+                    }).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 // apparatus (conditional)
             }
             Spacer()
@@ -55,19 +79,87 @@ struct EditRepRangesView: View, EditContext {
                 message: Text(self.helpText),
                 dismissButton: .default(Text("OK")))
         }
+        .sheet(isPresented: self.$showRepsSet) {
+            EditRepsSetView(name: self.$repsSetName, set: self.$repsSet, completion: self.doSetReps)}
     }
     
     func refresh() {
         self.name = exercise.name
         self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.weight = String(format: "%.3f", exercise.expected.weight)
-        
+    }
+    
+    func onWarmups() {
+        self.showRepsSet = true
+        self.repsSetName = "Warmup"
         switch exercise.modality.sets {
-        case .repRanges(warmups: _, worksets: _, backoffs: _):
-            break
+        case .repRanges(warmups: let s, worksets: _, backoffs: _):
+            self.repsSet = s
         default:
             assert(false)
         }
+    }
+    
+    func onWorkSets() {
+        self.showRepsSet = true
+        self.repsSetName = "Work Sets"
+        switch exercise.modality.sets {
+        case .repRanges(warmups: _, worksets: let s, backoffs: _):
+            self.repsSet = s
+        default:
+            assert(false)
+        }
+    }
+    
+    func onBackoff() {
+        self.showRepsSet = true
+        self.repsSetName = "Backoff"
+        switch exercise.modality.sets {
+        case .repRanges(warmups: _, worksets: _, backoffs: let s):
+            self.repsSet = s
+        default:
+            assert(false)
+        }
+    }
+    
+    func doSetReps(_ sets: [RepsSet]) {
+        switch self.repsSetName {
+        case "Warmup":
+            switch exercise.modality.sets {
+            case .repRanges(warmups: _, worksets: let work, backoffs: let back):
+                self.exercise.modality.sets = .repRanges(warmups: sets, worksets: work, backoffs: back)
+            default:
+                assert(false)
+            }
+        case "Work Sets":
+            switch exercise.modality.sets {
+            case .repRanges(warmups: let warm, worksets: _, backoffs: let back):
+                if sets.count >= 1 {
+                    self.exercise.modality.sets = .repRanges(warmups: warm, worksets: sets, backoffs: back)
+                } else {
+                    // TODO: this will be cleared if the user switches to editing something like Name.
+                    // Simple way to fix this might be to replace errText with some sort of class:
+                    // 1) Stores multiple errors,
+                    // 2) Renders the most recent error,
+                    // 3) Associates each error with some sort of key,
+                    self.errText = "Work Sets cannot be empty"
+                    self.errColor = .red
+                }
+            default:
+                assert(false)
+            }
+        case "Backoff":
+            switch exercise.modality.sets {
+            case .repRanges(warmups: let warm, worksets: let work, backoffs: _):
+                self.exercise.modality.sets = .repRanges(warmups: warm, worksets: work, backoffs: sets)
+            default:
+                assert(false)
+            }
+
+        default:
+            assert(false)
+        }
+        refresh()
     }
     
     func hasError() -> Bool {

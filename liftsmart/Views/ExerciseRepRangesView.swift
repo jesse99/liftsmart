@@ -6,10 +6,10 @@ struct ExerciseRepRangesView: View {
     let workout: Workout
     var exercise: Exercise
     var history: History
-    let warmups: [RepsSet]
-    let worksets: [RepsSet]
-    let backoffs: [RepsSet]
     var timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
+    @State var warmups: [RepsSet] = []
+    @State var worksets: [RepsSet] = []
+    @State var backoffs: [RepsSet] = []
     @State var setTitle: String = ""
     @State var percentTitle: String = ""
     @State var repsTitle: String = ""
@@ -30,18 +30,6 @@ struct ExerciseRepRangesView: View {
         self.workout = workout
         self.exercise = exercise
         self.history = history
-
-        switch exercise.modality.sets {
-        case .repRanges(warmups: let wu, worksets: let ws, backoffs: let bo):
-            self.warmups = wu
-            self.worksets = ws
-            self.backoffs = bo
-        default:
-            assert(false)   // this exercise must use repRanges sets
-            self.warmups = []
-            self.worksets = []
-            self.backoffs = []
-        }
     }
     
     var body: some View {
@@ -154,6 +142,18 @@ struct ExerciseRepRangesView: View {
     }
 
     func refresh() {
+        switch exercise.modality.sets {
+        case .repRanges(warmups: let wu, worksets: let ws, backoffs: let bo):
+            self.warmups = wu
+            self.worksets = ws
+            self.backoffs = bo
+        default:
+            assert(false)   // this exercise must use repRanges sets
+            self.warmups = []
+            self.worksets = []
+            self.backoffs = []
+        }
+
         let count = warmups.count + worksets.count + backoffs.count
         self.underway = count > 1 && exercise.current!.setIndex > 0
         
