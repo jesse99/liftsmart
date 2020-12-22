@@ -192,7 +192,7 @@ struct ExerciseDurationsView: View {
 }
 
 struct ExerciseView_Previews: PreviewProvider {
-    static let durations = [DurationSet(secs: 60, restSecs: 10)!, DurationSet(secs: 30, restSecs: 10)!, DurationSet(secs: 15, restSecs: 10)!]
+    static let durations = createDurations(secs: [60, 30, 15], rest: [10, 10, 10])
     static let sets = Sets.durations(durations, targetSecs: [90, 60, 30])
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Burpees", "Burpees", modality)

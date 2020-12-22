@@ -32,6 +32,16 @@ func createReps(reps: [ClosedRange<Int>], percent: [Int] = [], rest: [Int]) -> [
     return result
 }
 
+func createDurations(secs: [Int], rest: [Int]) -> [DurationSet] {
+    assert(secs.count == rest.count)
+    
+    var result: [DurationSet] = []
+    for i in 0..<secs.count {
+        result.append(DurationSet.create(secs: secs[i], restSecs: rest[i]).unwrap())
+    }
+    return result
+}
+
 func home() -> Program {
     // https://www.defrancostraining.com/joe-ds-qlimber-11q-flexibility-routine/
     func formRolling() -> Exercise {
@@ -84,7 +94,8 @@ func home() -> Program {
     }
 
     func piriformis() -> Exercise {
-        let sets = Sets.durations([DurationSet(secs: 30, restSecs: 0)!, DurationSet(secs: 30, restSecs: 0)!])
+        let durations = createDurations(secs: [30, 30], rest: [0, 0])
+        let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Piriformis Stretch", "Seated Piriformis Stretch", modality)
     }
@@ -98,10 +109,7 @@ func home() -> Program {
     }
     
     func bicepsStretch() -> Exercise {
-        let durations = [
-            DurationSet(secs: 15, restSecs: 30)!,
-            DurationSet(secs: 15, restSecs: 30)!,
-            DurationSet(secs: 15, restSecs: 0)!]
+        let durations = createDurations(secs: [15, 15, 15], rest: [30, 30, 0])
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Biceps Stretch", "Wall Biceps Stretch", modality)
@@ -115,10 +123,7 @@ func home() -> Program {
     }
     
     func sleeperStretch() -> Exercise {
-        let durations = [
-            DurationSet(secs: 30, restSecs: 30)!,
-            DurationSet(secs: 30, restSecs: 30)!,
-            DurationSet(secs: 30, restSecs: 0)!]
+        let durations = createDurations(secs: [30, 30, 30], rest: [30, 30, 0])
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Sleeper Stretch", "Sleeper Stretch", modality)
@@ -152,10 +157,7 @@ func home() -> Program {
 
     // Upper
     func planks() -> Exercise { // TODO: this should be some sort of progression
-        let durations = [
-            DurationSet(secs: 45, restSecs: 90)!,
-            DurationSet(secs: 45, restSecs: 90)!,
-            DurationSet(secs: 45, restSecs: 90)!]
+        let durations = createDurations(secs: [45, 45, 45], rest: [90, 90, 90])
         let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Front Plank", "Front Plank", modality)
@@ -169,10 +171,7 @@ func home() -> Program {
     }
 
     func reversePlank() -> Exercise { // TODO: this should be some sort of progression
-        let durations = [
-            DurationSet(secs: 50, restSecs: 90)!,
-            DurationSet(secs: 50, restSecs: 90)!,
-            DurationSet(secs: 50, restSecs: 90)!]
+        let durations = createDurations(secs: [50, 50, 50], rest: [90, 90, 90])
         let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Reverse Plank", "Reverse Plank", modality)

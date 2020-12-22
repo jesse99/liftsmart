@@ -236,12 +236,16 @@ struct DurationSet: CustomDebugStringConvertible, Storable {
     let secs: Int
     let restSecs: Int
     
-    init?(secs: Int, restSecs: Int = 0) {
-        if secs <= 0 {return nil}
-        if restSecs < 0 {return nil}
-
+    private init(secs: Int, restSecs: Int) {
         self.secs = secs
         self.restSecs = restSecs
+    }
+
+    static func create(secs: Int, restSecs: Int = 0) -> Either<String, DurationSet> {
+        if secs <= 0 {return .left("Rep duration cannot be negative")}
+        if restSecs < 0 {return .left("Rest cannot be negative")}
+
+        return .right(DurationSet(secs: secs, restSecs: restSecs))
     }
 
     init(from store: Store) {
@@ -260,6 +264,11 @@ struct DurationSet: CustomDebugStringConvertible, Storable {
         }
     }
 }
+
+// TODO:
+// create a Rest struct
+// add a create(String) methof to Rest and DurationSet
+// remove restToStr and strToRest
 
 enum Sets: CustomDebugStringConvertible {
     /// Used for stuff like 3x60s planks.

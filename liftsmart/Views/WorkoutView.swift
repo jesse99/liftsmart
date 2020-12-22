@@ -158,14 +158,8 @@ struct WorkoutView_Previews: PreviewProvider {
     static let m2 = Modality(Apparatus.bodyWeight, msets)
     static let curls = Exercise("Curls", "Curls", m2, Expected(weight: 20.0, reps: [100]))
 
-    static let set1 = DurationSet(secs: 90, restSecs: 60)!
-    static let set2 = DurationSet(secs: 80, restSecs: 60)!
-    static let set3 = DurationSet(secs: 70, restSecs: 60)!
-    static let set4 = DurationSet(secs: 60, restSecs: 60)!
-    static let set5 = DurationSet(secs: 50, restSecs: 60)!
-    static let set6 = DurationSet(secs: 40, restSecs: 60)!
-    static let set7 = DurationSet(secs: 30, restSecs: 60)!
-    static let dsets = Sets.durations([set1, set2, set3, set4, set5, set6, set7], targetSecs: [])
+    static let durations = createDurations(secs: [90, 80, 70, 60, 50, 40, 30], rest: [60, 60, 60, 60, 60, 60, 60])
+    static let dsets = Sets.durations(durations, targetSecs: [])
     static let m3 = Modality(Apparatus.bodyWeight, dsets)
     static let planks = Exercise("Planks", "Planks", m3)
     static let workout = createWorkout("Strength", [ohp, curls, planks], day: nil).unwrap()
