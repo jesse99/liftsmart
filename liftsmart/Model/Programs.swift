@@ -127,7 +127,7 @@ func home() -> Program {
             DurationSet(secs: 45, restSecs: 90)!,
             DurationSet(secs: 45, restSecs: 90)!,
             DurationSet(secs: 45, restSecs: 90)!]
-        let sets = Sets.durations(durations, targetSecs: [2*60, 2*60, 2*60])
+        let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Front Plank", "Front Plank", modality)
     }
