@@ -83,8 +83,8 @@ struct EditMaxRepsView: View, EditContext {
         self.weight = String(format: "%.3f", exercise.expected.weight)
         
         switch exercise.modality.sets {
-        case .maxReps(restSecs: let r, targetReps: let t):
-            self.rest = r.map({restToStr($0)}).joined(separator: " ")
+        case .maxReps(rest: let r, targetReps: let t):
+            self.rest = r.map({$0.editable}).joined(separator: " ")
             self.target = t != nil ? "\(t!)" : ""
         default:
             assert(false)
@@ -149,8 +149,8 @@ struct EditMaxRepsView: View, EditContext {
         self.exercise.expected.weight = Double(self.weight)!
         
         let target = Int(self.target)
-        let rest = self.rest.split(separator: " ").map({strToRest(String($0)).unwrap()})
-        exercise.modality.sets = .maxReps(restSecs: rest, targetReps: target)
+        let rest = self.rest.split(separator: " ").map({Rest.create(String($0)).unwrap()})
+        exercise.modality.sets = .maxReps(rest: rest, targetReps: target)
 
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
@@ -160,7 +160,7 @@ struct EditMaxRepsView: View, EditContext {
 
 struct EditMaxRepsView_Previews: PreviewProvider {
     static func curls() -> Exercise {
-        let sets = Sets.maxReps(restSecs: [90, 90, 0])
+        let sets = Sets.maxReps(rest: createRest(secs: [90, 90, 0]))
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: [74]))
     }

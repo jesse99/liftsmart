@@ -231,7 +231,7 @@ struct ProgramView_Previews: PreviewProvider {
     
     private static func home() -> Program {
         func burpees() -> Exercise {
-            let durations = createDurations(secs: [60], rest: [60])
+            let durations = createDurationSets(secs: [60], rest: [60])
             let sets = Sets.durations(durations)
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Burpees", "Burpees", modality)
@@ -242,7 +242,7 @@ struct ProgramView_Previews: PreviewProvider {
         }
         
         func squats() -> Exercise {
-            let durations = createDurations(secs: [60], rest: [60])
+            let durations = createDurationSets(secs: [60], rest: [60])
             let sets = Sets.durations(durations)
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Squats", "Body-weight Squat", modality)
@@ -252,9 +252,9 @@ struct ProgramView_Previews: PreviewProvider {
             return e
         }
         
-        func planks() -> Exercise { // TODO: this should be some sort of progression
-            let durations = createDurations(secs: [60, 60, 60], rest: [90, 90, 90])
-            let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
+        func planks() -> Exercise {
+            let durations = createDurationSets(secs: [60, 60, 60], rest: [90, 90, 90])
+            let sets = Sets.durations(durations, target: createDurations(secs: [60, 60, 60]))
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Planks", "Front Plank", modality)
             e.current = Current(weight: 0.0)
@@ -264,7 +264,7 @@ struct ProgramView_Previews: PreviewProvider {
         }
         
         func curls() -> Exercise {
-            let sets = Sets.maxReps(restSecs: [90, 90, 0])
+            let sets = Sets.maxReps(rest: createRest(secs: [90, 90, 0]))
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: [65]))
             e.current = Current(weight: 0.0)

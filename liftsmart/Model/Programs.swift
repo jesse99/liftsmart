@@ -2,6 +2,22 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
+func createRest(secs: [Int]) -> [Rest] {
+    var result: [Rest] = []
+    for i in 0..<secs.count {
+        result.append(Rest.create(secs: secs[i]).unwrap())
+    }
+    return result
+}
+
+func createDurations(secs: [Int]) -> [Duration] {
+    var result: [Duration] = []
+    for i in 0..<secs.count {
+        result.append(Duration.create(secs: secs[i]).unwrap())
+    }
+    return result
+}
+
 func createReps(reps: [Int], percent: [Int] = [], rest: [Int]) -> [RepsSet] {
     assert(reps.count == rest.count)
     assert(percent.isEmpty || reps.count == percent.count)
@@ -9,9 +25,9 @@ func createReps(reps: [Int], percent: [Int] = [], rest: [Int]) -> [RepsSet] {
     var result: [RepsSet] = []
     for i in 0..<reps.count {
         if percent.isEmpty {
-            result.append(RepsSet.create(reps: RepRange.create(reps[i]).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet.create(reps: RepRange.create(reps[i]).unwrap(), rest: Rest.create(secs: rest[i]).unwrap()).unwrap())
         } else {
-            result.append(RepsSet.create(reps: RepRange.create(reps[i]).unwrap(), percent: WeightPercent.create(Double(percent[i])/100.0).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet.create(reps: RepRange.create(reps[i]).unwrap(), percent: WeightPercent.create(Double(percent[i])/100.0).unwrap(), rest: Rest.create(secs: rest[i]).unwrap()).unwrap())
         }
     }
     return result
@@ -23,21 +39,21 @@ func createReps(reps: [ClosedRange<Int>], percent: [Int] = [], rest: [Int]) -> [
     var result: [RepsSet] = []
     for i in 0..<reps.count {
         if percent.isEmpty {
-            result.append(RepsSet.create(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet.create(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), rest: Rest.create(secs: rest[i]).unwrap()).unwrap())
         } else {
-            result.append(RepsSet.create(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), percent: WeightPercent.create(Double(percent[i])/100.0).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet.create(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), percent: WeightPercent.create(Double(percent[i])/100.0).unwrap(), rest: Rest.create(secs: rest[i]).unwrap()).unwrap())
 
         }
     }
     return result
 }
 
-func createDurations(secs: [Int], rest: [Int]) -> [DurationSet] {
+func createDurationSets(secs: [Int], rest: [Int]) -> [DurationSet] {
     assert(secs.count == rest.count)
     
     var result: [DurationSet] = []
     for i in 0..<secs.count {
-        result.append(DurationSet.create(secs: secs[i], restSecs: rest[i]).unwrap())
+        result.append(DurationSet.create(duration: Duration.create(secs: secs[i]).unwrap(), rest: Rest.create(secs: rest[i]).unwrap()).unwrap())
     }
     return result
 }
@@ -94,7 +110,7 @@ func home() -> Program {
     }
 
     func piriformis() -> Exercise {
-        let durations = createDurations(secs: [30, 30], rest: [0, 0])
+        let durations = createDurationSets(secs: [30, 30], rest: [0, 0])
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Piriformis Stretch", "Seated Piriformis Stretch", modality)
@@ -109,7 +125,7 @@ func home() -> Program {
     }
     
     func bicepsStretch() -> Exercise {
-        let durations = createDurations(secs: [15, 15, 15], rest: [30, 30, 0])
+        let durations = createDurationSets(secs: [15, 15, 15], rest: [30, 30, 0])
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Biceps Stretch", "Wall Biceps Stretch", modality)
@@ -123,7 +139,7 @@ func home() -> Program {
     }
     
     func sleeperStretch() -> Exercise {
-        let durations = createDurations(secs: [30, 30, 30], rest: [30, 30, 0])
+        let durations = createDurationSets(secs: [30, 30, 30], rest: [30, 30, 0])
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Sleeper Stretch", "Sleeper Stretch", modality)
@@ -157,8 +173,8 @@ func home() -> Program {
 
     // Upper
     func planks() -> Exercise { // TODO: this should be some sort of progression
-        let durations = createDurations(secs: [45, 45, 45], rest: [90, 90, 90])
-        let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
+        let durations = createDurationSets(secs: [45, 45, 45], rest: [90, 90, 90])
+        let sets = Sets.durations(durations, target: createDurations(secs: [60, 60, 60]))
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Front Plank", "Front Plank", modality)
     }
@@ -171,14 +187,14 @@ func home() -> Program {
     }
 
     func reversePlank() -> Exercise { // TODO: this should be some sort of progression
-        let durations = createDurations(secs: [50, 50, 50], rest: [90, 90, 90])
-        let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
+        let durations = createDurationSets(secs: [50, 50, 50], rest: [90, 90, 90])
+        let sets = Sets.durations(durations, target: createDurations(secs: [60, 60, 60]))
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Reverse Plank", "Reverse Plank", modality)
     }
     
     func curls() -> Exercise {
-        let sets = Sets.maxReps(restSecs: [90, 90, 90])
+        let sets = Sets.maxReps(rest: createRest(secs: [90, 90, 90]))
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 16.4, reps: [30]))
      }

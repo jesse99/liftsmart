@@ -13,7 +13,7 @@ struct ExerciseMaxRepsView: View {
     @State var startLabel: String = ""
     @State var completed: Int = 0   // number of reps the user has done so far
     @State var lastReps: Int? = nil // number of reps user did in the last set
-    @State var restSecs: [Int] = []
+    @State var restAry: [Rest] = []
     @State var startTimer: Bool = false
     @State var durationModal: Bool = false
     @State var historyModal: Bool = false
@@ -136,7 +136,7 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onAppear() {
-        if exercise.shouldReset(numSets: restSecs.count) {
+        if exercise.shouldReset(numSets: restAry.count) {
             onReset()
         } else {
             refresh()
@@ -152,23 +152,23 @@ struct ExerciseMaxRepsView: View {
     func refresh() {
         switch exercise.modality.sets {
         case .maxReps(let rs, targetReps: _):   // TODO: shouldn't we do something with targetReps? wizard?
-            self.restSecs = rs
+            self.restAry = rs
         default:
             assert(false)   // exercise must use maxReps sets
-            self.restSecs = []
+            self.restAry = []
         }
 
-        self.underway = self.restSecs.count > 1 && exercise.current!.setIndex > 0
+        self.underway = self.restAry.count > 1 && exercise.current!.setIndex > 0
 
-        if exercise.current!.setIndex < restSecs.count {
-            title = "Set \(exercise.current!.setIndex+1) of \(restSecs.count)"
-        } else if restSecs.count == 1 {
+        if exercise.current!.setIndex < restAry.count {
+            title = "Set \(exercise.current!.setIndex+1) of \(restAry.count)"
+        } else if restAry.count == 1 {
             title = "Finished"
         } else {
-            title = "Finished all \(restSecs.count) sets"
+            title = "Finished all \(restAry.count) sets"
         }
 
-        if exercise.current!.setIndex >= restSecs.count {
+        if exercise.current!.setIndex >= restAry.count {
             subTitle =  ""
         } else {
             var suffix = ""
@@ -186,7 +186,7 @@ struct ExerciseMaxRepsView: View {
         subSubTitle = ""
         if self.completed > 0 {
             if let expected = exercise.expected.reps.first {
-                if exercise.current!.setIndex < restSecs.count {
+                if exercise.current!.setIndex < restAry.count {
                     subSubTitle = "Did \(self.completed) reps (expecting \(expected) reps)"
                 } else if self.completed == expected {
                     subSubTitle = "Did all \(expected) expected reps"
@@ -201,7 +201,7 @@ struct ExerciseMaxRepsView: View {
 
         } else {
             if let expected = exercise.expected.reps.first {
-                if exercise.current!.setIndex < restSecs.count {
+                if exercise.current!.setIndex < restAry.count {
                     subSubTitle = "Expecting \(expected) reps"
                 } else {
                     subSubTitle = "Expected \(expected) reps"
@@ -209,7 +209,7 @@ struct ExerciseMaxRepsView: View {
             }
         }
 
-        if (exercise.current!.setIndex == restSecs.count) {
+        if (exercise.current!.setIndex == restAry.count) {
             startLabel = "Done"
         } else {
             startLabel = "Next"
@@ -228,7 +228,7 @@ struct ExerciseMaxRepsView: View {
     }
         
     func onNextOrDone() {
-        if exercise.current!.setIndex < restSecs.count {
+        if exercise.current!.setIndex < restAry.count {
             self.updateRepsDone = true
         } else if self.exercise.expected.reps.count != 1 || self.completed != self.exercise.expected.reps.first! {
             self.updateRepsDone = false
@@ -262,15 +262,15 @@ struct ExerciseMaxRepsView: View {
     }
     
     func startDuration(_ delta: Int) -> Int {
-        return restSecs[exercise.current!.setIndex + delta]
+        return restAry[exercise.current!.setIndex + delta].secs
     }
     
     func timerDuration() -> Int {
         var secs = 0
-        if exercise.current!.setIndex < restSecs.count {
-            secs = restSecs[exercise.current!.setIndex]
+        if exercise.current!.setIndex < restAry.count {
+            secs = restAry[exercise.current!.setIndex].secs
         } else {
-            secs = restSecs.last!
+            secs = restAry.last!.secs
         }
         
         return secs > 0 ? secs : 60
@@ -278,9 +278,9 @@ struct ExerciseMaxRepsView: View {
     
     func expected() -> Int? {
         if let expected = exercise.expected.reps.first {
-            if exercise.current!.setIndex < restSecs.count {
+            if exercise.current!.setIndex < restAry.count {
                 let remaining = Double(expected - self.completed)
-                let numSets = Double(restSecs.count - exercise.current!.setIndex)
+                let numSets = Double(restAry.count - exercise.current!.setIndex)
                 let reps = (remaining/numSets).rounded()
                 return Int(reps)
             } else {
@@ -293,8 +293,8 @@ struct ExerciseMaxRepsView: View {
 }
 
 struct ExerciseMaxRepsView_Previews: PreviewProvider {
-    static let restSecs = [60, 30, 15]
-    static let sets = Sets.maxReps(restSecs: restSecs)
+    static let rest = createRest(secs: [60, 30, 15])
+    static let sets = Sets.maxReps(rest: rest)
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0))
 //    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0, reps: 65))

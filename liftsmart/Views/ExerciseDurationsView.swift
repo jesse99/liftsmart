@@ -7,7 +7,7 @@ struct ExerciseDurationsView: View {
     var exercise: Exercise
     var history: History
     let durations: [DurationSet]
-    let targetSecs: [Int]
+    let target: [Duration]
     var timer = RestartableTimer(every: TimeInterval.hours(4))
     @State var title: String = ""
     @State var subTitle: String = ""
@@ -26,13 +26,13 @@ struct ExerciseDurationsView: View {
         self.history = history
 
         switch exercise.modality.sets {
-        case .durations(let d, targetSecs: let ts):
+        case .durations(let d, target: let ts):
             self.durations = d
-            self.targetSecs = ts
+            self.target = ts
         default:
             assert(false)   // exercise must use durations sets
             self.durations = []
-            self.targetSecs = []
+            self.target = []
         }
     }
     
@@ -102,9 +102,9 @@ struct ExerciseDurationsView: View {
 
         if exercise.current!.setIndex < durations.count {
             let duration = durations[exercise.current!.setIndex]
-            if targetSecs.count > 0 {
-                let target = targetSecs[exercise.current!.setIndex]
-                self.subTitle = "\(duration) (target is \(target)s)"
+            if target.count > 0 {
+                let t = target[exercise.current!.setIndex]
+                self.subTitle = "\(duration) (target is \(t)s)"
             } else {
                 self.subTitle = "\(duration)"
             }
@@ -175,25 +175,25 @@ struct ExerciseDurationsView: View {
     }
     
     func startDuration() -> Int {
-        return durations[exercise.current!.setIndex].secs
+        return durations[exercise.current!.setIndex].duration.secs
     }
     
     func timerDuration() -> Int {
         if exercise.current!.setIndex < durations.count {
-            return durations[exercise.current!.setIndex].restSecs
+            return durations[exercise.current!.setIndex].rest.secs
         } else {
-            return durations.last!.restSecs
+            return durations.last!.rest.secs
         }
     }
     
     func restSecs() -> Int {
-        return durations[exercise.current!.setIndex].restSecs
+        return durations[exercise.current!.setIndex].rest.secs
     }
 }
 
 struct ExerciseView_Previews: PreviewProvider {
-    static let durations = createDurations(secs: [60, 30, 15], rest: [10, 10, 10])
-    static let sets = Sets.durations(durations, targetSecs: [90, 60, 30])
+    static let durations = createDurationSets(secs: [60, 30, 15], rest: [10, 10, 10])
+    static let sets = Sets.durations(durations, target: createDurations(secs: [90, 60, 30]))
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Burpees", "Burpees", modality)
     static let workout = createWorkout("Cardio", [exercise], day: nil).unwrap()

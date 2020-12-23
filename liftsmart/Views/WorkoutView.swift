@@ -29,7 +29,7 @@ struct WorkoutEntry: Identifiable {
             let min = getExpectedReps(index) ?? workset.reps.min
             let max = workset.reps.max
             if case .right(let reps) = RepRange.create(min: min, max: max) {
-                if case .right(let set) = RepsSet.create(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
+                if case .right(let set) = RepsSet.create(reps: reps, percent: workset.percent, rest: workset.rest) {
                     result = set.debugDescription
                 }
             }
@@ -154,12 +154,12 @@ struct WorkoutView_Previews: PreviewProvider {
     static let m1 = Modality(Apparatus.bodyWeight, rsets)
     static let ohp = Exercise("OHP", "OHP", m1, Expected(weight: 120.0, reps: [10, 10, 10]))
     
-    static let msets = Sets.maxReps(restSecs: [60, 60, 60, 60, 60, 60], targetReps: 130)
+    static let msets = Sets.maxReps(rest: createRest(secs: [60, 60, 60, 60, 60, 60]), targetReps: 130)
     static let m2 = Modality(Apparatus.bodyWeight, msets)
     static let curls = Exercise("Curls", "Curls", m2, Expected(weight: 20.0, reps: [100]))
 
-    static let durations = createDurations(secs: [90, 80, 70, 60, 50, 40, 30], rest: [60, 60, 60, 60, 60, 60, 60])
-    static let dsets = Sets.durations(durations, targetSecs: [])
+    static let durations = createDurationSets(secs: [90, 80, 70, 60, 50, 40, 30], rest: [60, 60, 60, 60, 60, 60, 60])
+    static let dsets = Sets.durations(durations, target: [])
     static let m3 = Modality(Apparatus.bodyWeight, dsets)
     static let planks = Exercise("Planks", "Planks", m3)
     static let workout = createWorkout("Strength", [ohp, curls, planks], day: nil).unwrap()

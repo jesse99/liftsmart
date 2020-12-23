@@ -64,7 +64,7 @@ struct EditRepsSetView: View {
     func refresh() {
         self.reps = set.wrappedValue.map({$0.reps.editable}).joined(separator: " ")
         self.percents = set.wrappedValue.map({$0.percent.editable}).joined(separator: " ")
-        self.rests = set.wrappedValue.map({restToStr($0.restSecs)}).joined(separator: " ")
+        self.rests = set.wrappedValue.map({$0.rest.editable}).joined(separator: " ")
     }
         
     func doValidate() -> [RepsSet]? {
@@ -96,9 +96,9 @@ struct EditRepsSetView: View {
 
         // Check each rest
         parts = self.rests.split(separator: " ")
-        var restSet: [Int] = []
+        var restSet: [Rest] = []
         for part in parts {
-            switch strToRest(String(part)) {
+            switch Rest.create(String(part)) {
             case .right(let r):
                 restSet.append(r)
             case .left(let e):
@@ -111,7 +111,7 @@ struct EditRepsSetView: View {
         if repsSet.count == percentSet.count && percentSet.count == restSet.count {
             var result: [RepsSet] = []
             for i in 0..<repsSet.count {
-                switch RepsSet.create(reps: repsSet[i], percent: percentSet[i], restSecs: restSet[i]) {
+                switch RepsSet.create(reps: repsSet[i], percent: percentSet[i], rest: restSet[i]) {
                 case .right(let r):
                     result.append(r)
                 case .left(let e):
