@@ -84,7 +84,7 @@ class History: Storable {
             }
             
             var actual: [String] = []
-            for i in 0...current.actualReps.count {
+            for i in 0..<current.actualReps.count {
                 if i < current.actualWeights.count && current.actualWeights[i] != "" {
                     actual.append("\(current.actualReps[i]) @ \(current.actualWeights[i])")
                 } else {
