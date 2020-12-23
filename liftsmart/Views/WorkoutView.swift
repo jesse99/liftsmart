@@ -40,8 +40,8 @@ struct WorkoutEntry: Identifiable {
         var limit = 5
         
         switch exercise.modality.sets {
-        case .durations(let durations, _):
-            sets = durations.map({$0.debugDescription})
+        case .durations(let d):
+            sets = d.durations.map({$0.debugDescription})
 
         case .maxReps(let restSecs, let targetReps):
             if exercise.expected.reps.isEmpty {
@@ -133,7 +133,7 @@ struct WorkoutView: View {
     
     func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
-        case .durations(_, _):
+        case .durations(_):
             return AnyView(ExerciseDurationsView(workout, exercise, history))
 
         case .maxReps(_, _):
@@ -159,7 +159,7 @@ struct WorkoutView_Previews: PreviewProvider {
     static let curls = Exercise("Curls", "Curls", m2, Expected(weight: 20.0, reps: [100]))
 
     static let durations = createDurationSets(secs: [90, 80, 70, 60, 50, 40, 30], rest: [60, 60, 60, 60, 60, 60, 60])
-    static let dsets = Sets.durations(durations, target: [])
+    static let dsets = Sets.durations(Durations.create(durations, target: []).unwrap())
     static let m3 = Modality(Apparatus.bodyWeight, dsets)
     static let planks = Exercise("Planks", "Planks", m3)
     static let workout = createWorkout("Strength", [ohp, curls, planks], day: nil).unwrap()

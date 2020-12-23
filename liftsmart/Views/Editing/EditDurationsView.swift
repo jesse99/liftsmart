@@ -81,10 +81,10 @@ struct EditDurationsView: View, EditContext {
         self.weight = String(format: "%.3f", exercise.expected.weight)
         
         switch exercise.modality.sets {
-        case .durations(let d, target: let t):
-            self.durations = d.map({$0.duration.editable}).joined(separator: " ")
-            self.rest = d.map({$0.rest.editable}).joined(separator: " ")
-            self.target = t.map({$0.editable}).joined(separator: " ")
+        case .durations(let d):
+            self.durations = d.durations.map({$0.duration.editable}).joined(separator: " ")
+            self.rest = d.durations.map({$0.rest.editable}).joined(separator: " ")
+            self.target = d.target.map({$0.editable}).joined(separator: " ")
         default:
             assert(false)
         }
@@ -173,7 +173,7 @@ struct EditDurationsView: View, EditContext {
         let restAry = self.rest.split(separator: " ").map({Rest.create(String($0)).unwrap()})
         let sets = zip(duraAry, restAry).map({DurationSet.create(duration: $0, rest: $1).unwrap()})
         let targ = self.target.split(separator: " ").map({Duration.create(String($0)).unwrap()})
-        exercise.modality.sets = .durations(sets, target: targ)
+        exercise.modality.sets = .durations(Durations.create(sets, target: targ).unwrap())
 
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
@@ -184,7 +184,7 @@ struct EditDurationsView: View, EditContext {
 struct EditDurationsView_Previews: PreviewProvider {
     static func burpees() -> Exercise {
         let durations = createDurationSets(secs: [45], rest: [60])
-        let sets = Sets.durations(durations)
+        let sets = Sets.durations(Durations.create(durations).unwrap())
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Burpees", "Burpees", modality)
     }

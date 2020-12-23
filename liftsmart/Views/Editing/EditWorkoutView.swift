@@ -246,7 +246,7 @@ struct EditWorkoutView_Previews: PreviewProvider {
     private static func cardio() -> Workout {
         func burpees() -> Exercise {
             let durations = createDurationSets(secs: [60], rest: [60])
-            let sets = Sets.durations(durations)
+            let sets = Sets.durations(Durations.create(durations).unwrap())
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Burpees", "Burpees", modality)
             e.current = Current(weight: 0.0)
@@ -257,7 +257,7 @@ struct EditWorkoutView_Previews: PreviewProvider {
         
         func squats() -> Exercise {
             let durations = createDurationSets(secs: [60], rest: [60])
-            let sets = Sets.durations(durations)
+            let sets = Sets.durations(Durations.create(durations).unwrap())
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Squats", "Body-weight Squat", modality)
             e.current = Current(weight: 0.0)
