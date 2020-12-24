@@ -141,13 +141,14 @@ struct EditRepsSetView: View {
     }
 }
 
-struct EditRepsSetView_Previews: PreviewProvider {
-    static var previews: some View {
-        let work = createReps(reps: [8...12, 6...10, 4...8], percent: [70, 80, 90], rest: [3*60, 3*60, 3*60 + 30])
-        let b = Binding.constant(work)
-        EditRepsSetView(name: Binding.constant("Work Sets"), set: b, completion: done)
-    }
-    
-    static func done(_ reps: [RepsSet]) {
-    }
-}
+//struct EditRepsSetView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        let s1 = RepsSet(reps: RepRange(min: 8, max: 12)!, percent: WeightPercent(0.7)!, restSecs: 3*60)!
+//        let s2 = RepsSet(reps: RepRange(min: 6, max: 10)!, percent: WeightPercent(0.8)!, restSecs: 3*60)!
+//        let s3 = RepsSet(reps: RepRange(min: 4, max: 8)!,  percent: WeightPercent(0.9)!, restSecs: 3*60 + 30)!
+//        EditRepsSetView(name: "Work Sets", set: [s1, s2, s3], completion: done)
+//    }
+//    
+//    static func done(_ reps: [RepsSet]) {
+//    }
+//}
