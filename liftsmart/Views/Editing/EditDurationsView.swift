@@ -81,10 +81,10 @@ struct EditDurationsView: View, EditContext {
         self.weight = String(format: "%.3f", exercise.expected.weight)
         
         switch exercise.modality.sets {
-        case .durations(let d, target: let t):
-            self.durations = d.map({$0.duration.editable}).joined(separator: " ")
-            self.rest = d.map({$0.rest.editable}).joined(separator: " ")
-            self.target = t.map({$0.editable}).joined(separator: " ")
+        case .durations(let d, targetSecs: let t):
+            self.durations = d.map({restToStr($0.secs)}).joined(separator: " ")
+            self.rest = d.map({restToStr($0.restSecs)}).joined(separator: " ")
+            self.target = t.map({restToStr($0)}).joined(separator: " ")
         default:
             assert(false)
         }
@@ -109,7 +109,7 @@ struct EditDurationsView: View, EditContext {
         }
         
         for token in text.split(separator: " ") {
-            switch parseTime(String(token), label) {
+            switch strToRest(String(token), label: label) {
             case .right(_):
                 self.errText = ""
             case .left(let err):
@@ -128,7 +128,7 @@ struct EditDurationsView: View, EditContext {
             return       // bail on the first error
         }
         
-        validateSecs(text, label: "Duration")
+        validateSecs(text, label: "duration")
     }
     
     func onEditedTarget(_ inText: String) {
@@ -138,10 +138,9 @@ struct EditDurationsView: View, EditContext {
             return       // OK to have no target
         }
         
-        validateSecs(text, label: "Target")
+        validateSecs(text, label: "target")
     }
     
-    // Note that most of the validation is done within createRestView
     func onEditedRest(_ text: String) -> String? {
         if !setsMatch() {
             return "Durations, target, and rest must have the same number of sets (although target can be empty)"
@@ -169,11 +168,11 @@ struct EditDurationsView: View, EditContext {
         self.exercise.formalName = self.formalName
         self.exercise.expected.weight = Double(self.weight)!
         
-        let duraAry = self.durations.split(separator: " ").map({Duration.create(String($0)).unwrap()})
-        let restAry = self.rest.split(separator: " ").map({Rest.create(String($0)).unwrap()})
-        let sets = zip(duraAry, restAry).map({DurationSet.create(duration: $0, rest: $1).unwrap()})
-        let targ = self.target.split(separator: " ").map({Duration.create(String($0)).unwrap()})
-        exercise.modality.sets = .durations(sets, target: targ)
+        let secs = self.durations.split(separator: " ").map({strToRest(String($0)).unwrap()})
+        let restSecs = self.rest.split(separator: " ").map({strToRest(String($0)).unwrap()})
+        let sets = zip(secs, restSecs).map({DurationSet.create(secs: $0, restSecs: $1).unwrap()})
+        let targ = self.target.split(separator: " ").map({strToRest(String($0)).unwrap()})
+        exercise.modality.sets = .durations(sets, targetSecs: targ)
 
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
@@ -183,7 +182,7 @@ struct EditDurationsView: View, EditContext {
 
 struct EditDurationsView_Previews: PreviewProvider {
     static func burpees() -> Exercise {
-        let durations = createDurationSets(secs: [45], rest: [60])
+        let durations = createDurations(secs: [45], rest: [60])
         let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Burpees", "Burpees", modality)

@@ -178,7 +178,7 @@ func createRestView(text: Binding<String>, _ context: EditContext, extra: ExtraV
             return
         }
         for token in text.split(separator: " ") {
-            switch Rest.create(String(token)) {
+            switch strToRest(String(token)) {
             case .right(_):
                 break
             case .left(let err):

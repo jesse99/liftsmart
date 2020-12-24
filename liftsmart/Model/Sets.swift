@@ -2,6 +2,44 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
+func restToStr(_ secs: Int) -> String {
+    if secs <= 0 {
+        return "0s"
+
+    } else if secs <= 60 {
+        return "\(secs)s"
+    
+    } else {
+        let s = friendlyFloat(String.init(format: "%.1f", Double(secs)/60.0))
+        return s + "m"
+    }
+}
+
+func strToRest(_ inText: String, label: String = "rest") -> Either<String, Int> {
+    func convert(_ text: String, scaleBy: Double) -> Either<String, Int> {
+        if var secs = Double(text) {
+            secs *= scaleBy
+            if secs < 0.0 {
+                return .left("\(label.capitalized) should be positive (not \(secs))")
+            } else {
+                return .right(Int(secs))
+            }
+        } else {
+            return .left("Expected a \(label) value (not \(text))")
+        }
+    }
+    
+    let txt = inText.trimmingCharacters(in: .whitespaces)
+    switch txt.last ?? "\u{3}" {
+    case "\u{3}": return .left("Expected a \(label) time but found nothing") // End-of-text
+    case "m": return convert(String(txt.dropLast()), scaleBy: 60.0)
+    case "s": return convert(String(txt.dropLast()), scaleBy: 1.0)
+    case "0"..."9": return convert(txt, scaleBy: 1.0)
+    case ".": return convert(txt, scaleBy: 1.0)
+    default: return .left("Time units are 's' and 'm' (not \(txt.last!))")
+    }
+}
+
 struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int
@@ -151,145 +189,33 @@ struct WeightPercent: CustomDebugStringConvertible, Storable {
     }
 }
 
-// INT ('s' | 'm')?
-func parseTime(_ text: String, _ label: String) -> Either<String, Int> {
-    let scanner = Scanner(string: text)
-    
-    let secs = scanner.scanDouble()
-    let units = scanner.scanCharacter()
-    if secs == nil {
-        return .left("Expected a number for \(label.lowercased())")
-    }
-    if let u = units, u != "s" && u != "m" {
-        return .left("\(label) units should be 's' or 'm'")
-    }
-    if !scanner.isAtEnd {
-        return .left("\(label) should be a number followed by optional s or m units")
-    }
-    let r = secs! * ((units ?? "s") == "s" ? 1.0 : 60.0)
-    return .right(Int(r))
-}
-
-fileprivate func timeToStr(_ secs: Int) -> String {
-    if secs <= 0 {
-        return "0s"
-
-    } else if secs <= 60 {
-        return "\(secs)s"
-    
-    } else {
-        let s = friendlyFloat(String.init(format: "%.1f", Double(secs)/60.0))
-        return s + "m"
-    }
-}
-
-struct Rest: CustomDebugStringConvertible { // for historical reasons this is not Storable
-    let secs: Int
-    
-    private init(_ secs: Int) {
-        self.secs = secs
-    }
-    
-    static func create(secs: Int) -> Either<String, Rest> {
-        if secs < 0 {return .left("Rest cannot be negative")}
-        return .right(Rest(secs))
-    }
-        
-    static func create(_ text: String) -> Either<String, Rest> {
-        switch parseTime(text, "Rest") {
-        case .right(let s):
-            return Rest.create(secs: s)
-        case .left(let e):
-            return .left(e)
-        }
-    }
-
-    var label: String {
-        get {
-            return timeToStr(secs)
-        }
-    }
-    
-    var editable: String {
-        return self.label
-    }
-    
-    var debugDescription: String {
-        return self.label
-    }
-    
-    // TODO: Do we stilll want phash?
-    fileprivate func phash() -> Int {
-        return self.secs.hashValue
-    }
-}
-
-struct Duration: CustomDebugStringConvertible { // for historical reasons this is not Storable
-    let secs: Int
-    
-    private init(_ secs: Int) {
-        self.secs = secs
-    }
-    
-    static func create(secs: Int) -> Either<String, Duration> {
-        if secs <= 0 {return .left("Duration cannot be zero or negative")}
-        return .right(Duration(secs))
-    }
-        
-    static func create(_ text: String) -> Either<String, Duration> {
-        switch parseTime(text, "Duration") {
-        case .right(let s):
-            return Duration.create(secs: s)
-        case .left(let e):
-            return .left(e)
-        }
-    }
-
-    var label: String {
-        get {
-            return timeToStr(secs)
-        }
-    }
-    
-    var editable: String {
-        return self.label
-    }
-    
-    var debugDescription: String {
-        return self.label
-    }
-    
-    // TODO: Do we stilll want phash?
-    fileprivate func phash() -> Int {
-        return self.secs.hashValue
-    }
-}
-
 struct RepsSet: CustomDebugStringConvertible, Storable {
     let reps: RepRange
     let percent: WeightPercent
-    let rest: Rest
+    let restSecs: Int
     
-    private init(reps: RepRange, percent: WeightPercent, rest: Rest) {
+    private init(reps: RepRange, percent: WeightPercent, restSecs: Int) {
         self.reps = reps
         self.percent = percent
-        self.rest = rest
+        self.restSecs = restSecs
     }
     
-    static func create(reps: RepRange, percent: WeightPercent = WeightPercent.create(1.0).unwrap(), rest: Rest = Rest.create(secs: 0).unwrap()) -> Either<String, RepsSet> {
-        return .right(RepsSet(reps: reps, percent: percent, rest: rest))
+    static func create(reps: RepRange, percent: WeightPercent = WeightPercent.create(1.0).unwrap(), restSecs: Int = 0) -> Either<String, RepsSet> {
+        if restSecs < 0 {return .left("Rest cannot be negative")}
+        
+        return .right(RepsSet(reps: reps, percent: percent, restSecs: restSecs))
     }
     
     init(from store: Store) {
         self.reps = store.getObj("reps")
         self.percent = store.getObj("percent")
-        self.rest = Rest.create(secs: store.getInt("restSecs")).unwrap()
+        self.restSecs = store.getInt("restSecs")
     }
     
     func save(_ store: Store) {
         store.addObj("reps", reps)
         store.addObj("percent", percent)
-        store.addInt("restSecs", rest.secs)
+        store.addInt("restSecs", restSecs)
     }
 
     var debugDescription: String {
@@ -302,56 +228,61 @@ struct RepsSet: CustomDebugStringConvertible, Storable {
     }
     
     fileprivate func phash() -> Int {
-        return self.reps.phash() &+ self.percent.phash() &+ self.rest.phash()
+        return self.reps.phash() &+ self.percent.phash() &+ self.restSecs.hashValue
     }
 }
 
 struct DurationSet: CustomDebugStringConvertible, Storable {
-    let duration: Duration
-    let rest: Rest
+    let secs: Int
+    let restSecs: Int
     
-    private init(duration: Duration, rest: Rest) {
-        self.duration = duration
-        self.rest = rest
+    private init(secs: Int, restSecs: Int) {
+        self.secs = secs
+        self.restSecs = restSecs
     }
 
-    static func create(duration: Duration, rest: Rest = Rest.create(secs: 0).unwrap()) -> Either<String, DurationSet> {
-        return .right(DurationSet(duration: duration, rest: rest))
+    static func create(secs: Int, restSecs: Int = 0) -> Either<String, DurationSet> {
+        if secs <= 0 {return .left("Rep duration cannot be negative")}
+        if restSecs < 0 {return .left("Rest cannot be negative")}
+
+        return .right(DurationSet(secs: secs, restSecs: restSecs))
     }
 
     init(from store: Store) {
-        self.duration = Duration.create(secs: store.getInt("secs")).unwrap()
-        self.rest = Rest.create(secs: store.getInt("restSecs")).unwrap()
+        self.secs = store.getInt("secs")
+        self.restSecs = store.getInt("restSecs")
     }
     
     func save(_ store: Store) {
-        store.addInt("secs", duration.secs)
-        store.addInt("restSecs", rest.secs)
+        store.addInt("secs", secs)
+        store.addInt("restSecs", restSecs)
     }
 
     var debugDescription: String {
         get {
-            return duration.label
+            return "\(self.secs)s"
         }
     }
 }
 
-// TODO: to make this safe would have to have structs like Durations, MaxReps, etc
-// See https://forums.swift.org/t/access-control-for-enum-case-initializers/22663
-// make sure load from store still works
+// TODO:
+// create a Rest struct
+// add a create(String) methof to Rest and DurationSet
+// remove restToStr and strToRest
+
 enum Sets: CustomDebugStringConvertible {
     /// Used for stuff like 3x60s planks.
-    case durations([DurationSet], target: [Duration] = [])
+    case durations([DurationSet], targetSecs: [Int] = [])
 
     /// Used for stuff like curls to exhaustion. targetReps is the reps across all sets.
-    case maxReps(rest: [Rest], targetReps: Int? = nil)
+    case maxReps(restSecs: [Int], targetReps: Int? = nil)
     
     /// Used for stuff like 3x5 squat or 3x8-12 lat pulldown.
     case repRanges(warmups: [RepsSet], worksets: [RepsSet], backoffs: [RepsSet])
 
-//    case untimed(rest: [Rest])
+//    case untimed(restSecs: [Int])
     
-    // TODO: Will need some sort of rep target case (for stuff like pullups).
+    // TODO: Will need some sort of reps target case (for stuff like pullups).
 
     var debugDescription: String {
         get {
@@ -387,9 +318,12 @@ enum Sets: CustomDebugStringConvertible {
 extension Sets {
     func validate() -> Bool {
         switch self {
-        case .durations(let durations, target: let target):
+        case .durations(let durations, targetSecs: let targetSecs):
             if durations.isEmpty {return false}
-            if target.count > 0 && target.count != durations.count {return false}
+            if targetSecs.count > 0 && targetSecs.count != durations.count {return false}
+            for target in targetSecs {
+                if target <= 0 {return false}
+            }
 
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
             if worksets.isEmpty {return false}
@@ -411,8 +345,11 @@ extension Sets {
                 }
             }
                 
-        case .maxReps(rest: let rest, targetReps: let targetReps):
-            if rest.isEmpty {return false}
+        case .maxReps(restSecs: let secs, targetReps: let targetReps):
+            if secs.isEmpty {return false}
+            for sec in secs {
+                if sec <= 0 {return false}
+            }
             if let target = targetReps {
                 if target <= 0 {return false}
             }
@@ -431,17 +368,13 @@ extension Sets: Storable {
         let tname = store.getStr("type")
         switch tname {
         case "durations":
-            let tarAry = store.getIntArray("targetSecs")
-            let target = tarAry.map({Duration.create(secs: $0).unwrap()})
-            self = .durations(store.getObjArray("durations"), target: target)
+            self = .durations(store.getObjArray("durations"), targetSecs: store.getIntArray("targetSecs"))
             
         case "maxReps":
-            let restAry = store.getIntArray("restSecs")
-            let rest = restAry.map({Rest.create(secs: $0).unwrap()})
             if store.hasKey("targetReps") {
-                self = .maxReps(rest: rest, targetReps: store.getInt("targetReps"))
+                self = .maxReps(restSecs: store.getIntArray("restSecs"), targetReps: store.getInt("targetReps"))
             } else {
-                self = .maxReps(rest: rest, targetReps: nil)
+                self = .maxReps(restSecs: store.getIntArray("restSecs"), targetReps: nil)
             }
             
         case "repRanges":
@@ -454,16 +387,14 @@ extension Sets: Storable {
     
     func save(_ store: Store) {
         switch self {
-        case .durations(let durations, let target):
+        case .durations(let durations, let targetSecs):
             store.addStr("type", "durations")
             store.addObjArray("durations", durations)
-            let tar = target.map({$0.secs})
-            store.addIntArray("targetSecs", tar)
+            store.addIntArray("targetSecs", targetSecs)
 
-        case .maxReps(let rest, let targetReps):
+        case .maxReps(let restSecs, let targetReps):
             store.addStr("type", "maxReps")
-            let r = rest.map({$0.secs})
-            store.addIntArray("restSecs", r)
+            store.addIntArray("restSecs", restSecs)
             if let target = targetReps {
                 store.addInt("targetReps", target)
             }

@@ -284,16 +284,16 @@ struct ExerciseRepRangesView: View {
     }
     
     func startDuration(_ delta: Int) -> Int {
-        return getRepsSet(delta).rest.secs
+        return getRepsSet(delta).restSecs
     }
     
     func timerDuration() -> Int {
         var secs = 0
         let count = warmups.count + worksets.count + backoffs.count
         if exercise.current!.setIndex < count {
-            secs = getRepsSet().rest.secs
+            secs = getRepsSet().restSecs
         } else {
-            secs = worksets.last!.rest.secs
+            secs = worksets.last!.restSecs
         }
         
         return secs > 0 ? secs : 60
