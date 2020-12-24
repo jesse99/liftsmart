@@ -14,7 +14,7 @@ struct EditRepRangesView: View, EditContext {
     @State var showHelp = false
     @State var showRepsSet = false
     @State var repsSetName = ""
-    @State var repsSet = [RepsSet(reps: RepRange(10)!)!]
+    @State var repsSet = [RepsSet(reps: RepRange(10))]
     @State var helpText = ""
     @State var formalNameModal = false
     @Environment(\.presentationMode) private var presentationMode
@@ -186,8 +186,8 @@ struct EditRepRangesView: View, EditContext {
 
 struct EditRepRangesView_Previews: PreviewProvider {
     static func splitSquats() -> Exercise {
-        let warmup = RepsSet(reps: RepRange(4)!, percent: WeightPercent(0.0)!, restSecs: 90)!
-        let work = RepsSet(reps: RepRange(min: 4, max: 8)!, restSecs: 3*60)!
+        let warmup = RepsSet(reps: RepRange(4), percent: WeightPercent(0.0), restSecs: 90)
+        let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 3*60)
         let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))

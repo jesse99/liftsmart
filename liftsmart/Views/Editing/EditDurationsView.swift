@@ -170,7 +170,7 @@ struct EditDurationsView: View, EditContext {
         
         let secs = self.durations.split(separator: " ").map({strToRest(String($0)).unwrap()})
         let restSecs = self.rest.split(separator: " ").map({strToRest(String($0)).unwrap()})
-        let sets = zip(secs, restSecs).map({DurationSet(secs: $0, restSecs: $1)!})
+        let sets = zip(secs, restSecs).map({DurationSet(secs: $0, restSecs: $1)})
         let targ = self.target.split(separator: " ").map({strToRest(String($0)).unwrap()})
         exercise.modality.sets = .durations(sets, targetSecs: targ)
 
@@ -182,7 +182,7 @@ struct EditDurationsView: View, EditContext {
 
 struct EditDurationsView_Previews: PreviewProvider {
     static func burpees() -> Exercise {
-        let sets = Sets.durations([DurationSet(secs: 45, restSecs: 60)!])
+        let sets = Sets.durations([DurationSet(secs: 45, restSecs: 60)])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Burpees", "Burpees", modality)
     }

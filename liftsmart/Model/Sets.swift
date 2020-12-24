@@ -44,17 +44,12 @@ struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int
     
-    init?(_ reps: Int) {
-        if reps <= 0 {return nil}
-        
+    init(_ reps: Int) {
         self.min = reps
         self.max = reps
     }
     
-    init?(min: Int, max: Int) {
-        if min <= 0 {return nil}
-        if min > max {return nil}
-
+    init(min: Int, max: Int) {
         self.min = min
         self.max = max
     }
@@ -73,12 +68,12 @@ struct RepRange: CustomDebugStringConvertible, Storable {
             return .left("Reps cannot be negative")
         }
         if sep == nil && max == nil {
-            return .right(RepRange(min!)!)
+            return .right(RepRange(min!))
         }
         if min! > max! {
             return .left("Min reps must be smaller than max reps")
         }
-        return .right(RepRange(min: min!, max: max!)!)
+        return .right(RepRange(min: min!, max: max!))
     }
 
     var label: String {
@@ -128,16 +123,7 @@ struct RepRange: CustomDebugStringConvertible, Storable {
 struct WeightPercent: CustomDebugStringConvertible, Storable {
     let value: Double
 
-    init?(_ value: Double) {
-        // For a barbell 0% means just the bar.
-        // For a dumbbell 0% means no weight which could be useful for warmups when very light weights are used.
-        if value < 0.0 {return nil}
-
-        // Some programs, like CAP3, call for lifting a bit over 100% on some days. But we'll consider it an error if the user tries to lift way over 100%.
-        if value > 1.5 {return nil}
-
-        if value.isNaN {return nil}
-        
+    init(_ value: Double) {
         self.value = value
     }
     
@@ -155,7 +141,7 @@ struct WeightPercent: CustomDebugStringConvertible, Storable {
         if p! > 150 {
             return .left("Percent is too big")
         }
-        return .right(WeightPercent(p!/100.0)!)
+        return .right(WeightPercent(p!/100.0))
     }
 
     static func * (lhs: Double, rhs: WeightPercent) -> Double {
@@ -204,9 +190,7 @@ struct RepsSet: CustomDebugStringConvertible, Storable {
     let percent: WeightPercent
     let restSecs: Int
     
-    init?(reps: RepRange, percent: WeightPercent = WeightPercent(1.0)!, restSecs: Int = 0) {
-        if restSecs < 0 {return nil}
-        
+    init(reps: RepRange, percent: WeightPercent = WeightPercent(1.0), restSecs: Int = 0) {
         self.reps = reps
         self.percent = percent
         self.restSecs = restSecs
@@ -242,10 +226,7 @@ struct DurationSet: CustomDebugStringConvertible, Storable {
     let secs: Int
     let restSecs: Int
     
-    init?(secs: Int, restSecs: Int = 0) {
-        if secs <= 0 {return nil}
-        if restSecs < 0 {return nil}
-
+    init(secs: Int, restSecs: Int = 0) {
         self.secs = secs
         self.restSecs = restSecs
     }
@@ -309,54 +290,6 @@ enum Sets: CustomDebugStringConvertible {
                 return sets.joined(separator: ", ")
             }
         }
-    }
-}
-
-extension Sets {
-    func validate() -> Bool {
-        switch self {
-        case .durations(let durations, targetSecs: let targetSecs):
-            if durations.isEmpty {return false}
-            if targetSecs.count > 0 && targetSecs.count != durations.count {return false}
-            for target in targetSecs {
-                if target <= 0 {return false}
-            }
-
-        case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
-            if worksets.isEmpty {return false}
-            
-            // Note that RepRange init takes care of checking min > max.
-            var minReps: Int? = nil
-            var maxReps: Int? = nil
-            for set in worksets {
-                if set.reps.min < set.reps.max {
-                    if minReps == nil {
-                        minReps = set.reps.min
-                        maxReps = set.reps.max
-                    } else {
-                        if minReps! != set.reps.min || maxReps! != set.reps.max {
-                            // Disallow worksets like [4-8, 3-5] so that we can always return something sensible from repRange.
-                            return false
-                        }
-                    }
-                }
-            }
-                
-        case .maxReps(restSecs: let secs, targetReps: let targetReps):
-            if secs.isEmpty {return false}
-            for sec in secs {
-                if sec <= 0 {return false}
-            }
-            if let target = targetReps {
-                if target <= 0 {return false}
-            }
-
-//        case .untimed(restSecs: let secs):
-//            if secs.isEmpty {return false}
-//            if secs.any({$0 < 0}) {return false}
-        }
-        
-       return true
     }
 }
 

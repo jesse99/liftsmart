@@ -24,15 +24,11 @@ struct WorkoutEntry: Identifiable {
         }
 
         func getRepsLabel(_ index: Int, _ workset: RepsSet) -> String {
-            var result = ""
-            
             let min = getExpectedReps(index) ?? workset.reps.min
             let max = workset.reps.max
-            if let reps = RepRange(min: min, max: max), let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs) {
-                result = set.debugDescription
-            }
-            
-            return result
+            let reps = RepRange(min: min, max: max)
+            let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs)
+            return set.debugDescription
         }
         
         var sets: [String] = []
@@ -148,12 +144,12 @@ struct WorkoutView: View {
 }
 
 struct WorkoutView_Previews: PreviewProvider {
-    static let reps1 = RepRange(min: 8, max: 12)!
-    static let reps2 = RepRange(min: 6, max: 10)!
-    static let reps3 = RepRange(min: 4, max: 6)!
-    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(0.8)!, restSecs: 60)!
-    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(0.9)!, restSecs: 60)!
-    static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0)!)!
+    static let reps1 = RepRange(min: 8, max: 12)
+    static let reps2 = RepRange(min: 6, max: 10)
+    static let reps3 = RepRange(min: 4, max: 6)
+    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(0.8), restSecs: 60)
+    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(0.9), restSecs: 60)
+    static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0))
     static let rsets = Sets.repRanges(warmups: [], worksets: [work1, work2, work3], backoffs: [])
     static let m1 = Modality(Apparatus.bodyWeight, rsets)
     static let ohp = Exercise("OHP", "OHP", m1, Expected(weight: 120.0, reps: [10, 10, 10]))
@@ -162,13 +158,13 @@ struct WorkoutView_Previews: PreviewProvider {
     static let m2 = Modality(Apparatus.bodyWeight, msets)
     static let curls = Exercise("Curls", "Curls", m2, Expected(weight: 20.0, reps: [100]))
 
-    static let set1 = DurationSet(secs: 90, restSecs: 60)!
-    static let set2 = DurationSet(secs: 80, restSecs: 60)!
-    static let set3 = DurationSet(secs: 70, restSecs: 60)!
-    static let set4 = DurationSet(secs: 60, restSecs: 60)!
-    static let set5 = DurationSet(secs: 50, restSecs: 60)!
-    static let set6 = DurationSet(secs: 40, restSecs: 60)!
-    static let set7 = DurationSet(secs: 30, restSecs: 60)!
+    static let set1 = DurationSet(secs: 90, restSecs: 60)
+    static let set2 = DurationSet(secs: 80, restSecs: 60)
+    static let set3 = DurationSet(secs: 70, restSecs: 60)
+    static let set4 = DurationSet(secs: 60, restSecs: 60)
+    static let set5 = DurationSet(secs: 50, restSecs: 60)
+    static let set6 = DurationSet(secs: 40, restSecs: 60)
+    static let set7 = DurationSet(secs: 30, restSecs: 60)
     static let dsets = Sets.durations([set1, set2, set3, set4, set5, set6, set7], targetSecs: [])
     static let m3 = Modality(Apparatus.bodyWeight, dsets)
     static let planks = Exercise("Planks", "Planks", m3)

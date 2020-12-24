@@ -111,7 +111,7 @@ struct EditRepsSetView: View {
         if repsSet.count == percentSet.count && percentSet.count == restSet.count {
             var result: [RepsSet] = []
             for i in 0..<repsSet.count {
-                result.append(RepsSet(reps: repsSet[i], percent: percentSet[i], restSecs: restSet[i])!)
+                result.append(RepsSet(reps: repsSet[i], percent: percentSet[i], restSecs: restSet[i]))
             }
             self.errText = ""
             return result
