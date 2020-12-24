@@ -26,9 +26,9 @@ struct ExerciseDurationsView: View {
         self.history = history
 
         switch exercise.modality.sets {
-        case .durations(let d):
-            self.durations = d.durations
-            self.target = d.target
+        case .durations(let d, target: let ts):
+            self.durations = d
+            self.target = ts
         default:
             assert(false)   // exercise must use durations sets
             self.durations = []
@@ -193,7 +193,7 @@ struct ExerciseDurationsView: View {
 
 struct ExerciseView_Previews: PreviewProvider {
     static let durations = createDurationSets(secs: [60, 30, 15], rest: [10, 10, 10])
-    static let sets = Sets.durations(Durations.create(durations, target: createDurations(secs: [90, 60, 30])).unwrap())
+    static let sets = Sets.durations(durations, target: createDurations(secs: [90, 60, 30]))
     static let modality = Modality(Apparatus.bodyWeight, sets)
     static let exercise = Exercise("Burpees", "Burpees", modality)
     static let workout = createWorkout("Cardio", [exercise], day: nil).unwrap()

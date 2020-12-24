@@ -198,7 +198,7 @@ struct HistoryView_Previews: PreviewProvider {
     
     private static func createView() -> HistoryView {
         let durations = createDurationSets(secs: [60], rest: [60])
-        let sets = Sets.durations(Durations.create(durations).unwrap())
+        let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         let exercise = Exercise("Squats", "Body-weight Squat", modality)
         let workout = createWorkout("Lower", [exercise], day: nil).unwrap()

@@ -2,18 +2,6 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import Foundation
 
-fileprivate func joinSets(_ sets: [String]) -> String {
-    if sets.count == 1 {
-        return sets[0]
-
-    } else if sets.all({$0 == sets[0]}) {      // init/validate should ensure that we always have at least one set
-        return "\(sets.count)x\(sets[0])"
-
-    } else {
-        return sets.joined(separator: ", ")
-    }
-}
-
 struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int
@@ -348,47 +336,12 @@ struct DurationSet: CustomDebugStringConvertible, Storable {
     }
 }
 
-struct Durations: CustomDebugStringConvertible {
-    let durations: [DurationSet]
-    let target: [Duration]
-    
-    private init(_ durations: [DurationSet], target: [Duration]) {
-        self.durations = durations
-        self.target = target
-    }
-
-    static func create(_ durations: [DurationSet], target: [Duration] = []) -> Either<String, Durations> {
-        if durations.isEmpty {return .left("Durations cannot be empty")}
-        if target.count > 0 && target.count != durations.count {return .left("Target must be either empty or have the same count as durations")}
-
-        return .right(Durations(durations, target: target))
-    }
-
-    init(from store: Store) {
-        self.durations = store.getObjArray("durations")
-        let tarAry = store.getIntArray("targetSecs")
-        self.target = tarAry.map({Duration.create(secs: $0).unwrap()})
-    }
-    
-    func save(_ store: Store) {
-        store.addObjArray("durations", durations)
-        let tar = target.map({$0.secs})
-        store.addIntArray("targetSecs", tar)
-    }
-
-    var debugDescription: String {
-        get {
-            return joinSets(self.durations.map({$0.debugDescription}))
-        }
-    }
-}
-
 // TODO: to make this safe would have to have structs like Durations, MaxReps, etc
 // See https://forums.swift.org/t/access-control-for-enum-case-initializers/22663
 // make sure load from store still works
 enum Sets: CustomDebugStringConvertible {
     /// Used for stuff like 3x60s planks.
-    case durations(Durations)
+    case durations([DurationSet], target: [Duration] = [])
 
     /// Used for stuff like curls to exhaustion. targetReps is the reps across all sets.
     case maxReps(rest: [Rest], targetReps: Int? = nil)
@@ -405,8 +358,8 @@ enum Sets: CustomDebugStringConvertible {
             var sets: [String] = []
             
             switch self {
-            case .durations(let durations):
-                return durations.debugDescription
+            case .durations(let durations, _):
+                sets = durations.map({$0.debugDescription})
 
             case .maxReps(let restSecs, _):
                 sets = ["\(restSecs.count) sets"]
@@ -418,7 +371,15 @@ enum Sets: CustomDebugStringConvertible {
 //                sets = Array(repeating: "untimed", count: secs.count)
             }
             
-            return joinSets(sets)   // TODO: lose this
+            if sets.count == 1 {
+                return sets[0]
+
+            } else if sets.all({$0 == sets[0]}) {      // init/validate should ensure that we always have at least one set
+                return "\(sets.count)x\(sets[0])"
+
+            } else {
+                return sets.joined(separator: ", ")
+            }
         }
     }
 }
@@ -426,6 +387,10 @@ enum Sets: CustomDebugStringConvertible {
 extension Sets {
     func validate() -> Bool {
         switch self {
+        case .durations(let durations, target: let target):
+            if durations.isEmpty {return false}
+            if target.count > 0 && target.count != durations.count {return false}
+
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
             if worksets.isEmpty {return false}
             
@@ -455,9 +420,6 @@ extension Sets {
 //        case .untimed(restSecs: let secs):
 //            if secs.isEmpty {return false}
 //            if secs.any({$0 < 0}) {return false}
-        
-        default:
-            break
         }
         
        return true
@@ -469,7 +431,9 @@ extension Sets: Storable {
         let tname = store.getStr("type")
         switch tname {
         case "durations":
-            self = .durations(Durations(from: store))
+            let tarAry = store.getIntArray("targetSecs")
+            let target = tarAry.map({Duration.create(secs: $0).unwrap()})
+            self = .durations(store.getObjArray("durations"), target: target)
             
         case "maxReps":
             let restAry = store.getIntArray("restSecs")
@@ -490,9 +454,11 @@ extension Sets: Storable {
     
     func save(_ store: Store) {
         switch self {
-        case .durations(let durations):
+        case .durations(let durations, let target):
             store.addStr("type", "durations")
-            durations.save(store)
+            store.addObjArray("durations", durations)
+            let tar = target.map({$0.secs})
+            store.addIntArray("targetSecs", tar)
 
         case .maxReps(let rest, let targetReps):
             store.addStr("type", "maxReps")

@@ -64,7 +64,7 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
 
     func addExercise(_ name: String) {
         let durations = createDurationSets(secs: [60], rest: [60])
-        let sets = Sets.durations(Durations.create(durations).unwrap())
+        let sets = Sets.durations(durations)
         let modality = Modality(Apparatus.bodyWeight, sets)
         let exercise = Exercise(name, "", modality)
         self.exercises.append(exercise)
