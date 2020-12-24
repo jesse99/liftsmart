@@ -163,8 +163,7 @@ struct EditProgramView_Previews: PreviewProvider {
     
     private static func home() -> Program {
         func burpees() -> Exercise {
-            let durations = createDurations(secs: [60], rest: [60])
-            let sets = Sets.durations(durations)
+            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Burpees", "Burpees", modality)
             e.current = Current(weight: 0.0)
@@ -174,8 +173,7 @@ struct EditProgramView_Previews: PreviewProvider {
         }
         
         func squats() -> Exercise {
-            let durations = createDurations(secs: [60], rest: [60])
-            let sets = Sets.durations(durations)
+            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)!])
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Squats", "Body-weight Squat", modality)
             e.current = Current(weight: 0.0)
@@ -185,7 +183,10 @@ struct EditProgramView_Previews: PreviewProvider {
         }
         
         func planks() -> Exercise { // TODO: this should be some sort of progression
-            let durations = createDurations(secs: [60, 60, 60], rest: [90, 90, 90])
+            let durations = [
+                DurationSet(secs: 60, restSecs: 90)!,
+                DurationSet(secs: 60, restSecs: 90)!,
+                DurationSet(secs: 60, restSecs: 90)!]
             let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Planks", "Front Plank", modality)
