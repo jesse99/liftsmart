@@ -9,9 +9,9 @@ func createReps(reps: [Int], percent: [Int] = [], rest: [Int]) -> [RepsSet] {
     var result: [RepsSet] = []
     for i in 0..<reps.count {
         if percent.isEmpty {
-            result.append(RepsSet.create(reps: RepRange.create(reps[i]).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet(reps: RepRange.create(reps[i]).unwrap(), restSecs: rest[i])!)
         } else {
-            result.append(RepsSet.create(reps: RepRange.create(reps[i]).unwrap(), percent: WeightPercent.create(Double(percent[i])/100.0).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet(reps: RepRange.create(reps[i]).unwrap(), percent: WeightPercent(Double(percent[i])/100.0)!, restSecs: rest[i])!)
         }
     }
     return result
@@ -23,9 +23,9 @@ func createReps(reps: [ClosedRange<Int>], percent: [Int] = [], rest: [Int]) -> [
     var result: [RepsSet] = []
     for i in 0..<reps.count {
         if percent.isEmpty {
-            result.append(RepsSet.create(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), restSecs: rest[i])!)
         } else {
-            result.append(RepsSet.create(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), percent: WeightPercent.create(Double(percent[i])/100.0).unwrap(), restSecs: rest[i]).unwrap())
+            result.append(RepsSet(reps: RepRange.create(min: reps[i].lowerBound, max: reps[i].upperBound).unwrap(), percent: WeightPercent(Double(percent[i])/100.0)!, restSecs: rest[i])!)
 
         }
     }

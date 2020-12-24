@@ -44,7 +44,7 @@ struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int
     
-    private init(_ min: Int, _ max: Int) {
+    fileprivate init(_ min: Int, _ max: Int) {
         self.min = min
         self.max = max
     }
@@ -120,21 +120,17 @@ struct RepRange: CustomDebugStringConvertible, Storable {
 struct WeightPercent: CustomDebugStringConvertible, Storable {
     let value: Double
 
-    private init(_ value: Double) {
-        self.value = value
-    }
-    
-    static func create(_ value: Double) -> Either<String, WeightPercent> {
+    init?(_ value: Double) {
         // For a barbell 0% means just the bar.
         // For a dumbbell 0% means no weight which could be useful for warmups when very light weights are used.
-        if value < 0.0 {return .left("Percent cannot be negative")}
+        if value < 0.0 {return nil}
 
         // Some programs, like CAP3, call for lifting a bit over 100% on some days. But we'll consider it an error if the user tries to lift way over 100%.
-        if value > 1.5 {return .left("Percent is too big")}
+        if value > 1.5 {return nil}
 
-        if value.isNaN {return .left("Percent isn't a valid number")}
+        if value.isNaN {return nil}
         
-        return .right(WeightPercent(value))
+        self.value = value
     }
     
     // INT
@@ -145,7 +141,13 @@ struct WeightPercent: CustomDebugStringConvertible, Storable {
         if p == nil || !scanner.isAtEnd {
             return .left("Expected percent, e.g. 80")
         }
-        return WeightPercent.create(p!/100.0)
+        if p! < 0 {
+            return .left("Percent cannot be negative")
+        }
+        if p! > 150 {
+            return .left("Percent is too big")
+        }
+        return .right(WeightPercent(p!/100.0)!)
     }
 
     static func * (lhs: Double, rhs: WeightPercent) -> Double {
@@ -194,16 +196,12 @@ struct RepsSet: CustomDebugStringConvertible, Storable {
     let percent: WeightPercent
     let restSecs: Int
     
-    private init(reps: RepRange, percent: WeightPercent, restSecs: Int) {
+    init?(reps: RepRange, percent: WeightPercent = WeightPercent(1.0)!, restSecs: Int = 0) {
+        if restSecs < 0 {return nil}
+        
         self.reps = reps
         self.percent = percent
         self.restSecs = restSecs
-    }
-    
-    static func create(reps: RepRange, percent: WeightPercent = WeightPercent.create(1.0).unwrap(), restSecs: Int = 0) -> Either<String, RepsSet> {
-        if restSecs < 0 {return .left("Rest cannot be negative")}
-        
-        return .right(RepsSet(reps: reps, percent: percent, restSecs: restSecs))
     }
     
     init(from store: Store) {

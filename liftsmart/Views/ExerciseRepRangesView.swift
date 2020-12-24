@@ -317,7 +317,7 @@ struct ExerciseRepRangesView: View {
         }
 
         assert(false)
-        return RepsSet.create(reps: RepRange.create(5).unwrap()).unwrap()
+        return RepsSet(reps: RepRange.create(5).unwrap())!
     }
 
     private func getRepRange() -> RepRange {
