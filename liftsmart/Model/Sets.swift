@@ -15,29 +15,40 @@ func restToStr(_ secs: Int) -> String {
     }
 }
 
-func strToRest(_ inText: String, label: String = "rest") -> Either<String, Int> {
-    func convert(_ text: String, scaleBy: Double) -> Either<String, Int> {
-        if var secs = Double(text) {
-            secs *= scaleBy
-            if secs < 0.0 {
-                return .left("\(label.capitalized) should be positive (not \(secs))")
-            } else {
-                return .right(Int(secs))
-            }
+// INT ('s' | 'm')?
+func strToTime(_ inText: String, label: String, noZero: Bool) -> Either<String, Int> {
+    func convert(_ inSecs: Double, scaleBy: Double) -> Either<String, Int> {
+        let secs = inSecs * scaleBy
+        if secs < 0.0 {
+            return .left("\(label.capitalized) cannot be negative")
+        } else if noZero && secs == 0.0 {
+            return .left("\(label.capitalized) cannot be zero")
         } else {
-            return .left("Expected a \(label) value (not \(text))")
+            return .right(Int(secs))
         }
     }
     
-    let txt = inText.trimmingCharacters(in: .whitespaces)
-    switch txt.last ?? "\u{3}" {
-    case "\u{3}": return .left("Expected a \(label) time but found nothing") // End-of-text
-    case "m": return convert(String(txt.dropLast()), scaleBy: 60.0)
-    case "s": return convert(String(txt.dropLast()), scaleBy: 1.0)
-    case "0"..."9": return convert(txt, scaleBy: 1.0)
-    case ".": return convert(txt, scaleBy: 1.0)
-    default: return .left("Time units are 's' and 'm' (not \(txt.last!))")
+    let scanner = Scanner(string: inText)
+    let secs = scanner.scanDouble()
+    let units = scanner.scanCharacter()
+    if secs == nil {
+        return .left("Expected a number for \(label)")
     }
+    if let u = units, u != "s" && u != "m" {
+        return .left("\(label.capitalized) units should be 's' or 'm'")
+    }
+    if !scanner.isAtEnd {
+        return .left("\(label.capitalized) should be a number followed by optional s or m units")
+    }
+    return (units ?? "s") == "s" ? convert(secs!, scaleBy: 1.0) : convert(secs!, scaleBy: 6.0)
+}
+
+func strToRest(_ text: String) -> Either<String, Int> {
+    return strToTime(text, label: "rest", noZero: false)
+}
+
+func strToDuration(_ text: String, label: String = "duration") -> Either<String, Int> {
+    return strToTime(text, label: label, noZero: true)
 }
 
 struct RepRange: CustomDebugStringConvertible, Storable {

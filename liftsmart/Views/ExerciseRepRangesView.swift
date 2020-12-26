@@ -2,6 +2,25 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+func getPreviouslabel(_ workout: Workout, _ exercise: Exercise) -> String {
+    var count = 0
+    var actual = ""
+    for record in history.exercise(workout, exercise).reversed() {
+        if actual.isEmpty {
+            if record.label.isEmpty {
+                break
+            }
+            actual = record.label
+            count = 1
+        } else if record.label == actual {
+            count += 1
+        } else {
+            break
+        }
+    }
+    return count > 1 ? "Same previous x\(count)" : ""
+}
+
 struct ExerciseRepRangesView: View {
     let workout: Workout
     var exercise: Exercise
@@ -10,20 +29,21 @@ struct ExerciseRepRangesView: View {
     @State var warmups: [RepsSet] = []
     @State var worksets: [RepsSet] = []
     @State var backoffs: [RepsSet] = []
-    @State var setTitle: String = ""
-    @State var percentTitle: String = ""
-    @State var repsTitle: String = ""
-    @State var platesTitle: String = ""
-    @State var startLabel: String = ""
+    @State var setTitle = ""
+    @State var percentTitle = ""
+    @State var repsTitle = ""
+    @State var platesTitle = ""
+    @State var startLabel = ""
+    @State var noteLabel = ""
     @State var completed: [Int] = []  // number of reps the user has done so far (not counting warmup)
-    @State var startTimer: Bool = false
-    @State var durationModal: Bool = false
-    @State var historyModal: Bool = false
-    @State var noteModal: Bool = false
+    @State var startTimer = false
+    @State var durationModal = false
+    @State var historyModal = false
+    @State var noteModal = false
     @State var editModal = false
-    @State var updateExpected: Bool = false
-    @State var updateRepsDone: Bool = false
-    @State var underway: Bool = false
+    @State var updateExpected = false
+    @State var updateRepsDone = false
+    @State var underway = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
@@ -68,6 +88,7 @@ struct ExerciseRepRangesView: View {
                     .font(.system(size: 20.0))
                     .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
                 Spacer()
+                Text(self.noteLabel).font(.callout)   // Same previous x3
             }
 
             Divider()
@@ -142,6 +163,14 @@ struct ExerciseRepRangesView: View {
     }
 
     func refresh() {
+        func shouldTrackHistory() -> Bool {
+            // TODO: also true if apparatus is barbell, dumbbell, or machine
+            if self.worksets[0].reps.min < self.worksets[0].reps.max {
+                return true
+            }
+            return false
+        }
+        
         switch exercise.modality.sets {
         case .repRanges(warmups: let wu, worksets: let ws, backoffs: let bo):
             self.warmups = wu
@@ -200,6 +229,11 @@ struct ExerciseRepRangesView: View {
             self.percentTitle = ""
             self.platesTitle = ""
             self.startLabel = "Done"
+        }
+        
+        self.noteLabel = ""
+        if shouldTrackHistory() {
+            self.noteLabel = getPreviouslabel(workout, exercise)
         }
     }
     

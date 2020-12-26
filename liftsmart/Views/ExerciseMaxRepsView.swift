@@ -7,21 +7,22 @@ struct ExerciseMaxRepsView: View {
     var exercise: Exercise
     var history: History
     var timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
-    @State var title: String = ""
-    @State var subTitle: String = ""
-    @State var subSubTitle: String = ""
-    @State var startLabel: String = ""
+    @State var title = ""
+    @State var subTitle = ""
+    @State var subSubTitle = ""
+    @State var startLabel = ""
+    @State var noteLabel = ""
     @State var completed: Int = 0   // number of reps the user has done so far
     @State var lastReps: Int? = nil // number of reps user did in the last set
     @State var restSecs: [Int] = []
-    @State var startTimer: Bool = false
-    @State var durationModal: Bool = false
-    @State var historyModal: Bool = false
-    @State var noteModal: Bool = false
+    @State var startTimer = false
+    @State var durationModal = false
+    @State var historyModal = false
+    @State var noteModal = false
     @State var editModal = false
-    @State var updateExpected: Bool = false
-    @State var updateRepsDone: Bool = false
-    @State var underway: Bool = false
+    @State var updateExpected = false
+    @State var updateRepsDone = false
+    @State var underway = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
@@ -36,10 +37,12 @@ struct ExerciseMaxRepsView: View {
                 Text(exercise.name).font(.largeTitle)   // Curls
                 Spacer()
             
-                Text(title).font(.title)              // Set 1 of 1
-                Text(subTitle).font(.headline)        // 10+ Reps or As Many Reps As Possible
-                Text(subSubTitle).font(.headline)     // Completed 30 reps (target is 90 reps)
-                Spacer()
+                Group {
+                    Text(title).font(.title)              // Set 1 of 1
+                    Text(subTitle).font(.headline)        // 10+ Reps or As Many Reps As Possible
+                    Text(subSubTitle).font(.headline)     // Completed 30 reps (target is 90 reps)
+                    Spacer()
+                }
 
                 Button(startLabel, action: onNextOrDone)
                     .font(.system(size: 40.0))
@@ -61,6 +64,7 @@ struct ExerciseMaxRepsView: View {
                     .font(.system(size: 20.0))
                     .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
                 Spacer()
+                Text(self.noteLabel).font(.callout)   // Same previous x3
             }
 
             Divider()
@@ -214,6 +218,8 @@ struct ExerciseMaxRepsView: View {
         } else {
             startLabel = "Next"
         }
+
+        self.noteLabel = getPreviouslabel(workout, exercise)
     }
     
     func onReset() {

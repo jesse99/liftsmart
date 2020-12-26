@@ -1,14 +1,12 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2512
+{\rtf1\ansi\ansicpg1252\cocoartf2576
 \cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 AndaleMono;\f1\froman\fcharset0 Times-Roman;\f2\fswiss\fcharset0 Helvetica;
 \f3\fswiss\fcharset0 Helvetica-Bold;\f4\fswiss\fcharset0 Helvetica-Oblique;}
 {\colortbl;\red255\green255\blue255;\red170\green13\blue145;\red0\green0\blue0;\red11\green79\blue121;
 \red63\green110\blue116;\red92\green38\blue153;\red15\green104\blue160;\red0\green116\blue0;\red196\green26\blue22;
-\red0\green0\blue233;\red2\green2\blue2;\red28\green0\blue207;\red38\green71\blue75;\red9\green79\blue209;
-}
+\red0\green0\blue233;\red2\green2\blue2;\red9\green79\blue209;}
 {\*\expandedcolortbl;;\csgenericrgb\c66500\c5200\c56900;\csgenericrgb\c0\c0\c0;\csgenericrgb\c4314\c30980\c47451;
 \csgenericrgb\c24700\c43100\c45600;\csgenericrgb\c35900\c14900\c60100;\csgenericrgb\c5882\c40784\c62745;\csgenericrgb\c0\c45600\c0;\csgenericrgb\c77000\c10200\c8600;
-\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\csgenericrgb\c11000\c0\c81000;\csgenericrgb\c14900\c27800\c29400;\cssrgb\c0\c40784\c85490;
-}
+\cssrgb\c0\c0\c93333;\csgenericrgb\c784\c784\c784;\cssrgb\c0\c40784\c85490;}
 \deftab816
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 
@@ -107,127 +105,34 @@ Worked out 35 times.
 \f2\b0 	\
 \pard\tx816\pardeftab816\pardirnatural\partightenfactor0
 \cf11 \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-
-\f0\fs34 \cf2 struct\cf3  \cf4 RepRange\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf6 Storable\cf3  \{\
-    \cf2 let\cf3  \cf7 min\cf3 : \cf6 Int\cf3 \
-    \cf2 let\cf3  \cf7 max\cf3 : \cf6 Int\cf3 \
-    \
-    \cf2 init\cf3 ?(\cf2 _\cf3  reps: \cf6 Int\cf3 ) \{\
-        \cf2 if\cf3  reps <= \cf12 0\cf3  \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-    \
-    \cf2 init\cf3 ?(min: \cf6 Int\cf3 , max: \cf6 Int\cf3 ) \{\
-        \cf2 if\cf3  min <= \cf12 0\cf3  \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-        \cf2 if\cf3  min > max \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-\cf13 \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-\cf2 struct\cf3  \cf4 WeightPercent\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf6 Storable\cf3  \{\
-    \cf2 let\cf3  \cf7 value\cf3 : \cf6 Double\cf3 \
-\
-    \cf2 init\cf3 ?(\cf2 _\cf3  value: \cf6 Double\cf3 ) \{\
-        \cf8 // For a barbell 0% means just the bar.\cf3 \
-        \cf8 // For a dumbbell 0% means no weight which could be useful for warmups when very light weights are used.\cf3 \
-        \cf2 if\cf3  value < \cf12 0.0\cf3  \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-\
-        \cf8 // Some programs, like CAP3, call for lifting a bit over 100% on some days. But we'll consider it an error if the user tries to lift way over 100%.\cf3 \
-        \cf2 if\cf3  value > \cf12 1.5\cf3  \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-\
-        \cf2 if\cf3  value.isNaN \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-
-\f2\fs48 \cf11 \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-
-\f0\fs34 \cf2 struct\cf3  \cf4 RepsSet\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf6 Storable\cf3  \{\
-    \cf2 let\cf3  \cf7 reps\cf3 : \cf6 RepRange\cf3 \
-    \cf2 let\cf3  \cf7 percent\cf3 : \cf6 WeightPercent\cf3 \
-    \cf2 let\cf3  \cf7 restSecs\cf3 : \cf6 Int\cf3 \
-    \
-    \cf2 init\cf3 ?(reps: \cf6 RepRange\cf3 , percent: \cf6 WeightPercent\cf3  = WeightPercent(\cf12 1.0\cf3 ), restSecs: \cf6 Int\cf3  = \cf12 0\cf3 ) \{\
-        \cf2 if\cf3  restSecs < \cf12 0\cf3  \{\cf2 return\cf3  \cf2 nil\cf3 \}\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-
-\f2\fs48 \cf11 \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-
-\f0\fs34 \cf2 struct\cf3  \cf4 DurationSet\cf3 : \cf6 CustomDebugStringConvertible\cf3 , \cf6 Storable\cf3  \{\
-    \cf2 let\cf3  \cf7 secs\cf3 : \cf6 Int\cf3 \
-    \cf2 let\cf3  \cf7 restSecs\cf3 : \cf6 Int\cf3 \
-    \
-    \cf2 init\cf3 ?(secs: \cf6 Int\cf3 , restSecs: \cf6 Int\cf3  = \cf12 0\cf3 ) \{\
-        \cf2 if\cf3  secs <= \cf12 0\cf3  \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-        \cf2 if\cf3  restSecs < \cf12 0\cf3  \{\cf2 return\cf3  \cf2 nil\cf3 \}\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-
-\f2\fs48 \cf11 \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-
-\f0\fs34 \cf2 extension\cf3  \cf6 Sets\cf3  \{\
-    \cf2 func\cf3  \cf7 validate\cf3 () -> \cf6 Bool\cf3  \{\
-        \cf2 switch\cf3  \cf2 self\cf3  \{\
-        \cf2 case\cf3  .durations(\cf2 let\cf3  durations, targetSecs: \cf2 let\cf3  targetSecs):\
-            \cf2 if\cf3  durations.isEmpty \{\cf2 return\cf3  \cf2 false\cf3 \}\
-            \cf2 if\cf3  targetSecs.count > \cf12 0\cf3  && targetSecs.count != durations.count \{\cf2 return\cf3  \cf2 false\cf3 \}\
-            \cf2 for\cf3  target \cf2 in\cf3  targetSecs \{\
-                \cf2 if\cf3  target <= \cf12 0\cf3  \{\cf2 return\cf3  \cf2 false\cf3 \}\
-            \}\
-\
-        \cf2 case\cf3  .repRanges(warmups: \cf2 _\cf3 , worksets: \cf2 let\cf3  worksets, backoffs: \cf2 _\cf3 ):\
-            \cf2 if\cf3  worksets.isEmpty \{\cf2 return\cf3  \cf2 false\cf3 \}\
-            \
-            \cf8 // Note that RepRange init takes care of checking min > max.\cf3 \
-            \cf2 var\cf3  minReps: \cf6 Int\cf3 ? = \cf2 nil\cf3 \
-            \cf2 var\cf3  maxReps: \cf6 Int\cf3 ? = \cf2 nil\cf3 \
-            \cf2 for\cf3  set \cf2 in\cf3  worksets \{\
-                \cf2 if\cf3  set.reps.min < set.reps.max \{\
-                    \cf2 if\cf3  minReps == \cf2 nil\cf3  \{\
-                        minReps = set.reps.min\
-                        maxReps = set.reps.max\
-                    \} \cf2 else\cf3  \{\
-                        \cf2 if\cf3  minReps! != set.reps.min || maxReps! != set.reps.max \{\
-                            \cf8 // Disallow worksets like [4-8, 3-5] so that we can always return something sensible from repRange.\cf3 \
-                            \cf2 return\cf3  \cf2 false\cf3 \
-                        \}\
-                    \}\
-                \}\
-            \}\
-                \
-        \cf2 case\cf3  .maxReps(restSecs: \cf2 let\cf3  secs, targetReps: \cf2 let\cf3  targetReps):\
-            \cf2 if\cf3  secs.isEmpty \{\cf2 return\cf3  \cf2 false\cf3 \}\
-            \cf2 for\cf3  sec \cf2 in\cf3  secs \{\
-                \cf2 if\cf3  sec <= \cf12 0\cf3  \{\cf2 return\cf3  \cf2 false\cf3 \}\
-            \}\
-            \cf2 if\cf3  \cf2 let\cf3  target = targetReps \{\
-                \cf2 if\cf3  target <= \cf12 0\cf3  \{\cf2 return\cf3  \cf2 false\cf3 \}\
-            \}\
-\
-\cf8 //        case .untimed(restSecs: let secs):\cf3 \
-\cf8 //            if secs.isEmpty \{return false\}\cf3 \
-\cf8 //            if secs.any(\{$0 < 0\}) \{return false\}\cf3 \
-        \}\
-        \
-       \cf2 return\cf3  \cf2 true\cf3 \
-    \}\
-\}\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-
-\f2\fs48 \cf11 \
+\cf11 \
 \'95 Deal with mail stuff\
-\'95 Rollback changes:\
-	- do all the validation in edit views\
-	- should use parseTime logic, maybe Duration and Rest structs too\
-\'95\'a0Make sure repRange like 4-8  3-5 works OK\
-\'95\'a0Update weights\
-\'95\'a0Instead of init? (and the enum helper versions?) use fileprivate and create functions.\
-	- start with RepsSet stuff\
-\'95\'a0Should expected be saved separately from program?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Show how many variable rep exercises were done at the same rep/weight\
+	- also variable time (or maybe time with a target)\
+\'aa\'a0Should be able to change formal names\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95\'a0Add support for progression:\
+	- add support for plank progression\
+	- add support for pushup progression\
+	- if did max reps then show an emoji/unicode/button\
+		` color should go from gray, black, blue, green depending on count\
+	- when pressed ask user if they want to progress\
+		` probably want to show all the choices (might have been way too easy)\
+		` auto-update the exercise\
+\'95\'a0Add some sort of warning if enter a workout on the wrong day\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95\'a0Make sure repRange like 4-8  3-5 works OK\
+	- looks like will need to reset expected\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95\'a0Should expected be saved separately from program?\
 \'95\'a0Should exercise history include difficulty?\
 \'95 Should be able to add notes to a program \
 \'95\'a0Add shoulder dislocates.\
 \'95\'a0Plank progression: 
-\fs36 \cf14 \expnd0\expndtw0\kerning0
-\ul \ulc14 http://www.startbodyweight.com/p/plank-progression.html?m=1
+\fs36 \cf12 \expnd0\expndtw0\kerning0
+\ul \ulc12 http://www.startbodyweight.com/p/plank-progression.html?m=1
 \fs48 \cf11 \kerning1\expnd0\expndtw0 \ulnone \
 \'95 Is Current.weight being used correctly?\
 \'95\'a0May want to alternate limber 11 and the upper body version.\

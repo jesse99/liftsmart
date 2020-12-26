@@ -109,7 +109,7 @@ struct EditDurationsView: View, EditContext {
         }
         
         for token in text.split(separator: " ") {
-            switch strToRest(String(token), label: label) {
+            switch strToDuration(String(token), label: label) {
             case .right(_):
                 self.errText = ""
             case .left(let err):

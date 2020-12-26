@@ -9,15 +9,16 @@ struct ExerciseDurationsView: View {
     let durations: [DurationSet]
     let targetSecs: [Int]
     var timer = RestartableTimer(every: TimeInterval.hours(4))
-    @State var title: String = ""
-    @State var subTitle: String = ""
-    @State var startLabel: String = ""
-    @State var startModal: Bool = false
+    @State var title = ""
+    @State var subTitle = ""
+    @State var startLabel = ""
+    @State var noteLabel = ""
+    @State var startModal = false
     @State var editModal = false
-    @State var durationModal: Bool = false
-    @State var historyModal: Bool = false
-    @State var noteModal: Bool = false
-    @State var underway: Bool = false
+    @State var durationModal = false
+    @State var historyModal = false
+    @State var noteModal = false
+    @State var underway = false
     @Environment(\.presentationMode) private var presentation
     
     init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
@@ -55,6 +56,7 @@ struct ExerciseDurationsView: View {
                     .font(.system(size: 20.0))
                     .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
                 Spacer()
+                Text(self.noteLabel).font(.callout)   // Same previous x3
             }
 
             Divider()
@@ -117,6 +119,11 @@ struct ExerciseDurationsView: View {
         } else {
             self.startLabel = "Start"
         }
+
+        self.noteLabel = ""
+        if !targetSecs.isEmpty {
+            self.noteLabel = getPreviouslabel(workout, exercise)
+        }
     }
     
     func onTimer() {
@@ -148,7 +155,7 @@ struct ExerciseDurationsView: View {
             let app = UIApplication.shared.delegate as! AppDelegate
             app.saveState()
             
-            // Pop this view. Note that currently this only works with a real device,
+            // Pop this view. Note that currently this only works with a real device, 
             self.presentation.wrappedValue.dismiss()
         }
     }

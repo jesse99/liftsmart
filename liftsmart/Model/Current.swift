@@ -39,7 +39,7 @@ final class Current: CustomDebugStringConvertible, Storable {
         store.addStrArray("actualReps", actualReps)
         store.addStrArray("actualWeights", actualWeights)
     }
-    
+
     var debugDescription: String {
         get {
             return "on set \(self.setIndex)"

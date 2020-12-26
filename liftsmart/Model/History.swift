@@ -97,7 +97,8 @@ class History: Storable {
         
         // Using startDate instead of Date() makes testing a bit easier...
         let key = workout.name + "-" + exercise.name
-        let record = Record(exercise.current!.startDate, exercise.current!.weight, getActual(exercise.current!), key)
+        let actual = getActual(exercise.current!)
+        let record = Record(exercise.current!.startDate, exercise.current!.weight, actual, key)
         self.records[exercise.formalName, default: []].append(record)
         self.completed[key] = exercise.current!.startDate
         return record
@@ -138,6 +139,7 @@ class History: Storable {
         return self.completed[key]
     }
     
+    // These are oldest to newest.
     func exercise(_ workout: Workout, _ exercise: Exercise) -> RecordSequence {
         return History.RecordSequence(history: self, workout: workout, exercise: exercise)
     }
