@@ -40,7 +40,7 @@ func strToTime(_ inText: String, label: String, noZero: Bool) -> Either<String, 
     if !scanner.isAtEnd {
         return .left("\(label.capitalized) should be a number followed by optional s or m units")
     }
-    return (units ?? "s") == "s" ? convert(secs!, scaleBy: 1.0) : convert(secs!, scaleBy: 6.0)
+    return (units ?? "s") == "s" ? convert(secs!, scaleBy: 1.0) : convert(secs!, scaleBy: 60.0)
 }
 
 func strToRest(_ text: String) -> Either<String, Int> {
