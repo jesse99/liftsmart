@@ -3,6 +3,8 @@
 import SwiftUI
 
 struct EditRepRangesView: View, EditContext {
+    enum ActiveSheet {case formalName, editReps}
+
     let workout: Workout
     var exercise: Exercise
     let original: Exercise
@@ -12,11 +14,11 @@ struct EditRepRangesView: View, EditContext {
     @State var errText = ""
     @State var errColor = Color.red
     @State var showHelp = false
-    @State var showRepsSet = false
     @State var repsSetName = ""
     @State var repsSet = [RepsSet(reps: RepRange(10))]
     @State var helpText = ""
-    @State var formalNameModal = false
+    @State var formalNameModal = false  // crappy name needed to conform to EditContext
+    @State var sheetAction: EditRepRangesView.ActiveSheet = .formalName
     @Environment(\.presentationMode) private var presentationMode
     
     init(workout: Workout, exercise: Exercise) {
@@ -31,33 +33,48 @@ struct EditRepRangesView: View, EditContext {
 
             VStack(alignment: .leading) {
                 createNameView(text: self.$name, self)
-                createFormalNameView(text: self.$formalName, modal: self.$formalNameModal, self)
+                HStack {        // better to use createFormalNameView but that doesn't quite work with multiple sheets
+                    Text("Formal Name:").font(.headline)
+                    Button(self.formalName, action: {self.formalNameModal = true; self.sheetAction = .formalName})
+                        .font(.callout)
+                    Spacer()
+                    Button("?", action: {formalNameHelp(self)}).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 createWeightView(text: self.$weight, self)
-                HStack {
-                    Button("Warmups", action: self.onWarmups).font(.callout)
-                    Spacer()
-                    Button("?", action: {
-                        self.helpText = "Optional sets to be done with a lighter weight."
-                        self.showHelp = true
-                    }).font(.callout).padding(.trailing)
-                }.padding(.leading)
-                HStack {
-                    Button("Work Sets", action: self.onWorkSets).font(.callout)
-                    Spacer()
-                    Button("?", action: {
-                        self.helpText = "Sets to be done with 100% or so of the weight."
-                        self.showHelp = true
-                    }).font(.callout).padding(.trailing)
-                }.padding(.leading)
-                HStack {
-                    Button("Backoff", action: self.onBackoff).font(.callout)
-                    Spacer()
-                    Button("?", action: {
-                        self.helpText = "Optional sets to be done with a reduced weight."
-                        self.showHelp = true
-                    }).font(.callout).padding(.trailing)
-                }.padding(.leading)
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack {
+                        Button("Warmups", action: self.onWarmups).font(.callout)
+                        Spacer()
+                        Button("?", action: {
+                            self.helpText = "Optional sets to be done with a lighter weight."
+                            self.showHelp = true
+                        }).font(.callout).padding(.trailing)
+                    }.padding(.leading)
+                    HStack {
+                        Button("Work Sets", action: self.onWorkSets).font(.callout)
+                        Spacer()
+                        Button("?", action: {
+                            self.helpText = "Sets to be done with 100% or so of the weight."
+                            self.showHelp = true
+                        }).font(.callout).padding(.trailing)
+                    }.padding(.leading)
+                    HStack {
+                        Button("Backoff", action: self.onBackoff).font(.callout)
+                        Spacer()
+                        Button("?", action: {
+                            self.helpText = "Optional sets to be done with a reduced weight."
+                            self.showHelp = true
+                        }).font(.callout).padding(.trailing)
+                    }.padding(.leading)
+                }
                 // apparatus (conditional)
+            }
+            .sheet(isPresented: self.$formalNameModal) {
+                if self.sheetAction == .formalName {
+                    PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: matchFormalName, confirm: {editedFormalName($0, self)})
+                } else {
+                    EditRepsSetView(name: self.$repsSetName, set: self.$repsSet, completion: self.doSetReps)
+                }
             }
             Spacer()
             Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
@@ -79,8 +96,6 @@ struct EditRepRangesView: View, EditContext {
                 message: Text(self.helpText),
                 dismissButton: .default(Text("OK")))
         }
-        .sheet(isPresented: self.$showRepsSet) {
-            EditRepsSetView(name: self.$repsSetName, set: self.$repsSet, completion: self.doSetReps)}
     }
     
     func refresh() {
@@ -88,9 +103,10 @@ struct EditRepRangesView: View, EditContext {
         self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.weight = String(format: "%.3f", exercise.expected.weight)
     }
-    
+        
     func onWarmups() {
-        self.showRepsSet = true
+        self.formalNameModal = true
+        self.sheetAction = .editReps
         self.repsSetName = "Warmup"
         switch exercise.modality.sets {
         case .repRanges(warmups: let s, worksets: _, backoffs: _):
@@ -101,7 +117,8 @@ struct EditRepRangesView: View, EditContext {
     }
     
     func onWorkSets() {
-        self.showRepsSet = true
+        self.formalNameModal = true
+        self.sheetAction = .editReps
         self.repsSetName = "Work Sets"
         switch exercise.modality.sets {
         case .repRanges(warmups: _, worksets: let s, backoffs: _):
@@ -112,7 +129,8 @@ struct EditRepRangesView: View, EditContext {
     }
     
     func onBackoff() {
-        self.showRepsSet = true
+        self.formalNameModal = true
+        self.sheetAction = .editReps
         self.repsSetName = "Backoff"
         switch exercise.modality.sets {
         case .repRanges(warmups: _, worksets: _, backoffs: let s):

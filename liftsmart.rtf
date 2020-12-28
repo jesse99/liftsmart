@@ -65,7 +65,7 @@ class\cf3  \cf4 Exercise\cf3 : \cf6 Hashable\cf3 , \cf6 Identifiable\cf3  \{\
 {\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/creating-and-combining-views"}}{\fldrslt \cf10 \ulc10 https://developer.apple.com/tutorials/swiftui/creating-and-combining-views}}\
 \pard\pardeftab720\partightenfactor0
 
-\fs24 \cf10 \
+\fs24 \cf10 \ulc10 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\fs48 \cf11 \kerning1\expnd0\expndtw0 \ulnone Personal - user data, e.g. sex, age, and fitness\
@@ -108,12 +108,17 @@ Worked out 35 times.
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf11 \
 \'95 Deal with mail stuff\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Show how many variable rep exercises were done at the same rep/weight\
-	- also variable time (or maybe time with a target)\
-\'aa\'a0Should be able to change formal names\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Add support for progression:\
+\'95 Can\'92t change formal name of reps range exercise:\
+	- probably need to add some sort of int field (instead of an enum)\
+	- or provide an alternate createFormalNameView?\
+\'95\'a0Tweak previous count label:\
+	- don\'92t show this for rep range if weight is zero and expected is max\
+\'95\'a0Review upper version of limber 11\
+\'95\'a0Buzz if timer exits because it expired\
+\'95\'a0When user changes weight should we ask whether he wants to reset\
+  expected reps? Or just have a reset expected button?\
+\'95\'a0Should reps done have a spinner for reps and another for difficulty?\
+\'95\'a0Add support for progression:\
 	- add support for plank progression\
 	- add support for pushup progression\
 	- if did max reps then show an emoji/unicode/button\
@@ -122,11 +127,9 @@ Worked out 35 times.
 		` probably want to show all the choices (might have been way too easy)\
 		` auto-update the exercise\
 \'95\'a0Add some sort of warning if enter a workout on the wrong day\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Make sure repRange like 4-8  3-5 works OK\
+\'95\'a0Make sure repRange like 4-8  3-5 works OK\
 	- looks like will need to reset expected\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Should expected be saved separately from program?\
+\'95\'a0Should expected be saved separately from program?\
 \'95\'a0Should exercise history include difficulty?\
 \'95 Should be able to add notes to a program \
 \'95\'a0Add shoulder dislocates.\

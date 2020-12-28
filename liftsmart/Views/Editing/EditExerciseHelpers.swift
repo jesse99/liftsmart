@@ -72,50 +72,50 @@ func createNameView(text: Binding<String>, _ context: EditContext) -> some View 
     }.padding(.leading)
 }
 
-func createFormalNameView(text: Binding<String>, modal: Binding<Bool>, _ context: EditContext) -> some View {
-    func editedFormalName(_ text: String, _ inContext: EditContext) {
-        var context = inContext
-        context.formalName = text
-    }
+func editedFormalName(_ text: String, _ inContext: EditContext) {
+    var context = inContext
+    context.formalName = text
+}
 
-    func formalNameHelp(_ inContext: EditContext) {
-        var context = inContext
-        context.helpText = "The actual name for the exercise, e.g. 'Overhead Press'. This is used to lookup notes for the exercise."
-        context.showHelp = true
-    }
+func formalNameHelp(_ inContext: EditContext) {
+    var context = inContext
+    context.helpText = "The actual name for the exercise, e.g. 'Overhead Press'. This is used to lookup notes for the exercise."
+    context.showHelp = true
+}
 
-    func matchFormalName(_ inText: String) -> [String] {
-        var names: [String] = []
-        
-        // TODO: better to do a proper fuzzy search
-        let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+func matchFormalName(_ inText: String) -> [String] {
+    var names: [String] = []
+    
+    // TODO: better to do a proper fuzzy search
+    let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
 
-        // First match any custom names defined by the user.
-        for candidate in userNotes.keys {
-            if defaultNotes[candidate] == nil {
-                let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
-                if haystack.contains(needle) {
-                    names.append(candidate)
-                }
-            }
-        }
-        
-        // Then match the standard names.
-        for candidate in defaultNotes.keys {
+    // First match any custom names defined by the user.
+    for candidate in userNotes.keys {
+        if defaultNotes[candidate] == nil {
             let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
             if haystack.contains(needle) {
                 names.append(candidate)
             }
-            
-            // Not much point in showing the user a huge list of names.
-            if names.count >= 100 {
-                break
-            }
         }
-
-        return names
+    }
+    
+    // Then match the standard names.
+    for candidate in defaultNotes.keys {
+        let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+        if haystack.contains(needle) {
+            names.append(candidate)
+        }
+        
+        // Not much point in showing the user a huge list of names.
+        if names.count >= 100 {
+            break
+        }
     }
 
+    return names
+}
+
+func createFormalNameView(text: Binding<String>, modal: Binding<Bool>, _ context: EditContext) -> some View {
     return HStack {
         Text("Formal Name:").font(.headline)
         Button(text.wrappedValue, action: {var c = context; c.formalNameModal = true})
