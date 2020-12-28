@@ -121,7 +121,7 @@ struct ExerciseDurationsView: View {
         }
 
         self.noteLabel = ""
-        if !targetSecs.isEmpty {
+        if !targetSecs.isEmpty {    // TODO: maybe if have target and progression path
             self.noteLabel = getPreviouslabel(workout, exercise)
         }
     }
