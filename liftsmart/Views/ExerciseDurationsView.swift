@@ -6,9 +6,9 @@ struct ExerciseDurationsView: View {
     let workout: Workout
     var exercise: Exercise
     var history: History
-    let durations: [DurationSet]
-    let targetSecs: [Int]
     var timer = RestartableTimer(every: TimeInterval.hours(4))
+    @State var durations: [DurationSet] = []
+    @State var targetSecs: [Int] = []
     @State var title = ""
     @State var subTitle = ""
     @State var startLabel = ""
@@ -25,16 +25,6 @@ struct ExerciseDurationsView: View {
         self.workout = workout
         self.exercise = exercise
         self.history = history
-
-        switch exercise.modality.sets {
-        case .durations(let d, targetSecs: let ts):
-            self.durations = d
-            self.targetSecs = ts
-        default:
-            assert(false)   // exercise must use durations sets
-            self.durations = []
-            self.targetSecs = []
-        }
     }
     
     var body: some View {
@@ -89,6 +79,16 @@ struct ExerciseDurationsView: View {
     }
     
     func refresh() {
+        switch exercise.modality.sets {
+        case .durations(let d, targetSecs: let ts):
+            self.durations = d
+            self.targetSecs = ts
+        default:
+            assert(false)   // exercise must use durations sets
+            self.durations = []
+            self.targetSecs = []
+        }
+
         if exercise.current!.setIndex < durations.count {
             self.title = "Set \(exercise.current!.setIndex+1) of \(durations.count)"
         } else if durations.count == 1 {
