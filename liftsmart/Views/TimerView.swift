@@ -60,6 +60,9 @@ struct TimerView: View {
         } else if secs >= -2*60 {
             self.label = "+" + secsToShortDurationName(-secs)
         } else {
+            // The timer has run for so long that we'll just kill it. The user is probably
+            // not paying attention to the app so we'll do a vibrate to remind him.
+            AudioServicesPlayAlertSound(kSystemSoundID_Vibrate)
             self.onStopTimer()
             return
         }
