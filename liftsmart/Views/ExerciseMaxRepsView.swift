@@ -206,9 +206,9 @@ struct ExerciseMaxRepsView: View {
         } else {
             if let expected = exercise.expected.reps.first {
                 if exercise.current!.setIndex < restSecs.count {
-                    subSubTitle = "Expecting \(expected) reps"
+                    subSubTitle = "Expecting \(expected) total reps"
                 } else {
-                    subSubTitle = "Expected \(expected) reps"
+                    subSubTitle = "Expected \(expected) total reps"
                 }
             }
         }

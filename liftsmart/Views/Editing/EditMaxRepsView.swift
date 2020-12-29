@@ -33,8 +33,9 @@ struct EditMaxRepsView: View, EditContext {
                 createNameView(text: self.$name, self)
                 createFormalNameView(text: self.$formalName, modal: self.$formalNameModal, self)
                 createWeightView(text: self.$weight, self)
+                createRestView(text: self.$rest, self)
                 HStack {
-                    Text("Reps:").font(.headline)
+                    Text("Expected Reps:").font(.headline)
                     TextField("", text: self.$reps)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.numberPad)
@@ -42,7 +43,6 @@ struct EditMaxRepsView: View, EditContext {
                         .onChange(of: self.reps, perform: self.onEditedReps)
                     Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                createRestView(text: self.$rest, self)
                 HStack {
                     Text("Target Reps:").font(.headline)
                     TextField("", text: self.$target)
@@ -95,20 +95,24 @@ struct EditMaxRepsView: View, EditContext {
         return !self.errText.isEmpty && self.errColor == .red
     }
     
-    func onEditedReps(_ text: String) {
+    func onEditedReps(_ inText: String) {
+        let text = inText.trimmingCharacters(in: .whitespaces)
+        if text.isEmpty {
+            return
+        }
         if let reps = Int(text) {
             if reps <= 0 {
-                self.errText = "Reps should be greater than zero (found \(reps))"
+                self.errText = "Expected reps should be greater than zero (found \(reps))"
                 self.errColor = .red
             } else {
                 self.errText = ""
             }
         } else {
-            self.errText = "Expected a number for reps (found '\(text)')"
+            self.errText = "Expected reps should be a number (found '\(text)')"
             self.errColor = .red
         }
     }
-        
+    
     func onEditedTarget(_ inText: String) {
         let text = inText.trimmingCharacters(in: .whitespaces)
         if text.isEmpty {
@@ -122,18 +126,18 @@ struct EditMaxRepsView: View, EditContext {
                 self.errText = ""
             }
         } else {
-            self.errText = "Expected a number for target reps (found '\(text)')"
+            self.errText = "Target reps should be a number (found '\(text)')"
             self.errColor = .red
         }
     }
         
     func onRepsHelp() {
-        self.helpText = "The number of reps you expect to do across all the sets, e.g. '60'."
+        self.helpText = "The number of reps you expect to do across all the sets, e.g. '60'. Can be empty."
         self.showHelp = true
     }
         
     func onTargetHelp() {
-        self.helpText = "The goal for this particular exercise. Often when the goal is reached weight is increased or a harder variant of the exercise is used. Empty means that there is no target,"
+        self.helpText = "The goal for this particular exercise. Often when the goal is reached weight is increased or a harder variant of the exercise is used. Empty means that there is no target."
         self.showHelp = true
     }
     
@@ -151,7 +155,7 @@ struct EditMaxRepsView: View, EditContext {
         let target = Int(self.target)
         let rest = self.rest.split(separator: " ").map({strToRest(String($0)).unwrap()})
         exercise.modality.sets = .maxReps(restSecs: rest, targetReps: target)
-
+        
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
         self.presentationMode.wrappedValue.dismiss()
