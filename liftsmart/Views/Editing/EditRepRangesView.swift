@@ -2,6 +2,9 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+// TODO: Didn't work when used as a @State field...
+var sheetAction: EditRepRangesView.ActiveSheet = .formalName
+
 struct EditRepRangesView: View, EditContext {
     enum ActiveSheet {case formalName, editReps}
 
@@ -11,6 +14,7 @@ struct EditRepRangesView: View, EditContext {
     @State var name = ""
     @State var formalName = ""
     @State var weight = "0.0"
+    @State var expectedReps = ""
     @State var errText = ""
     @State var errColor = Color.red
     @State var showHelp = false
@@ -18,7 +22,6 @@ struct EditRepRangesView: View, EditContext {
     @State var repsSet = [RepsSet(reps: RepRange(10))]
     @State var helpText = ""
     @State var formalNameModal = false  // crappy name needed to conform to EditContext
-    @State var sheetAction: EditRepRangesView.ActiveSheet = .formalName
     @Environment(\.presentationMode) private var presentationMode
     
     init(workout: Workout, exercise: Exercise) {
@@ -35,12 +38,21 @@ struct EditRepRangesView: View, EditContext {
                 createNameView(text: self.$name, self)
                 HStack {        // better to use createFormalNameView but that doesn't quite work with multiple sheets
                     Text("Formal Name:").font(.headline)
-                    Button(self.formalName, action: {self.formalNameModal = true; self.sheetAction = .formalName})
+                    Button(self.formalName, action: {sheetAction = .formalName; self.formalNameModal = true})
                         .font(.callout)
                     Spacer()
                     Button("?", action: {formalNameHelp(self)}).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 createWeightView(text: self.$weight, self)
+                HStack {
+                    Text("Expected Reps:").font(.headline)
+                    TextField("", text: self.$expectedReps)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.numberPad)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.expectedReps, perform: self.onEditedExpected)
+                    Button("?", action: onExpectedHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 VStack(alignment: .leading, spacing: 20) {
                     HStack {
                         Button("Warmups", action: self.onWarmups).font(.callout)
@@ -70,7 +82,7 @@ struct EditRepRangesView: View, EditContext {
                 // apparatus (conditional)
             }
             .sheet(isPresented: self.$formalNameModal) {
-                if self.sheetAction == .formalName {
+                if sheetAction == .formalName {
                     PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: matchFormalName, confirm: {editedFormalName($0, self)})
                 } else {
                     EditRepsSetView(name: self.$repsSetName, set: self.$repsSet, completion: self.doSetReps)
@@ -102,11 +114,57 @@ struct EditRepRangesView: View, EditContext {
         self.name = exercise.name
         self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.weight = String(format: "%.3f", exercise.expected.weight)
+        self.expectedReps = exercise.expected.reps.map({$0.description}).joined(separator: " ")
+    }
+    
+    func checkSetCounts() {
+        let parts = self.expectedReps.split(separator: " ")
+        if parts.isEmpty {
+            // No expected is OK
+            return
+        }
+
+        switch exercise.modality.sets {
+        case .repRanges(warmups: _, worksets: let work, backoffs: _):
+            if work.count != parts.count {
+                self.errText = "Number of expected reps should match work sets (or be empty)"
+                self.errColor = .red
+            }
+        default:
+            assert(false)
+        }
     }
         
+    func onEditedExpected(_ inText: String) {
+        let parts = self.expectedReps.split(separator: " ")
+        for text in parts {
+            if let reps = Int(text) {
+                if reps <= 0 {
+                    self.errText = "Expected reps should be greater than zero (found \(reps))"
+                    self.errColor = .red
+                    return
+                } else {
+                    self.errText = ""
+                }
+            } else {
+                self.errText = "Expected reps should be a number (found '\(text)')"
+                self.errColor = .red
+                return
+            }
+        }
+
+        self.errText = ""
+        checkSetCounts()
+    }
+
+    func onExpectedHelp() {
+        self.helpText = "The number of reps you expect to do for each work set. Can be empty."
+        self.showHelp = true
+    }
+
     func onWarmups() {
+        sheetAction = .editReps
         self.formalNameModal = true
-        self.sheetAction = .editReps
         self.repsSetName = "Warmup"
         switch exercise.modality.sets {
         case .repRanges(warmups: let s, worksets: _, backoffs: _):
@@ -117,8 +175,8 @@ struct EditRepRangesView: View, EditContext {
     }
     
     func onWorkSets() {
+        sheetAction = .editReps
         self.formalNameModal = true
-        self.sheetAction = .editReps
         self.repsSetName = "Work Sets"
         switch exercise.modality.sets {
         case .repRanges(warmups: _, worksets: let s, backoffs: _):
@@ -129,8 +187,8 @@ struct EditRepRangesView: View, EditContext {
     }
     
     func onBackoff() {
+        sheetAction = .editReps
         self.formalNameModal = true
-        self.sheetAction = .editReps
         self.repsSetName = "Backoff"
         switch exercise.modality.sets {
         case .repRanges(warmups: _, worksets: _, backoffs: let s):
@@ -154,6 +212,7 @@ struct EditRepRangesView: View, EditContext {
             case .repRanges(warmups: let warm, worksets: _, backoffs: let back):
                 if sets.count >= 1 {
                     self.exercise.modality.sets = .repRanges(warmups: warm, worksets: sets, backoffs: back)
+                    checkSetCounts()
                 } else {
                     // TODO: this will be cleared if the user switches to editing something like Name.
                     // Simple way to fix this might be to replace errText with some sort of class:
@@ -192,6 +251,8 @@ struct EditRepRangesView: View, EditContext {
     func onOK() {
         self.exercise.name = self.name.trimmingCharacters(in: .whitespaces)
         self.exercise.formalName = self.formalName
+        let parts = self.expectedReps.split(separator: " ")
+        self.exercise.expected.reps = parts.map({Int($0)!})
         self.exercise.expected.weight = Double(self.weight)!
         
 //        exercise.modality.sets = .repRanges(warmups: _, worksets: _, backoffs: _)

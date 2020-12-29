@@ -149,7 +149,8 @@ struct EditMaxRepsView: View, EditContext {
     func onOK() {
         self.exercise.name = self.name.trimmingCharacters(in: .whitespaces)
         self.exercise.formalName = self.formalName
-        self.exercise.expected.reps = self.reps.isEmpty ? [] : [Int(self.reps)!]    // TODO: use isEmptyOrBlank
+        let text = self.reps.trimmingCharacters(in: .whitespaces)
+        self.exercise.expected.reps = text.isEmpty ? [] : [Int(text)!]    // TODO: use isEmptyOrBlank
         self.exercise.expected.weight = Double(self.weight)!
         
         let target = Int(self.target)
