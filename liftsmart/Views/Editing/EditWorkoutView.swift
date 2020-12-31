@@ -94,7 +94,7 @@ struct EditWorkoutView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
-            EditTextView(title: "Exercise Name", content: "", completion: self.doAdd)}
+            AddExerciseView(workout: self.workout, dismiss: self.refresh)}
     }
     
     func toggleDay(_ day: WeekDay) {

@@ -42,6 +42,7 @@
 		379461FB251FB962006774A0 /* EditProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379461FA251FB962006774A0 /* EditProgramView.swift */; };
 		379461FE251FF98D006774A0 /* EditWorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379461FD251FF98D006774A0 /* EditWorkoutView.swift */; };
 		37A1FF252572C2250063121D /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37A1FF242572C2250063121D /* AuthenticationServices.framework */; };
+		37A4CACD259E4A23001097E0 /* AddExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A4CACC259E4A23001097E0 /* AddExerciseView.swift */; };
 		37B87508258E8C0E0097FA9F /* EditRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */; };
 		37B8750E258EAD230097FA9F /* EditRepsSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B8750D258EAD230097FA9F /* EditRepsSetView.swift */; };
 		37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */; };
@@ -106,6 +107,7 @@
 		379461FD251FF98D006774A0 /* EditWorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWorkoutView.swift; sourceTree = "<group>"; };
 		37A1FF222572C2250063121D /* liftsmart.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = liftsmart.entitlements; sourceTree = "<group>"; };
 		37A1FF242572C2250063121D /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		37A4CACC259E4A23001097E0 /* AddExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExerciseView.swift; sourceTree = "<group>"; };
 		37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepRangesView.swift; sourceTree = "<group>"; };
 		37B8750D258EAD230097FA9F /* EditRepsSetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepsSetView.swift; sourceTree = "<group>"; };
 		37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMaxRepsView.swift; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 		379461FC251FB96F006774A0 /* Editing */ = {
 			isa = PBXGroup;
 			children = (
+				37A4CACC259E4A23001097E0 /* AddExerciseView.swift */,
 				374896E82550E1E70030D7B2 /* EditDurationsView.swift */,
 				374896E2255097410030D7B2 /* EditExerciseHelpers.swift */,
 				378796F925438F5D004C2D43 /* EditMaxRepsView.swift */,
@@ -398,6 +401,7 @@
 				37FB6E7E24686BC600EB4916 /* Modality.swift in Sources */,
 				378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */,
 				3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */,
+				37A4CACD259E4A23001097E0 /* AddExerciseView.swift in Sources */,
 				37FB6E8524687B9400EB4916 /* Expected.swift in Sources */,
 				37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */,
 				372D2233249E8D1B0024C8F3 /* Store.swift in Sources */,
