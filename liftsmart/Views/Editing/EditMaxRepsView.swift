@@ -98,6 +98,7 @@ struct EditMaxRepsView: View, EditContext {
     func onEditedReps(_ inText: String) {
         let text = inText.trimmingCharacters(in: .whitespaces)
         if text.isEmpty {
+            self.exercise.expected.reps = []    // TODO: use isEmptyOrBlank
             return
         }
         if let reps = Int(text) {
@@ -106,6 +107,7 @@ struct EditMaxRepsView: View, EditContext {
                 self.errColor = .red
             } else {
                 self.errText = ""
+                self.exercise.expected.reps = [reps]
             }
         } else {
             self.errText = "Expected reps should be a number (found '\(text)')"
@@ -114,8 +116,18 @@ struct EditMaxRepsView: View, EditContext {
     }
     
     func onEditedTarget(_ inText: String) {
-        let text = inText.trimmingCharacters(in: .whitespaces)
+        var rest: [Int]
+        switch exercise.modality.sets {
+        case .maxReps(restSecs: let r, targetReps: _):
+            rest = r
+        default:
+            assert(false)
+            rest = []
+        }
+
+    let text = inText.trimmingCharacters(in: .whitespaces)
         if text.isEmpty {
+            self.exercise.modality.sets = .maxReps(restSecs: rest, targetReps: nil)
             return
         }
         if let reps = Int(text) {
@@ -124,6 +136,7 @@ struct EditMaxRepsView: View, EditContext {
                 self.errColor = .red
             } else {
                 self.errText = ""
+                self.exercise.modality.sets = .maxReps(restSecs: rest, targetReps: reps)
             }
         } else {
             self.errText = "Target reps should be a number (found '\(text)')"
@@ -146,17 +159,7 @@ struct EditMaxRepsView: View, EditContext {
         self.presentationMode.wrappedValue.dismiss()
     }
 
-    func onOK() {
-        self.exercise.name = self.name.trimmingCharacters(in: .whitespaces)
-        self.exercise.formalName = self.formalName
-        let text = self.reps.trimmingCharacters(in: .whitespaces)
-        self.exercise.expected.reps = text.isEmpty ? [] : [Int(text)!]    // TODO: use isEmptyOrBlank
-        self.exercise.expected.weight = Double(self.weight)!
-        
-        let target = Int(self.target)
-        let rest = self.rest.split(separator: " ").map({strToRest(String($0)).unwrap()})
-        exercise.modality.sets = .maxReps(restSecs: rest, targetReps: target)
-        
+    func onOK() {        
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
         self.presentationMode.wrappedValue.dismiss()

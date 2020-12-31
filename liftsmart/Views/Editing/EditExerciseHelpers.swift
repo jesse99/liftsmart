@@ -51,6 +51,7 @@ func createNameView(text: Binding<String>, _ context: EditContext) -> some View 
             context.errColor = .orange
         } else {
             context.errText = ""
+            context.exercise.name = name
         }
     }
 
@@ -75,6 +76,7 @@ func createNameView(text: Binding<String>, _ context: EditContext) -> some View 
 func editedFormalName(_ text: String, _ inContext: EditContext) {
     var context = inContext
     context.formalName = text
+    context.exercise.formalName = text
 }
 
 func formalNameHelp(_ inContext: EditContext) {
@@ -139,6 +141,7 @@ func createWeightView(text: Binding<String>, _ context: EditContext) -> some Vie
                 context.errColor = .red
             } else {
                 context.errText = ""
+                context.exercise.expected.weight = weight
             }
         } else {
             context.errText = "Expected a floating point number for weight (found '\(text)')"

@@ -155,6 +155,10 @@ struct EditRepRangesView: View, EditContext {
 
         self.errText = ""
         checkSetCounts()
+        
+        if self.errText.isEmpty {
+            self.exercise.expected.reps = parts.map({Int($0)!})
+        }
     }
 
     func onExpectedHelp() {
@@ -249,14 +253,6 @@ struct EditRepRangesView: View, EditContext {
     }
 
     func onOK() {
-        self.exercise.name = self.name.trimmingCharacters(in: .whitespaces)
-        self.exercise.formalName = self.formalName
-        let parts = self.expectedReps.split(separator: " ")
-        self.exercise.expected.reps = parts.map({Int($0)!})
-        self.exercise.expected.weight = Double(self.weight)!
-        
-//        exercise.modality.sets = .repRanges(warmups: _, worksets: _, backoffs: _)
-
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
         self.presentationMode.wrappedValue.dismiss()
