@@ -181,7 +181,7 @@ let defaultNotes: [String: String] = [
     "Barbell Curl": noteToMarkdown(
         notes: [
             "Use an EZ bar or a regular barbell.",
-            "Grip bar at shoulder width with palms facing out,",
+            "Grip bar at shoulder width with palms facing out.",
             "Pull upwards until forearms are vertical.",
             "Lower until arms are straightened out."],
         links: ["Link": "http://www.exrx.net/WeightExercises/Biceps/BBCurl.html"]),
@@ -348,7 +348,7 @@ let defaultNotes: [String: String] = [
     "Body-weight Romanian Deadlift": noteToMarkdown(
         notes: [
             "Stand up straight with one hand on your chest and another on your belly.",
-            "Keeping your back straight and your chest out, bend at the waist,"],
+            "Keeping your back straight and your chest out, bend at the waist."],
         links: ["Video": "https://gfycat.com/BlueUltimateBaiji"]),
     
     "Body-weight Squat": noteToMarkdown(
@@ -777,7 +777,7 @@ let defaultNotes: [String: String] = [
     
     "Dumbbell Bent Over Row": noteToMarkdown(
         notes: [
-            "Hold a dumbbell in both hands with palms facing your torso,",
+            "Hold a dumbbell in both hands with palms facing your torso.",
             "Bend your knees slightly and bend over until your torso is almost parallel with the floor.",
             "Lift the weights to your side keeping your elbows close to your body.",
             "Keep your back straight and your head up."],
@@ -794,7 +794,7 @@ let defaultNotes: [String: String] = [
     
     "Dumbbell Floor Press": noteToMarkdown(
         notes: [
-            "Lay flat on your back with knees raised,",
+            "Lay flat on your back with knees raised.",
             "Grasp dumbbells so that palms are facing forward.",
             "Raise dumbbells so that they touch above chest."],
         links: ["Link": "https://www.youtube.com/watch?feature=player_embedded&v=XtEzJpPR2Zg"]),
@@ -1085,7 +1085,7 @@ let defaultNotes: [String: String] = [
             "Bring arms up under the bar so that the bar rests on your deltoids (uppermost part of arms).",
             "Elbows should be very high.",
             "May have more control of the bar by crossing forearms.",
-            "Unless you are very flexible there is no reason to actually grip the bar,",
+            "Unless you are very flexible there is no reason to actually grip the bar.",
             "Feet shoulder width apart with toes slightly pointed out.",
             "Go down slowly until thighs break parallel with the floor.",
             "Go up quickly."],
@@ -1097,7 +1097,7 @@ let defaultNotes: [String: String] = [
             "Prop your feet up on a low stool or chair.",
             "Push your heels into the floor and lift your hips off the floor.",
             "When in position your butt should be off the floor and your torso and legs should form a ninety degree angle.",
-            "Flex your hips up as high as possible,",
+            "Flex your hips up as high as possible.",
             "Once you reach the high point swing your entire body forward."],
         links: ["Video": "https://www.youtube.com/watch?v=KlCOhWuPGBU"]),
     
@@ -1202,7 +1202,7 @@ let defaultNotes: [String: String] = [
     
     "Handstand Pushup": noteToMarkdown(
         notes: [
-            "Get into a wall handstand about a foot from the wall. Hands should be shoulder width or a little wider,",
+            "Get into a wall handstand about a foot from the wall. Hands should be shoulder width or a little wider.",
             "Lower youself until your forehead touches the floor and raise yourself back up."],
         links: ["Video": "https://www.youtube.com/watch?v=5Vs-hk74zOQ", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase3/hspu"]),
     
@@ -1616,7 +1616,7 @@ let defaultNotes: [String: String] = [
     
     "Negative Handstand Pushup": noteToMarkdown(
         notes: [
-            "Get into a wall handstand about a foot from the wall. Hands should be shoulder width or a little wider,",
+            "Get into a wall handstand about a foot from the wall. Hands should be shoulder width or a little wider.",
             "Slowly lower youself (take up to 10s).",
             "Once your forehead touches the floor roll out."],
         links: ["Video": "https://www.youtube.com/watch?v=Lj2KZwbr_jo", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase3/hspu"]),
@@ -1688,7 +1688,7 @@ let defaultNotes: [String: String] = [
             "Grip should be narrow enough that forearms are vertical at the bottom.",
             "Bar should be on the base of the palms, close to wrist.",
             "Keep wrists straight.",
-            "Elbows should start under the bar and touching your lats,",
+            "Elbows should start under the bar and touching your lats.",
             "Feet about shoulder width apart, pointed slightly out.",
             "Legs should be locked at all times.",
             "Lift chest by arching upper back.",
@@ -2079,7 +2079,7 @@ let defaultNotes: [String: String] = [
             "Stand upright holding the bar with palms facing inward, back arched, and knees slightly bent.",
             "Lower the bar by moving your butt backwards as far as possible.",
             "Keep bar close to body, head looking forward, and shoulders back.",
-            "Don't lower bar past knees,"],
+            "Don't lower bar past knees."],
         links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/romanian-deadlift"]),
     
     "Rope Horizontal Chop": noteToMarkdown(
@@ -2669,7 +2669,7 @@ let defaultNotes: [String: String] = [
     "Underhand Cable Pulldowns": noteToMarkdown(
         notes: [
             "Sit at a lat pulldown machine with a wide bar attached to the pulley.",
-            "Grab the bar with your palms facing you at closer than shoulder width,",
+            "Grab the bar with your palms facing you at closer than shoulder width.",
             "Stick your chest out and lean back about thirty degrees.",
             "Pull the bar to your upper chest keeping albows in tight."],
         links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/underhand-cable-pulldowns"]),
@@ -2677,7 +2677,7 @@ let defaultNotes: [String: String] = [
     "Upright Row": noteToMarkdown(
         notes: [
             "Grasp a barbell with palms facing inward slighty less than shoulder width.",
-            "Rest the bar on thighs with elbows slightly bent,",
+            "Rest the bar on thighs with elbows slightly bent.",
             "Keep back straight.",
             "Raise bar to chin keeping elbows higher than forearms.",
             "Lower bar back to thighs.",
@@ -2728,7 +2728,7 @@ let defaultNotes: [String: String] = [
     "Wall Extensions": noteToMarkdown(
         notes: [
             "Sit with your back straight up against a wall.",
-            "Raise your arms as if you are surrendering pressing your upper arms against the wall,",
+            "Raise your arms as if you are surrendering pressing your upper arms against the wall.",
             "Start with your lower and upper arms forming a 90 degree angle.",
             "Once your upper arms are in place move your forearms against the wall.",
             "Keeping forearms completely vertical and your body against the wall slide your hands as high as they will go.",
@@ -2739,7 +2739,7 @@ let defaultNotes: [String: String] = [
     "Wall Extensions (floor)": noteToMarkdown(
         notes: [
             "Lie down on the floor.",
-            "Keep your lower back touching the floor,",
+            "Keep your lower back touching the floor.",
             "Start with your lower and upper arms forming a 90 degree angle.",
             "If possible start with your elbows on the floor.",
             "Move your arms up as far as possible but stop if your elbows begin to raise."],
