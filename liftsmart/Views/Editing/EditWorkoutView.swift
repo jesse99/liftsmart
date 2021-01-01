@@ -55,6 +55,7 @@ struct EditWorkoutView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
                         .disableAutocorrection(false)
+                        .onChange(of: self.name, perform: self.onEditedName)
                 }.padding(.leading)
                 Menu(self.daysLabel) {
                     Button(self.sunLabel, action: {self.toggleDay(.sunday)})
@@ -96,7 +97,7 @@ struct EditWorkoutView: View {
         .sheet(isPresented: self.$showSheet) {
             AddExerciseView(workout: self.workout, dismiss: self.refresh)}
     }
-    
+
     func toggleDay(_ day: WeekDay) {
         self.workout.days[day.rawValue] = !self.workout.days[day.rawValue]
         self.refresh()
@@ -224,14 +225,16 @@ struct EditWorkoutView: View {
         self.refresh()
     }
     
+    func onEditedName(_ text: String) {
+        self.workout.name = self.name
+    }
+    
     func onCancel() {
         self.workout.restore(self.original)
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        self.workout.name = self.name
-
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
         self.presentationMode.wrappedValue.dismiss()

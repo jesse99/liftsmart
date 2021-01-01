@@ -49,6 +49,7 @@ struct EditProgramView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.default)
                     .disableAutocorrection(false)
+                    .onChange(of: self.name, perform: self.onEditedName)
             }.padding()
 
             List(self.entries) {entry in
@@ -142,14 +143,16 @@ struct EditProgramView: View {
         self.refresh()
     }
 
+    func onEditedName(_ text: String) {
+        self.program.name = self.name
+    }
+    
     func onCancel() {
         self.program.restore(self.original)
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        self.program.name = self.name
-
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
         self.presentationMode.wrappedValue.dismiss()
