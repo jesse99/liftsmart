@@ -172,7 +172,7 @@ struct EditDurationsView: View, EditContext {
         if self.errText.isEmpty {
             var sets: [DurationSet]
             switch exercise.modality.sets {
-            case .durations(let s, targetSecs: nil):
+            case .durations(let s, targetSecs: _):
                 sets = s
             default:
                 assert(false)
