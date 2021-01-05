@@ -48,7 +48,7 @@ struct EditRepRangesView: View, EditContext {
                     Text("Expected Reps:").font(.headline)
                     TextField("", text: self.$expectedReps)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.numberPad)
+                        .keyboardType(.default)
                         .disableAutocorrection(true)
                         .onChange(of: self.expectedReps, perform: self.onEditedExpected)
                     Button("?", action: onExpectedHelp).font(.callout).padding(.trailing)

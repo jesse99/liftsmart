@@ -218,6 +218,17 @@ struct RepsSet: CustomDebugStringConvertible, Storable {
         store.addObj("percent", percent)
         store.addInt("restSecs", restSecs)
     }
+    
+    func titles(_ expected: Expected, _ reps: RepRange) -> (String, String) {
+        let weight = expected.weight * percent
+        let display = percent.value >= 0.01 && percent.value <= 0.99
+        let percentTitle = display ? "\(percent.label) of \(expected.weight) lbs" : ""
+
+        let suffix = percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+        let repsTitle = reps.label + suffix
+        
+        return (percentTitle, repsTitle)
+    }
 
     var debugDescription: String {
         get {
