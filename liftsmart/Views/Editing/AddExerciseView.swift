@@ -24,6 +24,7 @@ struct AddExerciseView: View {
                 HStack {
                     Menu(self.typeLabel) {
                         Button("Durations", action: {self.type = .durations([]); self.refresh()})
+                        Button("Fixed Reps", action: {self.type = .fixedReps([]); self.refresh()})
                         Button("Max Reps", action: {self.type = .maxReps(restSecs: []); self.refresh()})
                         Button("Rep Ranges", action: {self.type = .repRanges(warmups: [], worksets: [], backoffs: []); self.refresh()})
                         Button("Cancel", action: {})
@@ -57,6 +58,8 @@ struct AddExerciseView: View {
         switch type {
         case .durations(_, targetSecs: _):
             self.typeLabel = "Durations"
+        case .fixedReps(_):
+            self.typeLabel = "Fixed Reps"
         case .maxReps(restSecs: _, targetReps: _):
             self.typeLabel = "Max Reps"
         case .repRanges(warmups: _, worksets: _, backoffs: _):
@@ -68,10 +71,12 @@ struct AddExerciseView: View {
         switch type {
         case .durations(_, targetSecs: _):
             self.helpText = "Fixed number of sets where each set is done for a time interval."
+        case .fixedReps(_):
+            self.helpText = "Fixed number of sets where each set has a fixed number of reps."
         case .maxReps(restSecs: _, targetReps: _):
             self.helpText = "Fixed number of sets doing as many reps as possible for each set."
         case .repRanges(warmups: _, worksets: _, backoffs: _):
-            self.helpText = "Fixed number of sets where each set has a min and max number of reps."
+            self.helpText = "Fixed number of sets where each set has a min and max number of reps with optional warmup and backoff sets."
         }
         self.showHelp = true
     }
@@ -96,6 +101,13 @@ struct AddExerciseView: View {
             return Exercise(findName(), "None", modality)
         }
         
+        func defaultFixedReps() -> Exercise {
+            let work = RepsSet(reps: RepRange(min: 10, max: 10), restSecs: 30)
+            let sets = Sets.fixedReps([work, work, work])
+            let modality = Modality(Apparatus.bodyWeight, sets)
+            return Exercise(findName(), "None", modality)
+        }
+        
         func defaultMaxReps() -> Exercise {
             let sets = Sets.maxReps(restSecs: [60, 60, 60])
             let modality = Modality(Apparatus.bodyWeight, sets)
@@ -112,6 +124,9 @@ struct AddExerciseView: View {
         switch type {
         case .durations(_, targetSecs: _):
             let exercise = defaultDurations()
+            workout.exercises.append(exercise)
+        case .fixedReps(_):
+            let exercise = defaultFixedReps()
             workout.exercises.append(exercise)
         case .maxReps(restSecs: _, targetReps: _):
             let exercise = defaultMaxReps()

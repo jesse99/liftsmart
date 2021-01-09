@@ -273,6 +273,9 @@ struct DurationSet: CustomDebugStringConvertible, Storable {
 enum Sets: CustomDebugStringConvertible {
     /// Used for stuff like 3x60s planks.
     case durations([DurationSet], targetSecs: [Int] = [])
+    
+    /// Does not allow variable reps, useful for things like stretches.
+    case fixedReps([RepsSet])
 
     /// Used for stuff like curls to exhaustion. targetReps is the reps across all sets.
     case maxReps(restSecs: [Int], targetReps: Int? = nil)
@@ -291,6 +294,9 @@ enum Sets: CustomDebugStringConvertible {
             switch self {
             case .durations(let durations, _):
                 sets = durations.map({$0.debugDescription})
+
+            case .fixedReps(let worksets):
+                sets = worksets.map({$0.debugDescription})
 
             case .maxReps(let restSecs, _):
                 sets = ["\(restSecs.count) sets"]
@@ -322,6 +328,9 @@ extension Sets: Storable {
         case "durations":
             self = .durations(store.getObjArray("durations"), targetSecs: store.getIntArray("targetSecs"))
             
+        case "fixedReps":
+            self = .fixedReps(store.getObjArray("worksets"))
+            
         case "maxReps":
             if store.hasKey("targetReps") {
                 self = .maxReps(restSecs: store.getIntArray("restSecs"), targetReps: store.getInt("targetReps"))
@@ -343,6 +352,10 @@ extension Sets: Storable {
             store.addStr("type", "durations")
             store.addObjArray("durations", durations)
             store.addIntArray("targetSecs", targetSecs)
+
+        case .fixedReps(let worksets):
+            store.addStr("type", "fixedReps")
+            store.addObjArray("worksets", worksets)
 
         case .maxReps(let restSecs, let targetReps):
             store.addStr("type", "maxReps")

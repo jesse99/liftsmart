@@ -38,6 +38,10 @@ struct WorkoutEntry: Identifiable {
         case .durations(let durations, _):
             sets = durations.map({$0.debugDescription})
 
+        case .fixedReps(let worksets):
+            sets = worksets.mapi(getRepsLabel)
+            limit = 3
+
         case .maxReps(let restSecs, let targetReps):
             if exercise.expected.reps.isEmpty {
                 if let target = targetReps {
@@ -130,6 +134,9 @@ struct WorkoutView: View {
         switch exercise.modality.sets {
         case .durations(_, _):
             return AnyView(ExerciseDurationsView(workout, exercise, history))
+
+        case .fixedReps(_):
+            return AnyView(ExerciseFixedRepsView(workout, exercise, history))
 
         case .maxReps(_, _):
             return AnyView(ExerciseMaxRepsView(workout, exercise, history))
