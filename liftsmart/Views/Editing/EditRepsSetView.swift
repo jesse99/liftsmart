@@ -70,11 +70,11 @@ struct EditRepsSetView: View {
     func doValidate() -> [RepsSet]? {
         // Check each rep, this can be empty (e.g. for warmups)
         var parts = self.reps.split(separator: " ")
-        var repsSet: [RepRange] = []
+        var newReps: [RepRange] = []
         for part in parts {
             switch RepRange.create(String(part)) {
             case .right(let r):
-                repsSet.append(r)
+                newReps.append(r)
             case .left(let e):
                 self.errText = e
                 return nil
@@ -83,11 +83,11 @@ struct EditRepsSetView: View {
 
         // Check each percent
         parts = self.percents.split(separator: " ")
-        var percentSet: [WeightPercent] = []
+        var newPercents: [WeightPercent] = []
         for part in parts {
             switch WeightPercent.create(String(part)) {
             case .right(let r):
-                percentSet.append(r)
+                newPercents.append(r)
             case .left(let e):
                 self.errText = e
                 return nil
@@ -96,11 +96,11 @@ struct EditRepsSetView: View {
 
         // Check each rest
         parts = self.rests.split(separator: " ")
-        var restSet: [Int] = []
+        var newRests: [Int] = []
         for part in parts {
             switch strToRest(String(part)) {
             case .right(let r):
-                restSet.append(r)
+                newRests.append(r)
             case .left(let e):
                 self.errText = e
                 return nil
@@ -108,13 +108,13 @@ struct EditRepsSetView: View {
         }
 
         // Ensure that counts match up
-        if repsSet.count == percentSet.count && percentSet.count == restSet.count {
-            var result: [RepsSet] = []
-            for i in 0..<repsSet.count {
-                result.append(RepsSet(reps: repsSet[i], percent: percentSet[i], restSecs: restSet[i]))
+        if newReps.count == newPercents.count && newPercents.count == newRests.count {
+            var newSets: [RepsSet] = []
+            for i in 0..<newReps.count {
+                newSets.append(RepsSet(reps: newReps[i], percent: newPercents[i], restSecs: newRests[i]))
             }
             self.errText = ""
-            return result
+            return newSets
 
         } else {
             self.errText = "Number of sets must all match"

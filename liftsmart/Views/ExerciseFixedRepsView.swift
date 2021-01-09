@@ -70,9 +70,9 @@ struct ExerciseFixedRepsView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
-//                Button("Edit", action: onEdit)
-//                    .font(.callout)
-//                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditFixedRepsView(workout: self.workout, exercise: self.exercise)}
+                Button("Edit", action: onEdit)
+                    .font(.callout)
+                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditFixedRepsView(workout: self.workout, exercise: self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
