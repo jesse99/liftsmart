@@ -2,6 +2,62 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+func getTypeLabel(_ sets: Sets) -> String {
+    switch sets {
+    case .durations(_, targetSecs: _):
+        return "Durations"
+    case .fixedReps(_):
+        return "Fixed Reps"
+    case .maxReps(restSecs: _, targetReps: _):
+        return "Max Reps"
+    case .repRanges(warmups: _, worksets: _, backoffs: _):
+        return "Rep Ranges"
+    }
+}
+
+func getTypeHelp(_ sets: Sets) -> String {
+    switch sets {
+    case .durations(_, targetSecs: _):
+        return "Fixed number of sets where each set is done for a time interval."
+    case .fixedReps(_):
+        return "Fixed number of sets where each set has a fixed number of reps."
+    case .maxReps(restSecs: _, targetReps: _):
+        return "Fixed number of sets doing as many reps as possible for each set."
+    case .repRanges(warmups: _, worksets: _, backoffs: _):
+        return "Fixed number of sets where each set has a min and max number of reps with optional warmup and backoff sets."
+    }
+}
+
+func defaultDurations(_ name: String) -> Exercise {
+    let durations = [
+        DurationSet(secs: 30, restSecs: 60),
+        DurationSet(secs: 30, restSecs: 60),
+        DurationSet(secs: 30, restSecs: 60)]
+    let sets = Sets.durations(durations)
+    let modality = Modality(Apparatus.bodyWeight, sets)
+    return Exercise(name, "None", modality)
+}
+
+func defaultFixedReps(_ name: String) -> Exercise {
+    let work = RepsSet(reps: RepRange(min: 10, max: 10), restSecs: 30)
+    let sets = Sets.fixedReps([work, work, work])
+    let modality = Modality(Apparatus.bodyWeight, sets)
+    return Exercise(name, "None", modality)
+}
+
+func defaultMaxReps(_ name: String) -> Exercise {
+    let sets = Sets.maxReps(restSecs: [60, 60, 60])
+    let modality = Modality(Apparatus.bodyWeight, sets)
+    return Exercise(name, "None", modality)
+}
+
+func defaultRepRanges(_ name: String) -> Exercise {
+    let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 120)
+    let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
+    let modality = Modality(Apparatus.bodyWeight, sets)
+    return Exercise(name, "None", modality)
+}
+
 struct AddExerciseView: View {
     var workout: Workout
     let dismiss: () -> Void
@@ -55,29 +111,11 @@ struct AddExerciseView: View {
     }
     
     func refresh() {
-        switch type {
-        case .durations(_, targetSecs: _):
-            self.typeLabel = "Durations"
-        case .fixedReps(_):
-            self.typeLabel = "Fixed Reps"
-        case .maxReps(restSecs: _, targetReps: _):
-            self.typeLabel = "Max Reps"
-        case .repRanges(warmups: _, worksets: _, backoffs: _):
-            self.typeLabel = "Rep Ranges"
-        }
+        self.typeLabel = getTypeLabel(type)
     }
     
     func onHelp() {
-        switch type {
-        case .durations(_, targetSecs: _):
-            self.helpText = "Fixed number of sets where each set is done for a time interval."
-        case .fixedReps(_):
-            self.helpText = "Fixed number of sets where each set has a fixed number of reps."
-        case .maxReps(restSecs: _, targetReps: _):
-            self.helpText = "Fixed number of sets doing as many reps as possible for each set."
-        case .repRanges(warmups: _, worksets: _, backoffs: _):
-            self.helpText = "Fixed number of sets where each set has a min and max number of reps with optional warmup and backoff sets."
-        }
+        self.helpText = getTypeHelp(type)
         self.showHelp = true
     }
 
@@ -91,48 +129,18 @@ struct AddExerciseView: View {
             return "Untitled \(count + 1)"
         }
         
-        func defaultDurations() -> Exercise {
-            let durations = [
-                DurationSet(secs: 30, restSecs: 60),
-                DurationSet(secs: 30, restSecs: 60),
-                DurationSet(secs: 30, restSecs: 60)]
-            let sets = Sets.durations(durations)
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise(findName(), "None", modality)
-        }
-        
-        func defaultFixedReps() -> Exercise {
-            let work = RepsSet(reps: RepRange(min: 10, max: 10), restSecs: 30)
-            let sets = Sets.fixedReps([work, work, work])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise(findName(), "None", modality)
-        }
-        
-        func defaultMaxReps() -> Exercise {
-            let sets = Sets.maxReps(restSecs: [60, 60, 60])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise(findName(), "None", modality)
-        }
-        
-        func defaultRepRanges() -> Exercise {
-            let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 120)
-            let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise(findName(), "None", modality)
-        }
-        
         switch type {
         case .durations(_, targetSecs: _):
-            let exercise = defaultDurations()
+            let exercise = defaultDurations(findName())
             workout.exercises.append(exercise)
         case .fixedReps(_):
-            let exercise = defaultFixedReps()
+            let exercise = defaultFixedReps(findName())
             workout.exercises.append(exercise)
         case .maxReps(restSecs: _, targetReps: _):
-            let exercise = defaultMaxReps()
+            let exercise = defaultMaxReps(findName())
             workout.exercises.append(exercise)
         case .repRanges(warmups: _, worksets: _, backoffs: _):
-            let exercise = defaultRepRanges()
+            let exercise = defaultRepRanges(findName())
             workout.exercises.append(exercise)
         }
 

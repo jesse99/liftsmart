@@ -21,6 +21,7 @@
 		374896E92550E1E70030D7B2 /* EditDurationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374896E82550E1E70030D7B2 /* EditDurationsView.swift */; };
 		374F97DD248C25A50062EE0B /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374F97DC248C25A50062EE0B /* DateExtension.swift */; };
 		3756D25525AA5FA90004A99F /* EditFixedRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3756D25425AA5FA90004A99F /* EditFixedRepsView.swift */; };
+		3756D25B25AA756D0004A99F /* ChangeTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3756D25A25AA756D0004A99F /* ChangeTypeView.swift */; };
 		3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */; };
 		3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA6124B1A84A00EF604A /* RestartableTimer.swift */; };
 		3766CA6424BB797800EF604A /* EditTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA6324BB797700EF604A /* EditTextView.swift */; };
@@ -86,6 +87,7 @@
 		374896E82550E1E70030D7B2 /* EditDurationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDurationsView.swift; sourceTree = "<group>"; };
 		374F97DC248C25A50062EE0B /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		3756D25425AA5FA90004A99F /* EditFixedRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFixedRepsView.swift; sourceTree = "<group>"; };
+		3756D25A25AA756D0004A99F /* ChangeTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeTypeView.swift; sourceTree = "<group>"; };
 		3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalExtension.swift; sourceTree = "<group>"; };
 		3766CA6124B1A84A00EF604A /* RestartableTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestartableTimer.swift; sourceTree = "<group>"; };
 		3766CA6324BB797700EF604A /* EditTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextView.swift; sourceTree = "<group>"; };
@@ -242,6 +244,7 @@
 			isa = PBXGroup;
 			children = (
 				37A4CACC259E4A23001097E0 /* AddExerciseView.swift */,
+				3756D25A25AA756D0004A99F /* ChangeTypeView.swift */,
 				374896E82550E1E70030D7B2 /* EditDurationsView.swift */,
 				374896E2255097410030D7B2 /* EditExerciseHelpers.swift */,
 				3756D25425AA5FA90004A99F /* EditFixedRepsView.swift */,
@@ -402,6 +405,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				379461FE251FF98D006774A0 /* EditWorkoutView.swift in Sources */,
+				3756D25B25AA756D0004A99F /* ChangeTypeView.swift in Sources */,
 				378D567624842C95006A041C /* TimerView.swift in Sources */,
 				379461FB251FB962006774A0 /* EditProgramView.swift in Sources */,
 				3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */,

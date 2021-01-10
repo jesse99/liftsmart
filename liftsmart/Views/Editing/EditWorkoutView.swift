@@ -37,6 +37,7 @@ struct EditWorkoutView: View {
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
     @State var showSheet: Bool = false
+    @State var addNotChange = false
     @Environment(\.presentationMode) private var presentationMode
     
     init(workout: Workout) {
@@ -95,7 +96,12 @@ struct EditWorkoutView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
-            AddExerciseView(workout: self.workout, dismiss: self.refresh)}
+            if addNotChange {
+                AddExerciseView(workout: self.workout, dismiss: self.refresh)
+            } else {
+                ChangeTypeView(workout: self.workout, index: self.editIndex, dismiss: self.refresh)
+            }
+        }
     }
 
     func toggleDay(_ day: WeekDay) {
@@ -186,6 +192,7 @@ struct EditWorkoutView: View {
             if self.editIndex < len - 1 && len > 1 {
                 buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1); self.refresh()}))
             }
+            buttons.append(.default(Text("Change Type"), action: {self.onChangeType()}))
             if self.workout.exercises[self.editIndex].enabled {
                 buttons.append(.default(Text("Disable Exercise"), action: {self.onToggleEnabled()}))
             } else {
@@ -199,15 +206,21 @@ struct EditWorkoutView: View {
         return buttons
     }
     
-    func onAdd() {
-        self.showSheet = true
-    }
-
     func doAdd(_ name: String) {
         self.workout.addExercise(name)
 
         self.errText = ""
         self.refresh()
+    }
+    
+    func onAdd() {
+        self.showSheet = true
+        self.addNotChange = true
+    }
+
+    func onChangeType() {
+        self.showSheet = true
+        self.addNotChange = false
     }
 
     private func onToggleEnabled() {

@@ -61,8 +61,8 @@ func home() -> Program {
     
     // Rehab
     func shoulderFlexion() -> Exercise {
-        let work = RepsSet(reps: RepRange(min: 8, max: 12), restSecs: 0)
-        let sets = Sets.repRanges(warmups: [], worksets: [work], backoffs: [])
+        let work = RepsSet(reps: RepRange(12), restSecs: 0)
+        let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Shoulder Flexion", "Single Shoulder Flexion", modality)
     }
@@ -124,19 +124,19 @@ func home() -> Program {
     // Upper
     func planks() -> Exercise { // TODO: this should be some sort of progression
         let durations = [
-            DurationSet(secs: 45, restSecs: 90),
-            DurationSet(secs: 45, restSecs: 90),
-            DurationSet(secs: 45, restSecs: 90)]
+            DurationSet(secs: 50, restSecs: 2*60),
+            DurationSet(secs: 50, restSecs: 2*60),
+            DurationSet(secs: 50, restSecs: 2*60)]
         let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Front Plank", "Front Plank", modality)
     }
     
-    func pikePushup() -> Exercise {
+    func pushup() -> Exercise {
         let work = RepsSet(reps: RepRange(min: 4, max: 12), restSecs: 150)
         let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Pike Pushup", "Pike Pushup", modality, Expected(weight: 0.0, reps: [7, 7, 7]))
+        return Exercise("Pushup", "Pushup", modality, Expected(weight: 0.0, reps: [10, 10, 10]))
     }
 
     func reversePlank() -> Exercise { // TODO: this should be some sort of progression
@@ -175,7 +175,7 @@ func home() -> Program {
     let mobility = createWorkout("Mobility", [formRolling(), ironCross(), vSit(), frog(), fireHydrant(), mountain(), cossack(), piriformis()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
 //    let complex = createWorkout("Complex", [perry()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
     let lower = createWorkout("Lower", [splitSquats(), lunge()], days: [.tuesday, .thursday, .saturday]).unwrap()
-    let upper = createWorkout("Upper", [planks(), pikePushup(), reversePlank(), curls(), latRaise(), tricepPress()], days: [.friday, .sunday]).unwrap()
+    let upper = createWorkout("Upper", [planks(), pushup(), reversePlank(), curls(), latRaise(), tricepPress()], days: [.friday, .sunday]).unwrap()
 
     let workouts = [rehab, mobility, lower, upper]
     return Program("Home", workouts)
