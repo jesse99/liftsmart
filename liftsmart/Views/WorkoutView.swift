@@ -45,12 +45,12 @@ struct WorkoutEntry: Identifiable {
         case .maxReps(let restSecs, let targetReps):
             if exercise.expected.reps.isEmpty {
                 if let target = targetReps {
-                return "up to \(target) reps over \(restSecs.count) sets"
+                return "up to \(target) total reps"
                 } else {
-                    return "\(restSecs.count) sets"
+                    return ""
                 }
             } else {
-                return "\(exercise.expected.reps[0]) reps over \(restSecs.count) sets"
+                return "\(exercise.expected.reps[0]) total reps"
             }
 
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
