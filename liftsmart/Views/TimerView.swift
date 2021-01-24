@@ -44,6 +44,7 @@ struct TimerView: View {
             self.resting = true
             self.waiting = true
         } else {
+            self.timer.upstream.connect().cancel()
             UIApplication.shared.isIdleTimerDisabled = false
             self.presentationMode.wrappedValue.dismiss()
         }
