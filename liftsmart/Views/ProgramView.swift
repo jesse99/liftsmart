@@ -149,7 +149,7 @@ struct ProgramView: View {
             let weekday = cal.component(.weekday, from: Date())
             let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
             var nextWorkout: (Int, Int)? = nil
-            for delta in 1...6 {
+            for delta in 1...13 {
                 for entry in entries {
                     if nextWorkout == nil {
                         if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: Date()) {
@@ -166,15 +166,13 @@ struct ProgramView: View {
                 var entry = entries[i]
                 let completion = completions[i]
                 
-                var doneToday = false
                 var doneRecently = false
                 if let last = completion.latest {
-                    doneToday = cal.isDate(last, inSameDayAs: Date())
-                    doneRecently = Date().hoursSinceDate(last) < 2
+                    doneRecently = Date().hoursSinceDate(last) < 4
                 }
                 
                 // If the user has done any exercise within the workout today,
-                if doneToday && doneRecently {  // TODO: all these same/next day checks should be fuzzy
+                if doneRecently {
                     if completion.latestIsComplete {
                         // and they completed every exercise.
                         entry.subLabel = "completed"
@@ -195,7 +193,7 @@ struct ProgramView: View {
                     entry.subColor = .orange
 
                 // If the workout is scheduled for today,
-                } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil && !doneToday {
+                } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil {
                     if let oldest = oldestWorkout(todaysWorkouts) {
                         entry.subLabel = "today"
                         if agesMatch(oldest, entry.workout) {
@@ -208,9 +206,8 @@ struct ProgramView: View {
                         entry.subColor = .orange
                     }
                     
-                // If the workout is on a day that the user should do next and the user has nothing scheduled today or
-                // has done the exercise today but not recently,
-                } else if let (weekday, delta) = nextWorkout, (entry.workout.days[weekday - 1] && todaysWorkouts.isEmpty) || doneToday {
+                // If the workout is scheduled for later.
+                } else if let (weekday, delta) = nextWorkout, (entry.workout.days[weekday - 1]) {
                     entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
                     entry.subColor = .blue
                 }
@@ -289,7 +286,6 @@ struct ProgramView_Previews: PreviewProvider {
         history.append(program[0], program[0].exercises[0])
         history.append(program[0], program[0].exercises[1])
         history.append(program[1], program[1].exercises[0])
-        history.append(program[1], program[1].exercises[1])
         return history
     }
 }

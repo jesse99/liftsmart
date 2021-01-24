@@ -42,7 +42,7 @@ struct WorkoutEntry: Identifiable {
             sets = worksets.mapi(getRepsLabel)
             limit = 3
 
-        case .maxReps(let restSecs, let targetReps):
+        case .maxReps(_, let targetReps):
             if exercise.expected.reps.isEmpty {
                 if let target = targetReps {
                 return "up to \(target) total reps"
