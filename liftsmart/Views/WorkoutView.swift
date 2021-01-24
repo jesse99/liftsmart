@@ -28,7 +28,12 @@ struct WorkoutEntry: Identifiable {
             let max = workset.reps.max
             let reps = RepRange(min: min, max: max)
             let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs)
-            return set.debugDescription
+            let suffix = weightSuffix(workset.percent, exercise.expected.weight)
+            if !suffix.isEmpty {
+                return set.reps.editable + suffix
+            } else {
+                return set.reps.label + suffix
+            }
         }
         
         var sets: [String] = []
@@ -57,6 +62,9 @@ struct WorkoutEntry: Identifiable {
             sets = worksets.mapi(getRepsLabel)
             limit = 2
         }
+        
+        // TODO: should we just fix the limit, i.e. remove the assignments above?
+        limit = 5
         
         if sets.count == 0 {
             return ""
@@ -154,8 +162,8 @@ struct WorkoutView_Previews: PreviewProvider {
     static let reps1 = RepRange(min: 8, max: 12)
     static let reps2 = RepRange(min: 6, max: 10)
     static let reps3 = RepRange(min: 4, max: 6)
-    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(0.8), restSecs: 60)
-    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(0.9), restSecs: 60)
+    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(1.0), restSecs: 60)
+    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(1.0), restSecs: 60)
     static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0))
     static let rsets = Sets.repRanges(warmups: [], worksets: [work1, work2, work3], backoffs: [])
     static let m1 = Modality(Apparatus.bodyWeight, rsets)

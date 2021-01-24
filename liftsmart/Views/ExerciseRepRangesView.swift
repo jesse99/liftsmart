@@ -18,7 +18,7 @@ func getPreviouslabel(_ workout: Workout, _ exercise: Exercise) -> String {
             break
         }
     }
-    return count > 1 ? "Same previous x\(count)" : ""
+    return count > 0 ? "Same previous x\(count)" : ""
 }
 
 struct ExerciseRepRangesView: View {
@@ -161,7 +161,7 @@ struct ExerciseRepRangesView: View {
             self.onReset()
         }
     }
-
+    
     func refresh() {
         func shouldTrackHistory() -> Bool {
             // TODO: also true if apparatus is barbell, dumbbell, or machine
@@ -196,11 +196,9 @@ struct ExerciseRepRangesView: View {
             
         default:
             let percent = getRepsSet().percent
-            let weight = exercise.expected.weight * percent
-            let display = percent.value >= 0.01 && percent.value <= 0.99
-            self.percentTitle = display ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
+            let suffix = weightSuffix(percent, exercise.expected.weight)
+            self.percentTitle = !suffix.isEmpty ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
 
-            let suffix = percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
             self.repsTitle = getRepRange().label + suffix
             self.platesTitle = ""        // TODO: needs to use apparatus
             self.startLabel = "Next"

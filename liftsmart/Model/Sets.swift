@@ -51,6 +51,11 @@ func strToDuration(_ text: String, label: String = "duration") -> Either<String,
     return strToTime(text, label: label, noZero: true)
 }
 
+func weightSuffix(_ percent: WeightPercent, _ maxWeight: Double) -> String {
+    let weight = maxWeight * percent
+    return percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+}
+
 struct RepRange: CustomDebugStringConvertible, Storable {
     let min: Int
     let max: Int
