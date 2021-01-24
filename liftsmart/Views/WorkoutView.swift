@@ -30,46 +30,51 @@ struct WorkoutEntry: Identifiable {
             let set = RepsSet(reps: reps, percent: workset.percent, restSecs: workset.restSecs)
             let suffix = weightSuffix(workset.percent, exercise.expected.weight)
             if !suffix.isEmpty {
-                return set.reps.editable + suffix
+                return set.reps.editable + suffix   // 3x5 @ 120 lbs
             } else {
-                return set.reps.label + suffix
+                return set.reps.label               // 3x5 reps
             }
         }
         
         var sets: [String] = []
-        var limit = 5
-        
+        var limit = 8
+
+        var trailer = ""
         switch exercise.modality.sets {
         case .durations(let durations, _):
             sets = durations.map({$0.debugDescription})
+            trailer = weightSuffix(WeightPercent(1.0), exercise.expected.weight)    // always the same for each set so we'll stick it at the end
 
         case .fixedReps(let worksets):
             sets = worksets.mapi(getRepsLabel)
-            limit = 3
+            limit = 6
 
         case .maxReps(_, let targetReps):
+            var label = ""
             if exercise.expected.reps.isEmpty {
                 if let target = targetReps {
-                return "up to \(target) total reps"
-                } else {
-                    return ""
+                    label = "up to \(target) total reps"
                 }
             } else {
-                return "\(exercise.expected.reps[0]) total reps"
+                label = "\(exercise.expected.reps[0]) total reps"
+            }
+
+            let suffix = weightSuffix(WeightPercent(1.0), exercise.expected.weight)
+            if !suffix.isEmpty {
+                return label + suffix
+            } else {
+                return label
             }
 
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
             sets = worksets.mapi(getRepsLabel)
-            limit = 2
+            limit = 5
         }
-        
-        // TODO: should we just fix the limit, i.e. remove the assignments above?
-        limit = 5
         
         if sets.count == 0 {
             return ""
         } else if sets.count == 1 {
-            return sets[0]
+            return sets[0] + trailer
         } else {
             let sets = dedupe(sets)
             let prefix = sets.prefix(limit)
@@ -77,7 +82,7 @@ struct WorkoutEntry: Identifiable {
             if prefix.count < sets.count {
                 return result + ", ..."
             } else {
-                return result
+                return result + trailer
             }
         }
     }
@@ -182,7 +187,7 @@ struct WorkoutView_Previews: PreviewProvider {
     static let set7 = DurationSet(secs: 30, restSecs: 60)
     static let dsets = Sets.durations([set1, set2, set3, set4, set5, set6, set7], targetSecs: [])
     static let m3 = Modality(Apparatus.bodyWeight, dsets)
-    static let planks = Exercise("Planks", "Planks", m3)
+    static let planks = Exercise("Planks", "Planks", m3, Expected(weight: 20.0, reps: [100]))
     static let workout = createWorkout("Strength", [ohp, curls, planks], day: nil).unwrap()
 
     static var previews: some View {
