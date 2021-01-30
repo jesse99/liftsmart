@@ -342,7 +342,8 @@ let defaultNotes: [String: String] = [
         notes: [
             "Stand in front of a low bench.",
             "Bring one leg backward so that your foot rests on the bench.",
-            "Keeping your torso upright drop into a squat."],
+            "Keeping your torso upright drop into a squat.",
+            "Don't let your knee drift in front of your foot."],
         links: ["Video": "https://www.youtube.com/watch?v=HeZiiPtlcew"]),
     
     "Body-weight Romanian Deadlift": noteToMarkdown(
@@ -1015,15 +1016,6 @@ let defaultNotes: [String: String] = [
             "Gently lean forward until you feel your hamstrings stretch."],
         links: ["Link": "http://www.floota.com/HamstringStretch.html"]),
     
-    "Foot Supported L-sit": noteToMarkdown(
-        notes: [
-            "Sit with your legs stretched out before you on the floor.",
-            "Use your palms to raise your body off the floor keeping your legs extended out.",
-            "Leave your feet on the ground.",
-            "Keep arms and legs straight.",
-            "Don't shrug your shoulders up."],
-        links: ["Link": "https://www.youtube.com/watch?v=IUZJoSP66HI#t=40s", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
-    
     "Forward Lunge Stretch": noteToMarkdown(
         notes: [
             "Kneel down with one leg forward and the other stretched behind you so that your weight is supported by your forward foot and back knee.",
@@ -1449,8 +1441,15 @@ let defaultNotes: [String: String] = [
             "Sit with your legs stretched out before you on the floor.",
             "Use your palms to raise your entire body off the floor keeping your legs extended out.",
             "Keep arms and legs straight.",
-            "Don't shrug your shoulders up."],
-        links: ["Link": "https://www.youtube.com/watch?v=ek76IXnE9tE", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
+            "Depress your shoulders, i.e. keep them down not at your ears.",
+            "Target should be 60s. If you cannot do an L-sit for that long use the progression:",
+            "1) Foot supported: leave your feet on the ground.",
+            "2) One-foot supported: raise one leg off the ground.",
+            "3) Tuck legs: bend knees about 90 degrees. Hands slightly in front of your butt.",
+            "4) Slightly tuck legs: as above but bend your knees less.",
+            "5) Full L-sit",
+            "When progressing use multiple sets to reach 60s as needed."],
+        links: ["Pictures": "antranik.org/l-sit-tutorial/#:~:text=Tuck%20your%20knees%20close%20to,%2Dfoot%20supported%20L%2Dsit)", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
     
     "L-sit Pullup": noteToMarkdown(
         notes: [
@@ -1663,25 +1662,6 @@ let defaultNotes: [String: String] = [
             "Pause and slowly lower your heel as far as possible.",
             "You can use your arm on the other side to support yourself.",],
         links: ["Link": "https://www.muscleandstrength.com/exercises/standing-one-leg-calf-raise-with-dumbbell.html"]),
-    
-    "One-Leg L-sit": noteToMarkdown(
-        notes: [
-            "Sit with your legs tucked towards your chest.",
-            "Use your palms to raise your entire body off the floor keeping your legs tucked to your chest.",
-            "Work on extending your legs outward: either by tucking less or extending one leg straight out.",
-            "Keep arms straight.",
-            "Don't shrug your shoulders up."],
-        links: ["Link": "https://www.youtube.com/watch?v=IUZJoSP66HI#t=40s", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
-    
-    "One-Leg Foot Supported L-sit": noteToMarkdown(
-        notes: [
-            "Sit with your legs stretched out before you on the floor.",
-            "Use your palms to raise your body off the floor keeping your legs extended out.",
-            "Keep one foot on the ground.",
-            "It's OK to alternate which foot is on the ground.",
-            "Keep arms and legs straight.",
-            "Don't shrug your shoulders up."],
-        links: ["Link": "https://www.youtube.com/watch?v=IUZJoSP66HI#t=40s", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
     
     "Overhead Press": noteToMarkdown(
         notes: [
@@ -2643,15 +2623,6 @@ let defaultNotes: [String: String] = [
             "Then lean back while keeping body horizontal.",
             "Lock out arms and pause for a second in tuck front level position."],
         links: ["Untucked Video": "https://www.youtube.com/watch?v=AszLwoAvLKg", "Body Weight Rows": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/row"]),
-    
-    "Tuck L-sit": noteToMarkdown(
-        notes: [
-            "Sit with your legs tucked towards your chest.",
-            "Use your palms to raise your entire body off the floor keeping your legs tucked to your chest.",
-            "Keep arms straight.",
-            "Don't shrug your shoulders up.",
-            "Easier version is to use a stool to do an elevated version"],
-        links: ["Link": "https://www.youtube.com/watch?v=IUZJoSP66HI#t=40s", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
     
     "Turkish Get-Up": noteToMarkdown(
         notes: [
