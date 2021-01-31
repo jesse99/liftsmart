@@ -15,42 +15,6 @@ func restToStr(_ secs: Int) -> String {
     }
 }
 
-// INT ('s' | 'm')?
-func strToTime(_ inText: String, label: String, noZero: Bool) -> Either<String, Int> {
-    func convert(_ inSecs: Double, scaleBy: Double) -> Either<String, Int> {
-        let secs = inSecs * scaleBy
-        if secs < 0.0 {
-            return .left("\(label.capitalized) cannot be negative")
-        } else if noZero && secs == 0.0 {
-            return .left("\(label.capitalized) cannot be zero")
-        } else {
-            return .right(Int(secs))
-        }
-    }
-    
-    let scanner = Scanner(string: inText)
-    let secs = scanner.scanDouble()
-    let units = scanner.scanCharacter()
-    if secs == nil {
-        return .left("Expected a number for \(label)")
-    }
-    if let u = units, u != "s" && u != "m" {
-        return .left("\(label.capitalized) units should be 's' or 'm'")
-    }
-    if !scanner.isAtEnd {
-        return .left("\(label.capitalized) should be a number followed by optional s or m units")
-    }
-    return (units ?? "s") == "s" ? convert(secs!, scaleBy: 1.0) : convert(secs!, scaleBy: 60.0)
-}
-
-func strToRest(_ text: String) -> Either<String, Int> {
-    return strToTime(text, label: "rest", noZero: false)
-}
-
-func strToDuration(_ text: String, label: String = "duration") -> Either<String, Int> {
-    return strToTime(text, label: label, noZero: true)
-}
-
 func weightSuffix(_ percent: WeightPercent, _ maxWeight: Double) -> String {
     let weight = maxWeight * percent
     return percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""

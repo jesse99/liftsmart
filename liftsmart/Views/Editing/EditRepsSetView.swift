@@ -95,16 +95,13 @@ struct EditRepsSetView: View {
         }
 
         // Check each rest
-        parts = self.rests.split(separator: " ")
         var newRests: [Int] = []
-        for part in parts {
-            switch strToRest(String(part)) {
-            case .right(let r):
-                newRests.append(r)
-            case .left(let e):
-                self.errText = e
-                return nil
-            }
+        switch parseTimes(self.rests, label: "rest", zeroOK: true) {
+        case .right(let times):
+            newRests = times
+        case .left(let err):
+            self.errText = err
+            return nil
         }
 
         // Ensure that counts match up

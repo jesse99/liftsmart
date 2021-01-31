@@ -95,56 +95,82 @@ struct EditDurationsView: View, EditContext {
     }
     
     func setsMatch() -> Bool {
-        let count1 = self.durations.split(separator: " ").count
-        let count2 = self.rest.split(separator: " ").count
-        let count3 = self.target.split(separator: " ").count
+        // We use zeroOK everywhere because here we only care about the number of elements.
+        let count1 = parseTimes(self.durations, label: "durations", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
+        let count2 = parseTimes(self.rest, label: "rest", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
+        let count3 = parseTimes(self.target, label: "target", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
         return count1 == count2 && (count3 == 0 || count1 == count3)
     }
     
-    func validateSecs(_ text: String, label: String) {
-        if !setsMatch() {
-            self.errText = "Durations, target, and rest must have the same number of sets (although target can be empty)"
-            self.errColor = .red
-            return
-        }
-        
-        for token in text.split(separator: " ") {
-            switch strToDuration(String(token), label: label) {
-            case .right(_):
-                self.errText = ""
-            case .left(let err):
-                self.errText = err
+    func validateSecs() -> String? {
+        return setsMatch() ? nil : "Durations, target, and rest must have the same number of sets (although target can be empty)"
+    }
+    
+    func onEditedDurations(_ text: String) {
+        let result = parseTimes(text, label: "durations")
+        switch result {
+        case .right(let times):
+            if !times.isEmpty {
+                if let err = validateSecs() {
+                    self.errText = err
+                    self.errColor = .red
+                } else {
+                    let rest = parseTimes(self.rest, label: "rest", zeroOK: true)
+                    if rest.isRight() {
+                        updateSets(durs: times, rests: rest.unwrap())
+                        self.errText = ""
+                    }
+                }
+            } else {
+                self.errText = "Durations needs at least one set"
                 self.errColor = .red
-                return
+            }
+        case .left(let err):
+            self.errText = err
+            self.errColor = .red
+        }
+    }
+    
+    func onEditedRest(_ times: [Int]) -> String? {
+        if let err = validateSecs() {
+            return err
+        } else {
+            let durs = parseTimes(self.durations, label: "durations")
+            if durs.isRight() {
+                updateSets(durs: durs.unwrap(), rests: times)
             }
         }
-    }
-    
-    func onEditedDurations(_ inText: String) {
-        let text = inText.trimmingCharacters(in: .whitespaces)
-        if text.isEmpty {
-            self.errText = "Durations needs at least one set"
-            self.errColor = .red
-            return       // bail on the first error
-        }
-        
-        validateSecs(text, label: "duration")
-        if self.errText.isEmpty {
-            updateSets(durs: text, rests: self.rest)
-        }
-    }
-    
-    func onEditedRest(_ text: String) -> String? {
-        if !setsMatch() {
-            return "Durations, target, and rest must have the same number of sets (although target can be empty)"
-        }
-        if self.errText.isEmpty {
-            updateSets(durs: self.durations, rests: text)
-        }
+
         return nil
     }
     
-    func updateSets(durs: String, rests: String) {
+    func onEditedTarget(_ text: String) {
+        let result = parseTimes(text, label: "target")
+        switch result {
+        case .right(let times):
+            if let err = validateSecs() {
+                self.errText = err
+                self.errColor = .red
+            } else {
+                var sets: [DurationSet]
+                switch exercise.modality.sets {
+                case .durations(let s, targetSecs: _):
+                    sets = s
+                default:
+                    assert(false)
+                    sets = []
+                }
+
+                exercise.modality.sets = .durations(sets, targetSecs: times)
+                self.errText = ""
+            }
+        case .left(let err):
+            self.errText = err
+            self.errColor = .red
+        }
+    }
+    
+    func updateSets(durs: [Int], rests: [Int]) {
         var target: [Int]
         switch exercise.modality.sets {
         case .durations(_, targetSecs: let t):
@@ -154,36 +180,10 @@ struct EditDurationsView: View, EditContext {
             target = []
         }
 
-        let secs = durs.split(separator: " ").map({strToRest(String($0)).unwrap()})
-        let restSecs = rests.split(separator: " ").map({strToRest(String($0)).unwrap()})
-        let sets = zip(secs, restSecs).map({DurationSet(secs: $0, restSecs: $1)})
+        let sets = zip(durs, rests).map({DurationSet(secs: $0, restSecs: $1)})
         exercise.modality.sets = .durations(sets, targetSecs: target)
     }
 
-    func onEditedTarget(_ inText: String) {
-        let text = inText.trimmingCharacters(in: .whitespaces)
-        if text.isEmpty {
-            self.errText = ""
-            return       // OK to have no target
-        }
-        
-        validateSecs(text, label: "target")
-        
-        if self.errText.isEmpty {
-            var sets: [DurationSet]
-            switch exercise.modality.sets {
-            case .durations(let s, targetSecs: _):
-                sets = s
-            default:
-                assert(false)
-                sets = []
-            }
-
-            let targ = text.split(separator: " ").map({strToRest(String($0)).unwrap()})
-            exercise.modality.sets = .durations(sets, targetSecs: targ)
-        }
-    }
-    
     func onDurationsHelp() {
         self.helpText = "The amount of time to perform each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
         self.showHelp = true

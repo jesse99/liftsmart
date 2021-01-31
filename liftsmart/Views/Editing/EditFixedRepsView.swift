@@ -105,7 +105,7 @@ struct EditFixedRepsView: View, EditContext {
     
     func doValidate() -> [RepsSet]? {
         // Check each rep
-        var parts = self.reps.split(separator: " ")
+        let parts = self.reps.split(separator: " ")
         var newReps: [RepRange] = []
         for part in parts {
             switch RepRange.create(String(part)) {
@@ -122,16 +122,13 @@ struct EditFixedRepsView: View, EditContext {
         }
 
         // Check each rest
-        parts = self.rests.split(separator: " ")
         var newRest: [Int] = []
-        for part in parts {
-            switch strToRest(String(part)) {
-            case .right(let r):
-                newRest.append(r)
-            case .left(let e):
-                self.errText = e
-                return nil
-            }
+        switch parseTimes(self.rests, label: "rest", zeroOK: true) {
+        case .right(let times):
+            newRest = times
+        case .left(let err):
+            self.errText = err
+            return nil
         }
         
         // Ensure that counts match up

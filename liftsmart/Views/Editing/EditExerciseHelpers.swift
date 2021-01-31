@@ -166,35 +166,34 @@ func createWeightView(text: Binding<String>, _ context: EditContext) -> some Vie
     }.padding(.leading)
 }
 
-typealias ExtraValidator = (String) -> String?   // additional validation
+typealias ExtraValidator = ([Int]) -> String?   // additional validation
 
 // This is for a list of rest times.
 func createRestView(text: Binding<String>, _ context: EditContext, extra: ExtraValidator? = nil) -> some View {
-    func editedRest(_ inText: String, _ inContext: EditContext) {
+    func editedRest(_ text: String, _ inContext: EditContext) {
         // Note that we don't use comma separated lists because that's more visual noise and
         // because some locales use commas for the decimal points.
         var context = inContext
-        let text = inText.trimmingCharacters(in: .whitespaces)
-        if text.isEmpty {
-            context.errText = "Rest needs at least one set"
-            context.errColor = .red
-            return
-        }
-        for token in text.split(separator: " ") {
-            switch strToRest(String(token)) {
-            case .right(_):
-                break
-            case .left(let err):
+
+        let result = parseTimes(text, label: "rest", zeroOK: true)
+        switch result {
+        case .right(let times):
+            if times.isEmpty {
+                context.errText = "Rest needs at least one set"
+                context.errColor = .red
+                return
+            }
+            if let e = extra, let err = e(times) {
                 context.errText = err
                 context.errColor = .red
-                return                  // bail on the first error
+                return
             }
-        }
-        if let e = extra, let err = e(text) {
+        case .left(let err):
             context.errText = err
             context.errColor = .red
             return
         }
+
         context.errText = ""
     }
 
@@ -214,3 +213,4 @@ func createRestView(text: Binding<String>, _ context: EditContext, extra: ExtraV
         Button("?", action: {restHelp(context)}).font(.callout).padding(.trailing)
     }.padding(.leading)
 }
+

@@ -20,4 +20,25 @@ extension Either {
         case .right(let val): return val
         }
     }
+    
+    func isLeft() -> Bool {
+        switch self {
+        case .left(_): return true
+        case .right(_): return false
+        }
+    }
+    
+    func isRight() -> Bool {
+        switch self {
+        case .left(_): return false
+        case .right(_): return true
+        }
+    }
+    
+    func map<R>(left: (T) -> R, right: (U) -> R) -> R {
+        switch self {
+        case .left(let t): return left(t)
+        case .right(let u): return right(u)
+        }
+    }
 }
