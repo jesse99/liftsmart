@@ -2,7 +2,170 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-// Times = Time+ Multiplier?
+// Rep = Int?
+func parseOptionalRep(_ text: String, label: String) -> Either<String, Int?> {
+    let scanner = Scanner(string: text)
+    if scanner.isAtEnd {
+        return .right(nil)
+    }
+    
+    let rep = scanner.scanInt()
+    if rep == nil {
+        return .left("Expected a number for \(label)")
+    }
+    if rep! <= 0 {
+        return .left("\(label.capitalized) must be greater than zero")
+    }
+
+    if !scanner.isAtEnd {
+        return .left("\(label.capitalized) should be just a number")
+    }
+    
+    return .right(rep!)
+}
+
+// Percents = Double+ ('x' Int)?
+func parsePercents(_ text: String, label: String) -> Either<String, [WeightPercent]> {
+    func parsePercent(_ scanner: Scanner) -> Either<String, WeightPercent> {
+        let percent = scanner.scanDouble()
+        if percent == nil {
+            return .left("Expected a number for \(label)")
+        }
+        if percent! < 0 {
+            return .left("\(label.capitalized) cannot be negative")
+        }
+        if percent! > 150 {
+            return .left("\(label.capitalized) is too big")
+        }
+        
+        return .right(WeightPercent(percent!/100.0))
+    }
+    
+    var percents: [WeightPercent] = []
+    let scanner = Scanner(string: text)
+    while !scanner.isAtEnd {
+        switch parsePercent(scanner) {
+        case .right(let percent): percents.append(percent)
+        case .left(let err): return .left(err)
+        }
+        
+        if scanner.scanString("x") != nil {
+            if let n = scanner.scanInt(), n > 0 {
+                percents = percents.duplicate(x: n)
+                break
+            } else {
+                return .left("x should be followed by the number of times to duplicate")
+            }
+        }
+    }
+    
+    if !scanner.isAtEnd {
+        return .left("\(label.capitalized) should be numbers followed by an optional xN to repeat")
+    }
+
+    return .right(percents)
+}
+
+// RepRanges = RepRange+ ('x' Int)?
+// RepRange = Int ('-' Int)?
+// Int = [0-9]+
+func parseRepRanges(_ text: String, label: String) -> Either<String, [RepRange]> {
+    func parseRepRange(_ scanner: Scanner) -> Either<String, RepRange> {
+        let min = scanner.scanInt()
+        if min == nil {
+            return .left("Expected a number for \(label) followed by optional '-max'")
+        }
+        if min! <= 0 {
+            return .left("\(label.capitalized) must be greater than zero")
+        }
+        
+        if scanner.scanString("-") != nil {
+            let max = scanner.scanInt()
+            if max == nil {
+                return .left("Expected a number for \(label) followed by optional '-max'")
+            }
+            if min! > max! {
+                return .left("\(label.capitalized) min reps cannot be greater than max reps")
+            }
+            return .right(RepRange(min: min!, max: max!))
+        }
+
+        return .right(RepRange(min!))
+    }
+    
+    var reps: [RepRange] = []
+    let scanner = Scanner(string: text)
+    while !scanner.isAtEnd {
+        switch parseRepRange(scanner) {
+        case .right(let rep): reps.append(rep)
+        case .left(let err): return .left(err)
+        }
+        
+        if scanner.scanString("x") != nil {
+            if let n = scanner.scanInt(), n > 0 {
+                reps = reps.duplicate(x: n)
+                break
+            } else {
+                return .left("x should be followed by the number of times to duplicate")
+            }
+        }
+    }
+    
+    if !scanner.isAtEnd {
+        return .left("\(label.capitalized) should be rep ranges followed by an optional xN to repeat")
+    }
+
+    if reps.isEmpty {
+        return .left("\(label.capitalized) needs at least one rep")
+    }
+    
+    return .right(reps)
+}
+
+// Reps = Int+ ('x' Int)?
+func parseReps(_ text: String, label: String, emptyOK: Bool = false) -> Either<String, [Int]> {
+    func parseRep(_ scanner: Scanner) -> Either<String, Int> {
+        let rep = scanner.scanInt()
+        if rep == nil {
+            return .left("Expected a number for \(label)")
+        }
+        if rep! <= 0 {
+            return .left("\(label.capitalized) must be greater than zero")
+        }
+        
+        return .right(rep!)
+    }
+    
+    let scanner = Scanner(string: text)
+    if scanner.isAtEnd && emptyOK {
+        return .right([])
+    }
+    
+    var reps: [Int] = []
+    while !scanner.isAtEnd {
+        switch parseRep(scanner) {
+        case .right(let rep): reps.append(rep)
+        case .left(let err): return .left(err)
+        }
+        
+        if scanner.scanString("x") != nil {
+            if let n = scanner.scanInt(), n > 0 {
+                reps = reps.duplicate(x: n)
+                break
+            } else {
+                return .left("x should be followed by the number of times to duplicate")
+            }
+        }
+    }
+    
+    if !scanner.isAtEnd {
+        return .left("\(label.capitalized) should be numbers followed by an optional xN to repeat")
+    }
+
+    return .right(reps)
+}
+
+// Times = Time+ ('x' Int)?
 // Time = Int ('s' | 'm' | 'h')?    if units are missing seconds are assumed
 // Int = [0-9]+
 func parseTimes(_ text: String, label: String, zeroOK: Bool = false) -> Either<String, [Int]> {

@@ -95,27 +95,23 @@ struct EditMaxRepsView: View, EditContext {
         return !self.errText.isEmpty && self.errColor == .red
     }
     
-    func onEditedReps(_ inText: String) {
-        let text = inText.trimmingCharacters(in: .whitespaces)
-        if text.isEmpty {
-            self.exercise.expected.reps = []    // TODO: use isEmptyOrBlank
-            return
-        }
-        if let reps = Int(text) {
-            if reps <= 0 {
-                self.errText = "Expected reps should be greater than zero (found \(reps))"
-                self.errColor = .red
-            } else {
-                self.errText = ""
+    func onEditedReps(_ text: String) {
+        switch parseOptionalRep(text, label: "reps") {
+        case .right(let r):
+            self.errText = ""
+            if let reps = r {
                 self.exercise.expected.reps = [reps]
+            } else {
+                self.exercise.expected.reps = []
             }
-        } else {
-            self.errText = "Expected reps should be a number (found '\(text)')"
+
+        case .left(let err):
+            self.errText = err
             self.errColor = .red
         }
     }
     
-    func onEditedTarget(_ inText: String) {
+    func onEditedTarget(_ text: String) {
         var rest: [Int]
         switch exercise.modality.sets {
         case .maxReps(restSecs: let r, targetReps: _):
@@ -125,21 +121,13 @@ struct EditMaxRepsView: View, EditContext {
             rest = []
         }
 
-    let text = inText.trimmingCharacters(in: .whitespaces)
-        if text.isEmpty {
-            self.exercise.modality.sets = .maxReps(restSecs: rest, targetReps: nil)
-            return
-        }
-        if let reps = Int(text) {
-            if reps <= 0 {
-                self.errText = "Target reps should be greater than zero (found \(reps))"
-                self.errColor = .red
-            } else {
-                self.errText = ""
-                self.exercise.modality.sets = .maxReps(restSecs: rest, targetReps: reps)
-            }
-        } else {
-            self.errText = "Target reps should be a number (found '\(text)')"
+        switch parseOptionalRep(text, label: "target") {
+        case .right(let reps):
+            self.errText = ""
+            self.exercise.modality.sets = .maxReps(restSecs: rest, targetReps: reps)
+
+        case .left(let err):
+            self.errText = err
             self.errColor = .red
         }
     }

@@ -69,29 +69,23 @@ struct EditRepsSetView: View {
         
     func doValidate() -> [RepsSet]? {
         // Check each rep, this can be empty (e.g. for warmups)
-        var parts = self.reps.split(separator: " ")
         var newReps: [RepRange] = []
-        for part in parts {
-            switch RepRange.create(String(part)) {
-            case .right(let r):
-                newReps.append(r)
-            case .left(let e):
-                self.errText = e
-                return nil
-            }
+        switch parseRepRanges(self.reps, label: "reps") {
+        case .right(let reps):
+            newReps = reps
+        case .left(let err):
+            self.errText = err
+            return nil
         }
 
         // Check each percent
-        parts = self.percents.split(separator: " ")
         var newPercents: [WeightPercent] = []
-        for part in parts {
-            switch WeightPercent.create(String(part)) {
-            case .right(let r):
-                newPercents.append(r)
-            case .left(let e):
-                self.errText = e
-                return nil
-            }
+        switch parsePercents(self.percents, label: "percents") {
+        case .right(let percents):
+            newPercents = percents
+        case .left(let err):
+            self.errText = err
+            return nil
         }
 
         // Check each rest

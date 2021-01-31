@@ -33,29 +33,6 @@ struct RepRange: CustomDebugStringConvertible, Storable {
         self.min = min
         self.max = max
     }
-    
-    // INT(-INT)?
-    static func create(_ text: String) -> Either<String, RepRange> {
-        let scanner = Scanner(string: text)
-        
-        let min = scanner.scanInt()
-        let sep = scanner.scanString("-")
-        let max = scanner.scanInt()
-        if (min == nil) || (sep != nil && max == nil) || !scanner.isAtEnd {
-            return .left("Expected a rep or rep range, e.g. 4 or 4-8")
-        }
-        if min! < 0 {
-            return .left("Reps cannot be negative")
-        }
-        if sep == nil && max == nil {
-            return .right(RepRange(min!))
-        }
-        if min! > max! {
-            return .left("Min reps must be smaller than max reps")
-        }
-        return .right(RepRange(min: min!, max: max!))
-    }
-
     var label: String {
         get {
             if min < max {
@@ -105,23 +82,6 @@ struct WeightPercent: CustomDebugStringConvertible, Storable {
 
     init(_ value: Double) {
         self.value = value
-    }
-    
-    // INT
-    static func create(_ text: String) -> Either<String, WeightPercent> {
-        let scanner = Scanner(string: text)
-        
-        let p = scanner.scanDouble()
-        if p == nil || !scanner.isAtEnd {
-            return .left("Expected percent, e.g. 80")
-        }
-        if p! < 0 {
-            return .left("Percent cannot be negative")
-        }
-        if p! > 150 {
-            return .left("Percent is too big")
-        }
-        return .right(WeightPercent(p!/100.0))
     }
 
     static func * (lhs: Double, rhs: WeightPercent) -> Double {

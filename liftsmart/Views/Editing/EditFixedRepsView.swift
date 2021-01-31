@@ -105,19 +105,12 @@ struct EditFixedRepsView: View, EditContext {
     
     func doValidate() -> [RepsSet]? {
         // Check each rep
-        let parts = self.reps.split(separator: " ")
         var newReps: [RepRange] = []
-        for part in parts {
-            switch RepRange.create(String(part)) {
-            case .right(let r):
-                newReps.append(r)
-            case .left(let e):
-                self.errText = e
-                return nil
-            }
-        }
-        if newReps.isEmpty {
-            self.errText = "Need at least one rep"
+        switch parseRepRanges(self.reps, label: "reps") {
+        case .right(let reps):
+            newReps = reps
+        case .left(let err):
+            self.errText = err
             return nil
         }
 

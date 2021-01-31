@@ -118,46 +118,36 @@ struct EditRepRangesView: View, EditContext {
     }
     
     func checkSetCounts() {
-        let parts = self.expectedReps.split(separator: " ")
-        if parts.isEmpty {
-            // No expected is OK
-            return
+        switch parseReps(self.expectedReps, label: "expected", emptyOK: true) {
+        case .right(let expected):
+            switch exercise.modality.sets {
+            case .repRanges(warmups: _, worksets: let work, backoffs: _):
+                if !expected.isEmpty && work.count != expected.count {
+                    self.errText = "Number of expected reps should match work sets (or be empty)"
+                    self.errColor = .red
+                }
+            default:
+                assert(false)
+            }
+        case .left(let err):
+            self.errText = err
+            self.errColor = .red
         }
 
-        switch exercise.modality.sets {
-        case .repRanges(warmups: _, worksets: let work, backoffs: _):
-            if work.count != parts.count {
-                self.errText = "Number of expected reps should match work sets (or be empty)"
-                self.errColor = .red
-            }
-        default:
-            assert(false)
-        }
     }
         
-    func onEditedExpected(_ inText: String) {
-        let parts = self.expectedReps.split(separator: " ")
-        for text in parts {
-            if let reps = Int(text) {
-                if reps <= 0 {
-                    self.errText = "Expected reps should be greater than zero (found \(reps))"
-                    self.errColor = .red
-                    return
-                } else {
-                    self.errText = ""
-                }
-            } else {
-                self.errText = "Expected reps should be a number (found '\(text)')"
-                self.errColor = .red
-                return
+    func onEditedExpected(_ text: String) {
+        switch parseReps(text, label: "expected", emptyOK: true) {
+        case .right(let reps):
+            self.errText = ""
+            checkSetCounts()
+            
+            if self.errText.isEmpty {
+                self.exercise.expected.reps = reps
             }
-        }
-
-        self.errText = ""
-        checkSetCounts()
-        
-        if self.errText.isEmpty {
-            self.exercise.expected.reps = parts.map({Int($0)!})
+        case .left(let err):
+            self.errText = err
+            self.errColor = .red
         }
     }
 
