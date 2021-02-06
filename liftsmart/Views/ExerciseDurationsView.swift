@@ -19,6 +19,7 @@ struct ExerciseDurationsView: View {
     @State var historyModal = false
     @State var noteModal = false
     @State var underway = false
+    @State var timerTitle = ""
     @Environment(\.presentationMode) private var presentation
     
     init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
@@ -39,12 +40,12 @@ struct ExerciseDurationsView: View {
 
                 Button(self.startLabel, action: onStart)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(duration: self.startDuration(), secondDuration: self.restSecs())}
+                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(title: $timerTitle, duration: self.startDuration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
                 Spacer()
                 Text(self.noteLabel).font(.callout)   // Same previous x3
             }
@@ -75,6 +76,16 @@ struct ExerciseDurationsView: View {
             onReset()
         } else {
             refresh()
+        }
+    }
+    
+    func numSets() -> Int {
+        switch exercise.modality.sets {
+        case .durations(let d, targetSecs: _):
+            return d.count
+        default:
+            assert(false)   // exercise must use durations sets
+        return 0
         }
     }
     
@@ -148,6 +159,7 @@ struct ExerciseDurationsView: View {
     
     func onStart() {
         if exercise.current!.setIndex < durations.count {
+            self.timerTitle = "Set \(exercise.current!.setIndex + 1) of \(numSets())"
             self.startModal = true
         } else {
             self.history.append(self.workout, self.exercise)
@@ -170,6 +182,11 @@ struct ExerciseDurationsView: View {
     }
     
     func onStartTimer() {
+        if exercise.current!.setIndex == 0 {
+            self.timerTitle = self.title
+        } else {
+            self.timerTitle = "On set \(exercise.current!.setIndex) of \(numSets())"
+        }
         self.durationModal = true
     }
     

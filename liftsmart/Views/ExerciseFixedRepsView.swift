@@ -21,6 +21,7 @@ struct ExerciseFixedRepsView: View {
     @State var noteModal = false
     @State var editModal = false
     @State var underway = false
+    @State var timerTitle = ""
     @Environment(\.presentationMode) private var presentation
     
     init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
@@ -47,13 +48,13 @@ struct ExerciseFixedRepsView: View {
 
                 Button(startLabel, action: onNextOrDone)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startTimer) {TimerView(duration: self.startDuration(-1))}
+                    .sheet(isPresented: self.$startTimer) {TimerView(title: $timerTitle, duration: self.startDuration(-1))}
                 
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
                 Spacer()
                 Text(self.noteLabel).font(.callout)   // Same previous x3
             }
@@ -179,6 +180,7 @@ struct ExerciseFixedRepsView: View {
             self.exercise.current!.actualWeights.append("")
         }
 
+        self.timerTitle = "Did set \(exercise.current!.setIndex+1) of \(worksets.count)"
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before percentTitle gets evaluated
         self.startTimer = startDuration(-1) > 0
         self.completed.append(reps)
@@ -211,6 +213,11 @@ struct ExerciseFixedRepsView: View {
     }
     
     func onStartTimer() {
+        if exercise.current!.setIndex+1 <= worksets.count {
+            self.timerTitle = "On set \(exercise.current!.setIndex+1) of \(worksets.count)"
+        } else {
+            self.timerTitle = "Finished"
+        }
         self.durationModal = true
     }
     

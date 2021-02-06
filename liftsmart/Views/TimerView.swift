@@ -5,17 +5,19 @@ import SwiftUI
 
 struct TimerView: View {
     @Environment(\.presentationMode) private var presentationMode
+    let title: Binding<String>
     @State var duration: Int
     @State var secondDuration: Int = 0    // used to wait twice
     @State private var startTime = Date()
     @State private var elapsed: Int = 0
-    private let timer = Timer.publish(every: 1, tolerance: 0.5, on: .main, in: .common).autoconnect()
     @State private var label: String = ""
     @State private var waiting: Bool = true
     @State private var resting: Bool = false
-    
+    private let timer = Timer.publish(every: 1, tolerance: 0.5, on: .main, in: .common).autoconnect()
+
     var body: some View {
         VStack {
+            Text(self.title.wrappedValue).font(.largeTitle)
             Spacer()
             Spacer()
             if self.waiting {
@@ -90,6 +92,6 @@ struct TimerView: View {
 
 struct TimerView_Previews: PreviewProvider {
     static var previews: some View {
-        TimerView(duration: 10, secondDuration: 5)
+        TimerView(title: Binding<String>.constant("Curls"), duration: 10, secondDuration: 5)
     }
 }

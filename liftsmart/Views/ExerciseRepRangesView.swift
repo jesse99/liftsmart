@@ -44,6 +44,7 @@ struct ExerciseRepRangesView: View {
     @State var updateExpected = false
     @State var updateRepsDone = false
     @State var underway = false
+    @State var timerTitle = ""
     @Environment(\.presentationMode) private var presentation
     
     init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
@@ -80,13 +81,13 @@ struct ExerciseRepRangesView: View {
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
                             }))}
-                    .sheet(isPresented: self.$startTimer) {TimerView(duration: self.startDuration(-1))}
+                    .sheet(isPresented: self.$startTimer) {TimerView(title: $timerTitle, duration: self.startDuration(-1))}
                 
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(duration: self.timerDuration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
                 Spacer()
                 Text(self.noteLabel).font(.callout)   // Same previous x3
             }
@@ -141,6 +142,7 @@ struct ExerciseRepRangesView: View {
             self.exercise.current!.actualWeights.append("")
         }
 
+        self.timerTitle = getSetTitle("Did")
         self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before percentTitle gets evaluated
         self.startTimer = startDuration(-1) > 0
         self.completed.append(reps)
@@ -159,6 +161,25 @@ struct ExerciseRepRangesView: View {
     func onTimer() {
         if self.exercise.current!.setIndex > 0 {
             self.onReset()
+        }
+    }
+    
+    func getSetTitle(_ prefix: String) -> String {
+        switch stage() {
+        case .warmup:
+            let i = exercise.current!.setIndex
+            return "\(prefix) warmup \(i+1) of \(warmups.count)"
+
+        case .workset:
+            let i = exercise.current!.setIndex - warmups.count
+            return "\(prefix) workset \(i+1) of \(worksets.count)"
+
+        case .backoff:
+            let i = exercise.current!.setIndex - warmups.count - worksets.count
+            return "\(prefix) backoff \(i+1) of \(backoffs.count)"
+
+        case .done:
+            return "Finished"
         }
     }
     
@@ -207,11 +228,11 @@ struct ExerciseRepRangesView: View {
         if !exercise.overridePercent.isEmpty {
             self.percentTitle = exercise.overridePercent
         }
-
+        
         switch stage() {
         case .warmup:
             let i = exercise.current!.setIndex
-            self.setTitle = "Warmup \(i+1) of \(warmups.count)"
+            self.setTitle = "Warmup \(i+1) of \(warmups.count)"  // some duplication here but it's awkward to get rid of
 
         case .workset:
             let i = exercise.current!.setIndex - warmups.count
@@ -304,6 +325,7 @@ struct ExerciseRepRangesView: View {
     }
     
     func onStartTimer() {
+        self.timerTitle = getSetTitle("On")
         self.durationModal = true
     }
     
