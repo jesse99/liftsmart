@@ -55,7 +55,7 @@ struct ProgramView: View {
                 }
                 .padding()
             }
-        }
+        }.navigationViewStyle(StackNavigationViewStyle())
         // TODO: have a text view saying how long this program has been run for
         // and also how many times the user has worked out
     }
