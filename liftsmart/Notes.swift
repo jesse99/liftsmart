@@ -723,12 +723,13 @@ let defaultNotes: [String: String] = [
     
     "Diamond Pushup": noteToMarkdown(
         notes: [
-            "Move your hands together so that the thumbs and index fingers touch (forming a diamond).",
-            "Lean forward and perform the pullup.",
-            "Difficulty can be decreased by moving your hands further apart.",
-            "Keep your body in a straight line.",
-            "Lock out arms and push shoulders forward.",
-            "Keep elbows in, don't let them flare outwards from your torso."],
+            "Move your hands together so that the thumbs and index fingers touch (forming a triangle).",
+            "Place your hands directly under you shoulders.",
+            "Keep your legs together.",
+            "Don't leg your hips sag,",
+            "Push off with your feet to lean forward.",
+            "Keep your forearms straight up and down the whole time.",
+            "Go down until your arms form a ninety degree angle."],
         links: ["Link": "https://www.youtube.com/watch?v=_4EGPVJuqfA", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup"]),
     
     "Dips": noteToMarkdown(
@@ -1439,8 +1440,8 @@ let defaultNotes: [String: String] = [
     "L-sit": noteToMarkdown(
         notes: [
             "Sit with your legs stretched out before you on the floor.",
+            "Place your palms down on the floor a bit in front of your butt with your fingers pointed forward.",
             "Use your palms to raise your entire body off the floor keeping your legs extended out.",
-            "Keep arms and legs straight.",
             "Depress your shoulders, i.e. keep them down not at your ears.",
             "Target should be 60s. If you cannot do an L-sit for that long use the progression:",
             "1) Foot supported: leave your feet on the ground.",
@@ -1449,7 +1450,7 @@ let defaultNotes: [String: String] = [
             "4) Slightly tuck legs: as above but bend your knees less.",
             "5) Full L-sit",
             "When progressing use multiple sets to reach 60s as needed."],
-        links: ["Pictures": "antranik.org/l-sit-tutorial/#:~:text=Tuck%20your%20knees%20close%20to,%2Dfoot%20supported%20L%2Dsit)", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
+        links: ["Pictures": "https://bit.ly/2MEkeBB", "L-sits": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/l-sit"]),
     
     "L-sit Pullup": noteToMarkdown(
         notes: [
