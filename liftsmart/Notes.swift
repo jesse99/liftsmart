@@ -84,14 +84,14 @@ let defaultNotes: [String: String] = [
             "Adopt the normal front plank position.",
             "Raise one leg and the opposite arm so that they are parallel to the floor.",
             "Halfway through switch up your limbs."],
-        links: ["Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Arm & Leg Lift Side Plank": noteToMarkdown(
         notes: [
             "Adopt the normal side plank position.",
             "Extend one arm all the way up and raise separate your legs.",
             "Halfway through flip to the other side."],
-        links: ["Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Arnold Press": noteToMarkdown(
         notes: [
@@ -430,10 +430,11 @@ let defaultNotes: [String: String] = [
     
     "Burpees": noteToMarkdown(
         notes: [
-            "Drop to your hands and knees.",
-            "Stretch out your legs so that they are fully extended behind you.",
-            "Pull your legs foreward and jump into the air.",
-            "Repeat."],
+            "Begin in a squat position with your hands on the floor in front of you.",
+            "Kick your feet out and enter a pushup position.",
+            "Immediately return your feet back to the squat position.",
+            "From the squat leap into the air as high as you can.",
+            "Maintain a fast pace."],
         links: ["Link": "https://www.youtube.com/watch?v=qNLiCX8gYWo", "Variations": "https://www.bodybuilding.com/content/burpee-conditioning-no-more-nonsense.html"]),
     
     "C8": noteToMarkdown(
@@ -689,7 +690,7 @@ let defaultNotes: [String: String] = [
             "Lie prone on a mat keeping elbows below shoulders.",
             "Support your legs using your toes and a bench.",
             "Raise body upwards to create a straight line."],
-        links: ["Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Decline & March Plank": noteToMarkdown(
         notes: [
@@ -697,7 +698,7 @@ let defaultNotes: [String: String] = [
             "Support your legs using your toes and a bench.",
             "Raise body upwards to create a straight line.",
             "Alternate between bringing each knee forward."],
-        links: ["Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Decline Situp": noteToMarkdown(
         notes: [
@@ -724,9 +725,9 @@ let defaultNotes: [String: String] = [
     "Diamond Pushup": noteToMarkdown(
         notes: [
             "Move your hands together so that the thumbs and index fingers touch (forming a triangle).",
-            "Place your hands directly under you shoulders.",
+            "Place your hands directly under your shoulders.",
             "Keep your legs together.",
-            "Don't leg your hips sag,",
+            "Don't leg your hips sag.",
             "Push off with your feet to lean forward.",
             "Keep your forearms straight up and down the whole time.",
             "Go down until your arms form a ninety degree angle."],
@@ -1053,15 +1054,6 @@ let defaultNotes: [String: String] = [
             "Once you can do that for 30s lift one foot off the ground towards your butt.",
             "Once that is comfortable lean forward a bit more until the other foot comes off the ground."],
         links: ["Video": "https://www.youtube.com/watch?v=Hml31hm-Zkg", "Notes": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2"]),
-    
-    "Front Plank": noteToMarkdown(
-        notes: [
-            "Lie prone on a mat keeping elbows below shoulders.",
-            "Raise body upwards to create a straight line.",
-            "Use your toes to support yourself.",
-            "Difficulty can be lessened by keeping your knees on the ground.",
-            "Difficulty can be increased by raising a foot and/or hand off the ground or by elevating feet."],
-        links: ["Link": "http://www.exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank.html", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase1", "Antranik": "https://www.youtube.com/watch?v=44ScXWFaVBs", "Alternative": "http://i.imgur.com/2D4Nd1R.jpg", "Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
     
     "Front Scale Leg Lifts": noteToMarkdown(
         notes: [
@@ -1421,14 +1413,26 @@ let defaultNotes: [String: String] = [
             "Knees can bend a bit."],
         links: ["Link": "http://www.exrx.net/WeightExercises/Kettlebell/KBTwoArmSwing.html"]),
     
+    "Kneeling Plank": noteToMarkdown(
+        notes: [
+            "Lie prone on a mat keeping elbows below shoulders.",
+            "Raise upper body upwards to create a straight line.",
+            "Keep your knees on the ground.",],
+        links: ["Link": "http://www.exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank.html", "Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
+    
     "Kneeling Shoulder Rolls": noteToMarkdown(
         notes: [
-            "Get on your hands and knees.",
-            "Keep your elbows straight and your palms flat on the ground.",
-            "Roll shoulders forward, up to ears, back, and down.",
-            "Difficulty can be increased by assuming a plank position or a plank with your ass in the air."],
-        links: ["Video": "http://www.stretching-exercises.com/shoulders/shoulder-roll-exercise/"]),
+            "Lie prone on a mat keeping elbows below shoulders.",
+            "Raise upper body upwards to create a straight line.",
+            "Keep your knees on the ground.",],
+        links: ["Link": "http://www.exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank.html", "Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
+    "Kneeling Side Plank": noteToMarkdown(
+        notes: [
+            "Get on your side with your knees bent behind you.",
+            "Raise your upper torso off the ground using one arm."],
+        links: ["Link": "http://www.exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank.html", "Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
+
     "Kroc Row": noteToMarkdown(
         notes: [
             "Bend at the waist and use one arm to grip a support, if using a bench place one knee on the bench.",
@@ -1506,7 +1510,7 @@ let defaultNotes: [String: String] = [
             "Adopt the normal front plank position.",
             "Raise one leg so that it is parallel to the floor.",
             "Halfway through switch up your legs."],
-        links: ["Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Leg Press": noteToMarkdown(
         notes: [
@@ -1764,6 +1768,15 @@ let defaultNotes: [String: String] = [
             "Drop into a full squat with the leg you are standing on.",
             "Stand and switch legs."],
         links: ["Link1": "http://ashotofadrenaline.net/pistol-squat/", "Link2": "http://breakingmuscle.com/strength-conditioning/whats-preventing-you-from-doing-pistol-squats-how-to-progress-pistols", "Video": "https://www.youtube.com/watch?v=It3yvU0fomI"]),
+    
+    "Plank": noteToMarkdown(
+        notes: [
+            "Lie prone on a mat keeping elbows below shoulders.",
+            "Raise body upwards to create a straight line.",
+            "Use your toes to support yourself.",
+            "Difficulty can be lessened by keeping your knees on the ground.",
+            "Difficulty can be increased by raising a foot and/or hand off the ground or by elevating feet."],
+        links: ["Link": "http://www.exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank.html", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase1", "Antranik": "https://www.youtube.com/watch?v=44ScXWFaVBs", "Alternative": "http://i.imgur.com/2D4Nd1R.jpg", "Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Plank Shoulder Taps": noteToMarkdown(
         notes: [
@@ -2277,7 +2290,7 @@ let defaultNotes: [String: String] = [
             "Difficulty can be reduced by keeping your knees on the floor.",
             "Difficulty can be increased by keeping legs apart.",
             "Difficulty can also be increased by raising one leg into the air (abduction)."],
-        links: ["Link": "http://www.exrx.net/WeightExercises/Obliques/BWSidePlank.html", "Antranik": "https://www.youtube.com/watch?v=44ScXWFaVBs&feature=youtu.be&t=1m19s", "Alternative": "http://i.imgur.com/6NM22BF.jpg", "Abduction Video": "https://www.youtube.com/watch?v=x6eHE2ox_Oo", "Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Link": "http://www.exrx.net/WeightExercises/Obliques/BWSidePlank.html", "Antranik": "https://www.youtube.com/watch?v=44ScXWFaVBs&feature=youtu.be&t=1m19s", "Alternative": "http://i.imgur.com/6NM22BF.jpg", "Abduction Video": "https://www.youtube.com/watch?v=x6eHE2ox_Oo", "Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Single Leg Glute Bridge": noteToMarkdown(
         notes: [
@@ -2728,7 +2741,7 @@ let defaultNotes: [String: String] = [
             "Put your feet up against a wall and do a plank hold.",
             "Don't allow your hips to sag: dig your soles hard into the wall.",
             "Work on getting your feet higher and higher."],
-        links: ["Video": "https://www.youtube.com/watch?v=6jm4R3K4sJA", "Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/handstand", "Handstands": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/handstand", "Handstand Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase4/handstand", "Dragon Flag Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Video": "https://www.youtube.com/watch?v=6jm4R3K4sJA", "Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/handstand", "Handstands": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/handstand", "Handstand Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase4/handstand", "Dragon Flag Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Wall March Plank": noteToMarkdown(
         notes: [
@@ -2736,7 +2749,7 @@ let defaultNotes: [String: String] = [
             "Don't allow your hips to sag: dig your soles hard into the wall.",
             "Work on getting your feet higher and higher.",
             "Alternate between bringing each knee forward."],
-        links: ["Progression": "http://www.instructables.com/id/How-to-achieve-the-hanging-dragon-flag/"]),
+        links: ["Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Wall Scissors": noteToMarkdown(
         notes: [
