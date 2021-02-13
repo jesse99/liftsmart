@@ -165,21 +165,27 @@ struct ExerciseRepRangesView: View {
     }
     
     func getSetTitle(_ prefix: String) -> String {
-        switch stage() {
-        case .warmup:
+        if warmups.count + backoffs.count == 0 {
             let i = exercise.current!.setIndex
-            return "\(prefix) warmup \(i+1) of \(warmups.count)"
+            return "\(prefix) set \(i+1) of \(worksets.count)"
 
-        case .workset:
-            let i = exercise.current!.setIndex - warmups.count
-            return "\(prefix) workset \(i+1) of \(worksets.count)"
+        } else {
+            switch stage() {
+            case .warmup:
+                let i = exercise.current!.setIndex
+                return "\(prefix) warmup \(i+1) of \(warmups.count)"
 
-        case .backoff:
-            let i = exercise.current!.setIndex - warmups.count - worksets.count
-            return "\(prefix) backoff \(i+1) of \(backoffs.count)"
+            case .workset:
+                let i = exercise.current!.setIndex - warmups.count
+                return "\(prefix) workset \(i+1) of \(worksets.count)"
 
-        case .done:
-            return "Finished"
+            case .backoff:
+                let i = exercise.current!.setIndex - warmups.count - worksets.count
+                return "\(prefix) backoff \(i+1) of \(backoffs.count)"
+
+            case .done:
+                return "Finished"
+            }
         }
     }
     
@@ -236,7 +242,11 @@ struct ExerciseRepRangesView: View {
 
         case .workset:
             let i = exercise.current!.setIndex - warmups.count
-            self.setTitle = "Workset \(i+1) of \(worksets.count)"
+            if warmups.count + backoffs.count == 0 {
+                self.setTitle = "Set \(i+1) of \(worksets.count)"
+            } else {
+                self.setTitle = "Workset \(i+1) of \(worksets.count)"
+            }
 
         case .backoff:
             let i = exercise.current!.setIndex - warmups.count - worksets.count
