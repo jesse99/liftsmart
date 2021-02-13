@@ -68,6 +68,7 @@ func createNameView(text: Binding<String>, _ context: EditContext) -> some View 
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.default)
             .disableAutocorrection(true)
+            .autocapitalization(.words)
             .onChange(of: text.wrappedValue, perform: {editedName($0, context)})
         Button("?", action: {nameHelp(context)}).font(.callout).padding(.trailing)
     }.padding(.leading)
