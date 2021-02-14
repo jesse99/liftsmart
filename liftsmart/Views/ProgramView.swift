@@ -7,7 +7,7 @@ var programEntryId = 0
 struct ProgramEntry: Identifiable {
     let id: Int
     let workout: Workout
-    var subLabel = ""           // subLabel and color are initialized using a second pass
+    var subLabel = ""           // subLabel and color are initialized using initSubLabels
     var subColor = Color.black
 
     init(_ workout: Workout) {
@@ -15,6 +15,157 @@ struct ProgramEntry: Identifiable {
         self.workout = workout
         programEntryId += 1
     }
+}
+
+struct ExerciseCompletions {
+    let latest: Date?           // date latest exercise was completed
+    let latestIsComplete: Bool  // true if all exercises were completed on latest date
+    let completedAll: Bool      // true if all exercises were ever completed
+}
+
+func initEntries(_ program: Program) -> ([ProgramEntry], [ExerciseCompletions]) {
+    func allOnSameDay(_ dates: [Date]) -> Bool {
+        let calendar = Calendar.current
+        for date in dates {
+            if !calendar.isDate(date, inSameDayAs: dates[0]) {
+                return false
+            }
+        }
+        return true
+    }
+            
+    var completions: [ExerciseCompletions] = []
+    var entries: [ProgramEntry] = []
+    for workout in program {
+        if workout.enabled {
+            var dates: [Date] = []
+            for exercise in workout.exercises {
+                if exercise.enabled {
+                    if let completed = exercise.dateCompleted(workout, history) {
+                        dates.append(completed)
+                    }
+                }
+            }
+            dates.sort()
+            
+            if let last = dates.last {
+                let count = workout.exercises.count {$0.enabled}
+                let didAll = dates.count >= count
+                completions.append(ExerciseCompletions(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
+                entries.append(ProgramEntry(workout))
+
+            } else {
+                completions.append(ExerciseCompletions(latest: nil, latestIsComplete: false, completedAll: false))
+                entries.append(ProgramEntry(workout))
+            }
+        }
+    }
+    
+    return (entries, completions)
+}
+
+// The goal here is to highlight what the user should be doing today or what they should be doing next.
+// It's not always possible to do that with exactness but, if that's the case, we'll provide information
+// to help them decide what to do.
+func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntry], _ now: Date) -> [ProgramEntry] {
+    // The workout can be performed on any day.
+    func isAnyDay(_ days: [Bool]) -> Bool {
+        return days.all({!$0})
+    }
+    
+    func ageInDays(_ workout: Workout) -> Double {
+        if let completed = workout.dateCompleted(history) {
+            return now.daysSinceDate(completed.0)
+        } else {
+            // If the workout has never been completed then we'll just use a really old date
+            // so that we can avoid special casing.
+            return now.daysSinceDate(Date(timeIntervalSinceReferenceDate: 0))
+        }
+    }
+
+    func oldestWorkout(_ entries: [ProgramEntry]) -> Workout? {
+        let oldest = entries.max { (lhs, rhs) -> Bool in
+            return ageInDays(lhs.workout) < ageInDays(rhs.workout)
+        }
+        return oldest != nil ? oldest?.workout : nil
+    }
+    
+    func agesMatch(_ oldest: Workout, _ workout: Workout) -> Bool {
+        return abs(ageInDays(oldest) - ageInDays(workout)) <= 0.3   // same day if they are within +/- 8 hours (for those whackos who workout through midnight)
+    }
+
+    let cal = Calendar.current
+    let weekday = cal.component(.weekday, from: now)
+    let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
+    var nextWorkout: (Int, Int)? = nil
+    for delta in 1...13 {
+        for entry in entries {
+            if nextWorkout == nil {
+                if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: now) {
+                    let weekday = cal.component(.weekday, from: candidate)
+                    if entry.workout.days[weekday - 1] {
+                        nextWorkout = (weekday, delta)              // next workout scheduled after today
+                    }
+                }
+            }
+        }
+    }
+
+    var result = entries
+    for i in 0..<entries.count {
+        var entry = entries[i]
+        let completion = completions[i]
+        
+        var doneRecently = false
+        if let last = completion.latest {
+            doneRecently = now.hoursSinceDate(last) < 4
+        }
+        
+        // If the user has done any exercise within the workout today,
+        if doneRecently {
+            if completion.latestIsComplete {
+                // and they completed every exercise.
+                entry.subLabel = "completed"
+
+            } else {
+                // there are exercises within the workout that they haven't done.
+                entry.subLabel = "in progress"
+                entry.subColor = .red
+            }
+        
+        // If the workout can be performed on any day (including days on which other workouts are scheduled),
+        } else if isAnyDay(entry.workout.days) {
+            if let last = completion.latest {
+                entry.subLabel = last.friendlyName()
+            } else {
+                entry.subLabel = "never started"
+            }
+            entry.subColor = .orange
+
+        // If the workout is scheduled for today,
+        } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil {
+            if let oldest = oldestWorkout(todaysWorkouts) {
+                entry.subLabel = "today"
+                if agesMatch(oldest, entry.workout) {
+                    entry.subColor = .red
+                } else {
+                    entry.subColor = .orange
+                }
+            } else {
+                entry.subLabel = "never started"
+                entry.subColor = .orange
+            }
+            
+        // If the workout is scheduled for later.
+        } else if let (weekday, delta) = nextWorkout, (entry.workout.days[weekday - 1]) {
+            entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
+            entry.subColor = .blue
+        }
+        
+        result[i] = entry
+    }
+    
+    return result
 }
 
 struct ProgramView: View {
@@ -67,157 +218,8 @@ struct ProgramView: View {
     // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
     // on this view for a long time.
     func refresh() {
-        struct ExerciseCompletions {
-            let latest: Date?           // date latest exercise was completed
-            let latestIsComplete: Bool  // true if all exercises were completed on latest date
-            let completedAll: Bool      // true if all exercises were ever completed
-        }
-
-        func initEntries() -> [ExerciseCompletions] {
-            func allOnSameDay(_ dates: [Date]) -> Bool {
-                let calendar = Calendar.current
-                for date in dates {
-                    if !calendar.isDate(date, inSameDayAs: dates[0]) {
-                        return false
-                    }
-                }
-                return true
-            }
-                    
-            var completions: [ExerciseCompletions] = []
-            entries = []
-            for workout in program {
-                if workout.enabled {
-                    var dates: [Date] = []
-                    for exercise in workout.exercises {
-                        if exercise.enabled {
-                            if let completed = exercise.dateCompleted(workout, history) {
-                                dates.append(completed)
-                            }
-                        }
-                    }
-                    dates.sort()
-                    
-                    if let last = dates.last {
-                        let count = workout.exercises.count {$0.enabled}
-                        let didAll = dates.count >= count
-                        completions.append(ExerciseCompletions(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
-                        entries.append(ProgramEntry(workout))
-
-                    } else {
-                        completions.append(ExerciseCompletions(latest: nil, latestIsComplete: false, completedAll: false))
-                        entries.append(ProgramEntry(workout))
-                    }
-                }
-            }
-            
-            return completions
-        }
-        
-        // The goal here is to highlight what the user should be doing today or what they should be doing next.
-        // It's not always possible to do that with exactness but, if that's the case, we'll provide information
-        // to help them decide what to do.
-        func initSubLabels(_ completions: [ExerciseCompletions]) {
-            // The workout can be performed on any day.
-            func isAnyDay(_ days: [Bool]) -> Bool {
-                return days.all({!$0})
-            }
-            
-            func ageInDays(_ workout: Workout) -> Double {
-                let now = Date()
-                if let completed = workout.dateCompleted(history) {
-                    return now.daysSinceDate(completed.0)
-                } else {
-                    // If the workout has never been completed then we'll just use a really old date
-                    // so that we can avoid special casing.
-                    return now.daysSinceDate(Date(timeIntervalSinceReferenceDate: 0))
-                }
-            }
-
-            func oldestWorkout(_ entries: [ProgramEntry]) -> Workout? {
-                let oldest = entries.max { (lhs, rhs) -> Bool in
-                    return ageInDays(lhs.workout) < ageInDays(rhs.workout)
-                }
-                return oldest != nil ? oldest?.workout : nil
-            }
-            
-            func agesMatch(_ oldest: Workout, _ workout: Workout) -> Bool {
-                return abs(ageInDays(oldest) - ageInDays(workout)) <= 0.3   // same day if they are within +/- 8 hours (for those whackos who workout through midnight)
-            }
-
-            let cal = Calendar.current
-            let weekday = cal.component(.weekday, from: Date())
-            let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
-            var nextWorkout: (Int, Int)? = nil
-            for delta in 1...13 {
-                for entry in entries {
-                    if nextWorkout == nil {
-                        if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: Date()) {
-                            let weekday = cal.component(.weekday, from: candidate)
-                            if entry.workout.days[weekday - 1] {
-                                nextWorkout = (weekday, delta)              // next workout scheduled after today
-                            }
-                        }
-                    }
-                }
-            }
-
-            for i in 0..<entries.count {
-                var entry = entries[i]
-                let completion = completions[i]
-                
-                var doneRecently = false
-                if let last = completion.latest {
-                    doneRecently = Date().hoursSinceDate(last) < 4
-                }
-                
-                // If the user has done any exercise within the workout today,
-                if doneRecently {
-                    if completion.latestIsComplete {
-                        // and they completed every exercise.
-                        entry.subLabel = "completed"
-
-                    } else {
-                        // there are exercises within the workout that they haven't done.
-                        entry.subLabel = "in progress"
-                        entry.subColor = .red
-                    }
-                
-                // If the workout can be performed on any day (including days on which other workouts are scheduled),
-                } else if isAnyDay(entry.workout.days) {
-                    if let last = completion.latest {
-                        entry.subLabel = last.friendlyName()
-                    } else {
-                        entry.subLabel = "never started"
-                    }
-                    entry.subColor = .orange
-
-                // If the workout is scheduled for today,
-                } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil {
-                    if let oldest = oldestWorkout(todaysWorkouts) {
-                        entry.subLabel = "today"
-                        if agesMatch(oldest, entry.workout) {
-                            entry.subColor = .red
-                        } else {
-                            entry.subColor = .orange
-                        }
-                    } else {
-                        entry.subLabel = "never started"
-                        entry.subColor = .orange
-                    }
-                    
-                // If the workout is scheduled for later.
-                } else if let (weekday, delta) = nextWorkout, (entry.workout.days[weekday - 1]) {
-                    entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
-                    entry.subColor = .blue
-                }
-                
-                entries[i] = entry
-            }
-        }
-
-        let completions = initEntries()
-        initSubLabels(completions)
+        let (entries, completions) = initEntries(program)
+        self.entries = initSubLabels(completions, entries, Date())
     }
 }
 
