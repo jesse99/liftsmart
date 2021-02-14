@@ -92,46 +92,23 @@ Worked out 35 times.
 \
 3x in the last week, 10x in the last month\
 \
-\
-
-\f3\b HistoryView\
-
-\f2\b0 \
-
-\f3\b NoteView\
-
-\f2\b0 already have an EditNoteView\
-\
-
-\f3\b TimerView?
-\f2\b0 	\
-\
-\
-\'95\'a0Would be nice if reps picker had a cancel option\
-	- rep range\
-	- max reps\
 \'95\'a0Add support for progression:\
-	- add support for plank progression\
-	- add support for pushup progression\
-	- if did max reps then show an emoji/unicode/button\
-		` color should go from gray, black, blue, green depending on count\
-	- when pressed ask user if they want to progress\
-		` probably want to show all the choices (might have been way too easy)\
-		` auto-update the exercise\
-	"https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", \
+	- \'93https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", \
 		vertical\
 		incline\
 		full\
 		diamond\
 		psuedo planche\
-	squats\
+	- squats\
 		assisted squat\
 		squat\
 		bulgarian\
 		shrimp squat\
 	advanced l-sit, v-sit progression\
 		https://antranik.org/advanced-l-v-manna-progressions/\
-\'95\'a0Should be able to somehiow move an exercise to a different workout
+\'95\'a0Should be able to somehow move an exercise to a different workout\
+\'95\'a0Show how many times worked out?\
+	- maybe missed days instead?
 \f4\fs36 \cf12 \CocoaLigature0 \
 
 \f2\fs48 \cf11 \CocoaLigature1 \'95\'a0Add some sort of warning if enter a workout on the wrong day\
@@ -140,17 +117,8 @@ Worked out 35 times.
 \'95\'a0Should expected be saved separately from program?\
 \'95\'a0Should exercise history include difficulty?\
 \'95 Should be able to add notes to a program \
-\'95\'a0Add shoulder dislocates.\
-\'95\'a0Plank progression: 
-\fs36 \cf13 \expnd0\expndtw0\kerning0
-\ul \ulc13 http://www.startbodyweight.com/p/plank-progression.html?m=1
-\fs48 \cf11 \kerning1\expnd0\expndtw0 \ulnone \
-\'95 Is Current.weight being used correctly?\
-\'95\'a0May want to alternate limber 11 and the upper body version.\
-\'95\'a0Got timer notfications just opening and leaving cossack squat\
-	- just let app sit: didn\'92t open a different one\
-	- might need to hook into UNUserNotificationCenterDelegate\
-	- see https://samwize.com/2018/10/13/guide-to-usernotifications-framework/\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Is Current.weight being used correctly?\
 \'95\'a0May want to check for blank names elsewhere\
 	- probably should add an isEmptyOrBlank extension on String\
 \'95 For state could use one global ObservableObject AppState, passed around as an @EnvironmentObject\
