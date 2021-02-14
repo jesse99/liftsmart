@@ -127,6 +127,8 @@ struct ExerciseRepRangesView: View {
             
             buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
         }
+        
+        buttons.append(.cancel(Text("Cancel"), action: {}))
 
         return buttons
     }

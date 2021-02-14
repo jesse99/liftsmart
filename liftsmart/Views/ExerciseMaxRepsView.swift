@@ -119,6 +119,8 @@ struct ExerciseMaxRepsView: View {
             }
         }
         
+        buttons.append(.cancel(Text("Cancel"), action: {}))
+
         return buttons
     }
     
