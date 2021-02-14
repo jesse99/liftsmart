@@ -56,7 +56,7 @@ let defaultNotes: [String: String] = [
             "Raise one leg so that your shin is above parallel to the floor.",
             "Squat down until your elevated leg touches down at the knee, but not at the toes.",
             "Hold onto your elevated knee as you descend."],
-        links: ["Video": "https://www.youtube.com/watch?v=TKt0-c83GSc&feature=youtu.be&t=3m9s"]),
+        links: ["Video": "https://www.youtube.com/watch?v=TKt0-c83GSc&feature=youtu.be&t=3m9s", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Advanced Tuck Front Lever Row": noteToMarkdown(
         notes: [
@@ -105,7 +105,7 @@ let defaultNotes: [String: String] = [
         notes: [
             "Use a chair or something else to support you as you squat.",
             "Reduce the use of the support over time."],
-        links: ["Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Body Weight Squats": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/squat"]),
+        links: ["Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/squat", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "B8": noteToMarkdown(
         notes: [
@@ -221,7 +221,7 @@ let defaultNotes: [String: String] = [
             "Raise one leg so that your shin is parallel to the floor.",
             "Squat down until your elevated leg touches down at the knee and at the toes.",
             "If you're having trouble balancing you can hold onto a support."],
-        links: ["Video": "https://www.youtube.com/watch?v=TKt0-c83GSc&feature=youtu.be&t=3m9s"]),
+        links: ["Video": "https://www.youtube.com/watch?v=TKt0-c83GSc&feature=youtu.be&t=3m9s", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Bench Jump": noteToMarkdown(
         notes: [
@@ -344,7 +344,7 @@ let defaultNotes: [String: String] = [
             "Bring one leg backward so that your foot rests on the bench.",
             "Keeping your torso upright drop into a squat.",
             "Don't let your knee drift in front of your foot."],
-        links: ["Video": "https://www.youtube.com/watch?v=HeZiiPtlcew"]),
+        links: ["Video": "https://www.youtube.com/watch?v=HeZiiPtlcew", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Body-weight Romanian Deadlift": noteToMarkdown(
         notes: [
@@ -357,14 +357,14 @@ let defaultNotes: [String: String] = [
             "Hold your hands up under your chin.",
             "With one leg squat down so that your knee touches the ground.",
             "Keep your back straight and your chest pushed out."],
-        links: ["Link": "https://www.getstrong.fit/images/GobletSplitSquat.jpg"]),
+        links: ["Link": "https://www.getstrong.fit/images/GobletSplitSquat.jpg", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Body-weight Split Squat": noteToMarkdown(
         notes: [
             "Stand in front of a low bench.",
             "Bring one leg backward so that your foot rests on the bench.",
             "Keeping your torso upright drop into a squat."],
-        links: ["Video": "https://www.youtube.com/watch?v=HeZiiPtlcew"]),
+        links: ["Video": "https://www.youtube.com/watch?v=HeZiiPtlcew", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Body-weight Step Up + Reverse Lunge": noteToMarkdown(
         notes: [
@@ -714,7 +714,7 @@ let defaultNotes: [String: String] = [
             "Place all of your weight on that object and step up onto the object.",
             "Use your back leg as little as possible.",
             "Difficulty can be increased by using a higher object or holding a weight."],
-        links: ["Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Body Weight Squats": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/playground/deep-step-up"]),
+        links: ["Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Body Weight Squats": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/playground/deep-step-up", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Deficit Deadlift": noteToMarkdown(
         notes: [
@@ -1367,7 +1367,7 @@ let defaultNotes: [String: String] = [
             "Raise one leg so that your shin is above parallel to the floor.",
             "Squat down until your elevated leg touches down at the knee, but not at the toes.",
             "If you're having trouble balancing you can hold onto a support."],
-        links: ["Video": "https://www.youtube.com/watch?v=TKt0-c83GSc&feature=youtu.be&t=3m9s"]),
+        links: ["Video": "https://www.youtube.com/watch?v=TKt0-c83GSc&feature=youtu.be&t=3m9s", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Inverted Row": noteToMarkdown(
         notes: [
@@ -2513,7 +2513,7 @@ let defaultNotes: [String: String] = [
             "Place all of your weight on that object and step up onto the object.",
             "Minimize pushing with your back leg.",
             "Difficulty can be increased by using a higher step or by holding dumbbells."],
-        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/dumbbell-step-ups"]),
+        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/dumbbell-step-ups", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
     
     "Stiff-Legged Deadlift": noteToMarkdown(
         notes: [
