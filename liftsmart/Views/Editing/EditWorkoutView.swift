@@ -3,6 +3,7 @@
 import SwiftUI
 
 var editWorkoutID: Int = 0
+var exerciseClipboard: Exercise? = nil
 
 struct EditWorkoutEntry: Identifiable {
     let name: String
@@ -19,6 +20,9 @@ struct EditWorkoutEntry: Identifiable {
         editWorkoutID += 1
     }
 }
+
+// TODO: After a paste new was trying to do a change instead of a new mwhen this was a @State variable.
+var addNotChange = false
 
 struct EditWorkoutView: View {
     var workout: Workout
@@ -37,7 +41,6 @@ struct EditWorkoutView: View {
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
     @State var showSheet: Bool = false
-    @State var addNotChange = false
     @Environment(\.presentationMode) private var presentationMode
     
     init(workout: Workout) {
@@ -71,14 +74,23 @@ struct EditWorkoutView: View {
                 
                 List(self.entries) {entry in
                     VStack() {
-                        if self.entries.last != nil && entry.id == self.entries.last!.id {
+                        if entry.index >= 9000 {
                             Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
                         } else {
                             Text(entry.name).foregroundColor(entry.color).font(.headline)
                         }
                     }
                     .contentShape(Rectangle())  // so we can click within spacer
-                        .onTapGesture {self.showEditActions = true; self.editIndex = entry.index}
+                        .onTapGesture {
+                            self.editIndex = entry.index
+                            if entry.index == 9889 {
+                                self.onAdd()
+                            } else if entry.index == 9999 {
+                                self.doPaste()
+                            } else {
+                                self.showEditActions = true
+                            }
+                        }
                 }
             }
             Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
@@ -94,7 +106,7 @@ struct EditWorkoutView: View {
             .onAppear {self.refresh()}
         }
         .actionSheet(isPresented: $showEditActions) {
-            ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
+            ActionSheet(title: Text(self.entries.last!.name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
             if addNotChange {
                 AddExerciseView(workout: self.workout, dismiss: self.refresh)
@@ -175,31 +187,34 @@ struct EditWorkoutView: View {
         self.sunLabel = buttonStr(.sunday)
 
         self.entries = self.workout.exercises.mapi({EditWorkoutEntry($1.name, $1.enabled ? .black : .gray, $0)})
-        self.entries.append(EditWorkoutEntry("Add", .black, self.entries.count))
+        self.entries.append(EditWorkoutEntry("Add", .black, 9889))
+
+        if exerciseClipboard != nil {
+            self.entries.append(EditWorkoutEntry("Paste", .black, 9999))
+        }
     }
     
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
-        if self.editIndex == self.entries.count - 1 {
-            buttons.append(.default(Text("New Exercise"), action: {self.onAdd()}))
-        } else {
-            let len = self.entries.count - 1
+        let len = self.entries.count - 1
 
-            if self.editIndex != 0 && len > 1 {
-                buttons.append(.default(Text("Move Up"), action: {self.doMove(by: -1); self.refresh()}))
-            }
-            if self.editIndex < len - 1 && len > 1 {
-                buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1); self.refresh()}))
-            }
-            buttons.append(.default(Text("Change Type"), action: {self.onChangeType()}))
-            if self.workout.exercises[self.editIndex].enabled {
-                buttons.append(.default(Text("Disable Exercise"), action: {self.onToggleEnabled()}))
-            } else {
-                buttons.append(.default(Text("Enable Exercise"), action: {self.onToggleEnabled()}))
-            }
-            buttons.append(.default(Text("Delete Exercise"), action: {self.doDelete(); self.refresh()}))
+        buttons.append(.default(Text("Copy"), action: {self.doCopy()}))
+        buttons.append(.default(Text("Cut"), action: {self.doCopy(); self.doDelete()}))
+        
+        if self.editIndex != 0 && len > 1 {
+            buttons.append(.default(Text("Move Up"), action: {self.doMove(by: -1)}))
         }
+        if self.editIndex < len - 1 && len > 1 {
+            buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1)}))
+        }
+        buttons.append(.default(Text("Change Type"), action: {self.onChangeType()}))
+        if self.workout.exercises[self.editIndex].enabled {
+            buttons.append(.default(Text("Disable Exercise"), action: {self.onToggleEnabled()}))
+        } else {
+            buttons.append(.default(Text("Enable Exercise"), action: {self.onToggleEnabled()}))
+        }
+        buttons.append(.default(Text("Delete Exercise"), action: {self.doDelete()}))
 
         buttons.append(.cancel(Text("Cancel"), action: {}))
 
@@ -214,17 +229,27 @@ struct EditWorkoutView: View {
     }
     
     func onAdd() {
+        addNotChange = true
         self.showSheet = true
-        self.addNotChange = true
     }
 
     func onChangeType() {
+        addNotChange = false
         self.showSheet = true
-        self.addNotChange = false
     }
 
     private func onToggleEnabled() {
         self.workout.exercises[self.editIndex].enabled = !self.workout.exercises[self.editIndex].enabled
+        self.refresh()
+    }
+
+    private func doCopy() {
+        exerciseClipboard = workout.exercises[self.editIndex].clone()   // clone so changes don't modify the clipboard
+        self.refresh()
+    }
+
+    private func doPaste() {
+        workout.exercises.append(exerciseClipboard!.clone())            // clone so pasting twice doesn't add the same exercise
         self.refresh()
     }
 
