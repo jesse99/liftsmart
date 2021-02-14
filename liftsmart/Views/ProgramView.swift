@@ -135,8 +135,8 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
         
         // If the workout can be performed on any day (including days on which other workouts are scheduled),
         } else if isAnyDay(entry.workout.days) {
-            if let last = completion.latest {
-                entry.subLabel = last.friendlyName()
+            if completion.latest != nil {
+                entry.subLabel = "today"
             } else {
                 entry.subLabel = "never started"
             }

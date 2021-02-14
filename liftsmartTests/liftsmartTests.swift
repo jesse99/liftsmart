@@ -91,5 +91,73 @@ class liftsmartTests: XCTestCase {
 
         entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [2])
         XCTAssertEqual(entry.subLabel, "in 2 days")
+
+        // no history and multiple scheduled
+        entry = getEntries(age0: nil, age1: nil, scheduled: [0, 2, 4])
+        XCTAssertEqual(entry.subLabel, "today")
+
+        entry = getEntries(age0: nil, age1: nil, scheduled: [1, 3, 5])
+        XCTAssertEqual(entry.subLabel, "tomorrow")
+
+        entry = getEntries(age0: nil, age1: nil, scheduled: [2, 4, 6])
+        XCTAssertEqual(entry.subLabel, "in 2 days")
+
+        // really old history and multiple scheduled
+        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [0, 2, 4])
+        XCTAssertEqual(entry.subLabel, "today")
+
+        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [1, 3, 5])
+        XCTAssertEqual(entry.subLabel, "tomorrow")
+
+        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [2, 4, 6])
+        XCTAssertEqual(entry.subLabel, "in 2 days")
+
+        // completed today
+        entry = getEntries(age0: 1, age1: 1, scheduled: [])
+        XCTAssertEqual(entry.subLabel, "completed")
+
+        entry = getEntries(age0: 1, age1: 1, scheduled: [0])
+        XCTAssertEqual(entry.subLabel, "completed")
+
+        entry = getEntries(age0: 1, age1: 1, scheduled: [-1])    // odd case
+        XCTAssertEqual(entry.subLabel, "completed")
+
+        entry = getEntries(age0: 1, age1: 1, scheduled: [1])     // odd case
+        XCTAssertEqual(entry.subLabel, "completed")
+
+        entry = getEntries(age0: 5, age1: 5, scheduled: [1])
+        XCTAssertEqual(entry.subLabel, "tomorrow")
+
+        entry = getEntries(age0: 5, age1: 5, scheduled: [2])
+        XCTAssertEqual(entry.subLabel, "in 2 days")
+        
+        // partially completed
+        entry = getEntries(age0: 1, age1: nil, scheduled: [])
+        XCTAssertEqual(entry.subLabel, "in progress")
+
+        entry = getEntries(age0: 1, age1: nil, scheduled: [0])
+        XCTAssertEqual(entry.subLabel, "in progress")
+
+        entry = getEntries(age0: 1, age1: nil, scheduled: [-1])    // odd case
+        XCTAssertEqual(entry.subLabel, "in progress")
+
+        entry = getEntries(age0: 1, age1: nil, scheduled: [1])     // odd case
+        XCTAssertEqual(entry.subLabel, "in progress")
+
+        entry = getEntries(age0: 5, age1: nil, scheduled: [1])
+        XCTAssertEqual(entry.subLabel, "tomorrow")
+
+        entry = getEntries(age0: 5, age1: nil, scheduled: [2])
+        XCTAssertEqual(entry.subLabel, "in 2 days")
+
+        // days
+        entry = getEntries(age0: 3*24, age1: 2*24, scheduled: [0, 2])
+        XCTAssertEqual(entry.subLabel, "today")
+
+        entry = getEntries(age0: 3*24, age1: 2*24, scheduled: [1, 3])
+        XCTAssertEqual(entry.subLabel, "tomorrow")
+
+        entry = getEntries(age0: 3*24, age1: 2*24, scheduled: [2, 5])
+        XCTAssertEqual(entry.subLabel, "in 2 days")
     }
 }
