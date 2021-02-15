@@ -15,8 +15,9 @@ struct EditRepRangesView: View, EditContext {
     @State var formalName = ""
     @State var weight = "0.0"
     @State var expectedReps = ""
-    @State var errText = ""
-    @State var errColor = Color.red
+    @State var error = ViewError()
+    @State var errMesg = ""
+    @State var errColor = Color.black
     @State var showHelp = false
     @State var repsSetName = ""
     @State var repsSet = [RepsSet(reps: RepRange(10))]
@@ -89,7 +90,7 @@ struct EditRepRangesView: View, EditContext {
                 }
             }
             Spacer()
-            Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
+            Text(self.errMesg).foregroundColor(self.errColor).font(.callout).padding(.leading)
 
             Divider()
             HStack {
@@ -111,6 +112,8 @@ struct EditRepRangesView: View, EditContext {
     }
     
     func refresh() {
+        self.error.set(self.$errMesg, self.$errColor)
+
         self.name = exercise.name
         self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.weight = String(format: "%.3f", exercise.expected.weight)
@@ -123,31 +126,28 @@ struct EditRepRangesView: View, EditContext {
             switch exercise.modality.sets {
             case .repRanges(warmups: _, worksets: let work, backoffs: _):
                 if !expected.isEmpty && work.count != expected.count {
-                    self.errText = "Number of expected reps should match work sets (or be empty)"
-                    self.errColor = .red
+                    self.error.add(key: "ZGlobal", error: "Number of expected reps should match work sets (or be empty)")
+                } else {
+                    self.error.reset(key: "ZGlobal")
                 }
             default:
                 assert(false)
             }
         case .left(let err):
-            self.errText = err
-            self.errColor = .red
+            self.error.add(key: "ZGlobal", error: err)
         }
-
     }
         
     func onEditedExpected(_ text: String) {
         switch parseReps(text, label: "expected", emptyOK: true) {
         case .right(let reps):
-            self.errText = ""
+            self.error.reset(key: "Expected")
             checkSetCounts()
-            
-            if self.errText.isEmpty {
+            if self.error.isEmpty {
                 self.exercise.expected.reps = reps
             }
         case .left(let err):
-            self.errText = err
-            self.errColor = .red
+            self.error.add(key: "Expected", error: err)
         }
     }
 
@@ -208,13 +208,7 @@ struct EditRepRangesView: View, EditContext {
                     self.exercise.modality.sets = .repRanges(warmups: warm, worksets: sets, backoffs: back)
                     checkSetCounts()
                 } else {
-                    // TODO: this will be cleared if the user switches to editing something like Name.
-                    // Simple way to fix this might be to replace errText with some sort of class:
-                    // 1) Stores multiple errors,
-                    // 2) Renders the most recent error,
-                    // 3) Associates each error with some sort of key,
-                    self.errText = "Work Sets cannot be empty"
-                    self.errColor = .red
+                    self.error.add(key: "Reps", error: "Work Sets cannot be empty")
                 }
             default:
                 assert(false)
@@ -234,7 +228,7 @@ struct EditRepRangesView: View, EditContext {
     }
     
     func hasError() -> Bool {
-        return !self.errText.isEmpty && self.errColor == .red
+        return !self.error.isEmpty
     }
             
     func onCancel() {

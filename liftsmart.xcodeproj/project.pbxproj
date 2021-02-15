@@ -50,6 +50,7 @@
 		37A4CACD259E4A23001097E0 /* AddExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A4CACC259E4A23001097E0 /* AddExerciseView.swift */; };
 		37B87508258E8C0E0097FA9F /* EditRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */; };
 		37B8750E258EAD230097FA9F /* EditRepsSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B8750D258EAD230097FA9F /* EditRepsSetView.swift */; };
+		37BFEBC125DAEC4A00158BE2 /* ViewError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBC025DAEC4A00158BE2 /* ViewError.swift */; };
 		37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */; };
 		37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D0F8E52516C6A7000FAAC7 /* Either.swift */; };
 		37DEA437247C46B1008297A2 /* Programs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DEA436247C46B1008297A2 /* Programs.swift */; };
@@ -120,6 +121,7 @@
 		37A4CACC259E4A23001097E0 /* AddExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExerciseView.swift; sourceTree = "<group>"; };
 		37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepRangesView.swift; sourceTree = "<group>"; };
 		37B8750D258EAD230097FA9F /* EditRepsSetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepsSetView.swift; sourceTree = "<group>"; };
+		37BFEBC025DAEC4A00158BE2 /* ViewError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewError.swift; sourceTree = "<group>"; };
 		37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMaxRepsView.swift; sourceTree = "<group>"; };
 		37D0F8E52516C6A7000FAAC7 /* Either.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Either.swift; sourceTree = "<group>"; };
 		37DEA436247C46B1008297A2 /* Programs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Programs.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				374896D4254F31C60030D7B2 /* PickerView.swift */,
 				378D567324830271006A041C /* ProgramView.swift */,
 				378D567524842C95006A041C /* TimerView.swift */,
+				37BFEBC025DAEC4A00158BE2 /* ViewError.swift */,
 				37412F5A2482D5C400FA78A7 /* WorkoutView.swift */,
 			);
 			path = Views;
@@ -410,6 +413,7 @@
 				379461FE251FF98D006774A0 /* EditWorkoutView.swift in Sources */,
 				3756D25B25AA756D0004A99F /* ChangeTypeView.swift in Sources */,
 				378D567624842C95006A041C /* TimerView.swift in Sources */,
+				37BFEBC125DAEC4A00158BE2 /* ViewError.swift in Sources */,
 				379461FB251FB962006774A0 /* EditProgramView.swift in Sources */,
 				3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */,
 				374F97DD248C25A50062EE0B /* DateExtension.swift in Sources */,

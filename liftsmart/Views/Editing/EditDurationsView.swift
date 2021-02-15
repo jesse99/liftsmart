@@ -12,8 +12,9 @@ struct EditDurationsView: View, EditContext {
     @State var durations = ""
     @State var target = ""
     @State var rest = ""
-    @State var errText = ""
-    @State var errColor = Color.red   // this is required by EditContext
+    @State var error = ViewError()
+    @State var errMesg = ""
+    @State var errColor = Color.black
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
@@ -55,7 +56,7 @@ struct EditDurationsView: View, EditContext {
                 // apparatus (conditional)
             }
             Spacer()
-            Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
+            Text(self.errMesg).foregroundColor(self.errColor).font(.callout).padding(.leading)
 
             Divider()
             HStack {
@@ -76,6 +77,8 @@ struct EditDurationsView: View, EditContext {
     }
     
     func refresh() {
+        self.error.set(self.$errMesg, self.$errColor)
+
         self.name = exercise.name
         self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.weight = String(format: "%.3f", exercise.expected.weight)
@@ -91,19 +94,23 @@ struct EditDurationsView: View, EditContext {
     }
     
     func hasError() -> Bool {
-        return !self.errText.isEmpty && self.errColor == .red
+        return !self.error.isEmpty
     }
     
-    func setsMatch() -> Bool {
-        // We use zeroOK everywhere because here we only care about the number of elements.
-        let count1 = parseTimes(self.durations, label: "durations", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
-        let count2 = parseTimes(self.rest, label: "rest", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
-        let count3 = parseTimes(self.target, label: "target", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
-        return count1 == count2 && (count3 == 0 || count1 == count3)
-    }
-    
-    func validateSecs() -> String? {
-        return setsMatch() ? nil : "Durations, target, and rest must have the same number of sets (although target can be empty)"
+    func doValidate() {
+        func setsMatch() -> Bool {
+            // We use zeroOK everywhere because here we only care about the number of elements.
+            let count1 = parseTimes(self.durations, label: "durations", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
+            let count2 = parseTimes(self.rest, label: "rest", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
+            let count3 = parseTimes(self.target, label: "target", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
+            return count1 == count2 && (count3 == 0 || count1 == count3)
+        }
+        
+        if setsMatch() {
+            self.error.reset(key: "ZGlobal")
+        } else {
+            self.error.add(key: "ZGlobal", error: "Durations, target, and rest must have the same number of sets (although target can be empty)")
+        }
     }
     
     func onEditedDurations(_ text: String) {
@@ -111,34 +118,25 @@ struct EditDurationsView: View, EditContext {
         switch result {
         case .right(let times):
             if !times.isEmpty {
-                if let err = validateSecs() {
-                    self.errText = err
-                    self.errColor = .red
-                } else {
-                    let rest = parseTimes(self.rest, label: "rest", zeroOK: true)
-                    if rest.isRight() {
-                        updateSets(durs: times, rests: rest.unwrap())
-                        self.errText = ""
-                    }
+                let rest = parseTimes(self.rest, label: "rest", zeroOK: true)
+                if rest.isRight() {
+                    updateSets(durs: times, rests: rest.unwrap())
+                    doValidate()
+                    self.error.reset(key: "Durations")
                 }
             } else {
-                self.errText = "Durations needs at least one set"
-                self.errColor = .red
+                self.error.add(key: "Durations", error: "Durations needs at least one set")
             }
         case .left(let err):
-            self.errText = err
-            self.errColor = .red
+            self.error.add(key: "Durations", error: err)
         }
     }
     
     func onEditedRest(_ times: [Int]) -> String? {
-        if let err = validateSecs() {
-            return err
-        } else {
-            let durs = parseTimes(self.durations, label: "durations")
-            if durs.isRight() {
-                updateSets(durs: durs.unwrap(), rests: times)
-            }
+        let durs = parseTimes(self.durations, label: "durations")   // createRestView will validate rest
+        if durs.isRight() {
+            updateSets(durs: durs.unwrap(), rests: times)
+            doValidate()
         }
 
         return nil
@@ -148,25 +146,20 @@ struct EditDurationsView: View, EditContext {
         let result = parseTimes(text, label: "target")
         switch result {
         case .right(let times):
-            if let err = validateSecs() {
-                self.errText = err
-                self.errColor = .red
-            } else {
-                var sets: [DurationSet]
-                switch exercise.modality.sets {
-                case .durations(let s, targetSecs: _):
-                    sets = s
-                default:
-                    assert(false)
-                    sets = []
-                }
-
-                exercise.modality.sets = .durations(sets, targetSecs: times)
-                self.errText = ""
+            var sets: [DurationSet]
+            switch exercise.modality.sets {
+            case .durations(let s, targetSecs: _):
+                sets = s
+            default:
+                assert(false)
+                sets = []
             }
+
+            exercise.modality.sets = .durations(sets, targetSecs: times)
+            self.error.reset(key: "Target")
+            doValidate()
         case .left(let err):
-            self.errText = err
-            self.errColor = .red
+            self.error.add(key: "Target", error: err)
         }
     }
     

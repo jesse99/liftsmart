@@ -33,6 +33,7 @@ struct RepRange: CustomDebugStringConvertible, Storable {
         self.min = min
         self.max = max
     }
+    
     var label: String {
         get {
             if min < max {

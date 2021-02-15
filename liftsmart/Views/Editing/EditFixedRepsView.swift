@@ -13,8 +13,9 @@ struct EditFixedRepsView: View, EditContext {
     @State var weight = "0.0"
     @State var reps = ""
     @State var rests = ""
-    @State var errText = ""
-    @State var errColor = Color.red
+    @State var error = ViewError()
+    @State var errMesg = ""
+    @State var errColor = Color.black
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
@@ -66,7 +67,7 @@ struct EditFixedRepsView: View, EditContext {
                 PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: matchFormalName, confirm: {editedFormalName($0, self)})
             }
             Spacer()
-            Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
+            Text(self.errMesg).foregroundColor(self.errColor).font(.callout).padding(.leading)
 
             Divider()
             HStack {
@@ -88,6 +89,8 @@ struct EditFixedRepsView: View, EditContext {
     }
     
     func refresh() {
+        self.error.set(self.$errMesg, self.$errColor)
+
         self.name = exercise.name
         self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.weight = String(format: "%.3f", exercise.expected.weight)
@@ -110,7 +113,7 @@ struct EditFixedRepsView: View, EditContext {
         case .right(let reps):
             newReps = reps
         case .left(let err):
-            self.errText = err
+            self.error.add(key: "ZGlobal", error: err)
             return nil
         }
 
@@ -120,7 +123,7 @@ struct EditFixedRepsView: View, EditContext {
         case .right(let times):
             newRest = times
         case .left(let err):
-            self.errText = err
+            self.error.add(key: "ZGlobal", error: err)
             return nil
         }
         
@@ -130,11 +133,11 @@ struct EditFixedRepsView: View, EditContext {
             for i in 0..<newReps.count {
                 newSets.append(RepsSet(reps: newReps[i], restSecs: newRest[i]))
             }
-            self.errText = ""
+            self.error.reset(key: "ZGlobal")
             return newSets
 
         } else {
-            self.errText = "Reps and rest counts must match"
+            self.error.add(key: "ZGlobal", error: "Reps and rest counts must match")
             return nil
         }
     }
@@ -157,7 +160,7 @@ struct EditFixedRepsView: View, EditContext {
     }
 
     func hasError() -> Bool {
-        return !self.errText.isEmpty && self.errColor == .red
+        return !self.error.isEmpty
     }
             
     func onCancel() {

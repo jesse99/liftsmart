@@ -7,7 +7,8 @@ protocol EditContext {
     var exercise: Exercise {get}
     var formalName: String {get set}
     var formalNameModal: Bool {get set}
-    var errText: String {get set}
+    var error: ViewError {get set}
+    var errMesg: String {get set}   // these two are set by Error
     var errColor: Color {get set}
     var showHelp: Bool {get set}
     var helpText: String {get set}
@@ -31,7 +32,7 @@ struct ShowHelp: ViewModifier {
 }
 
 func createNameView(text: Binding<String>, _ context: EditContext) -> some View {
-    func editedName(_ text: String, _ inContext: EditContext) {
+    func editedName(_ text: String, _ context: EditContext) {
         func isDuplicateName(_ name: String) -> Bool {
             for candidate in context.workout.exercises {
                 if candidate !== context.exercise && candidate.name == name {
@@ -41,16 +42,13 @@ func createNameView(text: Binding<String>, _ context: EditContext) -> some View 
             return false
         }
         
-        var context = inContext     // EditContext could be a struct so need to jump through a hoop to allow mutating it
         let name = text.trimmingCharacters(in: .whitespaces)
         if name.isEmpty {
-            context.errText = "Name cannot be empty"
-            context.errColor = .red
+            context.error.add(key: "Name", error: "Name cannot be empty.")
         } else if isDuplicateName(name) {
-            context.errText = "Name matches another exercise in the workout"
-            context.errColor = .orange
+            context.error.add(key: "Name", warning: "Name matches another exercise in the workout.")
         } else {
-            context.errText = ""
+            context.error.reset(key: "Name")
             context.exercise.name = name
         }
     }
@@ -134,19 +132,16 @@ func createFormalNameView(text: Binding<String>, modal: Binding<Bool>, _ context
 // could use a picker like formal name uses: user can type in a weight and then is able to see
 // all the nearby weights and select one if he wants.
 func createWeightView(text: Binding<String>, _ context: EditContext) -> some View {
-    func editedWeight(_ text: String, _ inContext: EditContext) {
-        var context = inContext     // Nameable could be a struct so need to jump through a hoop to allow mutating it
+    func editedWeight(_ text: String, _ context: EditContext) {
         if let weight = Double(text) {
             if weight < 0.0 {
-                context.errText = "Weight cannot be negative (found \(weight))"
-                context.errColor = .red
+                context.error.add(key: "Weight", error: "Weight cannot be negative (found \(weight))")
             } else {
-                context.errText = ""
+                context.error.reset(key: "Weight")
                 context.exercise.expected.weight = weight
             }
         } else {
-            context.errText = "Expected a floating point number for weight (found '\(text)')"
-            context.errColor = .red
+            context.error.add(key: "Weight", error: "Expected a floating point number for weight (found '\(text)')")
         }
     }
 
@@ -171,31 +166,26 @@ typealias ExtraValidator = ([Int]) -> String?   // additional validation
 
 // This is for a list of rest times.
 func createRestView(text: Binding<String>, _ context: EditContext, extra: ExtraValidator? = nil) -> some View {
-    func editedRest(_ text: String, _ inContext: EditContext) {
+    func editedRest(_ text: String, _ context: EditContext) {
         // Note that we don't use comma separated lists because that's more visual noise and
         // because some locales use commas for the decimal points.
-        var context = inContext
-
         let result = parseTimes(text, label: "rest", zeroOK: true)
         switch result {
         case .right(let times):
             if times.isEmpty {
-                context.errText = "Rest needs at least one set"
-                context.errColor = .red
+                context.error.add(key: "Rest", error: "Rest needs at least one set")
                 return
             }
             if let e = extra, let err = e(times) {
-                context.errText = err
-                context.errColor = .red
+                context.error.add(key: "Rest", error: err)
                 return
             }
         case .left(let err):
-            context.errText = err
-            context.errColor = .red
+            context.error.add(key: "Rest", error: err)
             return
         }
 
-        context.errText = ""
+        context.error.reset(key: "Rest")
     }
 
     func restHelp(_ inContext: EditContext) {

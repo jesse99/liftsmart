@@ -12,8 +12,9 @@ struct EditMaxRepsView: View, EditContext {
     @State var weight = "0.0"
     @State var target = ""
     @State var rest = ""
-    @State var errText = ""
-    @State var errColor = Color.red   // this is required by EditContext
+    @State var error = ViewError()
+    @State var errMesg = ""
+    @State var errColor = Color.black
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
@@ -55,7 +56,7 @@ struct EditMaxRepsView: View, EditContext {
                 // apparatus (conditional)
             }
             Spacer()
-            Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
+            Text(self.errMesg).foregroundColor(self.errColor).font(.callout).padding(.leading)
 
             Divider()
             HStack {
@@ -77,6 +78,8 @@ struct EditMaxRepsView: View, EditContext {
     }
     
     func refresh() {
+        self.error.set(self.$errMesg, self.$errColor)
+
         self.name = exercise.name
         self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
         self.reps = exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])"
@@ -92,13 +95,13 @@ struct EditMaxRepsView: View, EditContext {
     }
     
     func hasError() -> Bool {
-        return !self.errText.isEmpty && self.errColor == .red
+        return !self.error.isEmpty
     }
     
     func onEditedReps(_ text: String) {
         switch parseOptionalRep(text, label: "reps") {
         case .right(let r):
-            self.errText = ""
+            self.error.reset(key: "Reps")
             if let reps = r {
                 self.exercise.expected.reps = [reps]
             } else {
@@ -106,8 +109,7 @@ struct EditMaxRepsView: View, EditContext {
             }
 
         case .left(let err):
-            self.errText = err
-            self.errColor = .red
+            self.error.add(key: "Reps", error: err)
         }
     }
     
@@ -123,12 +125,11 @@ struct EditMaxRepsView: View, EditContext {
 
         switch parseOptionalRep(text, label: "target") {
         case .right(let reps):
-            self.errText = ""
+            self.error.reset(key: "Target")
             self.exercise.modality.sets = .maxReps(restSecs: rest, targetReps: reps)
 
         case .left(let err):
-            self.errText = err
-            self.errColor = .red
+            self.error.add(key: "Target", error: err)
         }
     }
         
