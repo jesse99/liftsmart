@@ -2285,11 +2285,10 @@ let defaultNotes: [String: String] = [
     
     "Side Plank": noteToMarkdown(
         notes: [
-            "Lie on side on a mat keeping elbow below shoulder and legs together.",
+            "Lie on your side keeping your elbow below the shoulder and legs together.",
             "Raise body upwards to create a straight line.",
             "Difficulty can be reduced by keeping your knees on the floor.",
-            "Difficulty can be increased by keeping legs apart.",
-            "Difficulty can also be increased by raising one leg into the air (abduction)."],
+            "Difficulty can be increased by keeping legs apart."],
         links: ["Link": "http://www.exrx.net/WeightExercises/Obliques/BWSidePlank.html", "Antranik": "https://www.youtube.com/watch?v=44ScXWFaVBs&feature=youtu.be&t=1m19s", "Alternative": "http://i.imgur.com/6NM22BF.jpg", "Abduction Video": "https://www.youtube.com/watch?v=x6eHE2ox_Oo", "Progression": "http://www.startbodyweight.com/p/plank-progression.html"]),
     
     "Single Leg Glute Bridge": noteToMarkdown(

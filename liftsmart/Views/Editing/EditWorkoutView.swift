@@ -21,7 +21,7 @@ struct EditWorkoutEntry: Identifiable {
     }
 }
 
-// TODO: After a paste new was trying to do a change instead of a new mwhen this was a @State variable.
+// TODO: After a paste new was trying to do a change instead of a new when this was a @State variable.
 var addNotChange = false
 
 struct EditWorkoutView: View {
