@@ -93,23 +93,22 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
     func agesMatch(_ oldest: Workout, _ workout: Workout) -> Bool {
         return abs(ageInDays(oldest) - ageInDays(workout)) <= 0.3   // same day if they are within +/- 8 hours (for those whackos who workout through midnight)
     }
+    
+    func nextWorkout(_ entry: ProgramEntry) -> Int? {
+        for delta in 1...7 {
+            if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: now) {
+                let weekday = cal.component(.weekday, from: candidate)
+                if entry.workout.days[weekday - 1] {
+                    return delta
+                }
+            }
+        }
+        return nil
+    }
 
     let cal = Calendar.current
     let weekday = cal.component(.weekday, from: now)
     let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
-    var nextWorkout: (Int, Int)? = nil
-    for delta in 1...13 {
-        for entry in entries {
-            if nextWorkout == nil {
-                if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: now) {
-                    let weekday = cal.component(.weekday, from: candidate)
-                    if entry.workout.days[weekday - 1] {
-                        nextWorkout = (weekday, delta)              // next workout scheduled after today
-                    }
-                }
-            }
-        }
-    }
 
     var result = entries
     for i in 0..<entries.count {
@@ -157,9 +156,13 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
             }
             
         // If the workout is scheduled for later.
-        } else if let (weekday, delta) = nextWorkout, (entry.workout.days[weekday - 1]) {
+        } else if let delta = nextWorkout(entry) {
             entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
-            entry.subColor = .blue
+            if todaysWorkouts.isEmpty && delta == 1 {
+                entry.subColor = .blue
+            } else {
+                entry.subColor = .black
+            }
         }
         
         result[i] = entry
