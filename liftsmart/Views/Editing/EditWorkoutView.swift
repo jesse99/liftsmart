@@ -21,8 +21,14 @@ struct EditWorkoutEntry: Identifiable {
     }
 }
 
+enum WorkoutSheetType {
+    case add
+    case changeApparatus
+    case changeType
+}
+
 // TODO: After a paste new was trying to do a change instead of a new when this was a @State variable.
-var addNotChange = false
+var workoutSheetType = WorkoutSheetType.add
 
 struct EditWorkoutView: View {
     var workout: Workout
@@ -108,10 +114,13 @@ struct EditWorkoutView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries.last!.name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
-            if addNotChange {
+            switch workoutSheetType {
+            case .add:
                 AddExerciseView(workout: self.workout, dismiss: self.refresh)
-            } else {
+            case .changeType:
                 ChangeTypeView(workout: self.workout, index: self.editIndex, dismiss: self.refresh)
+            case .changeApparatus:
+                ChangeApparatusView(workout: self.workout, index: self.editIndex, dismiss: self.refresh)
             }
         }
     }
@@ -199,22 +208,22 @@ struct EditWorkoutView: View {
 
         let len = self.entries.count - 1
 
+        buttons.append(.default(Text("Change Apparatus"), action: {self.onChangeApparatus()}))
+        buttons.append(.default(Text("Change Type"), action: {self.onChangeType()}))
         buttons.append(.default(Text("Copy"), action: {self.doCopy()}))
         buttons.append(.default(Text("Cut"), action: {self.doCopy(); self.doDelete()}))
-        
-        if self.editIndex != 0 && len > 1 {
-            buttons.append(.default(Text("Move Up"), action: {self.doMove(by: -1)}))
-        }
-        if self.editIndex < len - 1 && len > 1 {
-            buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1)}))
-        }
-        buttons.append(.default(Text("Change Type"), action: {self.onChangeType()}))
         if self.workout.exercises[self.editIndex].enabled {
             buttons.append(.default(Text("Disable Exercise"), action: {self.onToggleEnabled()}))
         } else {
             buttons.append(.default(Text("Enable Exercise"), action: {self.onToggleEnabled()}))
         }
         buttons.append(.default(Text("Delete Exercise"), action: {self.doDelete()}))
+        if self.editIndex != 0 && len > 1 {
+            buttons.append(.default(Text("Move Up"), action: {self.doMove(by: -1)}))
+        }
+        if self.editIndex < len - 1 && len > 1 {
+            buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1)}))
+        }
 
         buttons.append(.cancel(Text("Cancel"), action: {}))
 
@@ -229,12 +238,17 @@ struct EditWorkoutView: View {
     }
     
     func onAdd() {
-        addNotChange = true
+        workoutSheetType = .add
+        self.showSheet = true
+    }
+
+    func onChangeApparatus() {
+        workoutSheetType = .changeApparatus
         self.showSheet = true
     }
 
     func onChangeType() {
-        addNotChange = false
+        workoutSheetType = .changeType
         self.showSheet = true
     }
 

@@ -51,6 +51,7 @@
 		37B87508258E8C0E0097FA9F /* EditRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */; };
 		37B8750E258EAD230097FA9F /* EditRepsSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B8750D258EAD230097FA9F /* EditRepsSetView.swift */; };
 		37BFEBC125DAEC4A00158BE2 /* ViewError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBC025DAEC4A00158BE2 /* ViewError.swift */; };
+		37BFEBC725DB56FA00158BE2 /* ChangeApparatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */; };
 		37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */; };
 		37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D0F8E52516C6A7000FAAC7 /* Either.swift */; };
 		37DEA437247C46B1008297A2 /* Programs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DEA436247C46B1008297A2 /* Programs.swift */; };
@@ -122,6 +123,7 @@
 		37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepRangesView.swift; sourceTree = "<group>"; };
 		37B8750D258EAD230097FA9F /* EditRepsSetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepsSetView.swift; sourceTree = "<group>"; };
 		37BFEBC025DAEC4A00158BE2 /* ViewError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewError.swift; sourceTree = "<group>"; };
+		37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeApparatusView.swift; sourceTree = "<group>"; };
 		37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMaxRepsView.swift; sourceTree = "<group>"; };
 		37D0F8E52516C6A7000FAAC7 /* Either.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Either.swift; sourceTree = "<group>"; };
 		37DEA436247C46B1008297A2 /* Programs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Programs.swift; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 			isa = PBXGroup;
 			children = (
 				37A4CACC259E4A23001097E0 /* AddExerciseView.swift */,
+				37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */,
 				3756D25A25AA756D0004A99F /* ChangeTypeView.swift */,
 				374896E82550E1E70030D7B2 /* EditDurationsView.swift */,
 				374896E2255097410030D7B2 /* EditExerciseHelpers.swift */,
@@ -432,6 +435,7 @@
 				376987BF244B95D30021D0FB /* AppDelegate.swift in Sources */,
 				3766CA6424BB797800EF604A /* EditTextView.swift in Sources */,
 				37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */,
+				37BFEBC725DB56FA00158BE2 /* ChangeApparatusView.swift in Sources */,
 				37DEA437247C46B1008297A2 /* Programs.swift in Sources */,
 				376987C1244B95D30021D0FB /* SceneDelegate.swift in Sources */,
 				376AF37924CC018C00AEAE1C /* Notes.swift in Sources */,

@@ -1,14 +1,14 @@
-//  Created by Jesse Jones on 1/9/21.
+//  Created by Jesse Jones on 2/15/21.
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-struct ChangeTypeView: View {
+struct ChangeApparatusView: View {
     var workout: Workout
     let index: Int
     let dismiss: () -> Void
     let original: Exercise
-    @State var typeLabel = "TypeTypeTypeType"
-    @State var type = Sets.repRanges(warmups: [], worksets: [], backoffs: [])
+    @State var apparatusLabel = "TypeTypeTypeType"
+    @State var apparatus = Apparatus.bodyWeight
     @State var showHelp = false
     @State var helpText = ""
     @Environment(\.presentationMode) private var presentationMode
@@ -22,15 +22,13 @@ struct ChangeTypeView: View {
     
     var body: some View {
         VStack() {
-            Text("Change Type").font(.largeTitle)
+            Text("Change Apparatus").font(.largeTitle)
 
             VStack(alignment: .leading) {
                 HStack {
-                    Menu(self.typeLabel) {
-                        Button("Durations", action: {self.onChange(.durations([]))})
-                        Button("Fixed Reps", action: {self.onChange(.fixedReps([]))})
-                        Button("Max Reps", action: {self.onChange(.maxReps(restSecs: []))})
-                        Button("Rep Ranges", action: {self.onChange(.repRanges(warmups: [], worksets: [], backoffs: []))})
+                    Menu(self.apparatusLabel) {
+                        Button("Body Weight", action: {self.onChange(.bodyWeight)})
+                        Button("Fixed Weights", action: {self.onChange(.fixedWeights(name: nil))})
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
@@ -58,36 +56,19 @@ struct ChangeTypeView: View {
     }
     
     func refresh() {
-        self.type = self.workout.exercises[self.index].modality.sets
-        self.typeLabel = getTypeLabel(self.type)
+        self.apparatus = self.workout.exercises[self.index].modality.apparatus
+        self.apparatusLabel = getApparatusLabel(self.apparatus)
     }
     
-    func onChange(_ sets: Sets) {
-        func doChange(_ copy: Exercise) {
-            let exercise = self.workout.exercises[self.index]
-            exercise.modality = Modality(exercise.modality.apparatus, copy.modality.sets)
-        }
-        
-        switch sets {
-        case .durations(_, targetSecs: _):
-            let copy = defaultDurations("dummy", original.modality.apparatus)
-            doChange(copy)
-        case .fixedReps(_):
-            let copy = defaultFixedReps("dummy", original.modality.apparatus)
-            doChange(copy)
-        case .maxReps(restSecs: _, targetReps: _):
-            let copy = defaultMaxReps("dummy", original.modality.apparatus)
-            doChange(copy)
-        case .repRanges(warmups: _, worksets: _, backoffs: _):
-            let copy = defaultRepRanges("dummy", original.modality.apparatus)
-            doChange(copy)
-        }
+    func onChange(_ apparatus: Apparatus) {
+        let exercise = self.workout.exercises[self.index]
+        exercise.modality.apparatus = apparatus
 
         self.refresh()
     }
     
     func onHelp() {
-        self.helpText = getTypeHelp(type)
+        self.helpText = getApparatusHelp(apparatus)
         self.showHelp = true
     }
 
@@ -104,9 +85,9 @@ struct ChangeTypeView: View {
     }
 }
 
-struct ChangeTypeView_Previews: PreviewProvider {
+struct ChangeApparatusView_Previews: PreviewProvider {
     static var previews: some View {
-        ChangeTypeView(workout: cardio(), index: 0, dismiss: ChangeTypeView_Previews.onDismiss)
+        ChangeApparatusView(workout: cardio(), index: 0, dismiss: ChangeApparatusView_Previews.onDismiss)
     }
     
     static func onDismiss() {

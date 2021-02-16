@@ -15,6 +15,15 @@ func getTypeLabel(_ sets: Sets) -> String {
     }
 }
 
+func getApparatusLabel(_ apparatus: Apparatus) -> String {
+    switch apparatus {
+    case .bodyWeight:
+        return "Body Weight"
+    case .fixedWeights(_):
+        return "Fixed Weights"
+    }
+}
+
 func getTypeHelp(_ sets: Sets) -> String {
     switch sets {
     case .durations(_, targetSecs: _):
@@ -28,33 +37,42 @@ func getTypeHelp(_ sets: Sets) -> String {
     }
 }
 
-func defaultDurations(_ name: String) -> Exercise {
+func getApparatusHelp(_ apparatus: Apparatus) -> String {
+    switch apparatus {
+    case .bodyWeight:
+        return "Includes an optional arbitrary weight."
+    case .fixedWeights(_):
+        return "Dumbbells, kettlebells, cable machines, etc."
+    }
+}
+
+func defaultDurations(_ name: String, _ apparatus: Apparatus) -> Exercise {
     let durations = [
         DurationSet(secs: 30, restSecs: 60),
         DurationSet(secs: 30, restSecs: 60),
         DurationSet(secs: 30, restSecs: 60)]
     let sets = Sets.durations(durations)
-    let modality = Modality(Apparatus.bodyWeight, sets)
+    let modality = Modality(apparatus, sets)
     return Exercise(name, "None", modality)
 }
 
-func defaultFixedReps(_ name: String) -> Exercise {
+func defaultFixedReps(_ name: String, _ apparatus: Apparatus) -> Exercise {
     let work = RepsSet(reps: RepRange(min: 10, max: 10), restSecs: 30)
     let sets = Sets.fixedReps([work, work, work])
-    let modality = Modality(Apparatus.bodyWeight, sets)
+    let modality = Modality(apparatus, sets)
     return Exercise(name, "None", modality)
 }
 
-func defaultMaxReps(_ name: String) -> Exercise {
+func defaultMaxReps(_ name: String, _ apparatus: Apparatus) -> Exercise {
     let sets = Sets.maxReps(restSecs: [60, 60, 60])
-    let modality = Modality(Apparatus.bodyWeight, sets)
+    let modality = Modality(apparatus, sets)
     return Exercise(name, "None", modality)
 }
 
-func defaultRepRanges(_ name: String) -> Exercise {
+func defaultRepRanges(_ name: String, _ apparatus: Apparatus) -> Exercise {
     let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 120)
     let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
-    let modality = Modality(Apparatus.bodyWeight, sets)
+    let modality = Modality(apparatus, sets)
     return Exercise(name, "None", modality)
 }
 
@@ -62,7 +80,9 @@ struct AddExerciseView: View {
     var workout: Workout
     let dismiss: () -> Void
     @State var typeLabel = "TypeTypeTypeType"
+    @State var apparatusLabel = "ApparatusApparatus"
     @State var type = Sets.repRanges(warmups: [], worksets: [], backoffs: [])
+    @State var apparatus = Apparatus.bodyWeight
     @State var showHelp = false
     @State var helpText = ""
     @Environment(\.presentationMode) private var presentationMode
@@ -86,9 +106,17 @@ struct AddExerciseView: View {
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
-                    Button("?", action: self.onHelp).font(.callout).padding(.trailing)
+                    Button("?", action: self.onTypeHelp).font(.callout).padding(.trailing)
                 }
-                // TODO: add a button for apparatus
+                HStack {
+                    Menu(self.apparatusLabel) {
+                        Button("Body Weight", action: {self.apparatus = .bodyWeight; self.refresh()})
+                        Button("Fixed Weights", action: {self.apparatus = .fixedWeights(name: nil); self.refresh()})
+                        Button("Cancel", action: {})
+                    }.font(.callout).padding(.leading)
+                    Spacer()
+                    Button("?", action: self.onApparatusHelp).font(.callout).padding(.trailing)
+                }
             }
             Spacer()
 
@@ -112,10 +140,16 @@ struct AddExerciseView: View {
     
     func refresh() {
         self.typeLabel = getTypeLabel(type)
+        self.apparatusLabel = getApparatusLabel(apparatus)
     }
     
-    func onHelp() {
+    func onTypeHelp() {
         self.helpText = getTypeHelp(type)
+        self.showHelp = true
+    }
+
+    func onApparatusHelp() {
+        self.helpText = getApparatusHelp(apparatus)
         self.showHelp = true
     }
 
@@ -131,16 +165,16 @@ struct AddExerciseView: View {
         
         switch type {
         case .durations(_, targetSecs: _):
-            let exercise = defaultDurations(findName())
+            let exercise = defaultDurations(findName(), self.apparatus)
             workout.exercises.append(exercise)
         case .fixedReps(_):
-            let exercise = defaultFixedReps(findName())
+            let exercise = defaultFixedReps(findName(), self.apparatus)
             workout.exercises.append(exercise)
         case .maxReps(restSecs: _, targetReps: _):
-            let exercise = defaultMaxReps(findName())
+            let exercise = defaultMaxReps(findName(), self.apparatus)
             workout.exercises.append(exercise)
         case .repRanges(warmups: _, worksets: _, backoffs: _):
-            let exercise = defaultRepRanges(findName())
+            let exercise = defaultRepRanges(findName(), self.apparatus)
             workout.exercises.append(exercise)
         }
 
