@@ -117,7 +117,7 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
         
         var doneRecently = false
         if let last = completion.latest {
-            doneRecently = now.hoursSinceDate(last) < 4
+            doneRecently = now.hoursSinceDate(last) <= 8
         }
         
         // If the user has done any exercise within the workout today,
