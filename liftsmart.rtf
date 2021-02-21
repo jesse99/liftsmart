@@ -93,13 +93,18 @@ Worked out 35 times.
 3x in the last week, 10x in the last month\
 \
 \
-* Work on fixed weight apparatus:\
+\'95 Diamond pushup\
+	- progression link is hosed\
+	- likely true for all the pushup variants\
+\'95\'a0Should be able to continue a workout after less than six hours\
+\'95 Work on fixed weight apparatus:\
 	- edit exercise should have an apparatus button (disable for body weight)\
 			` shows list\
 			` list has the name of each FixedWeightSet along with an Add item\
 			` these sets are global\
-			` highlight activated set (activate belongs to the exercise)\
+			` highlight activated set (activate sets name in apparatus)\
 			` tap to delete or activate or edit\
+			` confirm deletes, maybe more strongly if an exercise is using it\
 	- edit \cf11 FixedWeightSet\cf11 \
 		` name (place holder could be \'93Dumbbells or Cable Machine\'94\
 		` list of weights (tap to delete or edit?)\
@@ -108,12 +113,17 @@ Worked out 35 times.
 	- update exercises to support fixedWeights\
 		` edit should have a step button/menu?\
 		` should edit weight have a picker (like formal name)? maybe a text field and a picker?\
+		` handle case where have activated set but it was deleted\
 	- somehow support magnets/extra weights\
 \'95\'a0Show how many times worked out?\
 	- maybe missed days instead?
 \f4\fs36 \cf12 \CocoaLigature0 \
 
-\f2\fs48 \cf11 \CocoaLigature1 \'95\'a0Add some sort of warning if enter a workout on the wrong day\
+\f2\fs48 \cf11 \CocoaLigature1 \'95\'a0Add some sort of warning if enter a workout on the wrong day?\
+\'95\'a0Workout scheduling should be more flexible:\
+	- support every day, every other day, etc\
+	- support mesocycles, probably just using a cycle index\
+	- support alternate weeks, maybe with a mesocycle\
 \'95\'a0ios 14 supports MenuPickerStyle and InlinePickerStyle\
 \'95 ios 14 has a bit better Logger\
 \'95\'a0Should expected be saved separately from program?\

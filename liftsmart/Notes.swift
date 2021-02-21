@@ -731,7 +731,7 @@ let defaultNotes: [String: String] = [
             "Push off with your feet to lean forward.",
             "Keep your forearms straight up and down the whole time.",
             "Go down until your arms form a ninety degree angle."],
-        links: ["Link": "https://www.youtube.com/watch?v=_4EGPVJuqfA", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup#wiki_recommended_progression"]),
+        links: ["Link": "https://www.youtube.com/watch?v=_4EGPVJuqfA", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://bit.ly/3qHoNtW"]),
     
     "Dips": noteToMarkdown(
         notes: [
@@ -1349,7 +1349,7 @@ let defaultNotes: [String: String] = [
             "Keep your body in a straight line.",
             "Lock out arms and push shoulders forward.",
             "Keep elbows in, don't let them flare outwards from your torso."],
-        links: ["Link": "https://www.youtube.com/watch?v=4dF1DOWzf20&feature=youtu.be&t=3m56s", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup#wiki_recommended_progression"]),
+        links: ["Link": "https://www.youtube.com/watch?v=4dF1DOWzf20&feature=youtu.be&t=3m56s", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://bit.ly/3qHoNtW"]),
     
     "Incline Rows": noteToMarkdown(
         notes: [
@@ -1817,7 +1817,7 @@ let defaultNotes: [String: String] = [
     "Pseudo Planche Pushups": noteToMarkdown(
         notes: [
             "Pushup but with your body scooted forward."],
-        links: ["Video": "https://www.youtube.com/watch?v=Cdmg0CfMZeo", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup#wiki_recommended_progression"]),
+        links: ["Video": "https://www.youtube.com/watch?v=Cdmg0CfMZeo", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Progression": "https://bit.ly/3qHoNtW"]),
     
     "Pull Through": noteToMarkdown(
         notes: [
@@ -1869,7 +1869,7 @@ let defaultNotes: [String: String] = [
             "To reduce shoulder strain keep your elbows tucked so that your upper arms form a 45 degree angle to your torso.",
             "Difficulty can be lessened by keeping knees on the floor or by placing hands on a support.",
             "Difficulty can be increased by placing feet on a bench."],
-        links: ["Link": "http://www.exrx.net/WeightExercises/PectoralSternal/BWPushup.html", "Antranik": "https://www.youtube.com/watch?v=4dF1DOWzf20&feature=youtu.be", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Inclined": "http://www.bodybuilding.com/exercises/detail/view/name/incline-push-up", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup#wiki_recommended_progression"]),
+        links: ["Link": "http://www.exrx.net/WeightExercises/PectoralSternal/BWPushup.html", "Antranik": "https://www.youtube.com/watch?v=4dF1DOWzf20&feature=youtu.be", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Inclined": "http://www.bodybuilding.com/exercises/detail/view/name/incline-push-up", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://bit.ly/3qHoNtW"]),
     
     "Pushup Plus": noteToMarkdown(
         notes: [
@@ -1996,7 +1996,7 @@ let defaultNotes: [String: String] = [
             "Remain in hollow body position.",
             "Moving the rings higher will make this easier.",
             "Elevating your feet will make this harder."],
-        links: ["Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/core#wiki_ring_ab_rollouts", "Video": "https://www.youtube.com/watch?v=LBUfnmugKLw"]),
+        links: ["Link": "https://bit.ly/3k9saY5", "Video": "https://www.youtube.com/watch?v=LBUfnmugKLw"]),
     
     "Ring Dips": noteToMarkdown(
         notes: [
@@ -2677,7 +2677,7 @@ let defaultNotes: [String: String] = [
             "Keep your body in a straight line.",
             "Lock out arms and push shoulders forward.",
             "Keep elbows in, don't let them flare outwards from your torso."],
-        links: ["Link": "https://www.youtube.com/watch?v=a6YHbXD2XlU", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup#wiki_recommended_progression"]),
+        links: ["Link": "https://www.youtube.com/watch?v=a6YHbXD2XlU", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://bit.ly/3qHoNtW"]),
     
     "Vertical Rows": noteToMarkdown(
         notes: [
@@ -2759,7 +2759,7 @@ let defaultNotes: [String: String] = [
     "Weighted Inverted Row": noteToMarkdown(
         notes: [
             "Can use a belt with attached weight, a weight vest, or a plate on your chest/belly."],
-        links: ["Link": "https://old.reddit.com/r/bodyweightfitness/wiki/exercises/row#wiki_wide_rows"]),
+        links: ["Link": "https://bit.ly/37B9D1Q"]),
 
     "Wide Rows": noteToMarkdown(
         notes: [
