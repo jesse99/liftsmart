@@ -5,7 +5,7 @@ import Foundation
 // TODO:
 // support magnets/extra on fixedWeights
 // support pairedPlates and singlePlates
-// support bumpers
+// support bumpers, may want to use a PlateWeightSet here, plates have a weight/count
 // support magnets
 enum Apparatus {
     /// Typically these are unweighted but users can enter an arbitrary weight if they are using a plate,
@@ -13,7 +13,7 @@ enum Apparatus {
     case bodyWeight
 
     /// This is used for dumbbels, kettlebells, cable machines, etc. Name references a FixedWeights object.
-    /// If name is nil then the user hasn't activated FixedWeight set yet.
+    /// If name is nil then the user hasn't activated a FixedWeight set yet.
     case fixedWeights(name: String?)
 
     /// In general we want to treat single and paired dumbbells the same (users want to think about the 60 pound dumbbell

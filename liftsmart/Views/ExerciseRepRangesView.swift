@@ -25,7 +25,7 @@ struct ExerciseRepRangesView: View {
     let workout: Workout
     var exercise: Exercise
     var history: History
-    var timer = RestartableTimer(every: TimeInterval.hours(Exercise.window/2))
+    var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
     @State var warmups: [RepsSet] = []
     @State var worksets: [RepsSet] = []
     @State var backoffs: [RepsSet] = []

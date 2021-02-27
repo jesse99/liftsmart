@@ -4,6 +4,8 @@ import SwiftUI
 
 var programEntryId = 0
 
+let RecentHours = 8.0
+
 struct ProgramEntry: Identifiable {
     let id: Int
     let workout: Workout
@@ -117,7 +119,7 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
         
         var doneRecently = false
         if let last = completion.latest {
-            doneRecently = now.hoursSinceDate(last) <= 8
+            doneRecently = now.hoursSinceDate(last) <= RecentHours
         }
         
         // If the user has done any exercise within the workout today,

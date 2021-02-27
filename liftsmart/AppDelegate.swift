@@ -90,12 +90,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let store = loadStore(from: "userNotes") {
             loadUserNotes(store)
         }
+        if let store = loadStore(from: "fws") {
+            loadFixedWeights(store)
+        }
     }
     
     func saveState() {
         storeObject(program, to: "program11")
         storeObject(history, to: "history")
         storeUserNotes(to: "userNotes")
+        storeFixedWeights(to: "fws")
         
 //        for achievement in achievements {
 //            achievement.save(self)
@@ -169,7 +173,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             os_log("Error encoding program %@: %@", type: .error, program.name, error.localizedDescription)
         }
     }
-    
+
     func loadUserNotes(_ store: Store) {
         let keys = store.getStrArray("userNoteKeys")
         let values = store.getStrArray("userNoteValues")
@@ -177,6 +181,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         userNotes = [:]
         for (i, key) in keys.enumerated() {
             userNotes[key] = values[i]
+        }
+    }
+
+    func storeFixedWeights(to fileName: String) {
+        let store = Store()
+        
+        let names = Array(fixedWeights.keys)
+        let weights = Array(fixedWeights.values)
+        store.addStrArray("fwsKeys", names)
+        for i in 0..<weights.count {
+            store.addDblArray("fwsValues-\(i)", weights[i].weights)
+        }
+
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        do {
+            let data = try encoder.encode(store)
+            saveEncoded(data as AnyObject, to: fileName)
+        } catch {
+            os_log("Error encoding program %@: %@", type: .error, program.name, error.localizedDescription)
+        }
+    }
+
+    func loadFixedWeights(_ store: Store) {
+        let names = store.getStrArray("fwsKeys")
+        
+        fixedWeights = [:]
+        for (i, name) in names.enumerated() {
+            let weights = store.getDblArray("fwsValues-\(i)")
+            fixedWeights[name] = FixedWeightSet(weights)
         }
     }
 
