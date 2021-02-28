@@ -19,6 +19,7 @@ struct ExerciseFixedRepsView: View {
     @State var durationModal = false
     @State var historyModal = false
     @State var noteModal = false
+    @State var apparatusModal = false
     @State var editModal = false
     @State var underway = false
     @State var timerTitle = ""
@@ -71,6 +72,10 @@ struct ExerciseFixedRepsView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
+                Button("Apparatus", action: onApparatus)
+                    .font(.callout)
+                    .disabled(self.exercise.isBodyWeight())
+                    .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
                     .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditFixedRepsView(workout: self.workout, exercise: self.exercise)}
@@ -168,6 +173,10 @@ struct ExerciseFixedRepsView: View {
         self.editModal = true
     }
     
+    func onApparatus() {
+        self.apparatusModal = true
+    }
+
     func updateReps() {
         let reps = expected()
         self.exercise.current!.actualReps.append("\(reps) reps")

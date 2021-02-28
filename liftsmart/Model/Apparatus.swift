@@ -24,7 +24,8 @@ enum Apparatus {
 
 extension Apparatus: Storable {
     init(from store: Store) {
-        let tname = store.getStr("type")
+        let tname = store.hasKey("type") ? store.getStr("type") : "fixedWeights"    // TODO: remove this
+//        let tname = store.getStr("type")
         switch tname {
         case "bodyWeight":
             self = .bodyWeight
@@ -33,6 +34,10 @@ extension Apparatus: Storable {
             let name = store.hasKey("name") ? store.getStr("name") : nil
             self = .fixedWeights(name: name)
             
+        // This one is obsolete.
+        case "dumbbells":
+            self = .fixedWeights(name: nil)
+
         default:
             assert(false, "loading apparatus had unknown type: \(tname)"); abort()
         }
@@ -44,6 +49,7 @@ extension Apparatus: Storable {
             store.addStr("type", "bodyWeight")
             
         case .fixedWeights(name: let name):
+            store.addStr("type", "fixedWeights")
             if let name = name {
                 store.addStr("name", name)
             }

@@ -37,5 +37,3 @@ class FixedWeightSet: CustomDebugStringConvertible, Storable {
         }
     }
 }
-
-var fixedWeights: [String: FixedWeightSet] = [:]

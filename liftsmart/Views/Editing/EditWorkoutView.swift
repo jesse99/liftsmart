@@ -2,10 +2,10 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-var editWorkoutID: Int = 0
+var listEntryID: Int = 0
 var exerciseClipboard: Exercise? = nil
 
-struct EditWorkoutEntry: Identifiable {
+struct ListEntry: Identifiable {
     let name: String
     let color: Color
     let id: Int     // can't use this as an index because ids should change when entries change
@@ -14,10 +14,10 @@ struct EditWorkoutEntry: Identifiable {
     init(_ name: String, _ color: Color, _ index: Int) {
         self.name = name
         self.color = color
-        self.id = editWorkoutID
+        self.id = listEntryID
         self.index = index
         
-        editWorkoutID += 1
+        listEntryID += 1
     }
 }
 
@@ -42,7 +42,7 @@ struct EditWorkoutView: View {
     @State var friLabel = ""
     @State var satLabel = ""
     @State var sunLabel = ""
-    @State var entries: [EditWorkoutEntry] = []
+    @State var entries: [ListEntry] = []
     @State var errText = ""
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
@@ -195,11 +195,11 @@ struct EditWorkoutView: View {
         self.satLabel = buttonStr(.saturday)
         self.sunLabel = buttonStr(.sunday)
 
-        self.entries = self.workout.exercises.mapi({EditWorkoutEntry($1.name, $1.enabled ? .black : .gray, $0)})
-        self.entries.append(EditWorkoutEntry("Add", .black, 9889))
+        self.entries = self.workout.exercises.mapi({ListEntry($1.name, $1.enabled ? .black : .gray, $0)})
+        self.entries.append(ListEntry("Add", .black, 9889))
 
         if exerciseClipboard != nil {
-            self.entries.append(EditWorkoutEntry("Paste", .black, 9999))
+            self.entries.append(ListEntry("Paste", .black, 9999))
         }
     }
     

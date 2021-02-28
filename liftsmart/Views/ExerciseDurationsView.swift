@@ -18,6 +18,7 @@ struct ExerciseDurationsView: View {
     @State var durationModal = false
     @State var historyModal = false
     @State var noteModal = false
+    @State var apparatusModal = false
     @State var underway = false
     @State var timerTitle = ""
     @Environment(\.presentationMode) private var presentation
@@ -60,6 +61,10 @@ struct ExerciseDurationsView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
+                Button("Apparatus", action: onApparatus)
+                    .font(.callout)
+                    .disabled(self.exercise.isBodyWeight())
+                    .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
                     .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditDurationsView(workout: self.workout, exercise: self.exercise)}
@@ -157,6 +162,10 @@ struct ExerciseDurationsView: View {
         self.editModal = true
     }
     
+    func onApparatus() {
+        self.apparatusModal = true
+    }
+
     func onStart() {
         if exercise.current!.setIndex < durations.count {
             self.timerTitle = "Set \(exercise.current!.setIndex + 1) of \(numSets())"

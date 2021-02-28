@@ -2,24 +2,6 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-var editProgramID: Int = 0
-
-struct EditProgramEntry: Identifiable {
-    let name: String
-    let color: Color
-    let id: Int     // can't use this as an index because ids should change when entries change
-    let index: Int
-
-    init(_ name: String, _ color: Color, _ index: Int) {
-        self.name = name
-        self.color = color
-        self.id = editProgramID
-        self.index = index
-        
-        editProgramID += 1
-    }
-}
-
 // TODO: Allow notes to be edited?
 // TODO: Might be nice to allow user to support program snapshots. Would need to be able
 // to create these, delete them, and load them. Would need a warning when loading.
@@ -27,7 +9,7 @@ struct EditProgramView: View {
     var program: Program
     let original: Program
     @State var name = ""
-    @State var entries: [EditProgramEntry] = []
+    @State var entries: [ListEntry] = []
     @State var errText = ""
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
@@ -84,8 +66,8 @@ struct EditProgramView: View {
     func refresh() {
         self.name = program.name
 
-        self.entries = self.program.mapi({EditProgramEntry($1.name, $1.enabled ? .black : .gray, $0)})
-        self.entries.append(EditProgramEntry("Add", .black, self.entries.count))
+        self.entries = self.program.mapi({ListEntry($1.name, $1.enabled ? .black : .gray, $0)})
+        self.entries.append(ListEntry("Add", .black, self.entries.count))
     }
 
     func editButtons() -> [ActionSheet.Button] {

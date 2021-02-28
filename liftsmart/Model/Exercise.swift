@@ -74,6 +74,15 @@ class Exercise: Hashable, Identifiable, Storable {
         self.modality = original.modality
         self.expected = original.expected
     }
+    
+    func isBodyWeight() -> Bool {
+        switch self.modality.apparatus {
+        case .bodyWeight:
+            return true
+        default:
+            return false
+        }
+    }
 
     func shouldReset(numSets: Int) -> Bool {
         if let current = self.current {

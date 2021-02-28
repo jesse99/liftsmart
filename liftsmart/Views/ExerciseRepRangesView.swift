@@ -40,6 +40,7 @@ struct ExerciseRepRangesView: View {
     @State var durationModal = false
     @State var historyModal = false
     @State var noteModal = false
+    @State var apparatusModal = false
     @State var editModal = false
     @State var updateExpected = false
     @State var updateRepsDone = false
@@ -104,6 +105,10 @@ struct ExerciseRepRangesView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
+                Button("Apparatus", action: onApparatus)
+                    .font(.callout)
+                    .disabled(self.exercise.isBodyWeight())
+                    .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
                     .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditRepRangesView(workout: self.workout, exercise: self.exercise)}
@@ -347,6 +352,10 @@ struct ExerciseRepRangesView: View {
     
     func onStartNote() {
         self.noteModal = true
+    }
+    
+    func onApparatus() {
+        self.apparatusModal = true
     }
     
     func startDuration(_ delta: Int) -> Int {
