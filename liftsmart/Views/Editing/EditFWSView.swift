@@ -1,31 +1,51 @@
-//  Created by Jesse Jones on 2/21/21.
+//  Created by Jesse Jones on 2/28/21.
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-var fixedWeights: [String: FixedWeightSet] = [:]
-
-/// Used to edit the list of FixedWeightSet's.
-struct EditFWSsView: View {
+/// Used to edit a single FixedWeightSet.
+struct EditFWSView: View {
+    class Stateful {
+        var name: String = ""
+        var weights: [Double] = []
+    }
+    
     var exercise: Exercise
-    let oldExercise: Exercise
-    let oldWeights: [String: FixedWeightSet]
+    let state: Stateful
     @State var entries: [ListEntry] = []
     @State var showEditActions: Bool = false
     @State var editIndex: Int = 0
     @State var showSheet: Bool = false
     @State var showAlert: Bool = false
-    @State var alertMesg: String = ""
     @Environment(\.presentationMode) private var presentationMode
     
     init(_ exercise: Exercise) {
         self.exercise = exercise
-        self.oldExercise = exercise.clone()
-        self.oldWeights = fixedWeights
+        self.state = Stateful()
+
+        switch self.exercise.modality.apparatus {
+        case .fixedWeights(name: let name):
+            if let n = name {
+                self.state.name = n
+                self.state.weights = fixedWeights[n]!.weights.sorted()
+            }
+        default:
+            assert(false)
+        }
     }
 
     var body: some View {
         VStack() {
-            Text("Fixed Weight Sets").font(.largeTitle)
+            Text("Fixed Weight Set").font(.largeTitle)
+
+            // TODO: we need a Binding here so Stateful doesn't seem so great
+//            HStack {
+//                Text("Name:").font(.headline)
+//                TextField("", text: self.$name)
+//                    .textFieldStyle(RoundedBorderTextFieldStyle())
+//                    .keyboardType(.default)
+//                    .disableAutocorrection(false)
+//                    .onChange(of: self.name, perform: self.onEditedName)
+//            }.padding()
 
             List(self.entries) {entry in
                 VStack() {
@@ -59,44 +79,24 @@ struct EditFWSsView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
-            EditTextView(title: "Name", content: "", validator: self.onValidName, completion: self.onAdded)}
+            EditTextView(title: "Weight", content: "", type: .decimalPad, validator: self.onValidWeight, completion: self.onAddWeight)}
+//            EditTextView(title: "Name", content: "", validator: self.onValidName, completion: self.onEditedName)}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             return Alert(
                 title: Text("Confirm delete"),
-                message: Text(self.alertMesg),
                 primaryButton: .destructive(Text("Delete")) {self.doDelete()},
                 secondaryButton: .default(Text("Cancel")))
             }
     }
 
-    func name() -> String? {
-        switch self.exercise.modality.apparatus {
-        case .fixedWeights(name: let name):
-            return name
-        default:
-            assert(false)
-            return nil
-        }
-    }
-    
     func refresh() {
-        let names = Array(fixedWeights.keys).sorted()
-        if let name = name() {
-            self.entries = names.mapi {ListEntry($1, $1 == name ? .blue : .black, $0)}
-        } else {
-            self.entries = names.mapi {ListEntry($1, .black, $0)}
-        }
+        self.entries = self.state.weights.mapi {ListEntry(friendlyUnitsWeight($1), .black, $0)}
         self.entries.append(ListEntry("Add", .black, 9889))
     }
     
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
-        if let name = name(), name == self.entries[self.editIndex].name {
-            buttons.append(.default(Text("Deactivate"), action: self.onDeactivate))
-        } else {
-            buttons.append(.default(Text("Activate"), action: self.onActivate))
-        }
         buttons.append(.default(Text("Delete"), action: self.onDelete))
         buttons.append(.default(Text("Edit"), action: self.onEdit))
         buttons.append(.cancel(Text("Cancel"), action: {}))
@@ -104,60 +104,43 @@ struct EditFWSsView: View {
         return buttons
     }
     
-    func onActivate() {
-        let name = self.entries[self.editIndex].name
-        self.exercise.modality.apparatus = .fixedWeights(name: name)
-        self.refresh()
-    }
-    
-    func onDeactivate() {
-        self.exercise.modality.apparatus = .fixedWeights(name: nil)
-        self.refresh()
-    }
-    
     func doDelete() {
-        let name = self.entries[self.editIndex].name
-        fixedWeights[name] = nil
-        
+        self.state.weights.remove(at: self.editIndex)
         self.refresh()
     }
     
     func onDelete() {
-        func findUses(_ name: String) -> [String] {
-            var uses: [String] = []
-            
-            for workout in program {
-                for exercise in workout.exercises {
-                    switch exercise.modality.apparatus {
-                    case .fixedWeights(name: let n):
-                        if n == name {
-                            uses.append(exercise.name)
-                        }
-                    default:
-                        break
-                    }
-                }
-            }
-            
-            return uses.sorted()
-        }
-        
         self.showAlert = true
-        
-        let name = self.entries[self.editIndex].name
-        let uses = findUses(name)
-        if uses.count == 0 {
-            self.alertMesg = "\(name) isn't being used"
-        } else if uses.count == 1 {
-            self.alertMesg = "\(name) is used by \(uses[0])"
-        } else if uses.count == 2 {
-            self.alertMesg = "\(name) is used by \(uses[0]) and \(uses[1])"
-        } else if uses.count > 2 {
-            self.alertMesg = "\(name) is used by \(uses[0]), \(uses[1]), ..."
-        }
     }
     
+    // TODO: do something here, probably want to implement add first
     func onEdit() {
+        self.refresh()
+    }
+
+    func onValidWeight(_ str: String) -> String? {
+        if let weight = Double(str) {
+            if weight <= 0.0 {
+                return "Weight should be larger than zero"
+            }
+            
+            if self.state.weights.contains(where: {abs(weight - $0) > 0.001}) {
+                return "Weight already exists"
+            }
+        } else {
+            return "Weight should be a floating point number"
+        }
+        
+        return nil
+    }
+    
+    func onAddWeight(_ str: String) {
+        let weight = Double(str)!
+        if let index = self.state.weights.firstIndex(where: {$0 > weight}) {
+            self.state.weights.insert(weight, at: index)
+        } else {
+            self.state.weights.append(weight)
+        }
         self.refresh()
     }
 
@@ -166,12 +149,18 @@ struct EditFWSsView: View {
             return "Need a name"
         }
         
+        switch self.exercise.modality.apparatus {
+        case .fixedWeights(name: let oldN):
+            if let oldName = oldN {
+                if name == oldName {
+                    return nil
+                }
+            }
+        default:
+            assert(false)
+        }
+
         return fixedWeights[name] != nil ? "Name already exists" : nil
-    }
-    
-    func onAdded(_ name: String) {
-        fixedWeights[name] = FixedWeightSet([])
-        self.refresh()
     }
 
     func onAdd() {
@@ -179,25 +168,26 @@ struct EditFWSsView: View {
     }
 
     func onCancel() {
-        self.exercise.restore(self.oldExercise)
-        fixedWeights = self.oldWeights
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
+        fixedWeights[self.state.name] = FixedWeightSet(self.state.weights)
+        self.exercise.modality.apparatus = .fixedWeights(name: self.state.name)
+
         let app = UIApplication.shared.delegate as! AppDelegate
         app.saveState()
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
-struct EditFWSsView_Previews: PreviewProvider {
+struct EditFWSView_Previews: PreviewProvider {
     static var previews: some View {
-        EditFWSsView(bench())
+        EditFWSView(bench())
     }
     
     static func bench() -> Exercise {
-        fixedWeights["Dumbbells"] = FixedWeightSet([5.0, 10.0, 15.0, 20.0])
+        fixedWeights["Dumbbells"] = FixedWeightSet([5.0, 20.0, 10.0, 15.0])
         fixedWeights["Kettlebells"] = FixedWeightSet([10.0, 20.0, 30.0])
 
         let warmup = RepsSet(reps: RepRange(4), percent: WeightPercent(0.0), restSecs: 90)
@@ -207,3 +197,4 @@ struct EditFWSsView_Previews: PreviewProvider {
         return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
     }
 }
+

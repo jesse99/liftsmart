@@ -115,7 +115,7 @@ func friendlyWeight(_ weight: Double) -> String {
 }
 
 func friendlyUnitsWeight(_ weight: Double, plural: Bool = true) -> String {
-    if plural {
+    if plural && weight != 1.0 {
         return friendlyWeight(weight) + " lbs"  // TODO: also kg
     } else {
         return friendlyWeight(weight) + " lb"
