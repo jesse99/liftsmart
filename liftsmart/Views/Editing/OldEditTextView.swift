@@ -52,7 +52,7 @@ struct OldEditTextView: View {  // TODO: delete this
     }
 }
 
-struct EditTextView_Previews: PreviewProvider {
+struct OldEditTextView_Previews: PreviewProvider {
     static var previews: some View {
         OldEditTextView(title: "Edit Text", placeHolder: "arbitrary", content: "", completion: done)
     }

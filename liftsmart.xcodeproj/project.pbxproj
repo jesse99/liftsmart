@@ -53,6 +53,7 @@
 		37A5172E25EC5958000B0B91 /* EditFWSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A5172D25EC5958000B0B91 /* EditFWSView.swift */; };
 		37B87508258E8C0E0097FA9F /* EditRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */; };
 		37B8750E258EAD230097FA9F /* EditRepsSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B8750D258EAD230097FA9F /* EditRepsSetView.swift */; };
+		37B9DEB625FE8B96001654AF /* EditTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B9DEB525FE8B96001654AF /* EditTextView.swift */; };
 		37BFEBC125DAEC4A00158BE2 /* ViewError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBC025DAEC4A00158BE2 /* ViewError.swift */; };
 		37BFEBC725DB56FA00158BE2 /* ChangeApparatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */; };
 		37BFEBCD25E324FC00158BE2 /* FixedWeightSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBCC25E324FC00158BE2 /* FixedWeightSet.swift */; };
@@ -130,6 +131,7 @@
 		37A5172D25EC5958000B0B91 /* EditFWSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFWSView.swift; sourceTree = "<group>"; };
 		37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepRangesView.swift; sourceTree = "<group>"; };
 		37B8750D258EAD230097FA9F /* EditRepsSetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepsSetView.swift; sourceTree = "<group>"; };
+		37B9DEB525FE8B96001654AF /* EditTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextView.swift; sourceTree = "<group>"; };
 		37BFEBC025DAEC4A00158BE2 /* ViewError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewError.swift; sourceTree = "<group>"; };
 		37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeApparatusView.swift; sourceTree = "<group>"; };
 		37BFEBCC25E324FC00158BE2 /* FixedWeightSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedWeightSet.swift; sourceTree = "<group>"; };
@@ -276,8 +278,9 @@
 				379461FA251FB962006774A0 /* EditProgramView.swift */,
 				37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */,
 				37B8750D258EAD230097FA9F /* EditRepsSetView.swift */,
-				3766CA6324BB797700EF604A /* OldEditTextView.swift */,
+				37B9DEB525FE8B96001654AF /* EditTextView.swift */,
 				379461FD251FF98D006774A0 /* EditWorkoutView.swift */,
+				3766CA6324BB797700EF604A /* OldEditTextView.swift */,
 			);
 			path = Editing;
 			sourceTree = "<group>";
@@ -443,6 +446,7 @@
 				37BFEBCD25E324FC00158BE2 /* FixedWeightSet.swift in Sources */,
 				378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */,
 				3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */,
+				37B9DEB625FE8B96001654AF /* EditTextView.swift in Sources */,
 				37A4CACD259E4A23001097E0 /* AddExerciseView.swift in Sources */,
 				37FB6E8524687B9400EB4916 /* Expected.swift in Sources */,
 				37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */,

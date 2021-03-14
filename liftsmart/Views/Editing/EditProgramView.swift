@@ -50,7 +50,7 @@ struct EditProgramView: View {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("Add", action: onAdd).font(.callout)
+                Button("Add", action: {self.showAdd = true}).font(.callout)
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
@@ -58,7 +58,7 @@ struct EditProgramView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
         .sheet(isPresented: self.$showAdd) {
-            OldEditTextView(title: "Workout Name", content: "", completion: self.doAdd)}
+            EditTextView(self.display, title: "Workout Name", content: "", validator: {return .ValidateWorkoutName($0)}, sender: {return .AddWorkout($0)})}
     }
 
     func editButtons() -> [ActionSheet.Button] {
@@ -82,19 +82,6 @@ struct EditProgramView: View {
         return buttons
     }
 
-    func onAdd() {
-        self.showAdd = true
-    }
-
-    func doAdd(_ name: String) {
-//        if let err = self.program.addWorkout(name) {
-//            self.errText = err
-//        } else {
-//            self.errText = ""
-//            self.refresh()
-//        }
-    }
-    
     private func onToggleEnabled() {
         self.display.send(.EnableWorkout(self.selection!, !self.selection!.enabled))
     }
@@ -108,7 +95,7 @@ struct EditProgramView: View {
     }
 
     func onEditedName(_ text: String) {
-        self.display.send(.SetProgramName(text))
+        self.display.send(.ValidateProgramName(text))
     }
     
     func onCancel() {
@@ -117,6 +104,7 @@ struct EditProgramView: View {
     }
 
     func onOK() {
+        self.display.send(.SetProgramName(self.name))
         self.display.send(.ConfirmTransaction(name: "edit program"))
         self.presentationMode.wrappedValue.dismiss()   
     }

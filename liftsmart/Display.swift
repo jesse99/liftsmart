@@ -17,6 +17,8 @@ enum Action {
     case EnableWorkout(Workout, Bool)
     case MoveWorkout(Workout, Int)
     case SetProgramName(String)
+    case ValidateProgramName(String)
+    case ValidateWorkoutName(String)
 }
 
 /// This is Redux style where Display is serving as the Store object which mediates
@@ -50,26 +52,45 @@ class Display: ObservableObject {
     
     var hasError: Bool {
         get {
-            return self.transactions.last?.errors.hasError ?? false
+            return !self.errMesg.isEmpty
         }
     }
 
     /// This is the only way that the model changes.
     func send(_ action: Action) {
+        func checkWorkoutName(_ name: String) -> String? {
+            if name.isBlankOrEmpty() {
+                return "Workout name cannot be empty"
+            } else if (self.program.workouts.any({$0.name == name})) {
+                return "There is already a workout with that name"
+            }
+            return nil
+        }
+
+        func checkProgramName(_ name: String) -> String? {
+            if name.isBlankOrEmpty() {
+                return "Program name cannot be empty"
+            }
+            return nil
+        }
+        
         let errors = self.transactions.last?.errors
         
         switch action {
         // Edit Screens
-        // These are a bit of a special case where we want to be sure we don't trigger a publish,
-        // especially for Begin where that'll lock up the UI when Begin is called from a View
-        // init method.
         case .BeginTransaction(let name):
-            self.transactions.append(Transaction(name: name, program: self.program.clone()))
+            // Typically BeginTransaction is called from a View.init method which causes some
+            // weirdness:
+            // 1) We have to be careful not to trigger a publish because it will lock up the UI.
+            // 2) init methods are called many more times than you might naively expect so we
+            // can't simply push and pop them,
+            if !self.transactions.contains(where: {$0.name == name}) {
+                self.transactions.append(Transaction(name: name, program: self.program.clone()))
+            }
             return
         case .RollbackTransaction(let name):
             assert(name == self.transactions.last!.name)
             self.program = self.transactions.popLast()!.program
-            return
         case .ConfirmTransaction(let name):
             assert(name == self.transactions.last!.name)
             assert(!errors!.hasError)
@@ -78,20 +99,14 @@ class Display: ObservableObject {
             let app = UIApplication.shared.delegate as! AppDelegate
             app.storeObject(self.program, to: "program11")
             app.storeObject(self.history, to: "history")
-            return
 
         // Program
         case .AddWorkout(let name):
-            if name.isBlankOrEmpty() {
-                errors!.add(key: "add workout", error: "Workout name cannot be empty")
-            } else if (self.program.workouts.any({$0.name == name})) {
-                errors!.add(key: "add workout", error: "There is already a workout with that name")
-            } else {
-                let workout = Workout(name, [], days: [])
-                self.program.workouts.append(workout)
-                errors!.reset(key: "add workout")
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // zero-width space
-            }
+            assert(checkWorkoutName(name) == nil)
+            let workout = Workout(name, [], days: [])
+            self.program.workouts.append(workout)
+            errors!.reset(key: "add workout")
+            self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // toggle between zero-width space and empty
         case .DelWorkout(let workout):
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             self.program.workouts.remove(at: index)
@@ -106,18 +121,29 @@ class Display: ObservableObject {
             self.program.workouts.insert(workout, at: index + by)
             self.edited = self.edited.isEmpty ? "\u{200B}" : ""
         case .SetProgramName(let name):
-            if name.isBlankOrEmpty() {
-                errors!.add(key: "set program name", error: "Program name cannot be empty")
+            assert(checkProgramName(name) == nil)
+            self.program.name = name
+            errors!.reset(key: "set program name")
+            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+        case .ValidateProgramName(let name):
+            if let err = checkProgramName(name) {
+                errors!.add(key: "add program", error: err)
             } else {
-                self.program.name = name
-                errors!.reset(key: "set program name")
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+                errors!.reset(key: "add program")
+            }
+        case .ValidateWorkoutName(let name):
+            if let err = checkWorkoutName(name) {
+                errors!.add(key: "add workout", error: err)
+            } else {
+                errors!.reset(key: "add workout")
             }
         }
         
         let (err, color) = self.transactions.last?.errors.getError() ?? ("", .black)
-        self.errMesg = err
-        self.errColor = color
+        if err != self.errMesg || color != self.errColor {
+            self.errMesg = err
+            self.errColor = color
+        }
     }
 
     private struct Transaction {
@@ -165,7 +191,7 @@ class Display: ObservableObject {
 
         var hasError: Bool {
             get {
-                return !errors.isEmpty || !warnings.isEmpty
+                return !errors.isEmpty
             }
         }
 
