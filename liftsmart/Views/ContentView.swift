@@ -8,7 +8,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selection){
-            ProgramView()
+            ProgramView(self.display)
                 .font(.title)
                 .tabItem {
                     VStack {
@@ -27,7 +27,6 @@ struct ContentView: View {
                 }
                 .tag(1)
         }
-        .environmentObject(self.display)
     }
 }
 

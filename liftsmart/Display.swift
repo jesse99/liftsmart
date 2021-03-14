@@ -13,18 +13,19 @@ enum Action {
     
     // Program
     case AddWorkout(String)
-    case DelWorkout(String)
-    case EnableWorkout(String, Bool)
-    case MoveWorkout(String, Int)
+    case DelWorkout(Workout)
+    case EnableWorkout(Workout, Bool)
+    case MoveWorkout(Workout, Int)
     case SetProgramName(String)
 }
 
 /// This is Redux style where Display is serving as the Store object which mediates
 /// between views and the model. 
 class Display: ObservableObject {
-    @Published private(set) var program: Program
-    @Published private(set) var history: History
-    @Published private(set) var errMesg = ""           // set when an Action cannot be performed
+    private(set) var program: Program
+    private(set) var history: History
+    @Published private(set) var edited = ""         // above should be published but that doesn't work well with classes so we use this lame string to publish chaanges
+    @Published private(set) var errMesg = ""        // set when an Action cannot be performed
     @Published private(set) var errColor = Color.black
 
     init() {
@@ -59,11 +60,16 @@ class Display: ObservableObject {
         
         switch action {
         // Edit Screens
+        // These are a bit of a special case where we want to be sure we don't trigger a publish,
+        // especially for Begin where that'll lock up the UI when Begin is called from a View
+        // init method.
         case .BeginTransaction(let name):
             self.transactions.append(Transaction(name: name, program: self.program.clone()))
+            return
         case .RollbackTransaction(let name):
             assert(name == self.transactions.last!.name)
             self.program = self.transactions.popLast()!.program
+            return
         case .ConfirmTransaction(let name):
             assert(name == self.transactions.last!.name)
             assert(!errors!.hasError)
@@ -72,6 +78,7 @@ class Display: ObservableObject {
             let app = UIApplication.shared.delegate as! AppDelegate
             app.storeObject(self.program, to: "program11")
             app.storeObject(self.history, to: "history")
+            return
 
         // Program
         case .AddWorkout(let name):
@@ -83,24 +90,28 @@ class Display: ObservableObject {
                 let workout = Workout(name, [], days: [])
                 self.program.workouts.append(workout)
                 errors!.reset(key: "add workout")
+                self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // zero-width space
             }
-        case .DelWorkout(let name):
-            let index = self.program.workouts.firstIndex(where: {$0.name == name})!
+        case .DelWorkout(let workout):
+            let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             self.program.workouts.remove(at: index)
-        case .EnableWorkout(let name, let enable):
-            let workout = self.program.workouts.first(where: {$0.name == name})!
+            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+        case .EnableWorkout(let workout, let enable):
             workout.enabled = enable
-        case .MoveWorkout(let name, let by):
+            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+        case .MoveWorkout(let workout, let by):
             assert(by != 0)
-            let index = self.program.workouts.firstIndex(where: {$0.name == name})!
-            let workout = self.program.workouts.remove(at: index)
+            let index = self.program.workouts.firstIndex(where: {$0 === workout})!
+            let _ = self.program.workouts.remove(at: index)
             self.program.workouts.insert(workout, at: index + by)
+            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
         case .SetProgramName(let name):
             if name.isBlankOrEmpty() {
                 errors!.add(key: "set program name", error: "Program name cannot be empty")
             } else {
                 self.program.name = name
                 errors!.reset(key: "set program name")
+                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
             }
         }
         

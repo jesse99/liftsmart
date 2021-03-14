@@ -83,10 +83,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // TODO: get rid of this
     private func loadState() {
         if let store = loadStore(from: "history") {
-            history = History(from: store)
+            historyX = History(from: store)
         }
         if let store = loadStore(from: "program11") {
-            program = Program(from: store)
+            programX = Program(from: store)
         }
         if let store = loadStore(from: "userNotes") {
             loadUserNotes(store)
@@ -97,8 +97,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func saveState() {
-        storeObject(program, to: "program11")
-        storeObject(history, to: "history")
+        storeObject(programX, to: "program11")
+        storeObject(historyX, to: "history")
         storeUserNotes(to: "userNotes")
         storeFixedWeights(to: "fws")
         
@@ -156,7 +156,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let data = try encoder.encode(store)
             saveEncoded(data as AnyObject, to: fileName)
         } catch {
-            os_log("Error encoding program %@: %@", type: .error, program.name, error.localizedDescription)
+            os_log("Error encoding program %@: %@", type: .error, programX.name, error.localizedDescription)
         }
     }
     
@@ -171,7 +171,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let data = try encoder.encode(store)
             saveEncoded(data as AnyObject, to: fileName)
         } catch {
-            os_log("Error encoding program %@: %@", type: .error, program.name, error.localizedDescription)
+            os_log("Error encoding program %@: %@", type: .error, programX.name, error.localizedDescription)
         }
     }
 
@@ -201,7 +201,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let data = try encoder.encode(store)
             saveEncoded(data as AnyObject, to: fileName)
         } catch {
-            os_log("Error encoding program %@: %@", type: .error, program.name, error.localizedDescription)
+            os_log("Error encoding program %@: %@", type: .error, programX.name, error.localizedDescription)
         }
     }
 

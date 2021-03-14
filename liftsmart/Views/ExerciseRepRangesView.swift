@@ -5,7 +5,7 @@ import SwiftUI
 func getPreviouslabel(_ workout: Workout, _ exercise: Exercise) -> String {
     var count = 0
     var actual = ""
-    for record in history.exercise(workout, exercise).reversed() {
+    for record in historyX.exercise(workout, exercise).reversed() {
         if actual.isEmpty {
             if record.label.isEmpty {
                 break

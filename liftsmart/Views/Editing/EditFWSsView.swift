@@ -126,7 +126,7 @@ struct EditFWSsView: View {
         func findUses(_ name: String) -> [String] {
             var uses: [String] = []
             
-            for workout in program.workouts {
+            for workout in programX.workouts {
                 for exercise in workout.exercises {
                     switch exercise.modality.apparatus {
                     case .fixedWeights(name: let n):

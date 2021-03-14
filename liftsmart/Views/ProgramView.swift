@@ -25,7 +25,7 @@ struct ExerciseCompletions {
     let completedAll: Bool      // true if all exercises were ever completed
 }
 
-func initEntries(_ program: Program) -> ([ProgramEntry], [ExerciseCompletions]) {
+func initEntries(_ display: Display) -> ([ProgramEntry], [ExerciseCompletions]) {
     func allOnSameDay(_ dates: [Date]) -> Bool {
         let calendar = Calendar.current
         for date in dates {
@@ -38,12 +38,12 @@ func initEntries(_ program: Program) -> ([ProgramEntry], [ExerciseCompletions]) 
 
     var completions: [ExerciseCompletions] = []
     var entries: [ProgramEntry] = []
-    for workout in program.workouts {
+    for workout in display.program.workouts {
         if workout.enabled {
             var dates: [Date] = []
             for exercise in workout.exercises {
                 if exercise.enabled {
-                    if let completed = exercise.dateCompleted(workout, history) {
+                    if let completed = exercise.dateCompleted(workout, display.history) {
                         dates.append(completed)
                     }
                 }
@@ -69,7 +69,7 @@ func initEntries(_ program: Program) -> ([ProgramEntry], [ExerciseCompletions]) 
 // The goal here is to highlight what the user should be doing today or what they should be doing next.
 // It's not always possible to do that with exactness but, if that's the case, we'll provide information
 // to help them decide what to do.
-func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntry], _ now: Date) -> [ProgramEntry] {
+func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ entries: [ProgramEntry], _ now: Date) -> [ProgramEntry] {
     // The workout can be performed on any day.
     func isAnyDay(_ days: [Bool]) -> Bool {
         return days.all({!$0})
@@ -177,9 +177,10 @@ struct ProgramView: View {
     let timer = RestartableTimer(every: TimeInterval.minutes(30))
     @State var entries: [ProgramEntry] = []
     @State var editModal = false
-    @EnvironmentObject var display: Display
+    @ObservedObject var display: Display // originally this was an EnvironmentObject but it's awkward to init @State vars from that
     
-    init() {
+    init(_ display: Display) {
+        self.display = display
         self.refresh()
     }
 
@@ -194,7 +195,7 @@ struct ProgramView: View {
                         }
                     }
                 }
-                .navigationBarTitle(Text(self.display.program.name + " Workouts"))
+                .navigationBarTitle(Text(self.display.program.name + " Workouts" + self.display.edited))
                 .onAppear {self.refresh(); self.timer.restart()}
                 .onDisappear {self.timer.stop()}
                 .onReceive(self.timer.timer) {_ in self.refresh()}
@@ -204,7 +205,7 @@ struct ProgramView: View {
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout)
-                        .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditProgramView(program: self.display.program)}
+                        .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditProgramView(self.display)}
                 }
                 .padding()
             }
@@ -220,13 +221,13 @@ struct ProgramView: View {
     // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
     // on this view for a long time.
     func refresh() {
-        let (entries, completions) = initEntries(program)
-        self.entries = initSubLabels(completions, entries, Date())
+        let (entries, completions) = initEntries(self.display)
+        self.entries = initSubLabels(self.display.history, completions, entries, Date())
     }
 }
 
 func previewDisplay() -> Display {
-    func previewHome() -> Program {
+    func previewProgram() -> Program {
         func burpees() -> Exercise {
             let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
             let modality = Modality(Apparatus.bodyWeight, sets)
@@ -288,12 +289,12 @@ func previewDisplay() -> Display {
         return history
     }
     
-    let program = previewHome()
+    let program = previewProgram()
     return Display(program: program, history: previewHistory(program))
 }
 
 struct ProgramView_Previews: PreviewProvider {
     static var previews: some View {
-        ProgramView().environmentObject(previewDisplay())
+        ProgramView(previewDisplay())
     }
 }

@@ -88,9 +88,9 @@ struct WorkoutEntry: Identifiable {
     }
     
     private static func getColor(_ workout: Workout, _ exercise: Exercise) -> Color {
-        if exercise.recentlyCompleted(workout, history) {
+        if exercise.recentlyCompleted(workout, historyX) {
             return .gray
-        } else if exercise.inProgress(workout, history) {
+        } else if exercise.inProgress(workout, historyX) {
             return .blue
         } else {
             return .black
@@ -191,6 +191,6 @@ struct WorkoutView_Previews: PreviewProvider {
     static let workout = createWorkout("Strength", [ohp, curls, planks], day: nil).unwrap()
 
     static var previews: some View {
-        WorkoutView(workout: workout, history: history)
+        WorkoutView(workout: workout, history: historyX)
     }
 }

@@ -181,5 +181,5 @@ func home() -> Program {
     return Program("Home", workouts)
 }
 
-var program = home()
-var history = History()
+var programX = home()
+var historyX = History()
