@@ -6,19 +6,15 @@ import SwiftUI
 // TODO: Might be nice to allow user to support program snapshots. Would need to be able
 // to create these, delete them, and load them. Would need a warning when loading.
 struct EditProgramView: View {
-    var program: Program
-    let original: Program
     @State var name = ""
-    @State var entries: [ListEntry] = []
-    @State var errText = ""
-    @State var showEditActions: Bool = false
-    @State var editIndex: Int = 0
-    @State var showSheet: Bool = false
+    @State var selection: Workout? = nil
+    @State var showEditActions = false
+    @State var showSheet = false
+    @EnvironmentObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(program: Program) {
-        self.program = program
-        self.original = program.clone()
+    init() {
+        self.display.send(.BeginTransaction(name: "edit program"))
     }
 
     var body: some View {
@@ -34,63 +30,51 @@ struct EditProgramView: View {
                     .onChange(of: self.name, perform: self.onEditedName)
             }.padding()
 
-            List(self.entries) {entry in
+            List(self.display.program.workouts) {workout in
                 VStack(alignment: .leading) {
-                    if self.entries.last != nil && entry.id == self.entries.last!.id {
-                        Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
-                    } else {
-                        Text(entry.name).foregroundColor(entry.color).font(.headline)
-                    }
+                    Text(workout.name).foregroundColor(.black).font(.headline)
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
-                    .onTapGesture {self.showEditActions = true; self.editIndex = entry.index}
+                    .onTapGesture {self.showEditActions = true; self.selection = workout}
             }
-            Text(self.errText).foregroundColor(.red).font(.callout)
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK).font(.callout)
+                Button("Add", action: onAdd).font(.callout)
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
             .onAppear {self.refresh()}
         }
         .actionSheet(isPresented: $showEditActions) {
-            ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
+            ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
             EditTextView(title: "Workout Name", content: "", completion: self.doAdd)}
     }
 
     func refresh() {
-        self.name = program.name
-
-        self.entries = self.program.mapi({ListEntry($1.name, $1.enabled ? .black : .gray, $0)})
-        self.entries.append(ListEntry("Add", .black, self.entries.count))
+        self.name = self.display.program.name
     }
 
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
-        if self.editIndex == self.entries.count - 1 {
-            buttons.append(.default(Text("New Workout"), action: {self.onAdd()}))
-        } else {
-            let len = self.entries.count - 1
-
-            if self.editIndex != 0 && len > 1 {
-                buttons.append(.default(Text("Move Up"), action: {self.doMove(by: -1); self.refresh()}))
-            }
-            if self.editIndex < len - 1 && len > 1 {
-                buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1); self.refresh()}))
-            }
-            if self.program[self.editIndex].enabled {
-                buttons.append(.default(Text("Disable Workout"), action: {self.onToggleEnabled()}))
-            } else {
-                buttons.append(.default(Text("Enable Workout"), action: {self.onToggleEnabled()}))
-            }
-            buttons.append(.default(Text("Delete Workout"), action: {self.doDelete(); self.refresh()}))
+        if self.display.program.workouts.first !== self.selection {
+            buttons.append(.default(Text("Move Up"), action: {self.doMove(by: -1); self.refresh()}))
         }
+        if self.display.program.workouts.last !== self.selection {
+            buttons.append(.default(Text("Move Down"), action: {self.doMove(by: 1); self.refresh()}))
+        }
+        if self.selection!.enabled {
+            buttons.append(.default(Text("Disable Workout"), action: {self.onToggleEnabled()}))
+        } else {
+            buttons.append(.default(Text("Enable Workout"), action: {self.onToggleEnabled()}))
+        }
+        buttons.append(.default(Text("Delete Workout"), action: {self.doDelete(); self.refresh()}))
 
         buttons.append(.cancel(Text("Cancel"), action: {}))
 
@@ -102,27 +86,27 @@ struct EditProgramView: View {
     }
 
     func doAdd(_ name: String) {
-        if let err = self.program.addWorkout(name) {
-            self.errText = err
-        } else {
-            self.errText = ""
-            self.refresh()
-        }
+//        if let err = self.program.addWorkout(name) {
+//            self.errText = err
+//        } else {
+//            self.errText = ""
+//            self.refresh()
+//        }
     }
     
     private func onToggleEnabled() {
-        self.program[self.editIndex].enabled = !self.program[self.editIndex].enabled
-        self.refresh()
+//        self.program[self.editIndex].enabled = !self.program[self.editIndex].enabled
+//        self.refresh()
     }
 
     private func doDelete() {
-        self.program.delete(self.editIndex)
-        self.refresh()
+//        self.program.delete(self.editIndex)
+//        self.refresh()
     }
 
     private func doMove(by: Int) {
-        self.program.moveWorkout(self.editIndex, by: by)
-        self.refresh()
+//        self.program.moveWorkout(self.editIndex, by: by)
+//        self.refresh()
     }
 
     func onEditedName(_ text: String) {
@@ -130,72 +114,19 @@ struct EditProgramView: View {
     }
     
     func onCancel() {
-        self.program.restore(self.original)
+        self.display.send(.RollbackTransaction(name: "edit program"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-        self.presentationMode.wrappedValue.dismiss()
+        self.display.send(.ConfirmTransaction(name: "edit program"))
+        self.presentationMode.wrappedValue.dismiss()   
     }
 }
 
 struct EditProgramView_Previews: PreviewProvider {
     static var previews: some View {
-        EditProgramView(program: home())
-    }
-    
-    private static func home() -> Program {
-        func burpees() -> Exercise {
-            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Burpees", "Burpees", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-        
-        func squats() -> Exercise {
-            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Squats", "Body-weight Squat", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-        
-        func planks() -> Exercise { // TODO: this should be some sort of progression
-            let durations = [
-                DurationSet(secs: 60, restSecs: 90),
-                DurationSet(secs: 60, restSecs: 90),
-                DurationSet(secs: 60, restSecs: 90)]
-            let sets = Sets.durations(durations, targetSecs: [60, 60, 60])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Planks", "Front Plank", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-        
-        func curls() -> Exercise {
-            let sets = Sets.maxReps(restSecs: [90, 90, 0])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: [65]))
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-
-        let workouts = [
-            createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
-            createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),
-            createWorkout("Upper", [planks(), curls()], day: .monday).unwrap()]
-        return Program("Split", workouts)
+        EditProgramView().environmentObject(previewDisplay())
     }
 }
 

@@ -2,9 +2,9 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-var programEntryId = 0
-
 let RecentHours = 8.0
+
+var programEntryId = 0
 
 struct ProgramEntry: Identifiable {
     let id: Int
@@ -35,10 +35,10 @@ func initEntries(_ program: Program) -> ([ProgramEntry], [ExerciseCompletions]) 
         }
         return true
     }
-            
+
     var completions: [ExerciseCompletions] = []
     var entries: [ProgramEntry] = []
-    for workout in program {
+    for workout in program.workouts {
         if workout.enabled {
             var dates: [Date] = []
             for exercise in workout.exercises {
@@ -49,7 +49,7 @@ func initEntries(_ program: Program) -> ([ProgramEntry], [ExerciseCompletions]) 
                 }
             }
             dates.sort()
-            
+
             if let last = dates.last {
                 let count = workout.exercises.count {$0.enabled}
                 let didAll = dates.count >= count
@@ -62,7 +62,7 @@ func initEntries(_ program: Program) -> ([ProgramEntry], [ExerciseCompletions]) 
             }
         }
     }
-    
+
     return (entries, completions)
 }
 
@@ -74,7 +74,7 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
     func isAnyDay(_ days: [Bool]) -> Bool {
         return days.all({!$0})
     }
-    
+
     func ageInDays(_ workout: Workout) -> Double {
         if let completed = workout.dateCompleted(history) {
             return now.daysSinceDate(completed.0)
@@ -91,11 +91,11 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
         }
         return oldest != nil ? oldest?.workout : nil
     }
-    
+
     func agesMatch(_ oldest: Workout, _ workout: Workout) -> Bool {
         return abs(ageInDays(oldest) - ageInDays(workout)) <= 0.3   // same day if they are within +/- 8 hours (for those whackos who workout through midnight)
     }
-    
+
     func nextWorkout(_ entry: ProgramEntry) -> Int? {
         for delta in 1...7 {
             if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: now) {
@@ -116,12 +116,12 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
     for i in 0..<entries.count {
         var entry = entries[i]
         let completion = completions[i]
-        
+
         var doneRecently = false
         if let last = completion.latest {
             doneRecently = now.hoursSinceDate(last) <= RecentHours
         }
-        
+
         // If the user has done any exercise within the workout today,
         if doneRecently {
             if completion.latestIsComplete {
@@ -133,7 +133,7 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
                 entry.subLabel = "in progress"
                 entry.subColor = .red
             }
-        
+
         // If the workout can be performed on any day (including days on which other workouts are scheduled),
         } else if isAnyDay(entry.workout.days) {
             if completion.latest != nil {
@@ -156,7 +156,7 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
                 entry.subLabel = "never started"
                 entry.subColor = .orange
             }
-            
+
         // If the workout is scheduled for later.
         } else if let delta = nextWorkout(entry) {
             entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
@@ -166,23 +166,20 @@ func initSubLabels(_ completions: [ExerciseCompletions], _ entries: [ProgramEntr
                 entry.subColor = .black
             }
         }
-        
+
         result[i] = entry
     }
-    
+
     return result
 }
 
 struct ProgramView: View {
-    var program: Program
-    var history: History
     let timer = RestartableTimer(every: TimeInterval.minutes(30))
     @State var entries: [ProgramEntry] = []
     @State var editModal = false
-
-    init(program: Program, history: History) {
-        self.program = program
-        self.history = history
+    @EnvironmentObject var display: Display
+    
+    init() {
         self.refresh()
     }
 
@@ -190,14 +187,14 @@ struct ProgramView: View {
         NavigationView {
             VStack {
                 List(self.entries) {entry in
-                    NavigationLink(destination: WorkoutView(workout: entry.workout, history: self.history)) {
+                    NavigationLink(destination: WorkoutView(workout: entry.workout, history: self.display.history)) {
                         VStack(alignment: .leading) {
                             Text(entry.workout.name).font(.title)
                             Text(entry.subLabel).foregroundColor(entry.subColor).font(.headline) // 10+ Reps or As Many Reps As Possible
                         }
                     }
                 }
-                .navigationBarTitle(Text(program.name + " Workouts"))
+                .navigationBarTitle(Text(self.display.program.name + " Workouts"))
                 .onAppear {self.refresh(); self.timer.restart()}
                 .onDisappear {self.timer.stop()}
                 .onReceive(self.timer.timer) {_ in self.refresh()}
@@ -207,7 +204,7 @@ struct ProgramView: View {
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout)
-                        .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditProgramView(program: self.program)}
+                        .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditProgramView(program: self.display.program)}
                 }
                 .padding()
             }
@@ -228,12 +225,8 @@ struct ProgramView: View {
     }
 }
 
-struct ProgramView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProgramView(program: ProgramView_Previews.home(), history: ProgramView_Previews.history())
-    }
-    
-    private static func home() -> Program {
+func previewDisplay() -> Display {
+    func previewHome() -> Program {
         func burpees() -> Exercise {
             let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
             let modality = Modality(Apparatus.bodyWeight, sets)
@@ -287,12 +280,20 @@ struct ProgramView_Previews: PreviewProvider {
         return Program("Split", workouts)
     }
 
-    private static func history() -> History {
-        let program = ProgramView_Previews.home()
+    func previewHistory(_ program: Program) -> History {
         let history = History()
-        history.append(program[0], program[0].exercises[0])
-        history.append(program[0], program[0].exercises[1])
-        history.append(program[1], program[1].exercises[0])
+        history.append(program.workouts[0], program.workouts[0].exercises[0])
+        history.append(program.workouts[0], program.workouts[0].exercises[1])
+        history.append(program.workouts[1], program.workouts[1].exercises[0])
         return history
+    }
+    
+    let program = previewHome()
+    return Display(program: program, history: previewHistory(program))
+}
+
+struct ProgramView_Previews: PreviewProvider {
+    static var previews: some View {
+        ProgramView().environmentObject(previewDisplay())
     }
 }

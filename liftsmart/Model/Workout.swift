@@ -6,6 +6,8 @@ enum WeekDay: Int {
     case sunday = 0, monday, tuesday, wednesday, thursday, friday, saturday
 }
 
+// TODO: get rid of these (or move them into some sort of standard program maker)
+// or maybe just use Display.send to build programs
 func createWorkout(_ name: String, _ exercises: [Exercise], days: [WeekDay]) -> Either<String, Workout> {
     if name.isEmpty {return .left("Workout name cannot be empty")}
     let names = exercises.map {(e) -> String in e.name}
@@ -24,7 +26,7 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     var exercises: [Exercise]   // exercise names don't have to be unique
     var days: [Bool]            // indices are Sun, Mon, ..., Sat, true means workout is scheduled for that day, all false means can do the workout any day
 
-    fileprivate init(_ name: String, _ exercises: [Exercise], days: [WeekDay]) {
+    init(_ name: String, _ exercises: [Exercise], days: [WeekDay]) {
         self.name = name
         self.enabled = true
         self.exercises = exercises

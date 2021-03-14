@@ -30,8 +30,10 @@ struct EditNote: CustomDebugStringConvertible, Storable {
 
 /// This is the top-level type representing everything that the user is expected to do within a period of time.
 /// For example, three workouts each week.
-class Program: CustomDebugStringConvertible, Sequence, Storable {
+class Program: CustomDebugStringConvertible, Storable {
     var name: String
+    var workouts: [Workout]
+    var notes: [EditNote]
 
     init(_ name: String, _ workouts: [Workout]) {
         self.name = name
@@ -66,42 +68,6 @@ class Program: CustomDebugStringConvertible, Sequence, Storable {
         self.notes = original.notes
     }
 
-    var count: Int {
-        get {return workouts.count}
-    }
-    
-    subscript(_ index: Int) -> Workout {
-        return self.workouts[index]
-    }
-    
-    func addWorkout(_ name: String) -> String? {
-        if self.workouts.first(where: {$0.name == name}) != nil {
-            return "There is already a workout named '\(name)'."
-        }
-        
-        switch createWorkout(name, [], day: nil) {
-        case .left(let err):
-            return err
-        case .right(let workout):
-            self.workouts.append(workout)
-            return nil
-        }
-    }
-    
-    func moveWorkout(_ index: Int, by: Int) {
-        assert(by != 0)
-        let workout = self.workouts.remove(at: index)
-        self.workouts.insert(workout, at: index + by)        
-    }
-
-    func delete(_ index: Int) {
-        self.workouts.remove(at: index)
-    }
-
-    func makeIterator() -> Program.Iterator {
-        return Program.Iterator(program: self)
-    }
-
     /// A note has to be added after significant changes. This makes it possible for users and advisors
     /// to evaluate the effect of changes on performance.
     func addNote(_ text: String) {
@@ -113,22 +79,4 @@ class Program: CustomDebugStringConvertible, Sequence, Storable {
             return self.name
         }
     }
-    
-    struct Iterator: IteratorProtocol {
-        let program: Program
-        var index: Int = 0
-        
-        mutating func next() -> Workout? {
-            if self.index < self.program.count {
-                let result = self.program[self.index]
-                self.index += 1
-                return result
-            } else {
-                return nil
-            }
-        }
-    }
-
-    private var workouts: [Workout] // TODO: workout names must be unique (because of Identifiable)
-    private var notes: [EditNote]
 }

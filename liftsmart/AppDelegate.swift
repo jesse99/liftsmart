@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            totalWorkouts = program.numWorkouts
 //        }
         
-        loadState()
+//        loadState()
 //        loadAchievements()
 
         //        let warmups = Warmups(withBar: 0, firstPercent: 0.5, lastPercent: 0.9, reps: [5, 3, 1])
@@ -79,8 +79,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         saveState()
     }
-    
-    func loadState() {
+
+    // TODO: get rid of this
+    private func loadState() {
         if let store = loadStore(from: "history") {
             history = History(from: store)
         }

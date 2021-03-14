@@ -16,6 +16,7 @@ struct EditTextView: View {
     var validator: Validator?
     let completion: (String) -> Void
     
+    // TODO: this can continue to edit a @State string and use a closure to create an Action to send
     var body: some View {
         VStack {
             Text(self.title).font(.largeTitle)

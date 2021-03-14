@@ -4,10 +4,11 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selection = 0
- 
+    @StateObject var display = Display()
+    
     var body: some View {
         TabView(selection: $selection){
-            ProgramView(program: program, history: history)
+            ProgramView()
                 .font(.title)
                 .tabItem {
                     VStack {
@@ -26,6 +27,7 @@ struct ContentView: View {
                 }
                 .tag(1)
         }
+        .environmentObject(self.display)
     }
 }
 
