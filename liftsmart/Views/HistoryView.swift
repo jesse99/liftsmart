@@ -79,9 +79,9 @@ struct HistoryView: View {
             ActionSheet(title: Text(self.entries[self.editIndex].sublabel), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
             if self.sheetAction == .editNote {
-                EditTextView(title: "Edit Note", placeHolder: "user note", content: self.entries[self.editIndex].note, completion: self.onEditedNote)
+                OldEditTextView(title: "Edit Note", placeHolder: "user note", content: self.entries[self.editIndex].note, completion: self.onEditedNote)
             } else {
-                EditTextView(title: "Edit Weight", content: friendlyWeight(self.entries[self.editIndex].record.weight), type: .decimalPad, validator: self.onValidWeight, completion: self.onEditedWeight)
+                OldEditTextView(title: "Edit Weight", content: friendlyWeight(self.entries[self.editIndex].record.weight), type: .decimalPad, validator: self.onValidWeight, completion: self.onEditedWeight)
             }}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             if self.alertAction == .deleteSelected {

@@ -3,7 +3,7 @@
 import SwiftUI
 
 /// Generic view allowing the user to enter in one line of arbitrary text.
-struct EditTextView: View {
+struct OldEditTextView: View {  // TODO: delete this
     typealias Validator = (String) -> String?   // nil result => valid, otherwise error (can be an empty error message)
     
     @Environment(\.presentationMode) private var presentationMode
@@ -54,7 +54,7 @@ struct EditTextView: View {
 
 struct EditTextView_Previews: PreviewProvider {
     static var previews: some View {
-        EditTextView(title: "Edit Text", placeHolder: "arbitrary", content: "", completion: done)
+        OldEditTextView(title: "Edit Text", placeHolder: "arbitrary", content: "", completion: done)
     }
     
     static func done(_ text: String) {

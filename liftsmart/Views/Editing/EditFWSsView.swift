@@ -59,7 +59,7 @@ struct EditFWSsView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
-            EditTextView(title: "Name", content: "", validator: self.onValidName, completion: self.onAdded)}
+            OldEditTextView(title: "Name", content: "", validator: self.onValidName, completion: self.onAdded)}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             return Alert(
                 title: Text("Confirm delete"),
