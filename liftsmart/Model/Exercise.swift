@@ -14,7 +14,7 @@ class Exercise: Hashable, Identifiable, Storable {
     var expected: Expected
     var current: Current? = nil // this is reset to nil if it's been too long since the user was doing the exercise
     var overridePercent = ""    // used to replace the normal weight percent label in exercise views with custom text
-    let id: Int                 // used for hashing
+    var id: Int                 // used for hashing
 
     init(_ name: String, _ formalName: String, _ modality: Modality, _ expected: Expected = Expected(weight: 0.0), overridePercent: String = "") {
         self.name = name
@@ -63,6 +63,8 @@ class Exercise: Hashable, Identifiable, Storable {
         let store = Store()
         store.addObj("self", self)
         let result: Exercise = store.getObj("self")
+        result.id = nextID
+        nextID += 1
         return result
     }
         

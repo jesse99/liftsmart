@@ -2,6 +2,24 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
+var listEntryID: Int = 0
+
+struct ListEntry: Identifiable {
+    let name: String
+    let color: Color
+    let id: Int     // can't use this as an index because ids should change when entries change
+    let index: Int
+
+    init(_ name: String, _ color: Color, _ index: Int) {
+        self.name = name
+        self.color = color
+        self.id = listEntryID
+        self.index = index
+        
+        listEntryID += 1
+    }
+}
+
 /// Used to edit a single FixedWeightSet.
 struct EditFWSView: View {
     class Stateful {

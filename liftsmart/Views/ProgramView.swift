@@ -188,7 +188,7 @@ struct ProgramView: View {
         NavigationView {
             VStack {
                 List(self.entries) {entry in
-                    NavigationLink(destination: WorkoutView(workout: entry.workout, history: self.display.history)) {
+                    NavigationLink(destination: WorkoutView(self.display, entry.workout)) {
                         VStack(alignment: .leading) {
                             Text(entry.workout.name).font(.title)
                             Text(entry.subLabel).foregroundColor(entry.subColor).font(.headline) // 10+ Reps or As Many Reps As Possible

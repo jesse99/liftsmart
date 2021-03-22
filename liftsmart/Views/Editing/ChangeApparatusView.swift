@@ -60,6 +60,8 @@ struct ChangeApparatusView: View {
         self.apparatusLabel = getApparatusLabel(self.apparatus)
     }
     
+    // TODO: this should do nothing if the type doesn't change
+    // note that that isn't quite an equality check
     func onChange(_ apparatus: Apparatus) {
         let exercise = self.workout.exercises[self.index]
         exercise.modality.apparatus = apparatus

@@ -7,7 +7,7 @@ import Foundation
 // support pairedPlates and singlePlates
 // support bumpers, may want to use a PlateWeightSet here, plates have a weight/count
 // support magnets
-enum Apparatus {
+enum Apparatus: Equatable {
     /// Typically these are unweighted but users can enter an arbitrary weight if they are using a plate,
     /// kettlebell, chains, milk jug, or whatever (this comes from Expected).
     case bodyWeight

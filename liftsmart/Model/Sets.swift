@@ -20,7 +20,7 @@ func weightSuffix(_ percent: WeightPercent, _ maxWeight: Double) -> String {
     return percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
 }
 
-struct RepRange: CustomDebugStringConvertible, Storable {
+struct RepRange: CustomDebugStringConvertible, Equatable, Storable {
     let min: Int
     let max: Int
     
@@ -78,7 +78,7 @@ struct RepRange: CustomDebugStringConvertible, Storable {
     }
 }
 
-struct WeightPercent: CustomDebugStringConvertible, Storable {
+struct WeightPercent: CustomDebugStringConvertible, Equatable, Storable {
     let value: Double
 
     init(_ value: Double) {
@@ -126,7 +126,7 @@ struct WeightPercent: CustomDebugStringConvertible, Storable {
     }
 }
 
-struct RepsSet: CustomDebugStringConvertible, Storable {
+struct RepsSet: CustomDebugStringConvertible, Equatable, Storable {
     let reps: RepRange
     let percent: WeightPercent
     let restSecs: Int
@@ -174,7 +174,7 @@ struct RepsSet: CustomDebugStringConvertible, Storable {
     }
 }
 
-struct DurationSet: CustomDebugStringConvertible, Storable {
+struct DurationSet: CustomDebugStringConvertible, Equatable, Storable {
     let secs: Int
     let restSecs: Int
     
@@ -200,7 +200,7 @@ struct DurationSet: CustomDebugStringConvertible, Storable {
     }
 }
 
-enum Sets: CustomDebugStringConvertible {
+enum Sets: CustomDebugStringConvertible, Equatable {
     /// Used for stuff like 3x60s planks.
     case durations([DurationSet], targetSecs: [Int] = [])
     

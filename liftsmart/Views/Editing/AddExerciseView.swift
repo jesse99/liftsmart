@@ -157,6 +157,8 @@ struct AddExerciseView: View {
         self.presentationMode.wrappedValue.dismiss()
     }
 
+    // TODO: this should do nothing if the sets doesn't change
+    // note that that isn't quite an equality check
     func onOK() {
         func findName() -> String {
             let count = workout.exercises.count({$0.name.starts(with: "Untitled ")})
