@@ -10,7 +10,7 @@ class Expected: CustomDebugStringConvertible, Storable {
     // for repRanges this will have entries for each work and backoff set, note that this does override the reps within the set
     var reps: [Int]         // TODO: may want to reset this if user edits reps (that would also help to avoid reps.count and sets.count getting out of sync)
 
-    init(weight: Double, reps: [Int] = []) {        // TODO: should this be failable?
+    init(weight: Double, reps: [Int] = []) {
         assert(weight >= 0.0)
         assert(reps.all({$0 > 0}))
         

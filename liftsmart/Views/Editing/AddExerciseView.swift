@@ -78,26 +78,20 @@ func defaultRepRanges() -> Sets {
 
 struct AddExerciseView: View {
     var workout: Workout
-    @State var typeLabel: String
-    @State var apparatusLabel: String
-    @State var type: Sets
-    @State var apparatus: Apparatus
+    var exercise: Exercise
     @State var showHelp = false
     @State var helpText = ""
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
     init(_ display: Display, _ workout: Workout) {
-        self.workout = workout
         self.display = display
-        
-        let sets = defaultRepRanges()
-        self._type = State(initialValue: sets)
-        self._typeLabel = State(initialValue: getTypeLabel(sets))
-        
-        let app = defaultBodyWeight()
-        self._apparatus = State(initialValue: app)
-        self._apparatusLabel = State(initialValue: getApparatusLabel(app))
+        self.workout = workout
+
+        let name = newExerciseName(workout, "Untitled")
+        let modality = Modality(defaultBodyWeight(), defaultRepRanges())
+        self.exercise = Exercise(name, "None", modality)
+
         self.display.send(.BeginTransaction(name: "add exercise"))
     }
     
@@ -107,7 +101,7 @@ struct AddExerciseView: View {
 
             VStack(alignment: .leading) {
                 HStack {
-                    Menu(self.typeLabel) {
+                    Menu(getTypeLabel(self.exercise.modality.sets)) {
                         Button("Durations", action: {self.onChangeType(defaultDurations())})
                         Button("Fixed Reps", action: {self.onChangeType(defaultFixedReps())})
                         Button("Max Reps", action: {self.onChangeType(defaultMaxReps())})
@@ -118,7 +112,7 @@ struct AddExerciseView: View {
                     Button("?", action: self.onTypeHelp).font(.callout).padding(.trailing)
                 }
                 HStack {
-                    Menu(self.apparatusLabel) {
+                    Menu(getApparatusLabel(self.exercise.modality.apparatus)) {
                         Button("Body Weight", action: {self.onChangeApparatus(defaultBodyWeight())})
                         Button("Fixed Weights", action: {self.onChangeApparatus(defaultFixedWeights())})
                         Button("Cancel", action: {})
@@ -147,22 +141,20 @@ struct AddExerciseView: View {
     }
     
     func onChangeType(_ sets: Sets) {
-        self.type = sets
-        self.typeLabel = getTypeLabel(sets)
+        self.display.send(.SetSets(self.exercise, sets))
     }
     
-    func onChangeApparatus(_ app: Apparatus) {
-        self.apparatus = app
-        self.apparatusLabel = getApparatusLabel(app)
+    func onChangeApparatus(_ apparatus: Apparatus) {
+        self.display.send(.SetApparatus(self.exercise, apparatus))
     }
     
     func onTypeHelp() {
-        self.helpText = getTypeHelp(type)
+        self.helpText = getTypeHelp(self.exercise.modality.sets)
         self.showHelp = true
     }
 
     func onApparatusHelp() {
-        self.helpText = getApparatusHelp(apparatus)
+        self.helpText = getApparatusHelp(self.exercise.modality.apparatus)
         self.showHelp = true
     }
 
@@ -172,7 +164,7 @@ struct AddExerciseView: View {
     }
 
     func onOK() {
-        self.display.send(.AddExercise(self.workout, self.apparatus, self.type))
+        self.display.send(.AddExercise(workout, self.exercise))
         self.display.send(.ConfirmTransaction(name: "add exercise"))
         self.presentationMode.wrappedValue.dismiss()
     }

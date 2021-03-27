@@ -171,7 +171,9 @@ struct EditWorkoutView: View {
     }
 
     func onOK() {
-        self.display.send(.SetWorkoutName(self.workout, self.name))
+        if self.name != self.workout.name {
+            self.display.send(.SetWorkoutName(self.workout, self.name))
+        }
         self.display.send(.ConfirmTransaction(name: "edit workout"))
         self.presentationMode.wrappedValue.dismiss()
     }

@@ -104,7 +104,9 @@ struct EditProgramView: View {
     }
 
     func onOK() {
-        self.display.send(.SetProgramName(self.name))
+        if name != self.display.program.name {
+            self.display.send(.SetProgramName(self.name))
+        }
         self.display.send(.ConfirmTransaction(name: "edit program"))
         self.presentationMode.wrappedValue.dismiss()   
     }

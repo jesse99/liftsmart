@@ -4,8 +4,7 @@ import SwiftUI
 
 struct ChangeTypeView: View {
     var exercise: Exercise
-    @State var typeLabel: String
-    @State var type: Sets
+    let original: Sets
     @State var showHelp = false
     @State var helpText = ""
     @ObservedObject var display: Display
@@ -14,8 +13,7 @@ struct ChangeTypeView: View {
     init(_ display: Display, _ exercise: Exercise) {
         self.display = display
         self.exercise = exercise
-        self._type = State(initialValue: exercise.modality.sets)
-        self._typeLabel = State(initialValue: getTypeLabel(exercise.modality.sets))
+        self.original = exercise.modality.sets
         self.display.send(.BeginTransaction(name: "change type"))
     }
     
@@ -25,7 +23,7 @@ struct ChangeTypeView: View {
 
             VStack(alignment: .leading) {
                 HStack {
-                    Menu(self.typeLabel) {
+                    Menu(getTypeLabel(self.exercise.modality.sets)) {
                         Button("Durations", action: {self.onChange(defaultDurations())})
                         Button("Fixed Reps", action: {self.onChange(defaultFixedReps())})
                         Button("Max Reps", action: {self.onChange(defaultMaxReps())})
@@ -56,12 +54,11 @@ struct ChangeTypeView: View {
     }
     
     func onChange(_ sets: Sets) {
-        self.type = sets
-        self.typeLabel = getTypeLabel(sets)
+        self.display.send(.SetSets(self.exercise, sets))
     }
     
     func onHelp() {
-        self.helpText = getTypeHelp(type)
+        self.helpText = getTypeHelp(self.exercise.modality.sets)
         self.showHelp = true
     }
 
@@ -85,13 +82,13 @@ struct ChangeTypeView: View {
         }
         
         func matches() -> Bool {
-            return index(self.type) == index(self.exercise.modality.sets)
+            return index(self.original) == index(self.exercise.modality.sets)
         }
         
         if !matches() {
-            self.display.send(.ChangeSets(self.exercise, self.type))
             self.display.send(.ConfirmTransaction(name: "change type"))
         } else {
+            // Don't blow away what the user already had.
             self.display.send(.RollbackTransaction(name: "change type"))
         }
         self.presentationMode.wrappedValue.dismiss()

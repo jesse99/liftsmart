@@ -4,8 +4,7 @@ import SwiftUI
 
 struct ChangeApparatusView: View {
     var exercise: Exercise
-    @State var apparatus: Apparatus
-    @State var apparatusLabel: String
+    let original: Apparatus
     @State var showHelp = false
     @State var helpText = ""
     @ObservedObject var display: Display
@@ -14,8 +13,7 @@ struct ChangeApparatusView: View {
     init(_ display: Display, _ exercise: Exercise) {
         self.display = display
         self.exercise = exercise
-        self._apparatus = State(initialValue: exercise.modality.apparatus)
-        self._apparatusLabel = State(initialValue: getApparatusLabel(exercise.modality.apparatus))
+        self.original = exercise.modality.apparatus
         self.display.send(.BeginTransaction(name: "change apparatus"))
     }
     
@@ -25,7 +23,7 @@ struct ChangeApparatusView: View {
 
             VStack(alignment: .leading) {
                 HStack {
-                    Menu(self.apparatusLabel) {
+                    Menu(getApparatusLabel(self.exercise.modality.apparatus)) {
                         Button("Body Weight", action: {self.onChange(defaultBodyWeight())})
                         Button("Fixed Weights", action: {self.onChange(defaultFixedWeights())})
                         Button("Cancel", action: {})
@@ -54,12 +52,11 @@ struct ChangeApparatusView: View {
     }
         
     func onChange(_ apparatus: Apparatus) {
-        self.apparatus = apparatus
-        self.apparatusLabel = getApparatusLabel(self.apparatus)
+        self.display.send(.SetApparatus(self.exercise, apparatus))
     }
     
     func onHelp() {
-        self.helpText = getApparatusHelp(apparatus)
+        self.helpText = getApparatusHelp(self.exercise.modality.apparatus)
         self.showHelp = true
     }
 
@@ -79,13 +76,13 @@ struct ChangeApparatusView: View {
         }
         
         func matches() -> Bool {
-            return index(self.apparatus) == index(self.exercise.modality.apparatus)
+            return index(self.original) == index(self.exercise.modality.apparatus)
         }
         
         if !matches() {
-            self.display.send(.ChangeApparatus(self.exercise, self.apparatus))
             self.display.send(.ConfirmTransaction(name: "change apparatus"))
         } else {
+            // Don't blow away what the user already had.
             self.display.send(.RollbackTransaction(name: "change apparatus"))
         }
         self.presentationMode.wrappedValue.dismiss()

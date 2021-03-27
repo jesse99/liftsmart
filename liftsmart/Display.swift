@@ -4,7 +4,18 @@ import Foundation
 import struct SwiftUI.Color // note that, in general, Display should not depend on view stuff
 import class SwiftUI.UIApplication
 
-/// Views use Action to make model changes.
+func newExerciseName(_ workout: Workout, _ name: String) -> String {
+    let count = workout.exercises.count({$0.name.starts(with: name)})
+    if count == 0 {
+        return name
+    } else {
+        return "\(name)\(count + 1)"
+    }
+}
+
+/// Views use Action to make model changes. Note that these actions blindly do the
+/// change: callers are responsible for verifying that the action should actually
+/// be done.
 enum Action {
     // Edit screens use transaction to allow model changes to be cancelled.
     case BeginTransaction(name: String)     
@@ -12,9 +23,12 @@ enum Action {
     case ConfirmTransaction(name: String)   // ok
     
     // Exercise
-    case ChangeApparatus(Exercise, Apparatus)
-    case ChangeSets(Exercise, Sets)
     case CopyExercise(Exercise)
+    case SetApparatus(Exercise, Apparatus)
+    case SetExerciseName(Workout, Exercise, String)
+    case SetExerciseFormalName(Exercise, String)
+    case SetExpected(Exercise, Expected)
+    case SetSets(Exercise, Sets)
     case ToggleEnableExercise(Exercise)
 
     // Program
@@ -27,7 +41,7 @@ enum Action {
     case ValidateWorkoutName(String)
     
     // Workout
-    case AddExercise(Workout, Apparatus, Sets)
+    case AddExercise(Workout, Exercise)
     case DelExercise(Workout, Exercise)
     case MoveExercise(Workout, Exercise, Int)
     case PasteExercise(Workout)
@@ -73,13 +87,23 @@ class Display: ObservableObject {
     }
 
     /// This is the only way that the model changes.
-    func send(_ action: Action) {
+    func send(_ action: Action, updateUI: Bool = true) {
         func checkExerciseName(_ workout: Workout, _ name: String) -> String? {
             // If this changes PasteExercise may have to change as well.
             if name.isBlankOrEmpty() {
                 return "Exercise name cannot be empty"
-            } else if (workout.exercises.any({$0.name == name})) {
+            } else if workout.exercises.any({$0.name == name}) {
                 return "There is already an exercise with that name in the workout"
+            }
+            return nil
+        }
+
+        func checkFormalName(_ name: String) -> String? {
+            // We'll allow blank and empty names.
+            if name.isBlankOrEmpty() {
+                return nil
+            } else if (userNotes[name] ?? defaultNotes[name]) == nil {
+                return "There is no note for that formal name"
             }
             return nil
         }
@@ -100,12 +124,9 @@ class Display: ObservableObject {
             return nil
         }
         
-        func newExerciseName(_ workout: Workout, _ name: String) -> String {
-            let count = workout.exercises.count({$0.name.starts(with: name)})
-            if count == 0 {
-                return name
-            } else {
-                return "\(name)\(count + 1)"
+        func update() {
+            if updateUI {
+                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
             }
         }
         
@@ -136,49 +157,52 @@ class Display: ObservableObject {
             app.storeObject(self.history, to: "history")
 
         // Exercise
-        case .ChangeApparatus(let exercise, let apparatus):
-            if apparatus != exercise.modality.apparatus {
-                exercise.modality.apparatus = apparatus
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
-            }
-        case .ChangeSets(let exercise, let sets):
-            if sets != exercise.modality.sets {
-                exercise.modality = Modality(exercise.modality.apparatus, sets)
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
-            }
         case .CopyExercise(let exercise):
             exerciseClipboard = exercise
+        case .SetApparatus(let exercise, let apparatus):
+            exercise.modality.apparatus = apparatus
+            update()
+        case .SetExerciseName(let workout, let exercise, let name):
+            assert(checkExerciseName(workout, name) == nil)
+            exercise.name = name
+            update()
+        case .SetExerciseFormalName(let exercise, let name):
+            assert(checkFormalName(name) == nil)
+            exercise.formalName = name
+            update()
+        case .SetExpected(let exercise, let expected):
+            exercise.expected = expected
+            update()
+        case .SetSets(let exercise, let sets):
+            exercise.modality = Modality(exercise.modality.apparatus, sets)
+            update()
         case .ToggleEnableExercise(let exercise):
             exercise.enabled = !exercise.enabled
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
 
         // Program
         case .AddWorkout(let name):
             assert(checkWorkoutName(name) == nil)
             let workout = Workout(name, [], days: [])
             self.program.workouts.append(workout)
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // toggle between zero-width space and empty
+            update()     // toggle between zero-width space and empty
         case .DelWorkout(let workout):
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             self.program.workouts.remove(at: index)
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
         case .EnableWorkout(let workout, let enable):
-            if enable != workout.enabled {
-                workout.enabled = enable
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
-            }
+            workout.enabled = enable
+            update()
         case .MoveWorkout(let workout, let by):
             assert(by != 0)
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             let _ = self.program.workouts.remove(at: index)
             self.program.workouts.insert(workout, at: index + by)
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
         case .SetProgramName(let name):
             assert(checkProgramName(name) == nil)
-            if name != self.program.name {
-                self.program.name = name
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
-            }
+            self.program.name = name
+            update()
         case .ValidateProgramName(let name):
             if let err = checkProgramName(name) {
                 errors!.add(key: "add program", error: err)
@@ -193,34 +217,29 @@ class Display: ObservableObject {
             }
 
         // Workout
-        case .AddExercise(let workout, let apparatus, let sets):
-            let name = newExerciseName(workout, "Untitled")
-            let modality = Modality(apparatus, sets)
-            let exercise = Exercise(name, "None", modality)
+        case .AddExercise(let workout, let exercise):
             workout.exercises.append(exercise)
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
         case .DelExercise(let workout, let exercise):
             let index = workout.exercises.firstIndex(where: {$0 === exercise})!
             workout.exercises.remove(at: index)
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
         case .MoveExercise(let workout, let exercise, let by):
             let index = workout.exercises.firstIndex(where: {$0 === exercise})!
             workout.moveExercise(index, by: by)
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
         case .PasteExercise(let workout):
             let exercise = self.exerciseClipboard!.clone()     // clone so pasting twice doesn't add the same exercise
             exercise.name = newExerciseName(workout, self.exerciseClipboard!.name)
             workout.exercises.append(exercise)
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
         case .SetWorkoutName(let workout, let name):
-            if name != workout.name {
-                assert(checkWorkoutName(name) == nil);
-                workout.name = name
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
-            }
+            assert(checkWorkoutName(name) == nil);
+            workout.name = name
+            update()
         case .ToggleWorkoutDay(let workout, let day):
             workout.days[day.rawValue] = !workout.days[day.rawValue]
-            self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+            update()
         case .ValidateExerciseName(let workout, let name):
             if let err = checkExerciseName(workout, name) {
                 errors!.add(key: "add exercise", error: err)

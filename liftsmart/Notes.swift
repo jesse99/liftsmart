@@ -2832,6 +2832,3 @@ let defaultNotes: [String: String] = [
             "Keep your head up at all times."],
         links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/zercher-squats", "Details": "https://www.t-nation.com/training/complete-guide-to-zerchers"]),
 ]
-
-
-
