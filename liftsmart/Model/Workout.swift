@@ -64,14 +64,6 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         self.days = original.days
     }
 
-    func addExercise(_ name: String) {
-        let durations = [DurationSet(secs: 60, restSecs: 60)]
-        let sets = Sets.durations(durations)
-        let modality = Modality(Apparatus.bodyWeight, sets)
-        let exercise = Exercise(name, "", modality)
-        self.exercises.append(exercise)
-    }
-    
     func moveExercise(_ index: Int, by: Int) {
         assert(by != 0)
         let exercise = self.exercises.remove(at: index)

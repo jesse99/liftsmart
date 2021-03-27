@@ -12,8 +12,8 @@ enum Action {
     case ConfirmTransaction(name: String)   // ok
     
     // Exercise
-    case ChangeExerciseApparatus(Exercise, Apparatus)
-    case ChangeExerciseSets(Exercise, Sets)
+    case ChangeApparatus(Exercise, Apparatus)
+    case ChangeSets(Exercise, Sets)
     case CopyExercise(Exercise)
     case ToggleEnableExercise(Exercise)
 
@@ -27,7 +27,7 @@ enum Action {
     case ValidateWorkoutName(String)
     
     // Workout
-    case AddExercise(Workout, String)
+    case AddExercise(Workout, Apparatus, Sets)
     case DelExercise(Workout, Exercise)
     case MoveExercise(Workout, Exercise, Int)
     case PasteExercise(Workout)
@@ -100,6 +100,15 @@ class Display: ObservableObject {
             return nil
         }
         
+        func newExerciseName(_ workout: Workout, _ name: String) -> String {
+            let count = workout.exercises.count({$0.name.starts(with: name)})
+            if count == 0 {
+                return name
+            } else {
+                return "\(name)\(count + 1)"
+            }
+        }
+        
         let errors = self.transactions.last?.errors
         
         switch action {
@@ -127,12 +136,12 @@ class Display: ObservableObject {
             app.storeObject(self.history, to: "history")
 
         // Exercise
-        case .ChangeExerciseApparatus(let exercise, let apparatus):
+        case .ChangeApparatus(let exercise, let apparatus):
             if apparatus != exercise.modality.apparatus {
                 exercise.modality.apparatus = apparatus
                 self.edited = self.edited.isEmpty ? "\u{200B}" : ""
             }
-        case .ChangeExerciseSets(let exercise, let sets):
+        case .ChangeSets(let exercise, let sets):
             if sets != exercise.modality.sets {
                 exercise.modality = Modality(exercise.modality.apparatus, sets)
                 self.edited = self.edited.isEmpty ? "\u{200B}" : ""
@@ -184,9 +193,11 @@ class Display: ObservableObject {
             }
 
         // Workout
-        case .AddExercise(let workout, let name):
-            assert(checkExerciseName(workout, name) == nil)
-            workout.addExercise(name)
+        case .AddExercise(let workout, let apparatus, let sets):
+            let name = newExerciseName(workout, "Untitled")
+            let modality = Modality(apparatus, sets)
+            let exercise = Exercise(name, "None", modality)
+            workout.exercises.append(exercise)
             self.edited = self.edited.isEmpty ? "\u{200B}" : ""
         case .DelExercise(let workout, let exercise):
             let index = workout.exercises.firstIndex(where: {$0 === exercise})!
@@ -197,12 +208,8 @@ class Display: ObservableObject {
             workout.moveExercise(index, by: by)
             self.edited = self.edited.isEmpty ? "\u{200B}" : ""
         case .PasteExercise(let workout):
-            var i = 2
             let exercise = self.exerciseClipboard!.clone()     // clone so pasting twice doesn't add the same exercise
-            while checkExerciseName(workout, exercise.name) != nil {
-                exercise.name = "\(self.exerciseClipboard!.name)\(i)"
-                i += 1
-            }
+            exercise.name = newExerciseName(workout, self.exerciseClipboard!.name)
             workout.exercises.append(exercise)
             self.edited = self.edited.isEmpty ? "\u{200B}" : ""
         case .SetWorkoutName(let workout, let name):

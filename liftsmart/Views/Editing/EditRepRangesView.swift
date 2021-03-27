@@ -29,6 +29,7 @@ struct EditRepRangesView: View, EditContext {
         self.workout = workout
         self.exercise = exercise
         self.original = exercise.clone()
+        self.original.id = exercise.id
     }
 
     var body: some View {

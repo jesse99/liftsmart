@@ -46,63 +46,72 @@ func getApparatusHelp(_ apparatus: Apparatus) -> String {
     }
 }
 
-func defaultDurations(_ name: String, _ apparatus: Apparatus) -> Exercise {
+func defaultBodyWeight() -> Apparatus {
+    return .bodyWeight
+}
+
+func defaultFixedWeights() -> Apparatus {
+    return .fixedWeights(name: nil)
+}
+
+func defaultDurations() -> Sets {
     let durations = [
         DurationSet(secs: 30, restSecs: 60),
         DurationSet(secs: 30, restSecs: 60),
         DurationSet(secs: 30, restSecs: 60)]
-    let sets = Sets.durations(durations)
-    let modality = Modality(apparatus, sets)
-    return Exercise(name, "None", modality)
+    return Sets.durations(durations)
 }
 
-func defaultFixedReps(_ name: String, _ apparatus: Apparatus) -> Exercise {
+func defaultFixedReps() -> Sets {
     let work = RepsSet(reps: RepRange(min: 10, max: 10), restSecs: 30)
-    let sets = Sets.fixedReps([work, work, work])
-    let modality = Modality(apparatus, sets)
-    return Exercise(name, "None", modality)
+    return Sets.fixedReps([work, work, work])
 }
 
-func defaultMaxReps(_ name: String, _ apparatus: Apparatus) -> Exercise {
-    let sets = Sets.maxReps(restSecs: [60, 60, 60])
-    let modality = Modality(apparatus, sets)
-    return Exercise(name, "None", modality)
+func defaultMaxReps() -> Sets {
+    return Sets.maxReps(restSecs: [60, 60, 60])
 }
 
-func defaultRepRanges(_ name: String, _ apparatus: Apparatus) -> Exercise {
+func defaultRepRanges() -> Sets {
     let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 120)
-    let sets = Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
-    let modality = Modality(apparatus, sets)
-    return Exercise(name, "None", modality)
+    return Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
 }
 
 struct AddExerciseView: View {
     var workout: Workout
-    let dismiss: () -> Void
-    @State var typeLabel = "TypeTypeTypeType"
-    @State var apparatusLabel = "ApparatusApparatus"
-    @State var type = Sets.repRanges(warmups: [], worksets: [], backoffs: [])
-    @State var apparatus = Apparatus.bodyWeight
+    @State var typeLabel: String
+    @State var apparatusLabel: String
+    @State var type: Sets
+    @State var apparatus: Apparatus
     @State var showHelp = false
     @State var helpText = ""
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(workout: Workout, dismiss: @escaping () -> Void) {
+    init(_ display: Display, _ workout: Workout) {
         self.workout = workout
-        self.dismiss = dismiss
+        self.display = display
+        
+        let sets = defaultRepRanges()
+        self._type = State(initialValue: sets)
+        self._typeLabel = State(initialValue: getTypeLabel(sets))
+        
+        let app = defaultBodyWeight()
+        self._apparatus = State(initialValue: app)
+        self._apparatusLabel = State(initialValue: getApparatusLabel(app))
+        self.display.send(.BeginTransaction(name: "add exercise"))
     }
     
     var body: some View {
         VStack() {
-            Text("Add Exercise").font(.largeTitle)
+            Text("Add Exercise" + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
                 HStack {
                     Menu(self.typeLabel) {
-                        Button("Durations", action: {self.type = .durations([]); self.refresh()})
-                        Button("Fixed Reps", action: {self.type = .fixedReps([]); self.refresh()})
-                        Button("Max Reps", action: {self.type = .maxReps(restSecs: []); self.refresh()})
-                        Button("Rep Ranges", action: {self.type = .repRanges(warmups: [], worksets: [], backoffs: []); self.refresh()})
+                        Button("Durations", action: {self.onChangeType(defaultDurations())})
+                        Button("Fixed Reps", action: {self.onChangeType(defaultFixedReps())})
+                        Button("Max Reps", action: {self.onChangeType(defaultMaxReps())})
+                        Button("Rep Ranges", action: {self.onChangeType(defaultRepRanges())})
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
@@ -110,8 +119,8 @@ struct AddExerciseView: View {
                 }
                 HStack {
                     Menu(self.apparatusLabel) {
-                        Button("Body Weight", action: {self.apparatus = .bodyWeight; self.refresh()})
-                        Button("Fixed Weights", action: {self.apparatus = .fixedWeights(name: nil); self.refresh()})
+                        Button("Body Weight", action: {self.onChangeApparatus(defaultBodyWeight())})
+                        Button("Fixed Weights", action: {self.onChangeApparatus(defaultFixedWeights())})
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
@@ -128,7 +137,6 @@ struct AddExerciseView: View {
                 Button("OK", action: onOK).font(.callout)
             }
             .padding()
-            .onAppear {self.refresh()}
         }
         .alert(isPresented: $showHelp) {   // and views can only have one alert
             return Alert(
@@ -138,9 +146,14 @@ struct AddExerciseView: View {
         }
     }
     
-    func refresh() {
-        self.typeLabel = getTypeLabel(type)
-        self.apparatusLabel = getApparatusLabel(apparatus)
+    func onChangeType(_ sets: Sets) {
+        self.type = sets
+        self.typeLabel = getTypeLabel(sets)
+    }
+    
+    func onChangeApparatus(_ app: Apparatus) {
+        self.apparatus = app
+        self.apparatusLabel = getApparatusLabel(app)
     }
     
     func onTypeHelp() {
@@ -154,69 +167,23 @@ struct AddExerciseView: View {
     }
 
     func onCancel() {
+        self.display.send(.RollbackTransaction(name: "add exercise"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
-    // TODO: this should do nothing if the sets doesn't change
-    // note that that isn't quite an equality check
     func onOK() {
-        func findName() -> String {
-            let count = workout.exercises.count({$0.name.starts(with: "Untitled ")})
-            return "Untitled \(count + 1)"
-        }
-        
-        switch type {
-        case .durations(_, targetSecs: _):
-            let exercise = defaultDurations(findName(), self.apparatus)
-            workout.exercises.append(exercise)
-        case .fixedReps(_):
-            let exercise = defaultFixedReps(findName(), self.apparatus)
-            workout.exercises.append(exercise)
-        case .maxReps(restSecs: _, targetReps: _):
-            let exercise = defaultMaxReps(findName(), self.apparatus)
-            workout.exercises.append(exercise)
-        case .repRanges(warmups: _, worksets: _, backoffs: _):
-            let exercise = defaultRepRanges(findName(), self.apparatus)
-            workout.exercises.append(exercise)
-        }
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-        self.dismiss()
+        self.display.send(.AddExercise(self.workout, self.apparatus, self.type))
+        self.display.send(.ConfirmTransaction(name: "add exercise"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct AddExerciseView_Previews: PreviewProvider {
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[0]
+    
     static var previews: some View {
-        AddExerciseView(workout: cardio(), dismiss: AddExerciseView_Previews.onDismiss)
-    }
-    
-    static func onDismiss() {
-    }
-    
-    private static func cardio() -> Workout {
-        func burpees() -> Exercise {
-            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Burpees", "Burpees", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-        
-        func squats() -> Exercise {
-            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Squats", "Body-weight Squat", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-
-        return createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap()
+        AddExerciseView(display, workout)
     }
 }
 

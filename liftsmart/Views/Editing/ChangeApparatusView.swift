@@ -3,32 +3,31 @@
 import SwiftUI
 
 struct ChangeApparatusView: View {
-    var workout: Workout
-    let index: Int
-    let dismiss: () -> Void
-    let original: Exercise
-    @State var apparatusLabel = "TypeTypeTypeType"
-    @State var apparatus = Apparatus.bodyWeight
+    var exercise: Exercise
+    @State var apparatus: Apparatus
+    @State var apparatusLabel: String
     @State var showHelp = false
     @State var helpText = ""
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(workout: Workout, index: Int, dismiss: @escaping () -> Void) {
-        self.workout = workout
-        self.index = index
-        self.dismiss = dismiss
-        self.original = workout.exercises[index]
+    init(_ display: Display, _ exercise: Exercise) {
+        self.display = display
+        self.exercise = exercise
+        self._apparatus = State(initialValue: exercise.modality.apparatus)
+        self._apparatusLabel = State(initialValue: getApparatusLabel(exercise.modality.apparatus))
+        self.display.send(.BeginTransaction(name: "change apparatus"))
     }
     
     var body: some View {
         VStack() {
-            Text("Change Apparatus").font(.largeTitle)
+            Text("Change Apparatus" + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
                 HStack {
                     Menu(self.apparatusLabel) {
-                        Button("Body Weight", action: {self.onChange(.bodyWeight)})
-                        Button("Fixed Weights", action: {self.onChange(.fixedWeights(name: nil))})
+                        Button("Body Weight", action: {self.onChange(defaultBodyWeight())})
+                        Button("Fixed Weights", action: {self.onChange(defaultFixedWeights())})
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
@@ -45,28 +44,18 @@ struct ChangeApparatusView: View {
                 Button("OK", action: onOK).font(.callout)
             }
             .padding()
-            .onAppear {self.refresh()}
         }
-        .alert(isPresented: $showHelp) {   // and views can only have one alert
+        .alert(isPresented: $showHelp) {  
             return Alert(
                 title: Text("Help"),
                 message: Text(self.helpText),
                 dismissButton: .default(Text("OK")))
         }
     }
-    
-    func refresh() {
-        self.apparatus = self.workout.exercises[self.index].modality.apparatus
-        self.apparatusLabel = getApparatusLabel(self.apparatus)
-    }
-    
-    // TODO: this should do nothing if the type doesn't change
-    // note that that isn't quite an equality check
+        
     func onChange(_ apparatus: Apparatus) {
-        let exercise = self.workout.exercises[self.index]
-        exercise.modality.apparatus = apparatus
-
-        self.refresh()
+        self.apparatus = apparatus
+        self.apparatusLabel = getApparatusLabel(self.apparatus)
     }
     
     func onHelp() {
@@ -75,48 +64,41 @@ struct ChangeApparatusView: View {
     }
 
     func onCancel() {
-        self.workout.exercises[self.index].restore(self.original)
+        self.display.send(.RollbackTransaction(name: "change apparatus"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-        self.dismiss()
+        func index(_ apparatus: Apparatus) -> Int {
+            switch apparatus {
+            case .bodyWeight:
+                return 0
+            case .fixedWeights(name: _):
+                return 1
+            }
+        }
+        
+        func matches() -> Bool {
+            return index(self.apparatus) == index(self.exercise.modality.apparatus)
+        }
+        
+        if !matches() {
+            self.display.send(.ChangeApparatus(self.exercise, self.apparatus))
+            self.display.send(.ConfirmTransaction(name: "change apparatus"))
+        } else {
+            self.display.send(.RollbackTransaction(name: "change apparatus"))
+        }
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct ChangeApparatusView_Previews: PreviewProvider {
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[0]
+    static let exercise = workout.exercises[0]
+    
     static var previews: some View {
-        ChangeApparatusView(workout: cardio(), index: 0, dismiss: ChangeApparatusView_Previews.onDismiss)
-    }
-    
-    static func onDismiss() {
-    }
-    
-    private static func cardio() -> Workout {
-        func burpees() -> Exercise {
-            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Burpees", "Burpees", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-        
-        func squats() -> Exercise {
-            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Squats", "Body-weight Squat", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -200, to: Date())!
-            e.current!.setIndex = 1
-            return e
-        }
-
-        return createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap()
+        ChangeApparatusView(display, exercise)
     }
 }
 
