@@ -5,9 +5,8 @@ import SwiftUI
 struct ExerciseDurationsView: View {
     let workout: Workout
     var exercise: Exercise
-    var history: History
     var timer = RestartableTimer(every: TimeInterval.hours(4))
-    @State var durations: [DurationSet] = []
+//    @State var durations: [DurationSet] = []
     @State var targetSecs: [Int] = []
     @State var title = ""
     @State var subTitle = ""
@@ -21,18 +20,19 @@ struct ExerciseDurationsView: View {
     @State var apparatusModal = false
     @State var underway = false
     @State var timerTitle = ""
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
-    init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
+    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        self.display = display
         self.workout = workout
         self.exercise = exercise
-        self.history = history
     }
     
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
-                Text(exercise.name).font(.largeTitle)   // Burpees
+                Text(exercise.name + self.display.edited).font(.largeTitle)   // Burpees
                 Spacer()
             
                 Text(self.title).font(.title)              // Set 1 of 1
@@ -56,7 +56,7 @@ struct ExerciseDurationsView: View {
                 Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
                 Button("History", action: onStartHistory)
                     .font(.callout)
-                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.history, workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.display.history, workout: self.workout, exercise: self.exercise)}
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
@@ -67,7 +67,7 @@ struct ExerciseDurationsView: View {
                     .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditDurationsView(workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditDurationsView(self.display,  self.workout, self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -171,7 +171,8 @@ struct ExerciseDurationsView: View {
             self.timerTitle = "Set \(exercise.current!.setIndex + 1) of \(numSets())"
             self.startModal = true
         } else {
-            self.history.append(self.workout, self.exercise)
+            // TODO: should do this via send
+            self.display.history.append(self.workout, self.exercise)
 
             let app = UIApplication.shared.delegate as! AppDelegate
             app.saveState()
@@ -225,15 +226,13 @@ struct ExerciseDurationsView: View {
 }
 
 struct ExerciseView_Previews: PreviewProvider {
-    static let durations = [DurationSet(secs: 60, restSecs: 10), DurationSet(secs: 30, restSecs: 10), DurationSet(secs: 15, restSecs: 10)]
-    static let sets = Sets.durations(durations, targetSecs: [90, 60, 30])
-    static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("Burpees", "Burpees", modality)
-    static let workout = createWorkout("Cardio", [exercise], day: nil).unwrap()
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[0]
+    static let exercise = workout.exercises.first!
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseDurationsView(workout, exercise, History())
+            ExerciseDurationsView(display, workout, exercise)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

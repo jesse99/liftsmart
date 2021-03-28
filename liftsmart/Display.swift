@@ -30,6 +30,7 @@ enum Action {
     case SetExpected(Exercise, Expected)
     case SetSets(Exercise, Sets)
     case ToggleEnableExercise(Exercise)
+    case ValidateFormalName(String)
 
     // Program
     case AddWorkout(String)
@@ -179,6 +180,12 @@ class Display: ObservableObject {
         case .ToggleEnableExercise(let exercise):
             exercise.enabled = !exercise.enabled
             update()
+        case .ValidateFormalName(let name):
+            if let err = checkFormalName(name) {
+                errors!.add(key: "set formal name", warning: err)
+            } else {
+                errors!.reset(key: "set formal name")
+            }
 
         // Program
         case .AddWorkout(let name):

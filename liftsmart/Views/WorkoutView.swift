@@ -152,7 +152,7 @@ struct WorkoutView: View {
     func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
         case .durations(_, _):
-            return AnyView(ExerciseDurationsView(workout, exercise, self.display.history))
+            return AnyView(ExerciseDurationsView(display, workout, exercise))
 
         case .fixedReps(_):
             return AnyView(ExerciseFixedRepsView(workout, exercise, self.display.history))

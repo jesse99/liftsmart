@@ -5,7 +5,6 @@ import SwiftUI
 struct EditDurationsView: View, EditContext {
     let workout: Workout
     var exercise: Exercise
-    let original: Exercise
     @State var name = ""
     @State var formalName = ""
     @State var weight = "0.0"
@@ -18,17 +17,26 @@ struct EditDurationsView: View, EditContext {
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(workout: Workout, exercise: Exercise) {
+    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        self.display = display
         self.workout = workout
         self.exercise = exercise
-        self.original = exercise.clone()
+        self.display.send(.BeginTransaction(name: "change durations"))
     }
 
+    // TODO:
+    // need to validate names
+    // how to handle weights validation?
+    //    need to verify well-formed and sane
+    //    we want display to manage errors so display probably needs to handle it
+    //       note that state is often spread across multiple fields
+    // handle sets
     var body: some View {
         VStack() {
-            Text("Edit Exercise").font(.largeTitle)
+            Text("Edit Exercise" + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
                 createNameView(text: self.$name, self)
@@ -56,14 +64,14 @@ struct EditDurationsView: View, EditContext {
                 // apparatus (conditional)
             }
             Spacer()
-            Text(self.errMesg).foregroundColor(self.errColor).font(.callout).padding(.leading)
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK).font(.callout).disabled(self.hasError())
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
             .onAppear {self.refresh()}
@@ -188,28 +196,29 @@ struct EditDurationsView: View, EditContext {
     }
 
     func onCancel() {
-        self.exercise.restore(self.original)
+        self.display.send(.RollbackTransaction(name: "change durations"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
+        if self.formalName != self.exercise.formalName {
+            self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
+        }
+        if self.name != self.exercise.name {
+            self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
+        }
+        self.display.send(.ConfirmTransaction(name: "change durations"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct EditDurationsView_Previews: PreviewProvider {
-    static func burpees() -> Exercise {
-        let sets = Sets.durations([DurationSet(secs: 45, restSecs: 60)])
-        let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Burpees", "Burpees", modality)
-    }
-
-    static let workout = createWorkout("Cardio", [burpees()], day: nil).unwrap()
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[0]
+    static let exercise = workout.exercises.last!
 
     static var previews: some View {
-        EditDurationsView(workout: workout, exercise: workout.exercises[0])
+        EditDurationsView(display, workout, exercise)
     }
 }
 
