@@ -280,7 +280,7 @@ func previewDisplay() -> Display {
         }
 
         let workouts = [
-            createWorkout("Temp1", [planks(), formRolling(), curls()], day: .friday).unwrap(),
+            createWorkout("Temp1", [planks(), curls(), formRolling()], day: .friday).unwrap(),
             createWorkout("Temp2", [squats()], day: .friday).unwrap(),
             createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
             createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),

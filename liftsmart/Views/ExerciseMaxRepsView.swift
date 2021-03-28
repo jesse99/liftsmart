@@ -4,17 +4,11 @@ import SwiftUI
 
 struct ExerciseMaxRepsView: View {
     let workout: Workout
-    var exercise: Exercise
-    var history: History
+    let exercise: Exercise
+    let restSecs: [Int]
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
-    @State var title = ""
-    @State var subTitle = ""
-    @State var subSubTitle = ""
-    @State var startLabel = ""
-    @State var noteLabel = ""
     @State var completed: Int = 0   // number of reps the user has done so far
     @State var lastReps: Int? = nil // number of reps user did in the last set
-    @State var restSecs: [Int] = []
     @State var startTimer = false
     @State var durationModal = false
     @State var historyModal = false
@@ -23,30 +17,45 @@ struct ExerciseMaxRepsView: View {
     @State var editModal = false
     @State var updateExpected = false
     @State var updateRepsDone = false
-    @State var underway = false
+    @State var underway: Bool
     @State var timerTitle = ""
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
-    init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
+    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        if exercise.shouldReset() {
+            display.send(.ResetCurrent(exercise), updateUI: false)
+        }
+
+        self.display = display
         self.workout = workout
         self.exercise = exercise
-        self.history = history
+
+        switch exercise.modality.sets {
+        case .maxReps(let rs, targetReps: _):   // TODO: shouldn't we do something with targetReps? wizard?
+            self.restSecs = rs
+        default:
+            assert(false)   // exercise must use maxReps sets
+            self.restSecs = []
+        }
+
+        self._underway = State(initialValue: self.restSecs.count > 1 && exercise.current!.setIndex > 0)
     }
     
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
-                Text(exercise.name).font(.largeTitle)   // Curls
+                Text(exercise.name + self.display.edited).font(.largeTitle)   // Curls
                 Spacer()
             
                 Group {
-                    Text(title).font(.title)              // Set 1 of 1
-                    Text(subTitle).font(.headline)        // 10+ Reps or As Many Reps As Possible
-                    Text(subSubTitle).font(.headline)     // Completed 30 reps (target is 90 reps)
+                    Text(self.getTitle()).font(.title)              // Set 1 of 1
+                    Text(self.getSubTitle()).font(.headline)        // 10+ Reps or As Many Reps As Possible
+                    Text(self.getSubSubTitle()).font(.headline)     // Completed 30 reps (target is 90 reps)
                     Spacer()
                 }
 
-                Button(startLabel, action: onNextOrDone)
+                Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
                     .actionSheet(isPresented: $updateRepsDone) {
                         ActionSheet(title: Text("Reps Completed"), buttons: repsDoneButtons())}
@@ -66,7 +75,7 @@ struct ExerciseMaxRepsView: View {
                     .font(.system(size: 20.0))
                     .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
                 Spacer()
-                Text(self.noteLabel).font(.callout)   // Same previous x3
+                Text(self.getNoteLabel()).font(.callout)   // Same previous x3
             }
 
             Divider()
@@ -76,7 +85,7 @@ struct ExerciseMaxRepsView: View {
                 Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
                 Button("History", action: onStartHistory)
                     .font(.callout)
-                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.history, workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.display.history, workout: self.workout, exercise: self.exercise)}
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
@@ -87,11 +96,11 @@ struct ExerciseMaxRepsView: View {
                     .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditMaxRepsView(workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditMaxRepsView(workout: self.workout, exercise: self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
-            .onAppear {self.onAppear(); self.timer.restart()}
+            .onAppear {self.timer.restart()}
             .onDisappear() {self.timer.stop()}
         }
     }
@@ -130,118 +139,34 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onRepsPressed(_ reps: Int) {
-        self.exercise.current!.actualReps.append("\(reps) reps")
         if exercise.expected.weight > 0.0 {
-            self.exercise.current!.actualWeights.append(friendlyUnitsWeight(exercise.expected.weight))
+            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", friendlyUnitsWeight(exercise.expected.weight)))
         } else {
-            self.exercise.current!.actualWeights.append("")
+            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", ""))
         }
-        self.timerTitle = "Did set \(exercise.current!.setIndex+1) of \(restSecs.count)"
-        self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before subTitle gets evaluated
+        self.timerTitle = "Did set \(exercise.current!.setIndex) of \(restSecs.count)"
         self.startTimer = startDuration(-1) > 0
         self.completed += reps
         self.lastReps = reps
-        self.refresh()      // note that dismissing a sheet does not call onAppear
+        self.underway = self.restSecs.count > 1 && exercise.current!.setIndex > 0
     }
     
     private func onEdit() {
         self.editModal = true
     }
     
-    func onAppear() {
-        if exercise.shouldReset() {
-            onReset()
-        } else {
-            refresh()
-        }
-    }
-
     func onTimer() {
         if self.exercise.current!.setIndex > 0 {
             self.onReset()
         }
     }
-
-    func refresh() {
-        switch exercise.modality.sets {
-        case .maxReps(let rs, targetReps: _):   // TODO: shouldn't we do something with targetReps? wizard?
-            self.restSecs = rs
-        default:
-            assert(false)   // exercise must use maxReps sets
-            self.restSecs = []
-        }
-
-        self.underway = self.restSecs.count > 1 && exercise.current!.setIndex > 0
-
-        if exercise.current!.setIndex < restSecs.count {
-            title = "Set \(exercise.current!.setIndex+1) of \(restSecs.count)"
-        } else if restSecs.count == 1 {
-            title = "Finished"
-        } else {
-            title = "Finished all \(restSecs.count) sets"
-        }
-
-        if exercise.current!.setIndex >= restSecs.count {
-            subTitle =  ""
-        } else {
-            var suffix = ""
-            if exercise.expected.weight > 0.0 {
-                suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
-            }
-
-            if let target = expected() {
-                subTitle =  "\(target)+ reps \(suffix)"
-            } else {
-                subTitle =  "AMRAP \(suffix)"
-            }
-        }
-
-        subSubTitle = ""
-        if self.completed > 0 {
-            if let expected = exercise.expected.reps.first {
-                if exercise.current!.setIndex < restSecs.count {
-                    subSubTitle = "Did \(self.completed) reps (expecting \(expected) reps)"
-                } else if self.completed == expected {
-                    subSubTitle = "Did all \(expected) expected reps"
-                } else if self.completed < expected {
-                    subSubTitle = "Missed \(expected - self.completed) of \(expected) expected reps"
-                } else {
-                    subSubTitle = "Extra \(self.completed - expected) of \(expected) expected reps"
-                }
-            } else {
-                subSubTitle = "Did \(self.completed) reps"
-            }
-
-        } else {
-            if let expected = exercise.expected.reps.first {
-                if exercise.current!.setIndex < restSecs.count {
-                    subSubTitle = "Expecting \(expected) total reps"
-                } else {
-                    subSubTitle = "Expected \(expected) total reps"
-                }
-            }
-        }
-
-        if (exercise.current!.setIndex == restSecs.count) {
-            startLabel = "Done"
-        } else {
-            startLabel = "Next"
-        }
-
-        self.noteLabel = getPreviouslabel(workout, exercise)
-    }
     
     func onReset() {
-        self.exercise.current = Current(weight: self.exercise.expected.weight)
+        self.display.send(.ResetCurrent(self.exercise))
         self.completed = 0
         self.lastReps = nil
-        self.refresh()
     }
     
-    func onNotes() {
-        print("Pressed options")  // TODO: implement
-    }
-        
     func onNextOrDone() {
         if exercise.current!.setIndex < restSecs.count {
             self.updateRepsDone = true
@@ -255,12 +180,8 @@ struct ExerciseMaxRepsView: View {
     }
     
     func popView() {
-        self.history.append(self.workout, self.exercise)
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-        
-        // Note that currently this only works with a real device,
+        self.display.send(.AppendHistory(self.workout, self.exercise))
+        self.display.send(.ResetCurrent(self.exercise))
         self.presentation.wrappedValue.dismiss()
     }
     
@@ -314,19 +235,83 @@ struct ExerciseMaxRepsView: View {
             return nil
         }
     }
+
+    func getTitle() -> String {
+        if exercise.current!.setIndex < restSecs.count {
+            return "Set \(exercise.current!.setIndex+1) of \(restSecs.count)"
+        } else if restSecs.count == 1 {
+            return "Finished"
+        } else {
+            return "Finished all \(restSecs.count) sets"
+        }
+    }
+    
+    func getSubTitle() -> String {
+        if exercise.current!.setIndex >= restSecs.count {
+            return  ""
+        } else {
+            var suffix = ""
+            if exercise.expected.weight > 0.0 {
+                suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
+            }
+
+            if let target = expected() {
+                return  "\(target)+ reps \(suffix)"
+            } else {
+                return  "AMRAP \(suffix)"
+            }
+        }
+    }
+    
+    func getSubSubTitle() -> String {
+        if self.completed > 0 {
+            if let expected = exercise.expected.reps.first {
+                if exercise.current!.setIndex < restSecs.count {
+                    return "Did \(self.completed) reps (expecting \(expected) reps)"
+                } else if self.completed == expected {
+                    return "Did all \(expected) expected reps"
+                } else if self.completed < expected {
+                    return "Missed \(expected - self.completed) of \(expected) expected reps"
+                } else {
+                    return "Extra \(self.completed - expected) of \(expected) expected reps"
+                }
+            } else {
+                return "Did \(self.completed) reps"
+            }
+
+        } else {
+            if let expected = exercise.expected.reps.first {
+                if exercise.current!.setIndex < restSecs.count {
+                    return "Expecting \(expected) total reps"
+                } else {
+                    return "Expected \(expected) total reps"
+                }
+            }
+        }
+        return ""
+    }
+
+    func getStartLabel() -> String {
+        if (exercise.current!.setIndex == restSecs.count) {
+            return "Done"
+        } else {
+            return "Next"
+        }
+    }
+    
+    func getNoteLabel() -> String {
+        return getPreviouslabel(workout, exercise)
+    }
 }
 
 struct ExerciseMaxRepsView_Previews: PreviewProvider {
-    static let restSecs = [60, 30, 15]
-    static let sets = Sets.maxReps(restSecs: restSecs)
-    static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0))
-//    static let exercise = Exercise("Curls", "Curls", modality, Expected(weight: 9.0, reps: 65))
-    static let workout = createWorkout("Cardio", [exercise], day: nil).unwrap()
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[0]
+    static let exercise = workout.exercises.first(where: {$0.name == "Curls"})!
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseMaxRepsView(workout, exercise, History())
+            ExerciseMaxRepsView(display, workout, exercise)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }
