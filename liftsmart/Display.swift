@@ -23,7 +23,9 @@ enum Action {
     case ConfirmTransaction(name: String)   // ok
     
     // Exercise
+    case AppendCurrent(Exercise, String, String)
     case CopyExercise(Exercise)
+    case ResetCurrent(Exercise)
     case SetApparatus(Exercise, Apparatus)
     case SetExerciseName(Workout, Exercise, String)
     case SetExerciseFormalName(Exercise, String)
@@ -31,6 +33,9 @@ enum Action {
     case SetSets(Exercise, Sets)
     case ToggleEnableExercise(Exercise)
     case ValidateFormalName(String)
+
+    // History
+    case AppendHistory(Workout, Exercise)
 
     // Program
     case AddWorkout(String)
@@ -127,8 +132,14 @@ class Display: ObservableObject {
         
         func update() {
             if updateUI {
-                self.edited = self.edited.isEmpty ? "\u{200B}" : ""
+                self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // toggle between zero-width space and empty
             }
+        }
+        
+        func saveState() {
+            let app = UIApplication.shared.delegate as! AppDelegate
+            app.storeObject(self.program, to: "program11")
+            app.storeObject(self.history, to: "history")
         }
         
         let errors = self.transactions.last?.errors
@@ -152,14 +163,20 @@ class Display: ObservableObject {
             assert(name == self.transactions.last!.name)
             assert(!errors!.hasError)
             let _ = self.transactions.popLast()
-
-            let app = UIApplication.shared.delegate as! AppDelegate
-            app.storeObject(self.program, to: "program11")
-            app.storeObject(self.history, to: "history")
+            saveState()
 
         // Exercise
+        case .AppendCurrent(let exercise, let reps, let weight):
+            exercise.current!.actualReps.append(reps)
+            exercise.current!.actualWeights.append(weight)
+            exercise.current!.setIndex += 1
+            update()
         case .CopyExercise(let exercise):
             exerciseClipboard = exercise
+        case .ResetCurrent(let exercise):
+            let current = Current(weight: exercise.expected.weight)
+            exercise.current = current
+            update()
         case .SetApparatus(let exercise, let apparatus):
             exercise.modality.apparatus = apparatus
             update()
@@ -187,12 +204,18 @@ class Display: ObservableObject {
                 errors!.reset(key: "set formal name")
             }
 
+        // History
+        case .AppendHistory(let workout, let exercise):
+            self.history.append(workout, exercise)
+            saveState()
+            update()
+
         // Program
         case .AddWorkout(let name):
             assert(checkWorkoutName(name) == nil)
             let workout = Workout(name, [], days: [])
             self.program.workouts.append(workout)
-            update()     // toggle between zero-width space and empty
+            update()
         case .DelWorkout(let workout):
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             self.program.workouts.remove(at: index)

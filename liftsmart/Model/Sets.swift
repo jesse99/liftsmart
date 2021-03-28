@@ -301,4 +301,20 @@ extension Sets: Storable {
             store.addObjArray("backoffs", backoffs)
         }
     }
+
+    func numSets() -> Int {
+        switch self {
+        case .durations(let durations, _):
+            return durations.count
+
+        case .fixedReps(let worksets):
+            return worksets.count
+
+        case .maxReps(let restSecs, _):
+            return restSecs.count
+
+        case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
+            return warmups.count + worksets.count + backoffs.count
+        }
+    }
 }

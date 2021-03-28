@@ -157,8 +157,7 @@ struct ExerciseRepRangesView: View {
     }
     
     func onAppear() {
-        let count = warmups.count + worksets.count + backoffs.count
-        if exercise.shouldReset(numSets: count) {
+        if exercise.shouldReset() {
             onReset()
         } else {
             refresh()

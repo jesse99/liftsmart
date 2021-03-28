@@ -5,28 +5,31 @@ import SwiftUI
 struct ExerciseDurationsView: View {
     let workout: Workout
     var exercise: Exercise
-    var timer = RestartableTimer(every: TimeInterval.hours(4))
-//    @State var durations: [DurationSet] = []
-    @State var targetSecs: [Int] = []
-    @State var title = ""
-    @State var subTitle = ""
-    @State var startLabel = ""
-    @State var noteLabel = ""
+    var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
+    @State var underway: Bool
     @State var startModal = false
     @State var editModal = false
     @State var durationModal = false
     @State var historyModal = false
     @State var noteModal = false
     @State var apparatusModal = false
-    @State var underway = false
     @State var timerTitle = ""
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
     init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        if exercise.shouldReset() {
+            // Note that we have to be careful with state changes within View init methods
+            // because init is called multiple times each time state changes. Here we'll
+            // reset current if it's been a really long time or the user earlier finished
+            // the exercise. 
+            display.send(.ResetCurrent(exercise), updateUI: false)
+        }
+
         self.display = display
         self.workout = workout
         self.exercise = exercise
+        self._underway = State(initialValue: exercise.current!.setIndex > 0)
     }
     
     var body: some View {
@@ -35,25 +38,25 @@ struct ExerciseDurationsView: View {
                 Text(exercise.name + self.display.edited).font(.largeTitle)   // Burpees
                 Spacer()
             
-                Text(self.title).font(.title)              // Set 1 of 1
-                Text(self.subTitle).font(.headline)        // 60s
+                Text(self.getTitle()).font(.title)         // Set 1 of 1
+                Text(self.getSubTitle()).font(.headline)   // 60s
                 Spacer()
 
-                Button(self.startLabel, action: onStart)
+                Button(self.getNextLabel(), action: onNext)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startModal, onDismiss: self.onStartCompleted) {TimerView(title: $timerTitle, duration: self.startDuration(), secondDuration: self.restSecs())}
+                    .sheet(isPresented: self.$startModal, onDismiss: self.onNextCompleted) {TimerView(title: $timerTitle, duration: self.startDuration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
                     .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
                 Spacer()
-                Text(self.noteLabel).font(.callout)   // Same previous x3
+                Text(self.getNoteLabel()).font(.callout)   // Same previous x3
             }
 
             Divider()
             HStack {
-                Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
+                Button("Reset", action: {self.onReset()}).font(.callout).disabled(!self.underway)
                 Button("History", action: onStartHistory)
                     .font(.callout)
                     .sheet(isPresented: self.$historyModal) {HistoryView(history: self.display.history, workout: self.workout, exercise: self.exercise)}
@@ -67,78 +70,12 @@ struct ExerciseDurationsView: View {
                     .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditDurationsView(self.display,  self.workout, self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditDurationsView(self.display,  self.workout, self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
-            .onAppear {self.onAppear(); self.timer.restart()}
+            .onAppear {self.timer.restart()}
             .onDisappear() {self.timer.stop()}
-        }
-    }
-    
-    func onAppear() {
-        if exercise.shouldReset(numSets: durations.count) {
-            onReset()
-        } else {
-            refresh()
-        }
-    }
-    
-    func numSets() -> Int {
-        switch exercise.modality.sets {
-        case .durations(let d, targetSecs: _):
-            return d.count
-        default:
-            assert(false)   // exercise must use durations sets
-        return 0
-        }
-    }
-    
-    func refresh() {
-        switch exercise.modality.sets {
-        case .durations(let d, targetSecs: let ts):
-            self.durations = d
-            self.targetSecs = ts
-        default:
-            assert(false)   // exercise must use durations sets
-            self.durations = []
-            self.targetSecs = []
-        }
-
-        if exercise.current!.setIndex < durations.count {
-            self.title = "Set \(exercise.current!.setIndex+1) of \(durations.count)"
-        } else if durations.count == 1 {
-            self.title = "Finished"
-        } else {
-            self.title = "Finished all \(durations.count) sets"
-        }
-
-        // TODO: If there is an expected weight I think we'd annotate subTitle.
-        if exercise.current!.setIndex >= durations.count {
-            self.subTitle = ""
-        }
-
-        if exercise.current!.setIndex < durations.count {
-            let duration = durations[exercise.current!.setIndex]
-            if targetSecs.count > 0 {
-                let target = targetSecs[exercise.current!.setIndex]
-                self.subTitle = "\(duration) (target is \(target)s)"
-            } else {
-                self.subTitle = "\(duration)"
-            }
-        } else {
-            self.subTitle = ""
-        }
-
-        if (exercise.current!.setIndex == durations.count) {
-            self.startLabel = "Done"
-        } else {
-            self.startLabel = "Start"
-        }
-
-        self.noteLabel = ""
-        if !targetSecs.isEmpty {    // TODO: maybe if have target and progression path
-            self.noteLabel = getPreviouslabel(workout, exercise)
         }
     }
     
@@ -149,13 +86,8 @@ struct ExerciseDurationsView: View {
     }
     
     func onReset() {
-        self.exercise.current = Current(weight: self.exercise.expected.weight)
+        self.display.send(.ResetCurrent(self.exercise))
         self.underway = false
-        self.refresh()
-    }
-    
-    func onNotes() {
-        print("Pressed options")  // TODO: implement
     }
     
     func onEdit() {
@@ -166,37 +98,37 @@ struct ExerciseDurationsView: View {
         self.apparatusModal = true
     }
 
-    func onStart() {
+    func onNext() {
+        let durations = self.durations()
         if exercise.current!.setIndex < durations.count {
-            self.timerTitle = "Set \(exercise.current!.setIndex + 1) of \(numSets())"
+            self.timerTitle = getSetTitle("Set")
             self.startModal = true
         } else {
-            // TODO: should do this via send
-            self.display.history.append(self.workout, self.exercise)
+            self.display.send(.AppendHistory(self.workout, self.exercise))
+            self.display.send(.ResetCurrent(self.exercise))
 
-            let app = UIApplication.shared.delegate as! AppDelegate
-            app.saveState()
-            
             // Pop this view. Note that currently this only works with a real device, 
             self.presentation.wrappedValue.dismiss()
         }
     }
     
-    func onStartCompleted() {
+    func onNextCompleted() {
+        let durations = self.durations()
         let duration = durations[exercise.current!.setIndex]
-        self.exercise.current!.actualReps.append("\(duration)")
-        self.exercise.current!.actualWeights.append("")
-        self.exercise.current!.setIndex += 1
-        self.underway = self.durations.count > 1
-        self.refresh()      // note that dismissing a sheet does not call onAppear
+        
+        let reps = "\(duration)"
+        let weight = ""
+        self.display.send(.AppendCurrent(self.exercise, reps, weight))
+        self.underway = durations.count > 1
+    }
+    
+    func getSetTitle(_ prefix: String) -> String {
+        let i = exercise.current!.setIndex
+        return "\(prefix) \(i+1) of \(numSets())"
     }
     
     func onStartTimer() {
-        if exercise.current!.setIndex == 0 {
-            self.timerTitle = self.title
-        } else {
-            self.timerTitle = "On set \(exercise.current!.setIndex) of \(numSets())"
-        }
+        self.timerTitle = getSetTitle("On set")
         self.durationModal = true
     }
     
@@ -209,19 +141,103 @@ struct ExerciseDurationsView: View {
     }
     
     func startDuration() -> Int {
+        let durations = self.durations()
         return durations[exercise.current!.setIndex].secs
     }
     
     func timerDuration() -> Int {
+        var secs = 0
+        let durations = self.durations()
         if exercise.current!.setIndex < durations.count {
-            return durations[exercise.current!.setIndex].restSecs
+            secs = durations[exercise.current!.setIndex].restSecs
         } else {
-            return durations.last!.restSecs
+            secs = durations.last!.restSecs
         }
+
+        return secs > 0 ? secs : 60
     }
     
     func restSecs() -> Int {
+        let durations = self.durations()
         return durations[exercise.current!.setIndex].restSecs
+    }
+    
+    func numSets() -> Int {
+        switch exercise.modality.sets {
+        case .durations(let d, targetSecs: _):
+            return d.count
+        default:
+            assert(false)   // exercise must use durations sets
+            return 0
+        }
+    }
+
+    func durations() -> [DurationSet] {
+        switch exercise.modality.sets {
+        case .durations(let d, targetSecs: _):
+            return d
+        default:
+            assert(false)   // exercise must use durations sets
+            return []
+        }
+    }
+    
+    func targetSecs() -> [Int] {
+        switch exercise.modality.sets {
+        case .durations(_, targetSecs: let target):
+            return target
+        default:
+            assert(false)   // exercise must use durations sets
+            return []
+        }
+    }
+    
+    func getTitle() -> String {
+        let durations = self.durations()
+        if exercise.current!.setIndex < durations.count {
+            return "Set \(exercise.current!.setIndex+1) of \(durations.count)"
+        } else if durations.count == 1 {
+            return "Finished"
+        } else {
+            return "Finished all \(durations.count) sets"
+        }
+    }
+    
+    func getSubTitle() -> String {
+        let durations = self.durations()
+
+        // TODO: If there is an expected weight I think we'd annotate subTitle.
+        if exercise.current!.setIndex < durations.count {
+            let duration = durations[exercise.current!.setIndex]
+            let targetSecs = self.targetSecs()
+            if targetSecs.count > 0 {
+                let target = targetSecs[exercise.current!.setIndex]
+                return "\(duration) (target is \(target)s)"
+            } else {
+                return "\(duration)"
+            }
+        } else {
+            return ""
+        }
+    }
+    
+    func getNextLabel() -> String {
+        let durations = self.durations()
+
+        if (exercise.current!.setIndex == durations.count) {
+            return "Done"
+        } else {
+            return "Start"
+        }
+    }
+    
+    func getNoteLabel() -> String {
+        let targetSecs = self.targetSecs()
+        if !targetSecs.isEmpty {    // TODO: maybe if have target and progression path
+            return getPreviouslabel(workout, exercise)
+        } else {
+            return ""
+        }
     }
 }
 

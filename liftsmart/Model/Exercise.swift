@@ -86,12 +86,12 @@ class Exercise: Hashable, Identifiable, Storable {
         }
     }
 
-    func shouldReset(numSets: Int) -> Bool {
+    func shouldReset() -> Bool {
         if let current = self.current {
-            // If it's been a long time since the user began the exercise then
-            // start over. If the user has finished the exercise then give them
-            // the option to do it again.
-            return Date().hoursSinceDate(current.startDate) > RecentHours || current.setIndex >= numSets
+            // 1) If it's been a long time since the user began the exercise then start over.
+            // 2) If setIndex has become whacked as a result of user edits then start over.
+            let numSets = self.modality.sets.numSets()
+            return Date().hoursSinceDate(current.startDate) > RecentHours || current.setIndex > numSets
         } else {
             return true
         }

@@ -88,8 +88,7 @@ struct ExerciseFixedRepsView: View {
     }
     
     func onAppear() {
-        let count = worksets.count
-        if exercise.shouldReset(numSets: count) {
+        if exercise.shouldReset() {
             onReset()
         } else {
             refresh()

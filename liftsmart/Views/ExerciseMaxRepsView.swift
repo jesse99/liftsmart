@@ -149,7 +149,7 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onAppear() {
-        if exercise.shouldReset(numSets: restSecs.count) {
+        if exercise.shouldReset() {
             onReset()
         } else {
             refresh()
