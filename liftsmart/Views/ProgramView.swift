@@ -272,8 +272,15 @@ func previewDisplay() -> Display {
             return e
         }
 
+        func formRolling() -> Exercise {
+            let work = RepsSet(reps: RepRange(15), restSecs: 0)
+            let sets = Sets.fixedReps([work])
+            let modality = Modality(Apparatus.bodyWeight, sets)
+            return Exercise("Foam Rolling", "IT-Band Foam Roll", modality)
+        }
+
         let workouts = [
-            createWorkout("Temp1", [planks(), curls()], day: .friday).unwrap(),
+            createWorkout("Temp1", [planks(), formRolling(), curls()], day: .friday).unwrap(),
             createWorkout("Temp2", [squats()], day: .friday).unwrap(),
             createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
             createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),

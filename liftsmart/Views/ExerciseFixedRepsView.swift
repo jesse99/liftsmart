@@ -4,16 +4,9 @@ import SwiftUI
 
 struct ExerciseFixedRepsView: View {
     let workout: Workout
-    var exercise: Exercise
-    var history: History
+    let exercise: Exercise
+    let worksets: [RepsSet]
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
-    @State var worksets: [RepsSet] = []
-    @State var setTitle = ""
-    @State var percentTitle = ""
-    @State var repsTitle = ""
-    @State var platesTitle = ""
-    @State var startLabel = ""
-    @State var noteLabel = ""
     @State var completed: [Int] = []  // number of reps the user has done so far
     @State var startTimer = false
     @State var durationModal = false
@@ -21,33 +14,49 @@ struct ExerciseFixedRepsView: View {
     @State var noteModal = false
     @State var apparatusModal = false
     @State var editModal = false
-    @State var underway = false
+    @State var underway: Bool
     @State var timerTitle = ""
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
-    init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
+    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        if exercise.shouldReset() {
+            display.send(.ResetCurrent(exercise), updateUI: false)
+        }
+
+        self.display = display
         self.workout = workout
         self.exercise = exercise
-        self.history = history
+
+        switch exercise.modality.sets {
+        case .fixedReps(let ws):
+            self.worksets = ws
+        default:
+            assert(false)   // this exercise must use fixedReps sets
+            self.worksets = []
+        }
+
+        let count = worksets.count
+        self._underway = State(initialValue: count > 1 && exercise.current!.setIndex > 0)
     }
     
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
                 Group {
-                    Text(exercise.name).font(.largeTitle)   // OHP
+                    Text(exercise.name + self.display.edited).font(.largeTitle)   // OHP
                     Spacer()
                 
-                    Text(setTitle).font(.title)         // WorkSet 1 of 3
-                    Text(percentTitle).font(.headline)  // 75% of 120 lbs
+                    Text(self.getSetTitle()).font(.title)         // WorkSet 1 of 3
+                    Text(self.getPercentTitle()).font(.headline)  // 75% of 120 lbs
                     Spacer().frame(height: 25)
 
-                    Text(repsTitle).font(.title)        // 3-5 reps @ 120 lbs
-                    Text(platesTitle).font(.headline)   // 25 + 10 + 2.5
+                    Text(self.getRepsTitle()).font(.title)        // 3-5 reps @ 120 lbs
+                    Text(self.getPlatesTitle()).font(.headline)   // 25 + 10 + 2.5
                 }
                 Spacer()
 
-                Button(startLabel, action: onNextOrDone)
+                Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
                     .sheet(isPresented: self.$startTimer) {TimerView(title: $timerTitle, duration: self.startDuration(-1))}
                 
@@ -57,7 +66,7 @@ struct ExerciseFixedRepsView: View {
                     .font(.system(size: 20.0))
                     .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
                 Spacer()
-                Text(self.noteLabel).font(.callout)   // Same previous x3
+                Text(self.getNoteLabel()).font(.callout)   // Same previous x3
             }
 
             Divider()
@@ -67,7 +76,7 @@ struct ExerciseFixedRepsView: View {
                 Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
                 Button("History", action: onStartHistory)
                     .font(.callout)
-                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.history, workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.display.history, workout: self.workout, exercise: self.exercise)}
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
@@ -78,94 +87,24 @@ struct ExerciseFixedRepsView: View {
                     .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditFixedRepsView(workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditFixedRepsView(workout: self.workout, exercise: self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
-            .onAppear {self.onAppear(); self.timer.restart()}
+            .onAppear {self.timer.restart()}
             .onDisappear() {self.timer.stop()}
         }
     }
     
-    func onAppear() {
-        if exercise.shouldReset() {
-            onReset()
-        } else {
-            refresh()
-        }
-    }
-
     func onTimer() {
         if self.exercise.current!.setIndex > 0 {
             self.onReset()
         }
     }
 
-    func refresh() {
-        func shouldTrackHistory() -> Bool {
-            // TODO: also true if apparatus is barbell, dumbbell, or machine
-            if self.worksets[0].reps.min < self.worksets[0].reps.max {
-                return true
-            }
-            return false
-        }
-        
-        switch exercise.modality.sets {
-        case .fixedReps(let ws):
-            self.worksets = ws
-        default:
-            assert(false)   // this exercise must use fixedReps sets
-            self.worksets = []
-        }
-
-        let count = worksets.count
-        self.underway = count > 1 && exercise.current!.setIndex > 0
-        
-        if inProgress() {
-            let percent = getRepsSet().percent
-            let weight = exercise.expected.weight * percent
-            let display = percent.value >= 0.01 && percent.value <= 0.99
-            self.percentTitle = display ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
-            
-            let reps = expected()
-            self.repsTitle = reps == 1 ? "1 rep" : "\(reps) reps"
-            self.repsTitle += percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
-
-            self.platesTitle = ""        // TODO: needs to use apparatus
-            self.startLabel = "Next"
-        } else {
-            self.setTitle = "Finished"
-            self.repsTitle =  ""
-            self.percentTitle = ""
-            self.platesTitle = ""
-            self.startLabel = "Done"
-        }
-        
-        if !exercise.overridePercent.isEmpty {
-            self.percentTitle = exercise.overridePercent
-        }
-
-        if inProgress() {
-            let i = exercise.current!.setIndex
-            self.setTitle = "Workset \(i+1) of \(worksets.count)"
-        } else {
-            self.setTitle = "Finished"
-            self.repsTitle =  ""
-            self.percentTitle = ""
-            self.platesTitle = ""
-            self.startLabel = "Done"
-        }
-        
-        self.noteLabel = ""
-        if shouldTrackHistory() {
-            self.noteLabel = getPreviouslabel(workout, exercise)
-        }
-    }
-    
     func onReset() {
-        self.exercise.current = Current(weight: self.exercise.expected.weight)
+        self.display.send(.ResetCurrent(self.exercise))
         self.completed = []
-        self.refresh()
     }
         
     func onEdit() {
@@ -178,21 +117,20 @@ struct ExerciseFixedRepsView: View {
 
     func updateReps() {
         let reps = expected()
-        self.exercise.current!.actualReps.append("\(reps) reps")
-
         let percent = getRepsSet().percent
         let weight = exercise.expected.weight * percent
         if percent.value >= 0.01 && weight >= 0.1 {
-            self.exercise.current!.actualWeights.append(friendlyUnitsWeight(weight))
+            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", friendlyUnitsWeight(weight)))
         } else {
-            self.exercise.current!.actualWeights.append("")
+            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", ""))
         }
 
-        self.timerTitle = "Did set \(exercise.current!.setIndex+1) of \(worksets.count)"
-        self.exercise.current!.setIndex += 1    // need to do this here so that setIndex is updated before percentTitle gets evaluated
+        self.timerTitle = "Did set \(exercise.current!.setIndex) of \(worksets.count)"
         self.startTimer = startDuration(-1) > 0
         self.completed.append(reps)
-        self.refresh()      // note that dismissing a sheet does not call onAppear
+
+        let count = worksets.count
+        self.underway = count > 1 && exercise.current!.setIndex > 0
     }
     
     func onNextOrDone() {
@@ -201,23 +139,16 @@ struct ExerciseFixedRepsView: View {
         } else {
             // Most exercises ask to update expected but for fixedReps there's no real wiggle room
             // so we'll always update it.
-            self.exercise.expected.reps = self.completed
-            self.popView()
+            self.display.send(.SetExpectedReps(self.exercise, self.completed))
+
+            self.display.send(.AppendHistory(self.workout, self.exercise))
+            self.display.send(.ResetCurrent(self.exercise))
+            self.presentation.wrappedValue.dismiss()
         }
     }
     
     private func inProgress() -> Bool {
         return self.exercise.current!.setIndex < self.worksets.count
-    }
-    
-    func popView() {
-        self.history.append(self.workout, self.exercise)
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-        
-        // Note that currently this only works with a real device,
-        self.presentation.wrappedValue.dismiss()
     }
     
     func onStartTimer() {
@@ -253,6 +184,68 @@ struct ExerciseFixedRepsView: View {
         return secs > 0 ? secs : 60
     }
     
+    func getStartLabel() -> String {
+        if inProgress() {
+            return "Next"
+        } else {
+            return "Done"
+        }
+    }
+    
+    func getSetTitle() -> String {
+        if inProgress() {
+            let i = exercise.current!.setIndex
+            return "Workset \(i+1) of \(worksets.count)"
+        } else {
+            return "Finished"
+        }
+    }
+    
+    func getPercentTitle() -> String {
+        if !exercise.overridePercent.isEmpty {
+            return exercise.overridePercent
+        } else if inProgress() {
+            let percent = getRepsSet().percent
+            let display = percent.value >= 0.01 && percent.value <= 0.99
+            return display ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
+        } else {
+            return ""
+        }
+    }
+    
+    func getRepsTitle() -> String {
+        var title = ""
+        if inProgress() {
+            let percent = getRepsSet().percent
+            let weight = exercise.expected.weight * percent
+            
+            let reps = expected()
+            title = reps == 1 ? "1 rep" : "\(reps) reps"
+            title += percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+        }
+        return title
+    }
+    
+    func getPlatesTitle() -> String {
+        return ""        // TODO: needs to use apparatus
+    }
+    
+    func getNoteLabel() -> String {
+        func shouldTrackHistory() -> Bool {
+            // TODO: also true if apparatus is barbell, dumbbell, or machine
+            if self.worksets[0].reps.min < self.worksets[0].reps.max {
+                return true
+            }
+            return false
+        }
+        
+        if shouldTrackHistory() {
+            return getPreviouslabel(workout, exercise)
+        } else {
+            return ""
+        }
+    }
+
     private func getRepsSet(_ delta: Int = 0) -> RepsSet {
         let i = self.exercise.current!.setIndex + delta
 
@@ -275,21 +268,13 @@ struct ExerciseFixedRepsView: View {
 }
 
 struct ExerciseFixedRepsView_Previews: PreviewProvider {
-    static let reps1 = RepRange(12)
-    static let reps2 = RepRange(10)
-    static let reps3 = RepRange(6)
-//    static let workset = RepsSet(reps: reps, percent: WeightPercent(1.0)!, restSecs: 60)!
-    static let work1 = RepsSet(reps: reps1, percent: WeightPercent(0.8), restSecs: 60)
-    static let work2 = RepsSet(reps: reps2, percent: WeightPercent(0.9), restSecs: 60)
-    static let work3 = RepsSet(reps: reps3, percent: WeightPercent(1.0))
-    static let sets = Sets.fixedReps([work1, work2, work3])
-    static let modality = Modality(Apparatus.bodyWeight, sets)
-    static let exercise = Exercise("Mountain Climber", "Mountain Climber", modality, Expected(weight: 20.0))
-    static let workout = createWorkout("Mobility", [exercise], day: nil).unwrap()
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[3]
+    static let exercise = workout.exercises.first(where: {$0.name == "Foam Rolling"})!
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseFixedRepsView(workout, exercise, History())
+            ExerciseFixedRepsView(display, workout, exercise)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

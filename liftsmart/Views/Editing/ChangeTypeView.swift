@@ -98,8 +98,8 @@ struct ChangeTypeView: View {
 struct ChangeTypeView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises[0]
-    
+    static let exercise = workout.exercises.first(where: {$0.name == "Planks"})!
+
     static var previews: some View {
         ChangeTypeView(display, exercise)
     }

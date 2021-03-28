@@ -87,7 +87,6 @@ struct ExerciseDurationsView: View {
     
     func onReset() {
         self.display.send(.ResetCurrent(self.exercise))
-        self.underway = false
     }
     
     func onEdit() {
@@ -244,7 +243,7 @@ struct ExerciseDurationsView: View {
 struct ExerciseView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises.first!
+    static let exercise = workout.exercises.first(where: {$0.name == "Planks"})!
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in

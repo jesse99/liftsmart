@@ -29,7 +29,7 @@ enum Action {
     case SetApparatus(Exercise, Apparatus)
     case SetExerciseName(Workout, Exercise, String)
     case SetExerciseFormalName(Exercise, String)
-    case SetExpected(Exercise, Expected)
+    case SetExpectedReps(Exercise, [Int])
     case SetSets(Exercise, Sets)
     case ToggleEnableExercise(Exercise)
     case ValidateFormalName(String)
@@ -188,8 +188,8 @@ class Display: ObservableObject {
             assert(checkFormalName(name) == nil)
             exercise.formalName = name
             update()
-        case .SetExpected(let exercise, let expected):
-            exercise.expected = expected
+        case .SetExpectedReps(let exercise, let reps):
+            exercise.expected.reps = reps
             update()
         case .SetSets(let exercise, let sets):
             exercise.modality = Modality(exercise.modality.apparatus, sets)

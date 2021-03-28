@@ -155,7 +155,7 @@ struct WorkoutView: View {
             return AnyView(ExerciseDurationsView(display, workout, exercise))
 
         case .fixedReps(_):
-            return AnyView(ExerciseFixedRepsView(workout, exercise, self.display.history))
+            return AnyView(ExerciseFixedRepsView(display, workout, exercise))
 
         case .maxReps(_, _):
             return AnyView(ExerciseMaxRepsView(workout, exercise, self.display.history))

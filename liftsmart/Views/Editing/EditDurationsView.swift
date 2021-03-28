@@ -215,7 +215,7 @@ struct EditDurationsView: View, EditContext {
 struct EditDurationsView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises.last!
+    static let exercise = workout.exercises.first(where: {$0.name == "Planks"})!
 
     static var previews: some View {
         EditDurationsView(display, workout, exercise)
