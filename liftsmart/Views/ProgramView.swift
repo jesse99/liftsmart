@@ -239,13 +239,11 @@ func previewDisplay() -> Display {
         }
         
         func squats() -> Exercise {
-            let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
+            let warmup = RepsSet(reps: RepRange(4), percent: WeightPercent(0.0), restSecs: 90)
+            let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 3*60)
+            let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
             let modality = Modality(Apparatus.bodyWeight, sets)
-            let e = Exercise("Squats", "Body-weight Squat", modality)
-            e.current = Current(weight: 0.0)
-            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
-            e.current!.setIndex = 1
-            return e
+            return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
         }
         
         func planks() -> Exercise { // TODO: this should be some sort of progression
@@ -281,7 +279,6 @@ func previewDisplay() -> Display {
 
         let workouts = [
             createWorkout("Temp1", [planks(), curls(), formRolling()], day: .friday).unwrap(),
-            createWorkout("Temp2", [squats()], day: .friday).unwrap(),
             createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
             createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),
             createWorkout("Upper", [planks(), curls()], day: .monday).unwrap()]

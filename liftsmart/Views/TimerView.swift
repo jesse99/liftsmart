@@ -5,7 +5,7 @@ import SwiftUI
 
 struct TimerView: View {
     @Environment(\.presentationMode) private var presentationMode
-    let title: Binding<String>
+    let title: String
     @State var duration: Int
     @State var secondDuration: Int = 0    // used to wait twice
     @State private var startTime = Date()
@@ -17,7 +17,7 @@ struct TimerView: View {
 
     var body: some View {
         VStack {
-            Text(self.title.wrappedValue).font(.largeTitle)
+            Text(self.title).font(.largeTitle)
             Spacer()
             Spacer()
             if self.waiting {
@@ -92,6 +92,6 @@ struct TimerView: View {
 
 struct TimerView_Previews: PreviewProvider {
     static var previews: some View {
-        TimerView(title: Binding<String>.constant("Curls"), duration: 10, secondDuration: 5)
+        TimerView(title: "Curls", duration: 10, secondDuration: 5)
     }
 }

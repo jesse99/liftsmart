@@ -44,12 +44,12 @@ struct ExerciseDurationsView: View {
 
                 Button(self.getNextLabel(), action: onNext)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startModal, onDismiss: self.onNextCompleted) {TimerView(title: $timerTitle, duration: self.startDuration(), secondDuration: self.restSecs())}
+                    .sheet(isPresented: self.$startModal, onDismiss: self.onNextCompleted) {TimerView(title: timerTitle, duration: self.startDuration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(title: timerTitle, duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
             }

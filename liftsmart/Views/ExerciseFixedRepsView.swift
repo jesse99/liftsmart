@@ -58,13 +58,13 @@ struct ExerciseFixedRepsView: View {
 
                 Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startTimer) {TimerView(title: $timerTitle, duration: self.startDuration(-1))}
+                    .sheet(isPresented: self.$startTimer) {TimerView(title: timerTitle, duration: self.startDuration(-1))}
                 
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(title: $timerTitle, duration: self.timerDuration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(title: timerTitle, duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
             }

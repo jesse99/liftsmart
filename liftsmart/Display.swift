@@ -23,6 +23,7 @@ enum Action {
     case ConfirmTransaction(name: String)   // ok
     
     // Exercise
+    case AdvanceCurrent(Exercise)
     case AppendCurrent(Exercise, String, String)
     case CopyExercise(Exercise)
     case ResetCurrent(Exercise)
@@ -166,6 +167,9 @@ class Display: ObservableObject {
             saveState()
 
         // Exercise
+        case .AdvanceCurrent(let exercise):
+            exercise.current!.setIndex += 1
+            update()
         case .AppendCurrent(let exercise, let reps, let weight):
             exercise.current!.actualReps.append(reps)
             exercise.current!.actualWeights.append(weight)
