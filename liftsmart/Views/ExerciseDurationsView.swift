@@ -13,7 +13,6 @@ struct ExerciseDurationsView: View {
     @State var historyModal = false
     @State var noteModal = false
     @State var apparatusModal = false
-    @State var timerTitle = ""
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
@@ -44,12 +43,12 @@ struct ExerciseDurationsView: View {
 
                 Button(self.getNextLabel(), action: onNext)
                     .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startModal, onDismiss: self.onNextCompleted) {TimerView(title: timerTitle, duration: self.startDuration(), secondDuration: self.restSecs())}
+                    .sheet(isPresented: self.$startModal, onDismiss: self.onNextCompleted) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(), secondDuration: self.restSecs())}
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(title: timerTitle, duration: self.timerDuration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
             }
@@ -100,7 +99,6 @@ struct ExerciseDurationsView: View {
     func onNext() {
         let durations = self.durations()
         if exercise.current!.setIndex < durations.count {
-            self.timerTitle = getSetTitle("Set")
             self.startModal = true
         } else {
             self.display.send(.AppendHistory(self.workout, self.exercise))
@@ -126,8 +124,21 @@ struct ExerciseDurationsView: View {
         return "\(prefix) \(i+1) of \(numSets())"
     }
     
+    func getTimerTitle() -> String {
+        if durationModal {
+            let durations = self.durations()
+            if exercise.current!.setIndex < durations.count {
+                return getSetTitle("On set")
+            } else {
+                return "Finished"
+            }
+
+        } else {
+            return getSetTitle("Set")
+        }
+    }
+    
     func onStartTimer() {
-        self.timerTitle = getSetTitle("On set")
         self.durationModal = true
     }
     

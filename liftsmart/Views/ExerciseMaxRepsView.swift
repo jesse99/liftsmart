@@ -18,7 +18,6 @@ struct ExerciseMaxRepsView: View {
     @State var updateExpected = false
     @State var updateRepsDone = false
     @State var underway: Bool
-    @State var timerTitle = ""
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
@@ -67,13 +66,13 @@ struct ExerciseMaxRepsView: View {
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
                             }))}
-                    .sheet(isPresented: self.$startTimer) {TimerView(title: timerTitle, duration: self.startDuration(-1))}
+                    .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
                 
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(title: timerTitle, duration: self.timerDuration())}
+                    .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
             }
@@ -144,7 +143,6 @@ struct ExerciseMaxRepsView: View {
         } else {
             self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", ""))
         }
-        self.timerTitle = "Did set \(exercise.current!.setIndex) of \(restSecs.count)"
         self.startTimer = startDuration(-1) > 0
         self.completed += reps
         self.lastReps = reps
@@ -185,12 +183,19 @@ struct ExerciseMaxRepsView: View {
         self.presentation.wrappedValue.dismiss()
     }
     
-    func onStartTimer() {
-        if exercise.current!.setIndex+1 <= restSecs.count {
-            self.timerTitle = "On set \(exercise.current!.setIndex+1) of \(restSecs.count)"
+    func getTimerTitle() -> String {
+        if durationModal {
+            if exercise.current!.setIndex+1 <= restSecs.count {
+                return "On set \(exercise.current!.setIndex+1) of \(restSecs.count)"
+            } else {
+                return "Finished"
+            }
         } else {
-            self.timerTitle = "Finished"
+            return "Did set \(exercise.current!.setIndex) of \(restSecs.count)"
         }
+    }
+    
+    func onStartTimer() {
         self.durationModal = true
     }
     
