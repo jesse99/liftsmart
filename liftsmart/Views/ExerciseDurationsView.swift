@@ -19,9 +19,8 @@ struct ExerciseDurationsView: View {
     init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
         if exercise.shouldReset() {
             // Note that we have to be careful with state changes within View init methods
-            // because init is called multiple times each time state changes. Here we'll
-            // reset current if it's been a really long time or the user earlier finished
-            // the exercise. 
+            // because init is called multiple times. Here we'll reset current if it's been
+            // a really long time or the user earlier finished the exercise. 
             display.send(.ResetCurrent(exercise), updateUI: false)
         }
 
@@ -101,11 +100,9 @@ struct ExerciseDurationsView: View {
         if exercise.current!.setIndex < durations.count {
             self.startModal = true
         } else {
+            self.presentation.wrappedValue.dismiss()
             self.display.send(.AppendHistory(self.workout, self.exercise))
             self.display.send(.ResetCurrent(self.exercise))
-
-            // Pop this view. Note that currently this only works with a real device, 
-            self.presentation.wrappedValue.dismiss()
         }
     }
     

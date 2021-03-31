@@ -100,19 +100,17 @@ struct WorkoutEntry: Identifiable {
 
 struct WorkoutView: View {
     var workout: Workout
-    @State var entries: [WorkoutEntry] = []
     @State var editModal = false
     @ObservedObject var display: Display
 
     init(_ display: Display, _ workout: Workout) {
         self.display = display
         self.workout = workout
-        self.refresh()
     }
 
     var body: some View {
         VStack {
-            List(self.entries) {entry in
+            List(self.getEntries()) {entry in
                 NavigationLink(destination: self.exerciseView(entry.exercise)) {
                     VStack(alignment: .leading) {
                         Text(entry.exercise.name).font(.headline).foregroundColor(entry.color)
@@ -123,33 +121,33 @@ struct WorkoutView: View {
                 }
             }
             .navigationBarTitle(Text(workout.name + " Exercises" + self.display.edited))
-            .onAppear {self.refresh()}
-            
+
             Divider()
             HStack {
                 Spacer()
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditWorkoutView(self.display, self.workout)}
+                    .sheet(isPresented: self.$editModal) {EditWorkoutView(self.display, self.workout)}
             }
             .padding()
         }
     }
     
-    func refresh() {
-        entries = []
-        for exercise in workout.exercises {
-            if exercise.enabled {
-                entries.append(WorkoutEntry(workout, exercise, self.display.history))
-            }
-        }
-    }
-
     private func onEdit() {
         self.editModal = true
     }
     
-    func exerciseView(_ exercise: Exercise) -> AnyView {
+    private func getEntries() -> [WorkoutEntry] {
+        var entries: [WorkoutEntry] = []
+        for exercise in workout.exercises {
+            if exercise.enabled {
+                entries.append(WorkoutEntry(workout, exercise, display.history))
+            }
+        }
+        return entries
+    }
+    
+    private func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
         case .durations(_, _):
             return AnyView(ExerciseDurationsView(display, workout, exercise))

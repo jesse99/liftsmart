@@ -178,9 +178,9 @@ struct ExerciseMaxRepsView: View {
     }
     
     func popView() {
+        self.presentation.wrappedValue.dismiss()
         self.display.send(.AppendHistory(self.workout, self.exercise))
         self.display.send(.ResetCurrent(self.exercise))
-        self.presentation.wrappedValue.dismiss()
     }
     
     func getTimerTitle() -> String {

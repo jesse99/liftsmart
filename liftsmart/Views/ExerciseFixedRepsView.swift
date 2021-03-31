@@ -135,13 +135,13 @@ struct ExerciseFixedRepsView: View {
         if inProgress() {
             updateReps()
         } else {
+            self.presentation.wrappedValue.dismiss()
+
             // Most exercises ask to update expected but for fixedReps there's no real wiggle room
             // so we'll always update it.
             self.display.send(.SetExpectedReps(self.exercise, self.completed))
-
             self.display.send(.AppendHistory(self.workout, self.exercise))
             self.display.send(.ResetCurrent(self.exercise))
-            self.presentation.wrappedValue.dismiss()
         }
     }
     

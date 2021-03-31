@@ -17,7 +17,7 @@ func newExerciseName(_ workout: Workout, _ name: String) -> String {
 /// change: callers are responsible for verifying that the action should actually
 /// be done.
 enum Action {
-    // Edit screens use transaction to allow model changes to be cancelled.
+    // Edit screens use transactions to allow model changes to be cancelled.
     case BeginTransaction(name: String)     
     case RollbackTransaction(name: String)  // cancel
     case ConfirmTransaction(name: String)   // ok
@@ -37,6 +37,9 @@ enum Action {
 
     // History
     case AppendHistory(Workout, Exercise)
+
+    // Misc
+    case TimePassed
 
     // Program
     case AddWorkout(String)
@@ -134,6 +137,7 @@ class Display: ObservableObject {
         func update() {
             if updateUI {
                 self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // toggle between zero-width space and empty
+//                self.edited += "\u{200B}"
             }
         }
         
@@ -212,6 +216,11 @@ class Display: ObservableObject {
         case .AppendHistory(let workout, let exercise):
             self.history.append(workout, exercise)
             saveState()
+            update()
+
+        // Misc
+        case .TimePassed:
+            // Enough time has passed that UIs should be refreshed.
             update()
 
         // Program

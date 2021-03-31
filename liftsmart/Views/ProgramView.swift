@@ -174,20 +174,20 @@ func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ e
 }
 
 struct ProgramView: View {
-    let timer = RestartableTimer(every: TimeInterval.minutes(30))
-    @State var entries: [ProgramEntry] = []
+    let timer = RestartableTimer(every: TimeInterval.minutes(30)) // subData will change every day so we'll refresh fairly often
     @State var editModal = false
     @ObservedObject var display: Display // originally this was an EnvironmentObject but it's awkward to init @State vars from that
     
+    // Note that View init methods are called quite a bit more often than what one might expect and,
+    // in general, they are not called on state changes.
     init(_ display: Display) {
         self.display = display
-        self.refresh()
     }
 
     var body: some View {
         NavigationView {
             VStack {
-                List(self.entries) {entry in
+                List(self.getEntries()) {entry in
                     NavigationLink(destination: WorkoutView(self.display, entry.workout)) {
                         VStack(alignment: .leading) {
                             Text(entry.workout.name).font(.title)
@@ -196,16 +196,16 @@ struct ProgramView: View {
                     }
                 }
                 .navigationBarTitle(Text(self.display.program.name + " Workouts" + self.display.edited))
-                .onAppear {self.refresh(); self.timer.restart()}
+                .onAppear {self.timer.restart(); self.display.send(.TimePassed)}
                 .onDisappear {self.timer.stop()}
-                .onReceive(self.timer.timer) {_ in self.refresh()}
-                
+                .onReceive(self.timer.timer) {_ in self.display.send(.TimePassed)}
+
                 Divider()
                 HStack {
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout)
-                        .sheet(isPresented: self.$editModal, onDismiss: self.refresh) {EditProgramView(self.display)}
+                        .sheet(isPresented: self.$editModal) {EditProgramView(self.display)}
                 }
                 .padding()
             }
@@ -214,15 +214,13 @@ struct ProgramView: View {
         // and also how many times the user has worked out
     }
     
+    private func getEntries() -> [ProgramEntry] {
+        let (entries, completions) = initEntries(display)
+        return initSubLabels(display.history, completions, entries, Date())
+    }
+    
     private func onEdit() {
         self.editModal = true
-    }
-
-    // subData will change every day so we use a timer to refresh the UI in case the user has been sitting
-    // on this view for a long time.
-    func refresh() {
-        let (entries, completions) = initEntries(self.display)
-        self.entries = initSubLabels(self.display.history, completions, entries, Date())
     }
 }
 
