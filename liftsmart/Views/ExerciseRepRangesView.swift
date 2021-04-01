@@ -24,9 +24,6 @@ func getPreviouslabel(_ workout: Workout, _ exercise: Exercise) -> String {
 struct ExerciseRepRangesView: View {
     let workout: Workout
     let exercise: Exercise
-    let warmups: [RepsSet]
-    let worksets: [RepsSet]
-    let backoffs: [RepsSet]
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
     @State var completed: [Int] = []  // number of reps the user has done so far (not counting warmup)
     @State var startTimer = false
@@ -50,19 +47,7 @@ struct ExerciseRepRangesView: View {
         self.workout = workout
         self.exercise = exercise
 
-        switch exercise.modality.sets {
-        case .repRanges(warmups: let wu, worksets: let ws, backoffs: let bo):
-            self.warmups = wu
-            self.worksets = ws
-            self.backoffs = bo
-        default:
-            assert(false)   // this exercise must use repRanges sets
-            self.warmups = []
-            self.worksets = []
-            self.backoffs = []
-        }
-
-        let count = warmups.count + worksets.count + backoffs.count
+        let count = exercise.modality.sets.numSets()
         self._underway = State(initialValue: count > 1 && exercise.current!.setIndex > 0)
     }
     
@@ -162,7 +147,7 @@ struct ExerciseRepRangesView: View {
         self.startTimer = startDuration(-1) > 0
         self.completed.append(reps)
 
-        let count = warmups.count + worksets.count + backoffs.count
+        let count = self.exercise.modality.sets.numSets()
         self.underway = count > 1 && exercise.current!.setIndex > 0
     }
     
@@ -200,10 +185,11 @@ struct ExerciseRepRangesView: View {
     
     func timerDuration() -> Int {
         var secs = 0
-        let count = warmups.count + worksets.count + backoffs.count
+        let count = self.exercise.modality.sets.numSets()
         if exercise.current!.setIndex < count {
             secs = getRepsSet().restSecs
         } else {
+            let (_, worksets, _) = self.getSets()
             secs = worksets.last!.restSecs
         }
         
@@ -224,7 +210,7 @@ struct ExerciseRepRangesView: View {
             self.display.send(.AdvanceCurrent(self.exercise))
             self.startTimer = startDuration(-1) > 0
 
-            let count = warmups.count + worksets.count + backoffs.count
+            let count = self.exercise.modality.sets.numSets()
             self.underway = count > 1 && exercise.current!.setIndex > 0
 
         case .workset, .backoff:
@@ -251,17 +237,18 @@ struct ExerciseRepRangesView: View {
     
     private func stage(delta: Int = 0) -> Stage {
         var i = self.exercise.current!.setIndex + delta
-        if i < self.warmups.count {
+        let (warmups, worksets, backoffs) = self.getSets()
+        if i < warmups.count {
             return .warmup
         }
-        i -= self.warmups.count
+        i -= warmups.count
 
-        if i < self.worksets.count {
+        if i < worksets.count {
             return .workset
         }
-        i -= self.worksets.count
+        i -= worksets.count
 
-        if i < self.backoffs.count {
+        if i < backoffs.count {
             return .backoff
         }
         
@@ -271,6 +258,7 @@ struct ExerciseRepRangesView: View {
     private func getRepsSet(_ delta: Int = 0) -> RepsSet {
         var i = self.exercise.current!.setIndex + delta
 
+        let (warmups, worksets, backoffs) = self.getSets()
         if i < warmups.count {
             return warmups[i]
         }
@@ -296,7 +284,8 @@ struct ExerciseRepRangesView: View {
             return reps
 
         default:
-            let i = self.exercise.current!.setIndex -  warmups.count
+            let (warmups, worksets, backoffs) = self.getSets()
+            let i = self.exercise.current!.setIndex - warmups.count
             if i < exercise.expected.reps.count {
                 let expected = exercise.expected.reps[i]
                 if expected < reps.max {
@@ -316,7 +305,8 @@ struct ExerciseRepRangesView: View {
             return getRepsSet().reps.min
 
         default:
-            let i = self.exercise.current!.setIndex -  warmups.count
+            let (warmups, worksets, backoffs) = self.getSets()
+            let i = self.exercise.current!.setIndex - warmups.count
             if i < exercise.expected.reps.count {
                 return exercise.expected.reps[i]
             } else {
@@ -326,6 +316,7 @@ struct ExerciseRepRangesView: View {
     }
 
     func getSetTitle() -> String {
+        let (warmups, worksets, backoffs) = self.getSets()
         switch stage() {
         case .warmup:
             let i = exercise.current!.setIndex
@@ -399,7 +390,8 @@ struct ExerciseRepRangesView: View {
     func getNoteLabel() -> String {
         func shouldTrackHistory() -> Bool {
             // TODO: also true if apparatus is barbell, dumbbell, or machine
-            if self.worksets[0].reps.min < self.worksets[0].reps.max {
+            let (_, worksets, _) = self.getSets()
+            if worksets[0].reps.min < worksets[0].reps.max {
                 return true
             }
             return false
@@ -414,6 +406,7 @@ struct ExerciseRepRangesView: View {
 
     func getTimerTitle() -> String {
         let prefix = self.durationModal ? "On" : "Did"
+        let (warmups, worksets, backoffs) = self.getSets()
         if warmups.count + backoffs.count == 0 {
             let delta = self.durationModal ? 1 : 0
             let i = exercise.current!.setIndex
@@ -438,6 +431,17 @@ struct ExerciseRepRangesView: View {
             case .done:
                 return "Finished"
             }
+        }
+    }
+    
+    // TODO: some of these can be replaced with numSets()
+    private func getSets() -> ([RepsSet], [RepsSet], [RepsSet]) {
+        switch exercise.modality.sets {
+        case .repRanges(warmups: let wu, worksets: let ws, backoffs: let bo):
+            return (wu, ws, bo)
+        default:
+            assert(false)   // this exercise must use repRanges sets
+            return ([], [], [])
         }
     }
 }

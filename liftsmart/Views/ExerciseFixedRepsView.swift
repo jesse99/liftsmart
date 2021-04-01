@@ -5,7 +5,6 @@ import SwiftUI
 struct ExerciseFixedRepsView: View {
     let workout: Workout
     let exercise: Exercise
-    let worksets: [RepsSet]
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
     @State var completed: [Int] = []  // number of reps the user has done so far
     @State var startTimer = false
@@ -27,18 +26,9 @@ struct ExerciseFixedRepsView: View {
         self.workout = workout
         self.exercise = exercise
 
-        switch exercise.modality.sets {
-        case .fixedReps(let ws):
-            self.worksets = ws
-        default:
-            assert(false)   // this exercise must use fixedReps sets
-            self.worksets = []
-        }
-
-        let count = worksets.count
+        let count = exercise.modality.sets.numSets()
         self._underway = State(initialValue: count > 1 && exercise.current!.setIndex > 0)
     }
-    
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
@@ -127,7 +117,7 @@ struct ExerciseFixedRepsView: View {
         self.startTimer = startDuration(-1) > 0
         self.completed.append(reps)
 
-        let count = worksets.count
+        let count = self.getWorkSets().count
         self.underway = count > 1 && exercise.current!.setIndex > 0
     }
     
@@ -146,10 +136,11 @@ struct ExerciseFixedRepsView: View {
     }
     
     private func inProgress() -> Bool {
-        return self.exercise.current!.setIndex < self.worksets.count
+        return self.exercise.current!.setIndex < self.getWorkSets().count
     }
     
     func getTimerTitle() -> String {
+        let worksets = self.getWorkSets()
         if durationModal {
             if exercise.current!.setIndex+1 <= worksets.count {
                 return "On set \(exercise.current!.setIndex+1) of \(worksets.count)"
@@ -179,6 +170,7 @@ struct ExerciseFixedRepsView: View {
     
     func timerDuration() -> Int {
         var secs = 0
+        let worksets = self.getWorkSets()
         let count = worksets.count
         if exercise.current!.setIndex < count {
             secs = getRepsSet().restSecs
@@ -200,7 +192,7 @@ struct ExerciseFixedRepsView: View {
     func getSetTitle() -> String {
         if inProgress() {
             let i = exercise.current!.setIndex
-            return "Workset \(i+1) of \(worksets.count)"
+            return "Workset \(i+1) of \(self.getWorkSets().count)"
         } else {
             return "Finished"
         }
@@ -238,7 +230,8 @@ struct ExerciseFixedRepsView: View {
     func getNoteLabel() -> String {
         func shouldTrackHistory() -> Bool {
             // TODO: also true if apparatus is barbell, dumbbell, or machine
-            if self.worksets[0].reps.min < self.worksets[0].reps.max {
+            let worksets = self.getWorkSets()
+            if worksets[0].reps.min < worksets[0].reps.max {
                 return true
             }
             return false
@@ -254,6 +247,7 @@ struct ExerciseFixedRepsView: View {
     private func getRepsSet(_ delta: Int = 0) -> RepsSet {
         let i = self.exercise.current!.setIndex + delta
 
+        let worksets = self.getWorkSets()
         if i < worksets.count {
             return worksets[i]
         }
@@ -268,6 +262,16 @@ struct ExerciseFixedRepsView: View {
             return self.exercise.expected.reps.at(i) ?? getRepsSet().reps.min
         } else {
             return getRepsSet().reps.min
+        }
+    }
+    
+    private func getWorkSets() -> [RepsSet] {
+        switch exercise.modality.sets {
+        case .fixedReps(let ws):
+            return ws
+        default:
+            assert(false)   // this exercise must use fixedReps sets
+            return []
         }
     }
 }
