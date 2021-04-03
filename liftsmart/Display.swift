@@ -28,6 +28,7 @@ enum Action {
     case CopyExercise(Exercise)
     case ResetCurrent(Exercise)
     case SetApparatus(Exercise, Apparatus)
+    case SetCompleted(Exercise, [Int])
     case SetExerciseName(Workout, Exercise, String)
     case SetExerciseFormalName(Exercise, String)
     case SetExpectedReps(Exercise, [Int])
@@ -187,6 +188,9 @@ class Display: ObservableObject {
             update()
         case .SetApparatus(let exercise, let apparatus):
             exercise.modality.apparatus = apparatus
+            update()
+        case .SetCompleted(let exercise, let completed):
+            exercise.current!.completed = completed
             update()
         case .SetExerciseName(let workout, let exercise, let name):
             assert(checkExerciseName(workout, name) == nil)

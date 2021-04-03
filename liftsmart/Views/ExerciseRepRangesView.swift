@@ -25,7 +25,6 @@ struct ExerciseRepRangesView: View {
     let workout: Workout
     let exercise: Exercise
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
-    @State var completed: [Int] = []  // number of reps the user has done so far (not counting warmup)
     @State var startTimer = false
     @State var durationModal = false
     @State var historyModal = false
@@ -74,7 +73,8 @@ struct ExerciseRepRangesView: View {
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
-                                self.exercise.expected.reps = self.completed
+                                let completed = self.exercise.current!.completed
+                                self.display.send(.SetExpectedReps(self.exercise, completed))
                                 self.popView()}),
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
@@ -145,7 +145,9 @@ struct ExerciseRepRangesView: View {
         }
 
         self.startTimer = startDuration(-1) > 0
-        self.completed.append(reps)
+
+        let completed = self.exercise.current!.completed + [reps]
+        self.display.send(.SetCompleted(self.exercise, completed))
 
         let count = self.exercise.modality.sets.numSets()
         self.underway = count > 1 && exercise.current!.setIndex > 0
@@ -195,9 +197,9 @@ struct ExerciseRepRangesView: View {
         
         return secs > 0 ? secs : 60
     }
+    
     func onReset() {
         self.display.send(.ResetCurrent(self.exercise))
-        self.completed = []
     }
         
     func onEdit() {
@@ -217,7 +219,7 @@ struct ExerciseRepRangesView: View {
             self.updateRepsDone = true
 
         case .done:
-            if !self.completed.elementsEqual(self.exercise.expected.reps) {
+            if !self.exercise.current!.completed.elementsEqual(self.exercise.expected.reps) {
                 self.updateRepsDone = false
                 self.startTimer = false
                 self.updateExpected = true
@@ -284,7 +286,7 @@ struct ExerciseRepRangesView: View {
             return reps
 
         default:
-            let (warmups, worksets, backoffs) = self.getSets()
+            let (warmups, _, _) = self.getSets()
             let i = self.exercise.current!.setIndex - warmups.count
             if i < exercise.expected.reps.count {
                 let expected = exercise.expected.reps[i]
@@ -305,7 +307,7 @@ struct ExerciseRepRangesView: View {
             return getRepsSet().reps.min
 
         default:
-            let (warmups, worksets, backoffs) = self.getSets()
+            let (warmups, _, _) = self.getSets()
             let i = self.exercise.current!.setIndex - warmups.count
             if i < exercise.expected.reps.count {
                 return exercise.expected.reps[i]

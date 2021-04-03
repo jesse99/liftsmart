@@ -6,7 +6,6 @@ struct ExerciseFixedRepsView: View {
     let workout: Workout
     let exercise: Exercise
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
-    @State var completed: [Int] = []  // number of reps the user has done so far
     @State var startTimer = false
     @State var durationModal = false
     @State var historyModal = false
@@ -93,7 +92,6 @@ struct ExerciseFixedRepsView: View {
 
     func onReset() {
         self.display.send(.ResetCurrent(self.exercise))
-        self.completed = []
     }
         
     func onEdit() {
@@ -115,7 +113,8 @@ struct ExerciseFixedRepsView: View {
         }
 
         self.startTimer = startDuration(-1) > 0
-        self.completed.append(reps)
+        let completed = self.exercise.current!.completed + [reps]
+        self.display.send(.SetCompleted(self.exercise, completed))
 
         let count = self.getWorkSets().count
         self.underway = count > 1 && exercise.current!.setIndex > 0
@@ -129,7 +128,7 @@ struct ExerciseFixedRepsView: View {
 
             // Most exercises ask to update expected but for fixedReps there's no real wiggle room
             // so we'll always update it.
-            self.display.send(.SetExpectedReps(self.exercise, self.completed))
+            self.display.send(.SetExpectedReps(self.exercise, self.exercise.current!.completed))
             self.display.send(.AppendHistory(self.workout, self.exercise))
             self.display.send(.ResetCurrent(self.exercise))
         }

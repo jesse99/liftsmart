@@ -10,6 +10,12 @@ final class Current: CustomDebugStringConvertible, Storable {
     var setIndex: Int           // if this is sets.count then the user has finished those sets
     var actualReps: [String]    // what the user has done so far
     var actualWeights: [String] // entries may be empty
+    
+    // durations: not used
+    // fixed reps: number of reps the user has done so far
+    // max reps: total number of reps the user has done so far (only one value)
+    // rep ranges: number of reps the user has done so far (not counting warmup)
+    var completed: [Int]
 
     init(weight: Double) {
         self.startDate = Date()
@@ -17,6 +23,7 @@ final class Current: CustomDebugStringConvertible, Storable {
         self.setIndex = 0
         self.actualReps = []
         self.actualWeights = []
+        self.completed = []
     }
     
     init(from store: Store) {
@@ -30,6 +37,11 @@ final class Current: CustomDebugStringConvertible, Storable {
             self.actualReps = []
             self.actualWeights = []
         }
+        if store.hasKey("completed") {
+            self.completed = store.getIntArray("completed")
+        } else {
+            self.completed = []
+        }
     }
     
     func save(_ store: Store) {
@@ -38,6 +50,7 @@ final class Current: CustomDebugStringConvertible, Storable {
         store.addInt("setIndex", setIndex)
         store.addStrArray("actualReps", actualReps)
         store.addStrArray("actualWeights", actualWeights)
+        store.addIntArray("completed", completed)
     }
 
     var debugDescription: String {

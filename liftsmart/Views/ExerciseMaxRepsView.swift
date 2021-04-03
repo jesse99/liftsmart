@@ -6,7 +6,6 @@ struct ExerciseMaxRepsView: View {
     let workout: Workout
     let exercise: Exercise
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
-    @State var completed: Int = 0   // number of reps the user has done so far
     @State var lastReps: Int? = nil // number of reps user did in the last set
     @State var startTimer = false
     @State var durationModal = false
@@ -23,6 +22,7 @@ struct ExerciseMaxRepsView: View {
     init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
         if exercise.shouldReset() {
             display.send(.ResetCurrent(exercise), updateUI: false)
+            display.send(.SetCompleted(exercise, [0]), updateUI: false)
         }
 
         self.display = display
@@ -53,7 +53,8 @@ struct ExerciseMaxRepsView: View {
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
-                                self.exercise.expected.reps = [self.completed]
+                                let completed = self.exercise.current!.completed
+                                self.display.send(.SetExpectedReps(self.exercise, completed))
                                 self.popView()}),
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
@@ -136,7 +137,10 @@ struct ExerciseMaxRepsView: View {
             self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", ""))
         }
         self.startTimer = startDuration(-1) > 0
-        self.completed += reps
+
+        let completed = self.exercise.current!.completed + [reps]
+        self.display.send(.SetCompleted(self.exercise, completed))
+
         self.lastReps = reps
         self.underway = self.getRestSecs().count > 1 && exercise.current!.setIndex > 0
     }
@@ -153,14 +157,14 @@ struct ExerciseMaxRepsView: View {
     
     func onReset() {
         self.display.send(.ResetCurrent(self.exercise))
-        self.completed = 0
+        self.display.send(.SetCompleted(self.exercise, [0]))
         self.lastReps = nil
     }
     
     func onNextOrDone() {
         if exercise.current!.setIndex < self.getRestSecs().count {
             self.updateRepsDone = true
-        } else if self.exercise.expected.reps.count != 1 || self.completed != self.exercise.expected.reps.first! {
+        } else if self.exercise.expected.reps.count != 1 || self.exercise.current!.completed[0] != self.exercise.expected.reps.first! {
             self.updateRepsDone = false
             self.startTimer = false
             self.updateExpected = true
@@ -224,7 +228,7 @@ struct ExerciseMaxRepsView: View {
         if let expected = exercise.expected.reps.first {
             let restSecs = self.getRestSecs()
             if exercise.current!.setIndex < restSecs.count {
-                let remaining = Double(expected - self.completed)
+                let remaining = Double(expected - self.exercise.current!.completed[0])
                 let numSets = Double(restSecs.count - exercise.current!.setIndex)
                 let reps = (remaining/numSets).rounded()
                 return Int(reps)
@@ -266,19 +270,20 @@ struct ExerciseMaxRepsView: View {
     
     func getSubSubTitle() -> String {
         let restSecs = self.getRestSecs()
-        if self.completed > 0 {
+        let completed = self.exercise.current!.completed[0]
+        if completed > 0 {
             if let expected = exercise.expected.reps.first {
                 if exercise.current!.setIndex < restSecs.count {
-                    return "Did \(self.completed) reps (expecting \(expected) reps)"
-                } else if self.completed == expected {
+                    return "Did \(completed) reps (expecting \(expected) reps)"
+                } else if completed == expected {
                     return "Did all \(expected) expected reps"
-                } else if self.completed < expected {
-                    return "Missed \(expected - self.completed) of \(expected) expected reps"
+                } else if completed < expected {
+                    return "Missed \(expected - completed) of \(expected) expected reps"
                 } else {
-                    return "Extra \(self.completed - expected) of \(expected) expected reps"
+                    return "Extra \(completed - expected) of \(expected) expected reps"
                 }
             } else {
-                return "Did \(self.completed) reps"
+                return "Did \(completed) reps"
             }
 
         } else {
