@@ -176,7 +176,7 @@ func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ e
 struct ProgramView: View {
     let timer = RestartableTimer(every: TimeInterval.minutes(30)) // subData will change every day so we'll refresh fairly often
     @State var editModal = false
-    @ObservedObject var display: Display // originally this was an EnvironmentObject but it's awkward to init @State vars from that
+    @ObservedObject var display: Display // nicer if this was an EnvironmentObject but then we can't use display from init methods
     
     // Note that View init methods are called quite a bit more often than what one might expect and,
     // in general, they are not called on state changes.
@@ -288,6 +288,25 @@ func previewDisplay() -> Display {
         history.append(program.workouts[0], program.workouts[0].exercises[0])
         history.append(program.workouts[0], program.workouts[0].exercises[1])
         history.append(program.workouts[1], program.workouts[1].exercises[0])
+
+        // This stuff is for HistoryView.
+        let exercise = program.workouts[0].exercises.first(where: {$0.name == "Curls"})!
+        exercise.current = Current(weight: 0.0)
+        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())!
+        exercise.current!.setIndex = 1
+        history.append(program.workouts[0], exercise)
+
+        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -4, to: Date())!
+        history.append(program.workouts[0], exercise)
+
+        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+        history.append(program.workouts[0], exercise)
+
+        exercise.current?.startDate = Date()
+        exercise.current = Current(weight: 10.0)
+        let record = history.append(program.workouts[0], exercise)
+        record.note = "Felt strong!"
+
         return history
     }
     

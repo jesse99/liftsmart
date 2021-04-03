@@ -38,6 +38,10 @@ enum Action {
 
     // History
     case AppendHistory(Workout, Exercise)
+    case DeleteAllHistory(Workout, Exercise)
+    case DeleteHistory(Workout, Exercise, History.Record)
+    case SetHistoryNote(History.Record, String)
+    case SetHistoryWeight(History.Record, Double)
 
     // Misc
     case TimePassed
@@ -220,6 +224,18 @@ class Display: ObservableObject {
         case .AppendHistory(let workout, let exercise):
             self.history.append(workout, exercise)
             saveState()
+            update()
+        case .DeleteAllHistory(let workout, let exercise):
+            self.history.deleteAll(workout, exercise)
+            update()
+        case .DeleteHistory(let workout, let exercise, let record):
+            self.history.delete(workout, exercise, record)
+            update()
+        case .SetHistoryNote(let record, let text):
+            record.note = text
+            update()
+        case .SetHistoryWeight(let record, let weight):
+            record.weight = weight
             update()
 
         // Misc

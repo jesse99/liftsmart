@@ -77,7 +77,7 @@ struct ExerciseMaxRepsView: View {
                 Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
                 Button("History", action: onStartHistory)
                     .font(.callout)
-                    .sheet(isPresented: self.$historyModal) {HistoryView(history: self.display.history, workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$historyModal) {HistoryView(self.display, self.workout, self.exercise)}
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
