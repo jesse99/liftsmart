@@ -31,7 +31,7 @@ struct EditFWSView: View {
     let state: Stateful
     @State var entries: [ListEntry] = []
     @State var showEditActions: Bool = false
-    @State var editIndex: Int = 0
+    @State var editIndex: Int = 0             // TODO: be sure to lose this
     @State var showSheet: Bool = false
     @State var showAlert: Bool = false
     @Environment(\.presentationMode) private var presentationMode
