@@ -36,6 +36,7 @@ enum Action {
     case SetSets(Exercise, Sets)
     case ToggleEnableExercise(Exercise)
     case ValidateDurations(String, String, String)  // durations, target, rest
+    case ValidateFixedReps(String, String)          // reps, rest
     case ValidateFormalName(String)
 
     // History
@@ -185,6 +186,26 @@ class Display: ObservableObject {
                 return err
             }
         }
+        
+        func checkFixedRepsSets(_ repsStr: String, _ restStr: String) -> String? {
+            switch parseRepRanges(repsStr, label: "reps") {
+            case .right(let reps):
+                switch parseTimes(restStr, label: "rest", zeroOK: true) {
+                case .right(let rest):
+                    if reps.count != rest.count {
+                        return "Reps and rest counts must match"
+                    } else if reps.count == 0 {
+                        return "Reps and rest need at least one set"
+                    }
+                    return nil
+
+                case .left(let err):
+                    return err
+                }
+            case .left(let err):
+                return err
+            }
+        }
 
         func update() {
             if updateUI {
@@ -268,6 +289,12 @@ class Display: ObservableObject {
                 errors!.add(key: "set durations sets", warning: err)
             } else {
                 errors!.reset(key: "set durations sets")
+            }
+        case .ValidateFixedReps(let reps, let rest):
+            if let err = checkFixedRepsSets(reps, rest) {
+                errors!.add(key: "set fixed reps sets", warning: err)
+            } else {
+                errors!.reset(key: "set fixed reps sets")
             }
         case .ValidateFormalName(let name):
             if let err = checkFormalName(name) {

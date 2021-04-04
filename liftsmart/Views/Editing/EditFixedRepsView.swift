@@ -2,46 +2,52 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditFixedRepsView: View, EditContext {
+struct EditFixedRepsView: View, ExerciseContext {
     enum ActiveSheet {case formalName, editReps}
 
     let workout: Workout
-    var exercise: Exercise
-    let original: Exercise
-    @State var name = ""
-    @State var formalName = ""
-    @State var weight = "0.0"
-    @State var reps = ""
-    @State var rests = ""
-    @State var error = ViewError()
-    @State var errMesg = ""
-    @State var errColor = Color.black
+    let exercise: Exercise
+    @State var name: String
+    @State var formalName: String
+    @State var weight: String
+    @State var reps: String
+    @State var rests: String
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(workout: Workout, exercise: Exercise) {
+    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        self.display = display
         self.workout = workout
         self.exercise = exercise
-        self.original = exercise.clone()
-        self.original.id = exercise.id
+
+        self._name = State(initialValue: exercise.name)
+        self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
+        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
+
+        switch exercise.modality.sets {
+        case .fixedReps(let reps):
+            self._reps = State(initialValue: reps.map({$0.reps.editable}).joined(separator: " "))
+            self._rests = State(initialValue: reps.map({restToStr($0.restSecs)}).joined(separator: " "))
+        default:
+            self._reps = State(initialValue: "")
+            self._rests = State(initialValue: "")
+            assert(false)
+        }
+
+        self.display.send(.BeginTransaction(name: "change fixed reps"))
     }
 
     var body: some View {
         VStack() {
-            Text("Edit Exercise").font(.largeTitle)
+            Text("Edit Exercise" + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
-                createNameView(text: self.$name, self)
-                HStack {        // better to use createFormalNameView but that doesn't quite work with multiple sheets
-                    Text("Formal Name:").font(.headline)
-                    Button(self.formalName, action: {sheetAction = .formalName; self.formalNameModal = true})
-                        .font(.callout)
-                    Spacer()
-                    Button("?", action: {formalNameHelp(self)}).font(.callout).padding(.trailing)
-                }.padding(.leading)
-                createWeightView(text: self.$weight, self)
+                exerciseNameView(self, self.$name, self.onEditedName)
+                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
+                exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 HStack {
                     Text("Reps:").font(.headline)
                     TextField("", text: self.$reps)
@@ -52,33 +58,20 @@ struct EditFixedRepsView: View, EditContext {
                         .padding()
                     Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                HStack {
-                    Text("Rest:").font(.headline)
-                    TextField("", text: self.$rests)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.default)
-                        .disableAutocorrection(true)
-                        .onChange(of: self.rests, perform: self.onEditedSets)
-                        .padding()
-                    Button("?", action: onRestHelp).font(.callout).padding(.trailing)
-                }.padding(.leading)
+                exerciseRestView(self, self.$rests, self.onEditedSets)
                 // apparatus (conditional)
             }
-            .sheet(isPresented: self.$formalNameModal) {
-                PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: matchFormalName, confirm: {editedFormalName($0, self)})
-            }
             Spacer()
-            Text(self.errMesg).foregroundColor(self.errColor).font(.callout).padding(.leading)
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK).font(.callout).disabled(self.hasError())
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
-            .onAppear {self.refresh()}
         }
         .alert(isPresented: $showHelp) {   // and views can only have one alert
             return Alert(
@@ -88,65 +81,20 @@ struct EditFixedRepsView: View, EditContext {
         }
     }
     
-    func refresh() {
-        self.error.set(self.$errMesg, self.$errColor)
-
-        self.name = exercise.name
-        self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
-        self.weight = String(format: "%.3f", exercise.expected.weight)
-
-        var repsSet = [RepsSet(reps: RepRange(10))]
-        switch exercise.modality.sets {
-        case .fixedReps(let s):
-            repsSet = s
-        default:
-            assert(false)
-        }
-        self.reps = repsSet.map({$0.reps.editable}).joined(separator: " ")
-        self.rests = repsSet.map({restToStr($0.restSecs)}).joined(separator: " ")
+    private func onEditedName(_ text: String) {
+        self.display.send(.ValidateExerciseName(self.workout, text))
     }
-    
-    func doValidate() -> [RepsSet]? {
-        // Check each rep
-        var newReps: [RepRange] = []
-        switch parseRepRanges(self.reps, label: "reps") {
-        case .right(let reps):
-            newReps = reps
-        case .left(let err):
-            self.error.add(key: "ZGlobal", error: err)
-            return nil
-        }
 
-        // Check each rest
-        var newRest: [Int] = []
-        switch parseTimes(self.rests, label: "rest", zeroOK: true) {
-        case .right(let times):
-            newRest = times
-        case .left(let err):
-            self.error.add(key: "ZGlobal", error: err)
-            return nil
-        }
-        
-        // Ensure that counts match up
-        if newReps.count == newRest.count {
-            var newSets: [RepsSet] = []
-            for i in 0..<newReps.count {
-                newSets.append(RepsSet(reps: newReps[i], restSecs: newRest[i]))
-            }
-            self.error.reset(key: "ZGlobal")
-            return newSets
-
-        } else {
-            self.error.add(key: "ZGlobal", error: "Reps and rest counts must match")
-            return nil
-        }
+    private func onEditedFormalName(_ text: String) {
+        self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
     }
-    
+
+    private func onEditedWeight(_ text: String) {
+        self.display.send(.ValidateWeight(text, "weight"))
+    }
+
     func onEditedSets(_ inText: String) {
-        if let newSets = doValidate() {
-            self.exercise.modality.sets = .fixedReps(newSets)
-            self.exercise.expected.reps = newSets.map({$0.reps.min})
-        }
+        self.display.send(.ValidateFixedReps(self.reps, self.rests))
     }
         
     func onRepsHelp() {
@@ -154,39 +102,44 @@ struct EditFixedRepsView: View, EditContext {
         self.showHelp = true
     }
 
-    func onRestHelp() {
-        self.helpText = "The amount of time to rest after each set."
-        self.showHelp = true
-    }
-
-    func hasError() -> Bool {
-        return !self.error.isEmpty
-    }
-            
     func onCancel() {
-        self.exercise.restore(self.original)
+        self.display.send(.RollbackTransaction(name: "change fixed reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
+        if self.formalName != self.exercise.formalName {
+            self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
+        }
+        if self.name != self.exercise.name {
+            self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
+        }
+        
+        let weight = Double(self.weight)!
+        if weight != self.exercise.expected.weight {
+            self.display.send(.SetExpectedWeight(self.exercise, weight))
+        }
+        
+        let reps = parseRepRanges(self.reps, label: "reps").unwrap()
+        let rest = parseTimes(self.rests, label: "rest", zeroOK: true).unwrap()
+        let sets = (0..<reps.count).map({RepsSet(reps: reps[$0], restSecs: rest[$0])})
+        let dsets = Sets.fixedReps(sets)
+        if dsets != self.exercise.modality.sets {
+            self.display.send(.SetSets(self.exercise, dsets))
+        }
+
+        self.display.send(.ConfirmTransaction(name: "change fixed reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct EditFixedRepsView_Previews: PreviewProvider {
-    static func splitSquats() -> Exercise {
-        let work = RepsSet(reps: RepRange(8), restSecs: 60)
-        let sets = Sets.fixedReps([work, work, work])
-        let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Mountain Climber", "Mountain Climber", modality, Expected(weight: 5.0, reps: [8, 8, 8]))
-    }
-
-    static let workout = createWorkout("Strength", [splitSquats()], day: nil).unwrap()
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[0]
+    static let exercise = workout.exercises.first(where: {$0.name == "Foam Rolling"})!
 
     static var previews: some View {
-        EditFixedRepsView(workout: workout, exercise: workout.exercises[0])
+        EditFixedRepsView(display, workout, exercise)
     }
 }
 

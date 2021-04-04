@@ -123,8 +123,6 @@ struct EditDurationsView: View, ExerciseContext {
     @State var durations: String
     @State var target: String
     @State var rest: String
-    @State var errMesg = ""
-    @State var errColor = Color.black
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
@@ -161,7 +159,7 @@ struct EditDurationsView: View, ExerciseContext {
 
             VStack(alignment: .leading) {
                 exerciseNameView(self, self.$name, self.onEditedName)
-                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedName)
+                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
                 exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 HStack {
                     Text("Durations:").font(.headline)
