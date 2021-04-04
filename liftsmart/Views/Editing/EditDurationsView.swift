@@ -2,16 +2,15 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditDurationsView: View, EditContext {
+struct EditDurationsView: View {
     let workout: Workout
     var exercise: Exercise
-    @State var name = ""
-    @State var formalName = ""
-    @State var weight = "0.0"
-    @State var durations = ""
-    @State var target = ""
-    @State var rest = ""
-    @State var error = ViewError()
+    @State var name: String
+    @State var formalName: String
+    @State var weight: String
+    @State var durations: String
+    @State var target: String
+    @State var rest: String
     @State var errMesg = ""
     @State var errColor = Color.black
     @State var showHelp = false
@@ -24,31 +23,68 @@ struct EditDurationsView: View, EditContext {
         self.display = display
         self.workout = workout
         self.exercise = exercise
+
+        self._name = State(initialValue: exercise.name)
+        self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
+        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
+        
+        switch exercise.modality.sets {
+        case .durations(let d, targetSecs: let t):
+            self._durations = State(initialValue: d.map({restToStr($0.secs)}).joined(separator: " "))
+            self._rest = State(initialValue: d.map({restToStr($0.restSecs)}).joined(separator: " "))
+            self._target = State(initialValue: t.map({restToStr($0)}).joined(separator: " "))
+        default:
+            self._durations = State(initialValue: "")
+            self._rest = State(initialValue: "")
+            self._target = State(initialValue: "")
+            assert(false)
+        }
+
         self.display.send(.BeginTransaction(name: "change durations"))
     }
 
-    // TODO:
-    // need to validate names
-    // how to handle weights validation?
-    //    need to verify well-formed and sane
-    //    we want display to manage errors so display probably needs to handle it
-    //       note that state is often spread across multiple fields
-    // handle sets
     var body: some View {
         VStack() {
             Text("Edit Exercise" + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
-                createNameView(text: self.$name, self)
-                createFormalNameView(text: self.$formalName, modal: self.$formalNameModal, self)
-                createWeightView(text: self.$weight, self)
+                HStack {
+                    Text("Name:").font(.headline)
+                    TextField("", text: self.$name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())  // TODO: custom view modifier?
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .autocapitalization(.words)
+                        .onChange(of: self.name, perform: self.onEditedName)
+                    Button("?", action: self.onNameHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
+                HStack {
+                    Text("Formal Name:").font(.headline)
+                    Button(self.formalName, action: {self.formalNameModal = true})
+                        .font(.callout)
+                        .sheet(isPresented: self.$formalNameModal) {PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: matchFormalName, confirm: self.onEditedFormalName)}
+                    Spacer()
+                    Button("?", action: self.onFormalNameHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
+                HStack {
+                    // Probably want to handle weight differently for different apparatus. For example, for barbell
+                    // could use a picker like formal name uses: user can type in a weight and then is able to see
+                    // all the nearby weights and select one if he wants.
+                    Text("Weight:").font(.headline)
+                    TextField("", text: self.$weight)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.decimalPad)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.weight, perform: self.onEditedWeight)
+                Button("?", action: self.onWeightHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 HStack {
                     Text("Durations:").font(.headline)
                     TextField("", text: self.$durations)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
                         .disableAutocorrection(true)
-                        .onChange(of: self.durations, perform: self.onEditedDurations)
+                        .onChange(of: self.durations, perform: self.onEditedSets)
                     Button("?", action: self.onDurationsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 HStack {
@@ -57,10 +93,18 @@ struct EditDurationsView: View, EditContext {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
                         .disableAutocorrection(true)
-                        .onChange(of: self.target, perform: self.onEditedTarget)
+                        .onChange(of: self.target, perform: self.onEditedSets)
                     Button("?", action: self.onTargetHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                createRestView(text: self.$rest, self, extra: self.onEditedRest)
+                HStack {
+                    Text("Rest:").font(.headline)
+                    TextField("", text: self.$rest)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.rest, perform: self.onEditedSets)
+                    Button("?", action: self.onRestHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 // apparatus (conditional)
             }
             Spacer()
@@ -74,7 +118,6 @@ struct EditDurationsView: View, EditContext {
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
-            .onAppear {self.refresh()}
         }
         .alert(isPresented: $showHelp) {   // and views can only have one alert
             return Alert(
@@ -84,105 +127,40 @@ struct EditDurationsView: View, EditContext {
         }
     }
     
-    func refresh() {
-        self.error.set(self.$errMesg, self.$errColor)
+    private func onEditedName(_ text: String) {
+        self.display.send(.ValidateExerciseName(self.workout, text))
+    }
 
-        self.name = exercise.name
-        self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
-        self.weight = String(format: "%.3f", exercise.expected.weight)
-        
-        switch exercise.modality.sets {
-        case .durations(let d, targetSecs: let t):
-            self.durations = d.map({restToStr($0.secs)}).joined(separator: " ")
-            self.rest = d.map({restToStr($0.restSecs)}).joined(separator: " ")
-            self.target = t.map({restToStr($0)}).joined(separator: " ")
-        default:
-            assert(false)
-        }
+    private func onEditedFormalName(_ text: String) {
+        self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
     }
-    
-    func hasError() -> Bool {
-        return !self.error.isEmpty
-    }
-    
-    func doValidate() {
-        func setsMatch() -> Bool {
-            // We use zeroOK everywhere because here we only care about the number of elements.
-            let count1 = parseTimes(self.durations, label: "durations", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
-            let count2 = parseTimes(self.rest, label: "rest", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
-            let count3 = parseTimes(self.target, label: "target", zeroOK: true).map(left: {_ in 0}, right: {$0.count})
-            return count1 == count2 && (count3 == 0 || count1 == count3)
-        }
-        
-        if setsMatch() {
-            self.error.reset(key: "ZGlobal")
-        } else {
-            self.error.add(key: "ZGlobal", error: "Durations, target, and rest must have the same number of sets (although target can be empty)")
-        }
-    }
-    
-    func onEditedDurations(_ text: String) {
-        let result = parseTimes(text, label: "durations")
-        switch result {
-        case .right(let times):
-            if !times.isEmpty {
-                let rest = parseTimes(self.rest, label: "rest", zeroOK: true)
-                if rest.isRight() {
-                    updateSets(durs: times, rests: rest.unwrap())
-                    doValidate()
-                    self.error.reset(key: "Durations")
-                }
-            } else {
-                self.error.add(key: "Durations", error: "Durations needs at least one set")
-            }
-        case .left(let err):
-            self.error.add(key: "Durations", error: err)
-        }
-    }
-    
-    func onEditedRest(_ times: [Int]) -> String? {
-        let durs = parseTimes(self.durations, label: "durations")   // createRestView will validate rest
-        if durs.isRight() {
-            updateSets(durs: durs.unwrap(), rests: times)
-            doValidate()
-        }
 
-        return nil
+    private func onEditedWeight(_ text: String) {
+        self.display.send(.ValidateWeight(text, "weight"))
+    }
+
+    private func onEditedSets(_ text: String) {
+        self.display.send(.ValidateDurations(self.durations, self.target, self.rest))
     }
     
-    func onEditedTarget(_ text: String) {
-        let result = parseTimes(text, label: "target")
-        switch result {
-        case .right(let times):
-            var sets: [DurationSet]
-            switch exercise.modality.sets {
-            case .durations(let s, targetSecs: _):
-                sets = s
-            default:
-                assert(false)
-                sets = []
-            }
-
-            exercise.modality.sets = .durations(sets, targetSecs: times)
-            self.error.reset(key: "Target")
-            doValidate()
-        case .left(let err):
-            self.error.add(key: "Target", error: err)
-        }
+    private func onNameHelp() {
+        self.helpText = "Your name for the exercise, e.g. 'Light OHP'."
+        self.showHelp = true
     }
-    
-    func updateSets(durs: [Int], rests: [Int]) {
-        var target: [Int]
-        switch exercise.modality.sets {
-        case .durations(_, targetSecs: let t):
-            target = t
-        default:
-            assert(false)
-            target = []
-        }
 
-        let sets = zip(durs, rests).map({DurationSet(secs: $0, restSecs: $1)})
-        exercise.modality.sets = .durations(sets, targetSecs: target)
+    private func onFormalNameHelp() {
+        self.helpText = "The actual name for the exercise, e.g. 'Overhead Press'. This is used to lookup notes for the exercise."
+        self.showHelp = true
+    }
+
+    private func onWeightHelp() {
+        self.helpText = "An arbitrary weight. For stuff like barbells the app will use the closest supported weight below this weight."
+        self.showHelp = true
+    }
+
+    private func onRestHelp() {
+        self.helpText = "The amount of time to rest after each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
+        self.showHelp = true
     }
 
     func onDurationsHelp() {
@@ -207,6 +185,21 @@ struct EditDurationsView: View, EditContext {
         if self.name != self.exercise.name {
             self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
         }
+        
+        let weight = Double(self.weight)!
+        if weight != self.exercise.expected.weight {
+            self.display.send(.SetExpectedWeight(self.exercise, weight))
+        }
+        
+        let durations = parseTimes(self.durations, label: "durations").unwrap()
+        let rest = parseTimes(self.rest, label: "rest", zeroOK: true).unwrap()
+        let target = parseTimes(self.target, label: "target").unwrap()
+        let sets = zip(durations, rest).map({DurationSet(secs: $0, restSecs: $1)})
+        let dsets = Sets.durations(sets, targetSecs: target)
+        if dsets != self.exercise.modality.sets {
+            self.display.send(.SetSets(self.exercise, dsets))
+        }
+
         self.display.send(.ConfirmTransaction(name: "change durations"))
         self.presentationMode.wrappedValue.dismiss()
     }

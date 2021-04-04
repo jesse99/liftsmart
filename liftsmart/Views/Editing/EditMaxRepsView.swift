@@ -69,7 +69,6 @@ struct EditMaxRepsView: View, EditContext {
             .padding()
             .onAppear {self.refresh()}
         }
-//        .modifier(ShowHelp(showing: $showHelp, context: self))
         .alert(isPresented: $showHelp) {   // and views can only have one alert
             return Alert(
                 title: Text("Help"),

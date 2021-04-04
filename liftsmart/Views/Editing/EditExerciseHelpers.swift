@@ -2,6 +2,40 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+func matchFormalName(_ inText: String) -> [String] {
+    var names: [String] = []
+    
+    // TODO: better to do a proper fuzzy search
+    let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+
+    // First match any custom names defined by the user.
+    for candidate in userNotes.keys {
+        if defaultNotes[candidate] == nil {
+            let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+            if haystack.contains(needle) {
+                names.append(candidate)
+            }
+        }
+    }
+    
+    // Then match the standard names.
+    for candidate in defaultNotes.keys {
+        let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+        if haystack.contains(needle) {
+            names.append(candidate)
+        }
+        
+        // Not much point in showing the user a huge list of names.
+        if names.count >= 100 {
+            break
+        }
+    }
+
+    return names
+}
+
+// TODO: get rid of the below
+
 protocol EditContext {
     var workout: Workout {get}
     var exercise: Exercise {get}
@@ -12,23 +46,6 @@ protocol EditContext {
     var errColor: Color {get set}
     var showHelp: Bool {get set}
     var helpText: String {get set}
-}
-
-// TODO: Not using this because it does not work the first time a help button is clicked (there's no help text).
-// It does work once you click a different help button.
-struct ShowHelp: ViewModifier {
-    let showing: Binding<Bool>
-    let context: EditContext
-    
-    func body(content: Content) -> some View {
-        return content
-            .alert(isPresented: showing) {
-                return Alert(
-                    title: Text("Help"),
-                    message: Text(context.helpText),
-                    dismissButton: .default(Text("OK")))
-            }
-    }
 }
 
 func createNameView(text: Binding<String>, _ context: EditContext) -> some View {
@@ -82,38 +99,6 @@ func formalNameHelp(_ inContext: EditContext) {
     var context = inContext
     context.helpText = "The actual name for the exercise, e.g. 'Overhead Press'. This is used to lookup notes for the exercise."
     context.showHelp = true
-}
-
-func matchFormalName(_ inText: String) -> [String] {
-    var names: [String] = []
-    
-    // TODO: better to do a proper fuzzy search
-    let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
-
-    // First match any custom names defined by the user.
-    for candidate in userNotes.keys {
-        if defaultNotes[candidate] == nil {
-            let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
-            if haystack.contains(needle) {
-                names.append(candidate)
-            }
-        }
-    }
-    
-    // Then match the standard names.
-    for candidate in defaultNotes.keys {
-        let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
-        if haystack.contains(needle) {
-            names.append(candidate)
-        }
-        
-        // Not much point in showing the user a huge list of names.
-        if names.count >= 100 {
-            break
-        }
-    }
-
-    return names
 }
 
 func createFormalNameView(text: Binding<String>, modal: Binding<Bool>, _ context: EditContext) -> some View {

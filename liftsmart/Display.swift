@@ -32,8 +32,10 @@ enum Action {
     case SetExerciseName(Workout, Exercise, String)
     case SetExerciseFormalName(Exercise, String)
     case SetExpectedReps(Exercise, [Int])
+    case SetExpectedWeight(Exercise, Double)
     case SetSets(Exercise, Sets)
     case ToggleEnableExercise(Exercise)
+    case ValidateDurations(String, String, String)  // durations, target, rest
     case ValidateFormalName(String)
 
     // History
@@ -45,6 +47,7 @@ enum Action {
 
     // Misc
     case TimePassed
+    case ValidateWeight(String, String)
 
     // Program
     case AddWorkout(String)
@@ -139,6 +142,50 @@ class Display: ObservableObject {
             return nil
         }
         
+        func checkWeight(_ text: String) -> String? {
+            if let weight = Double(text) {
+                if weight < 0.0 {
+                    return "Weight cannot be negative (found \(weight))"
+                } else {
+                   return nil
+                }
+            } else {
+                return "Expected a floating point number for weight (found '\(text)')"
+            }
+        }
+        
+        func checkDurationsSets(_ durationsStr: String, _ targetStr: String, _ restStr: String) -> String? {
+            // Note that we don't use comma separated lists because that's more visual noise and
+            // because some locales use commas for the decimal points.
+            switch parseTimes(durationsStr, label: "durations") {
+            case .right(let durations):
+                switch parseTimes(targetStr, label: "target") {
+                case .right(let target):
+                    switch parseTimes(restStr, label: "rest", zeroOK: true) {
+                    case .right(let rest):
+                        let count1 = durations.count
+                        let count2 = rest.count
+                        let count3 = target.count
+                        let match = count1 == count2 && (count3 == 0 || count1 == count3)
+
+                        if !match {
+                            return "Durations, target, and rest must have the same number of sets (although target can be empty)"
+                        } else if count1 == 0 {
+                            return "Durations and rest need at least one set"
+                        }
+                        return nil
+
+                    case .left(let err):
+                        return err
+                    }
+                case .left(let err):
+                    return err
+                }
+            case .left(let err):
+                return err
+            }
+        }
+
         func update() {
             if updateUI {
                 self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // toggle between zero-width space and empty
@@ -207,12 +254,21 @@ class Display: ObservableObject {
         case .SetExpectedReps(let exercise, let reps):
             exercise.expected.reps = reps
             update()
+        case .SetExpectedWeight(let exercise, let weight):
+            exercise.expected.weight = weight
+            update()
         case .SetSets(let exercise, let sets):
             exercise.modality = Modality(exercise.modality.apparatus, sets)
             update()
         case .ToggleEnableExercise(let exercise):
             exercise.enabled = !exercise.enabled
             update()
+        case .ValidateDurations(let durations, let target, let rest):
+            if let err = checkDurationsSets(durations, target, rest) {
+                errors!.add(key: "set durations sets", warning: err)
+            } else {
+                errors!.reset(key: "set durations sets")
+            }
         case .ValidateFormalName(let name):
             if let err = checkFormalName(name) {
                 errors!.add(key: "set formal name", warning: err)
@@ -242,6 +298,13 @@ class Display: ObservableObject {
         case .TimePassed:
             // Enough time has passed that UIs should be refreshed.
             update()
+
+        case .ValidateWeight(let weight, let subtype):
+            if let err = checkWeight(weight) {
+                errors!.add(key: "set \(subtype)", error: err)
+            } else {
+                errors!.reset(key: "set \(subtype)")
+            }
 
         // Program
         case .AddWorkout(let name):
