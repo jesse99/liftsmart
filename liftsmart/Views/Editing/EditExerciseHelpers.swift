@@ -2,6 +2,16 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+struct ExerciseNameField: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .keyboardType(.default)
+            .disableAutocorrection(true)
+            .autocapitalization(.words)
+    }
+}
+
 func matchFormalName(_ inText: String) -> [String] {
     var names: [String] = []
     
