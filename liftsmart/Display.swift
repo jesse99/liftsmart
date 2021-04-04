@@ -38,6 +38,8 @@ enum Action {
     case ValidateDurations(String, String, String)  // durations, target, rest
     case ValidateFixedReps(String, String)          // reps, rest
     case ValidateFormalName(String)
+    case ValidateMaxReps(String)
+    case ValidateMaxRepsTarget(String)
 
     // History
     case AppendHistory(Workout, Exercise)
@@ -187,7 +189,7 @@ class Display: ObservableObject {
             }
         }
         
-        func checkFixedRepsSets(_ repsStr: String, _ restStr: String) -> String? {
+        func checkFixedReps(_ repsStr: String, _ restStr: String) -> String? {
             switch parseRepRanges(repsStr, label: "reps") {
             case .right(let reps):
                 switch parseTimes(restStr, label: "rest", zeroOK: true) {
@@ -202,6 +204,24 @@ class Display: ObservableObject {
                 case .left(let err):
                     return err
                 }
+            case .left(let err):
+                return err
+            }
+        }
+
+        func checkMaxReps(_ repsStr: String) -> String? {
+            switch parseOptionalRep(repsStr, label: "reps") {
+            case .right(_):
+                return nil
+            case .left(let err):
+                return err
+            }
+        }
+        
+        func checkMaxRepsTarget(_ targetStr: String) -> String? {
+            switch parseOptionalRep(targetStr, label: "target") {
+            case .right(_):
+                return nil
             case .left(let err):
                 return err
             }
@@ -286,13 +306,13 @@ class Display: ObservableObject {
             update()
         case .ValidateDurations(let durations, let target, let rest):
             if let err = checkDurationsSets(durations, target, rest) {
-                errors!.add(key: "set durations sets", warning: err)
+                errors!.add(key: "set durations sets", error: err)
             } else {
                 errors!.reset(key: "set durations sets")
             }
         case .ValidateFixedReps(let reps, let rest):
-            if let err = checkFixedRepsSets(reps, rest) {
-                errors!.add(key: "set fixed reps sets", warning: err)
+            if let err = checkFixedReps(reps, rest) {
+                errors!.add(key: "set fixed reps sets", error: err)
             } else {
                 errors!.reset(key: "set fixed reps sets")
             }
@@ -301,6 +321,18 @@ class Display: ObservableObject {
                 errors!.add(key: "set formal name", warning: err)
             } else {
                 errors!.reset(key: "set formal name")
+            }
+        case .ValidateMaxReps(let reps):
+            if let err = checkMaxReps(reps) {
+                errors!.add(key: "set max reps sets", error: err)
+            } else {
+                errors!.reset(key: "set max reps sets")
+            }
+        case .ValidateMaxRepsTarget(let target):
+            if let err = checkMaxRepsTarget(target) {
+                errors!.add(key: "set max reps target", error: err)
+            } else {
+                errors!.reset(key: "set max reps target")
             }
 
         // History

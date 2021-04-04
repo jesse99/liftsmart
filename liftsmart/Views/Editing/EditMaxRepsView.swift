@@ -2,40 +2,54 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditMaxRepsView: View, EditContext {
+struct EditMaxRepsView: View, ExerciseContext {
     let workout: Workout
-    var exercise: Exercise
-    let original: Exercise
-    @State var name = ""
-    @State var formalName = ""
-    @State var reps = ""
-    @State var weight = "0.0"
-    @State var target = ""
-    @State var rest = ""
-    @State var error = ViewError()
-    @State var errMesg = ""
-    @State var errColor = Color.black
+    let exercise: Exercise
+    @State var name: String
+    @State var formalName: String
+    @State var reps: String
+    @State var weight: String
+    @State var target: String
+    @State var rest: String
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(workout: Workout, exercise: Exercise) {
+    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        self.display = display
         self.workout = workout
         self.exercise = exercise
-        self.original = exercise.clone()
-        self.original.id = exercise.id
+
+        self._name = State(initialValue: exercise.name)
+        self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
+        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
+        
+        self._reps = State(initialValue: exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])")
+        
+        switch exercise.modality.sets {
+        case .maxReps(restSecs: let r, targetReps: let t):
+            self._rest = State(initialValue: r.map({restToStr($0)}).joined(separator: " "))
+            self._target = State(initialValue: t != nil ? "\(t!)" : "")
+        default:
+            self._rest = State(initialValue: "")
+            self._target = State(initialValue: "")
+            assert(false)
+        }
+
+        self.display.send(.BeginTransaction(name: "change max reps"))
     }
 
     var body: some View {
         VStack() {
-            Text("Edit Exercise").font(.largeTitle)
+            Text("Edit Exercise" + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
-                createNameView(text: self.$name, self)
-                createFormalNameView(text: self.$formalName, modal: self.$formalNameModal, self)
-                createWeightView(text: self.$weight, self)
-                createRestView(text: self.$rest, self)
+                exerciseNameView(self, self.$name, self.onEditedName)
+                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
+                exerciseWeightView(self, self.$weight, self.onEditedWeight)
+                exerciseRestView(self, self.$rest, self.onEditedReps)
                 HStack {
                     Text("Expected Reps:").font(.headline)
                     TextField("", text: self.$reps)
@@ -57,17 +71,16 @@ struct EditMaxRepsView: View, EditContext {
                 // apparatus (conditional)
             }
             Spacer()
-            Text(self.errMesg).foregroundColor(self.errColor).font(.callout).padding(.leading)
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK).font(.callout).disabled(self.hasError())
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
-            .onAppear {self.refresh()}
         }
         .alert(isPresented: $showHelp) {   // and views can only have one alert
             return Alert(
@@ -77,60 +90,24 @@ struct EditMaxRepsView: View, EditContext {
         }
     }
     
-    func refresh() {
-        self.error.set(self.$errMesg, self.$errColor)
+    private func onEditedName(_ text: String) {
+        self.display.send(.ValidateExerciseName(self.workout, text))
+    }
 
-        self.name = exercise.name
-        self.formalName = exercise.formalName.isEmpty ? "none" : exercise.formalName
-        self.reps = exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])"
-        self.weight = String(format: "%.3f", exercise.expected.weight)
-        
-        switch exercise.modality.sets {
-        case .maxReps(restSecs: let r, targetReps: let t):
-            self.rest = r.map({restToStr($0)}).joined(separator: " ")
-            self.target = t != nil ? "\(t!)" : ""
-        default:
-            assert(false)
-        }
+    private func onEditedFormalName(_ text: String) {
+        self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
     }
-    
-    func hasError() -> Bool {
-        return !self.error.isEmpty
+
+    private func onEditedWeight(_ text: String) {
+        self.display.send(.ValidateWeight(text, "weight"))
     }
-    
+
     func onEditedReps(_ text: String) {
-        switch parseOptionalRep(text, label: "reps") {
-        case .right(let r):
-            self.error.reset(key: "Reps")
-            if let reps = r {
-                self.exercise.expected.reps = [reps]
-            } else {
-                self.exercise.expected.reps = []
-            }
-
-        case .left(let err):
-            self.error.add(key: "Reps", error: err)
-        }
+        self.display.send(.ValidateMaxReps(text))
     }
     
     func onEditedTarget(_ text: String) {
-        var rest: [Int]
-        switch exercise.modality.sets {
-        case .maxReps(restSecs: let r, targetReps: _):
-            rest = r
-        default:
-            assert(false)
-            rest = []
-        }
-
-        switch parseOptionalRep(text, label: "target") {
-        case .right(let reps):
-            self.error.reset(key: "Target")
-            self.exercise.modality.sets = .maxReps(restSecs: rest, targetReps: reps)
-
-        case .left(let err):
-            self.error.add(key: "Target", error: err)
-        }
+        self.display.send(.ValidateMaxRepsTarget(text))
     }
         
     func onRepsHelp() {
@@ -144,28 +121,46 @@ struct EditMaxRepsView: View, EditContext {
     }
     
     func onCancel() {
-        self.exercise.restore(self.original)
+        self.display.send(.RollbackTransaction(name: "change max reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {        
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
+        if self.formalName != self.exercise.formalName {
+            self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
+        }
+        if self.name != self.exercise.name {
+            self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
+        }
+        
+        let weight = Double(self.weight)!
+        if weight != self.exercise.expected.weight {
+            self.display.send(.SetExpectedWeight(self.exercise, weight))
+        }
+        
+        if let reps = parseOptionalRep(self.reps, label: "reps").unwrap(), [reps] != self.exercise.expected.reps {
+            self.display.send(.SetExpectedReps(self.exercise, [reps]))
+        }
+        
+        let target = parseOptionalRep(self.target, label: "target").unwrap()
+        let rest = parseTimes(self.rest, label: "rest", zeroOK: true).unwrap()
+        let msets = Sets.maxReps(restSecs: rest, targetReps: target)
+        if msets != self.exercise.modality.sets {
+            self.display.send(.SetSets(self.exercise, msets))
+        }
+
+        self.display.send(.ConfirmTransaction(name: "change max reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct EditMaxRepsView_Previews: PreviewProvider {
-    static func curls() -> Exercise {
-        let sets = Sets.maxReps(restSecs: [90, 90, 0])
-        let modality = Modality(Apparatus.bodyWeight, sets)
-        return Exercise("Curls", "Hammer Curls", modality, Expected(weight: 9.0, reps: [74]))
-    }
-
-    static let workout = createWorkout("Strength", [curls()], day: nil).unwrap()
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[0]
+    static let exercise = workout.exercises.first(where: {$0.name == "Curls"})!
 
     static var previews: some View {
-        EditMaxRepsView(workout: workout, exercise: workout.exercises[0])
+        EditMaxRepsView(display, workout, exercise)
     }
 }
 

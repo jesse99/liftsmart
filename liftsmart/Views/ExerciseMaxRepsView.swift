@@ -88,7 +88,7 @@ struct ExerciseMaxRepsView: View {
                     .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditMaxRepsView(workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditMaxRepsView(self.display, self.workout, self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
