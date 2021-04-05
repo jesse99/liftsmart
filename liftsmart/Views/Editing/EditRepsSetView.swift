@@ -3,31 +3,71 @@
 import SwiftUI
 
 struct EditRepsSetView: View {
-    let name: Binding<String>
-    let set: Binding<[RepsSet]>
-    let completion: ([RepsSet]) -> Void
-    @State var reps = ""
-    @State var percents = ""
-    @State var rests = ""
-    @State var errText: String = ""
+    enum Kind {case Warmup; case WorkSets; case Backoff}
+
+    let exercise: Exercise
+    let name: String
+    let kind: Kind
+    @State var reps: String
+    @State var percents: String
+    @State var rests: String
+    @State var expected: String
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(name: Binding<String>, set: Binding<[RepsSet]>, completion: @escaping ([RepsSet]) -> Void) {
-        self.name = name
-        self.set = set
-        self.completion = completion
+    init(_ display: Display, _ exercise: Exercise, _ kind: Kind) {
+        self.display = display
+        self.exercise = exercise
+        
+        var sets: [RepsSet] = []
+        switch kind {
+        case .Warmup:
+            switch exercise.modality.sets {
+            case .repRanges(warmups: let s, worksets: _, backoffs: _):
+                sets = s
+            default:
+                assert(false)
+            }
+            self.name = "Warmups"
+            self._expected = State(initialValue: " ")
+        case .WorkSets:
+            switch exercise.modality.sets {
+            case .repRanges(warmups: _, worksets: let s, backoffs: _):
+                sets = s
+            default:
+                assert(false)
+            }
+            self.name = "Work Sets"
+            self._expected = State(initialValue: exercise.expected.reps.map({$0.description}).joined(separator: " "))
+        case .Backoff:
+            switch exercise.modality.sets {
+            case .repRanges(warmups: _, worksets: _, backoffs: let s):
+                sets = s
+            default:
+                assert(false)
+            }
+            self.name = "backoff"
+            self._expected = State(initialValue: " ")
+        }
+        self.kind = kind
+
+        self._reps = State(initialValue: sets.map({$0.reps.editable}).joined(separator: " "))
+        self._percents = State(initialValue: sets.map({$0.percent.editable}).joined(separator: " "))
+        self._rests = State(initialValue: sets.map({restToStr($0.restSecs)}).joined(separator: " "))
+
+        self.display.send(.BeginTransaction(name: "change reps sets"))
     }
 
     var body: some View {
         VStack {
-            Text("Edit " + self.name.wrappedValue).font(.largeTitle)
+            Text("Edit " + self.name + self.display.edited).font(.largeTitle).font(.largeTitle)
             HStack {
                 Text("Reps:").font(.headline)
                 TextField("", text: self.$reps)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.default)
                     .disableAutocorrection(true)
-                    .onChange(of: self.reps, perform: self.onValidate)
+                    .onChange(of: self.reps, perform: self.onEditedSets)
                     .padding()
             }.padding(.leading)
             HStack {
@@ -36,7 +76,7 @@ struct EditRepsSetView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.default)
                     .disableAutocorrection(true)
-                    .onChange(of: self.percents, perform: self.onValidate)
+                    .onChange(of: self.percents, perform: self.onEditedSets)
                     .padding()
             }.padding(.leading)
             HStack {
@@ -45,101 +85,94 @@ struct EditRepsSetView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.default)
                     .disableAutocorrection(true)
-                    .onChange(of: self.rests, perform: self.onValidate)
+                    .onChange(of: self.rests, perform: self.onEditedSets)
                     .padding()
             }.padding(.leading)
+            if case .WorkSets = self.kind {
+                HStack {
+                    Text("Expected:").font(.headline)
+                    TextField("", text: self.$expected)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.expected, perform: self.onEditedSets)
+                }.padding(.leading)
+            }
             Spacer()
-            Text(self.errText).foregroundColor(.red).font(.callout).padding(.leading)
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK).font(.callout).disabled(self.hasError())
-            }.padding().onAppear {self.refresh()}
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
+            }.padding()
         }
     }
     
-    func refresh() {
-        self.reps = set.wrappedValue.map({$0.reps.editable}).joined(separator: " ")
-        self.percents = set.wrappedValue.map({$0.percent.editable}).joined(separator: " ")
-        self.rests = set.wrappedValue.map({restToStr($0.restSecs)}).joined(separator: " ")
-    }
-        
-    func doValidate() -> [RepsSet]? {
-        // Check each rep, this can be empty (e.g. for warmups)
-        var newReps: [RepRange] = []
-        switch parseRepRanges(self.reps, label: "reps") {
-        case .right(let reps):
-            newReps = reps
-        case .left(let err):
-            self.errText = err
-            return nil
+    func onEditedSets(_ text: String) {
+        switch self.kind {
+        case .WorkSets:
+            self.display.send(.ValidateRepRanges(self.reps, self.percents, self.rests, self.expected))
+        default:
+            self.display.send(.ValidateRepRanges(self.reps, self.percents, self.rests, nil))
         }
-
-        // Check each percent
-        var newPercents: [WeightPercent] = []
-        switch parsePercents(self.percents, label: "percents") {
-        case .right(let percents):
-            newPercents = percents
-        case .left(let err):
-            self.errText = err
-            return nil
-        }
-
-        // Check each rest
-        var newRests: [Int] = []
-        switch parseTimes(self.rests, label: "rest", zeroOK: true) {
-        case .right(let times):
-            newRests = times
-        case .left(let err):
-            self.errText = err
-            return nil
-        }
-
-        // Ensure that counts match up
-        if newReps.count == newPercents.count && newPercents.count == newRests.count {
-            var newSets: [RepsSet] = []
-            for i in 0..<newReps.count {
-                newSets.append(RepsSet(reps: newReps[i], percent: newPercents[i], restSecs: newRests[i]))
-            }
-            self.errText = ""
-            return newSets
-
-        } else {
-            self.errText = "Number of sets must all match"
-            return nil
-        }
-    }
-    
-    func onValidate(_ dummy: String) {
-        let _ = doValidate()
-    }
-    
-    func hasError() -> Bool {
-        return !self.errText.isEmpty
     }
     
     func onCancel() {
+        self.display.send(.RollbackTransaction(name: "change reps sets"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        self.errText = ""
-        self.completion(doValidate()!)
+        var newSets: [RepsSet] = []
+        let reps = parseRepRanges(self.reps, label: "reps").unwrap()
+        let percent = parsePercents(self.percents, label: "percents").unwrap()
+        let rest = parseTimes(self.rests, label: "rest", zeroOK: true).unwrap()
+        for i in 0..<reps.count {
+            newSets.append(RepsSet(reps: reps[i], percent: percent[i], restSecs: rest[i]))
+        }
+
+        switch self.exercise.modality.sets {
+        case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
+            var sets: Sets
+            switch self.kind {
+            case .Warmup:
+                sets = .repRanges(warmups: newSets, worksets: worksets, backoffs: backoffs)
+            case .WorkSets:
+                sets = .repRanges(warmups: warmups, worksets: newSets, backoffs: backoffs)
+
+                let expected = parseReps(self.expected, label: "expected", emptyOK: true).unwrap()
+                if expected != self.exercise.expected.reps {
+                    self.display.send(.SetExpectedReps(self.exercise, expected))
+                }
+            case .Backoff:
+                sets = .repRanges(warmups: warmups, worksets: worksets, backoffs: newSets)
+            }
+
+            if sets != self.exercise.modality.sets {
+                self.display.send(.SetSets(self.exercise, sets))
+            }
+
+        default:
+            assert(false)
+        }
+
+        self.display.send(.ConfirmTransaction(name: "change reps sets"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
-//struct EditRepsSetView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let s1 = RepsSet(reps: RepRange(min: 8, max: 12)!, percent: WeightPercent(0.7)!, restSecs: 3*60)!
-//        let s2 = RepsSet(reps: RepRange(min: 6, max: 10)!, percent: WeightPercent(0.8)!, restSecs: 3*60)!
-//        let s3 = RepsSet(reps: RepRange(min: 4, max: 8)!,  percent: WeightPercent(0.9)!, restSecs: 3*60 + 30)!
-//        EditRepsSetView(name: "Work Sets", set: [s1, s2, s3], completion: done)
-//    }
-//    
-//    static func done(_ reps: [RepsSet]) {
-//    }
-//}
+struct EditRepsSetView_Previews: PreviewProvider {
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[1]
+    static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
+
+    static var previews: some View {
+        Group {
+            EditRepsSetView(display, exercise, .WorkSets)
+            EditRepsSetView(display, exercise, .Warmup)
+        }
+    }
+}

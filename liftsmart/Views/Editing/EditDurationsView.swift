@@ -116,7 +116,7 @@ func exerciseRestView(_ context: ExerciseContext, _ text: Binding<String>, _ onE
 
 struct EditDurationsView: View, ExerciseContext {
     let workout: Workout
-    var exercise: Exercise
+    let exercise: Exercise
     @State var name: String
     @State var formalName: String
     @State var weight: String

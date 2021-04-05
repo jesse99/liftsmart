@@ -40,6 +40,7 @@ enum Action {
     case ValidateFormalName(String)
     case ValidateMaxReps(String)
     case ValidateMaxRepsTarget(String)
+    case ValidateRepRanges(String, String, String, String?) // reps, percent, rest, expected
 
     // History
     case AppendHistory(Workout, Exercise)
@@ -156,54 +157,37 @@ class Display: ObservableObject {
                 return "Expected a floating point number for weight (found '\(text)')"
             }
         }
-        
+
         func checkDurationsSets(_ durationsStr: String, _ targetStr: String, _ restStr: String) -> String? {
             // Note that we don't use comma separated lists because that's more visual noise and
             // because some locales use commas for the decimal points.
-            switch parseTimes(durationsStr, label: "durations") {
-            case .right(let durations):
-                switch parseTimes(targetStr, label: "target") {
-                case .right(let target):
-                    switch parseTimes(restStr, label: "rest", zeroOK: true) {
-                    case .right(let rest):
-                        let count1 = durations.count
-                        let count2 = rest.count
-                        let count3 = target.count
-                        let match = count1 == count2 && (count3 == 0 || count1 == count3)
+            switch coalesce(parseTimes(durationsStr, label: "durations"), parseTimes(targetStr, label: "target"), parseTimes(restStr, label: "rest", zeroOK: true)) {
+            case .right((let durations, let target, let rest)):
+                let count1 = durations.count
+                let count2 = rest.count
+                let count3 = target.count
+                let match = count1 == count2 && (count3 == 0 || count1 == count3)
 
-                        if !match {
-                            return "Durations, target, and rest must have the same number of sets (although target can be empty)"
-                        } else if count1 == 0 {
-                            return "Durations and rest need at least one set"
-                        }
-                        return nil
-
-                    case .left(let err):
-                        return err
-                    }
-                case .left(let err):
-                    return err
+                if !match {
+                    return "Durations, target, and rest must have the same number of sets (although target can be empty)"
+                } else if count1 == 0 {
+                    return "Durations and rest need at least one set"
                 }
+                return nil
             case .left(let err):
                 return err
             }
         }
         
         func checkFixedReps(_ repsStr: String, _ restStr: String) -> String? {
-            switch parseRepRanges(repsStr, label: "reps") {
-            case .right(let reps):
-                switch parseTimes(restStr, label: "rest", zeroOK: true) {
-                case .right(let rest):
-                    if reps.count != rest.count {
-                        return "Reps and rest counts must match"
-                    } else if reps.count == 0 {
-                        return "Reps and rest need at least one set"
-                    }
-                    return nil
-
-                case .left(let err):
-                    return err
+            switch coalesce(parseRepRanges(repsStr, label: "reps"), parseTimes(restStr, label: "rest", zeroOK: true)) {
+            case .right((let reps, let rest)):
+                if reps.count != rest.count {
+                    return "Reps and rest counts must match"
+                } else if reps.count == 0 {
+                    return "Reps and rest need at least one set"
                 }
+                return nil
             case .left(let err):
                 return err
             }
@@ -224,6 +208,49 @@ class Display: ObservableObject {
                 return nil
             case .left(let err):
                 return err
+            }
+        }
+
+        func checkRepRanges(_ repsStr: String, _ percentStr: String, _ restStr: String, _ inExpectedStr: String?) -> String? {
+            if let expectedStr = inExpectedStr {
+                switch coalesce(parseRepRanges(repsStr, label: "reps"),
+                                parsePercents(percentStr, label: "percents"),
+                                parseTimes(restStr, label: "rest", zeroOK: true),
+                                parseReps(expectedStr, label: "expected", emptyOK: true)) {
+                case .right((let reps, let percent, let rest, let expected)):
+                    let count1 = reps.count
+                    let count2 = percent.count
+                    let count3 = rest.count
+                    let count4 = expected.count
+                    let match = count1 == count2 && count1 == count3 && (count4 == 0 || count1 == count4)
+
+                    if !match {
+                        return "Number of sets must all match (although expected can be empty)"
+                    } else if count1 == 0 {
+                        return "Need at least one work set"
+                    }
+                    return nil
+                case .left(let err):
+                    return err
+                }
+
+            } else {
+                switch coalesce(parseRepRanges(repsStr, label: "reps"),
+                                parsePercents(percentStr, label: "percents"),
+                                parseTimes(restStr, label: "rest", zeroOK: true)) {
+                case .right((let reps, let percent, let rest)):
+                    let count1 = reps.count
+                    let count2 = percent.count
+                    let count3 = rest.count
+                    let match = count1 == count2 && count1 == count3
+
+                    if !match {
+                        return "Number of sets must all match"
+                    }
+                    return nil
+                case .left(let err):
+                    return err
+                }
             }
         }
 
@@ -333,6 +360,12 @@ class Display: ObservableObject {
                 errors!.add(key: "set max reps target", error: err)
             } else {
                 errors!.reset(key: "set max reps target")
+            }
+        case .ValidateRepRanges(let reps, let percent, let rest, let expected):
+            if let err = checkRepRanges(reps, percent, rest, expected) {
+                errors!.add(key: "set rep ranges", error: err)
+            } else {
+                errors!.reset(key: "set rep ranges")
             }
 
         // History

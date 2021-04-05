@@ -108,7 +108,7 @@ struct ExerciseRepRangesView: View {
                     .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditRepRangesView(workout: self.workout, exercise: self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditRepRangesView(self.display, self.workout, self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
