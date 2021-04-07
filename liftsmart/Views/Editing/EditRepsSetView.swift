@@ -18,36 +18,26 @@ struct EditRepsSetView: View {
     init(_ display: Display, _ exercise: Exercise, _ kind: Kind) {
         self.display = display
         self.exercise = exercise
-        
+        self._expected = State(initialValue: " ")
+
         var sets: [RepsSet] = []
-        switch kind {
-        case .Warmup:
-            switch exercise.modality.sets {
-            case .repRanges(warmups: let s, worksets: _, backoffs: _):
-                sets = s
-            default:
-                assert(false)
+        switch exercise.modality.sets {
+        case .repRanges(warmups: let warm, worksets: let work, backoffs: let back):
+            switch kind {
+            case .Warmup:
+                sets = warm
+                self.name = "Warmups"
+            case .WorkSets:
+                sets = work
+                self.name = "Work Sets"
+                self._expected = State(initialValue: exercise.expected.reps.map({$0.description}).joined(separator: " "))
+            case .Backoff:
+                sets = back
+                self.name = "Backoff"
             }
-            self.name = "Warmups"
-            self._expected = State(initialValue: " ")
-        case .WorkSets:
-            switch exercise.modality.sets {
-            case .repRanges(warmups: _, worksets: let s, backoffs: _):
-                sets = s
-            default:
-                assert(false)
-            }
-            self.name = "Work Sets"
-            self._expected = State(initialValue: exercise.expected.reps.map({$0.description}).joined(separator: " "))
-        case .Backoff:
-            switch exercise.modality.sets {
-            case .repRanges(warmups: _, worksets: _, backoffs: let s):
-                sets = s
-            default:
-                assert(false)
-            }
-            self.name = "backoff"
-            self._expected = State(initialValue: " ")
+        default:
+            self.name = "?"
+            assert(false)
         }
         self.kind = kind
 

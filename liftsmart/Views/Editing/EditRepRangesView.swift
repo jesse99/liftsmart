@@ -8,12 +8,11 @@ struct EditRepRangesView: View, ExerciseContext {
     @State var name: String
     @State var formalName: String
     @State var weight: String
-    @State var repsSetName = ""
-    @State var repsSet: [RepsSet] = []
     @State var showHelp = false
     @State var helpText = ""
     @State var formalNameModal = false
     @State var repsModal = false
+    @State var repsKind = EditRepsSetView.Kind.Warmup
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
@@ -33,9 +32,6 @@ struct EditRepRangesView: View, ExerciseContext {
         VStack() {
             Text("Edit Exercise" + self.display.edited).font(.largeTitle)
 
-            // TODO:
-            // get rid of expected
-            // will need a Kind state field
             VStack(alignment: .leading) {
                 exerciseNameView(self, self.$name, self.onEditedName)
                 exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
@@ -65,7 +61,7 @@ struct EditRepRangesView: View, ExerciseContext {
                             self.showHelp = true
                         }).font(.callout).padding(.trailing)
                     }.padding(.leading)
-//                    .sheet(isPresented: self.$repsModal) {EditRepsSetView(self.display, self.exercise, self.kind)}
+                    .sheet(isPresented: self.$repsModal) {EditRepsSetView(self.display, self.exercise, self.repsKind)}
                 }
                 // apparatus (conditional)
             }
@@ -90,12 +86,18 @@ struct EditRepRangesView: View, ExerciseContext {
     }
     
     private func onWarmups() {
+        self.repsModal = true
+        self.repsKind = .Warmup
     }
     
     private func onWorkSets() {
+        self.repsModal = true
+        self.repsKind = .WorkSets
     }
     
     private func onBackoff() {
+        self.repsModal = true
+        self.repsKind = .Backoff
     }
     
     private func onEditedName(_ text: String) {

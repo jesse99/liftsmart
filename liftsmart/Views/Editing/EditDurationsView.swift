@@ -58,6 +58,11 @@ func exerciseFormalNameView(_ context: ExerciseContext, _ text: Binding<String>,
 
         return names
     }
+    
+    func onEdited(_ inText: String) {
+        text.wrappedValue = inText
+        onEdit(inText)
+    }
 
     func formalNameHelp(_ inContext: ExerciseContext) {
         var context = inContext
@@ -69,7 +74,7 @@ func exerciseFormalNameView(_ context: ExerciseContext, _ text: Binding<String>,
         Text("Formal Name:").font(.headline)
         Button(text.wrappedValue, action: {modal.wrappedValue = true})
             .font(.callout)
-            .sheet(isPresented: modal) {PickerView(title: "Formal Name", prompt: "Name: ", initial: text.wrappedValue, populate: matchFormalName, confirm: onEdit)}
+            .sheet(isPresented: modal) {PickerView(title: "Formal Name", prompt: "Name: ", initial: text.wrappedValue, populate: matchFormalName, confirm: onEdited)}
         Spacer()
         Button("?", action: {formalNameHelp(context)}).font(.callout).padding(.trailing)
     }.padding(.leading)
