@@ -96,8 +96,8 @@ struct EditFWSView: View {
         }
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
-        .sheet(isPresented: self.$showSheet) {
-            OldEditTextView(title: "Weight", content: "", type: .decimalPad, validator: self.onValidWeight, completion: self.onAddWeight)}
+//        .sheet(isPresented: self.$showSheet) {
+//            OldEditTextView(title: "Weight", content: "", type: .decimalPad, validator: self.onValidWeight, completion: self.onAddWeight)}
 //            EditTextView(title: "Name", content: "", validator: self.onValidName, completion: self.onEditedName)}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             return Alert(

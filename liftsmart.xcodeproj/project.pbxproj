@@ -25,7 +25,6 @@
 		3756D25B25AA756D0004A99F /* ChangeTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3756D25A25AA756D0004A99F /* ChangeTypeView.swift */; };
 		3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */; };
 		3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA6124B1A84A00EF604A /* RestartableTimer.swift */; };
-		3766CA6424BB797800EF604A /* OldEditTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3766CA6324BB797700EF604A /* OldEditTextView.swift */; };
 		376987BF244B95D30021D0FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987BE244B95D30021D0FB /* AppDelegate.swift */; };
 		376987C1244B95D30021D0FB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987C0244B95D30021D0FB /* SceneDelegate.swift */; };
 		376987C3244B95D30021D0FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987C2244B95D30021D0FB /* ContentView.swift */; };
@@ -54,7 +53,6 @@
 		37B87508258E8C0E0097FA9F /* EditRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */; };
 		37B8750E258EAD230097FA9F /* EditRepsSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B8750D258EAD230097FA9F /* EditRepsSetView.swift */; };
 		37B9DEB625FE8B96001654AF /* EditTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B9DEB525FE8B96001654AF /* EditTextView.swift */; };
-		37BFEBC125DAEC4A00158BE2 /* ViewError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBC025DAEC4A00158BE2 /* ViewError.swift */; };
 		37BFEBC725DB56FA00158BE2 /* ChangeApparatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */; };
 		37BFEBCD25E324FC00158BE2 /* FixedWeightSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBCC25E324FC00158BE2 /* FixedWeightSet.swift */; };
 		37BFEBD125E32B7300158BE2 /* EditFWSsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBD025E32B7300158BE2 /* EditFWSsView.swift */; };
@@ -100,7 +98,6 @@
 		3756D25A25AA756D0004A99F /* ChangeTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeTypeView.swift; sourceTree = "<group>"; };
 		3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalExtension.swift; sourceTree = "<group>"; };
 		3766CA6124B1A84A00EF604A /* RestartableTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestartableTimer.swift; sourceTree = "<group>"; };
-		3766CA6324BB797700EF604A /* OldEditTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldEditTextView.swift; sourceTree = "<group>"; };
 		376987BB244B95D30021D0FB /* liftsmart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = liftsmart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		376987BE244B95D30021D0FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		376987C0244B95D30021D0FB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -132,7 +129,6 @@
 		37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepRangesView.swift; sourceTree = "<group>"; };
 		37B8750D258EAD230097FA9F /* EditRepsSetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepsSetView.swift; sourceTree = "<group>"; };
 		37B9DEB525FE8B96001654AF /* EditTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextView.swift; sourceTree = "<group>"; };
-		37BFEBC025DAEC4A00158BE2 /* ViewError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewError.swift; sourceTree = "<group>"; };
 		37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeApparatusView.swift; sourceTree = "<group>"; };
 		37BFEBCC25E324FC00158BE2 /* FixedWeightSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedWeightSet.swift; sourceTree = "<group>"; };
 		37BFEBD025E32B7300158BE2 /* EditFWSsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFWSsView.swift; sourceTree = "<group>"; };
@@ -243,7 +239,6 @@
 				374896D4254F31C60030D7B2 /* PickerView.swift */,
 				378D567324830271006A041C /* ProgramView.swift */,
 				378D567524842C95006A041C /* TimerView.swift */,
-				37BFEBC025DAEC4A00158BE2 /* ViewError.swift */,
 				37412F5A2482D5C400FA78A7 /* WorkoutView.swift */,
 			);
 			path = Views;
@@ -280,7 +275,6 @@
 				37B8750D258EAD230097FA9F /* EditRepsSetView.swift */,
 				37B9DEB525FE8B96001654AF /* EditTextView.swift */,
 				379461FD251FF98D006774A0 /* EditWorkoutView.swift */,
-				3766CA6324BB797700EF604A /* OldEditTextView.swift */,
 			);
 			path = Editing;
 			sourceTree = "<group>";
@@ -434,7 +428,6 @@
 				379461FE251FF98D006774A0 /* EditWorkoutView.swift in Sources */,
 				3756D25B25AA756D0004A99F /* ChangeTypeView.swift in Sources */,
 				378D567624842C95006A041C /* TimerView.swift in Sources */,
-				37BFEBC125DAEC4A00158BE2 /* ViewError.swift in Sources */,
 				379461FB251FB962006774A0 /* EditProgramView.swift in Sources */,
 				3766CA6024B00DD200EF604A /* TimeIntervalExtension.swift in Sources */,
 				374F97DD248C25A50062EE0B /* DateExtension.swift in Sources */,
@@ -455,7 +448,6 @@
 				37FB6E8B246B52ED00EB4916 /* Program.swift in Sources */,
 				376987BF244B95D30021D0FB /* AppDelegate.swift in Sources */,
 				3781EB3F25FD953E00348E87 /* Display.swift in Sources */,
-				3766CA6424BB797800EF604A /* OldEditTextView.swift in Sources */,
 				37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */,
 				37BFEBC725DB56FA00158BE2 /* ChangeApparatusView.swift in Sources */,
 				37DEA437247C46B1008297A2 /* Programs.swift in Sources */,

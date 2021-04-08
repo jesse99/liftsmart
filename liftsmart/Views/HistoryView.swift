@@ -75,9 +75,9 @@ struct HistoryView: View {
             ActionSheet(title: Text(self.selection!.sublabel), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
             if self.sheetAction == .editNote {
-                OldEditTextView(title: "Edit Note", placeHolder: "user note", content: self.selection!.note, completion: self.onEditedNote)
+                EditTextView(self.display, title: "Edit Note", content: self.selection!.note, placeHolder: "user note", sender: self.onEditedNote)
             } else {
-                OldEditTextView(title: "Edit Weight", content: friendlyWeight(self.selection!.record.weight), type: .decimalPad, validator: self.onValidWeight, completion: self.onEditedWeight)
+                EditTextView(self.display, title: "Edit Weight", content: friendlyWeight(self.selection!.record.weight), type: .decimalPad, validator: self.onValidWeight, sender: self.onEditedWeight)
             }}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             if self.alertAction == .deleteSelected {
@@ -125,23 +125,16 @@ struct HistoryView: View {
         self.sheetAction = .editNote
     }
 
-    func onEditedNote(_ content: String) {
-        self.display.send(.SetHistoryNote(self.selection!.record, content))
+    func onEditedNote(_ content: String) -> Action {
+        return .SetHistoryNote(self.selection!.record, content)
     }
 
-    func onEditedWeight(_ content: String) {
-        self.display.send(.SetHistoryWeight(self.selection!.record, Double(content)!))
+    func onEditedWeight(_ content: String) -> Action {
+        return Action.SetHistoryWeight(self.selection!.record, Double(content)!)
     }
 
-    func onValidWeight(_ content: String) -> String? {
-        if let weight = Double(content) {
-            if weight < 0.0 {
-                return "Weight cannot be negative"
-            }
-            return nil
-        } else {
-            return "Not a number"
-        }
+    func onValidWeight(_ content: String) -> Action {
+        return .ValidateWeight(content, "weight")
     }
     
     func onDelete() {
