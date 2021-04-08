@@ -26,9 +26,17 @@ struct PickerView: View {
     let initial: String
     let populate: Populate
     let confirm: Confirm
-    @State var value = ""
-    @State var entries: [PickerEntry] = []
+    @State var value: String
     @Environment(\.presentationMode) private var presentationMode
+    
+    init(title: String, prompt: String, initial: String, populate: @escaping Populate, confirm: @escaping Confirm) {
+        self.title = title
+        self.prompt = prompt
+        self.initial = initial
+        self.populate = populate
+        self.confirm = confirm
+        self._value = State(initialValue: initial)
+    }
 
     var body: some View {
         VStack() {
@@ -41,17 +49,16 @@ struct PickerView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
                         .disableAutocorrection(true)
-                        .onChange(of: self.value, perform: self.onEditedText)
                 }.padding(.leading)
             }
             Spacer()
 
-            List(self.entries) {entry in
+            List(self.getEntries()) {entry in
                 VStack(alignment: .leading) {
                     Text(entry.name).font(.headline)
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
-                .onTapGesture {self.value = entry.name; self.refresh()}
+                .onTapGesture {self.value = entry.name}
             }
 
             HStack {
@@ -59,16 +66,12 @@ struct PickerView: View {
                 Spacer()
                 Spacer()
                 Button("OK", action: onOK).font(.callout)
-            }.padding().onAppear {self.value = self.initial; self.refresh()}
+            }
         }
     }
     
-    func refresh() {
-        self.entries = self.populate(self.value).map({PickerEntry($0)})
-    }
-
-    func onEditedText(_ text: String) {
-        refresh()
+    func getEntries() -> [PickerEntry] {
+        return self.populate(self.value).map({PickerEntry($0)})
     }
     
     func onCancel() {
