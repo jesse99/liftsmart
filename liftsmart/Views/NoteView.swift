@@ -5,68 +5,62 @@ import SwiftUI
 
 /// Displays the note associated with an exercise.
 struct NoteView: View {
-    @Environment(\.presentationMode) private var presentationMode
-    @State var editModal = false
-    @State var markup = ""
-    @State var originalMarkup = ""
-    @State var hasUserNote = false
     let formalName: String
-    
+    @State var editModal = false
+    @ObservedObject var display: Display
+    @Environment(\.presentationMode) private var presentationMode
+
+    init(_ display: Display, formalName: String) {
+        self.display = display
+        self.formalName = formalName
+    }
+
     var body: some View {
         VStack {
-            Text(self.formalName).font(.largeTitle)
-            MDText(markdown: self.markup).font(.callout)
+            Text(self.formalName + self.display.edited).font(.largeTitle)
+            MDText(markdown: self.markup()).font(.callout)
                 .padding()
             Spacer()
             HStack {
                 Button("Revert", action: onRevert)
                     .font(.body)
-                    .disabled(!self.hasUserNote)
+                    .disabled(!self.hasUserNote())
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal, onDismiss: self.onFinishedEditing) {EditNoteView(formalName: self.formalName)}
+                    .sheet(isPresented: self.$editModal) {EditNoteView(self.display, formalName: self.formalName)}
                 Spacer()
                 Spacer()
                 Button("Done", action: onDone).font(.callout)
             }
             .padding()
-            .onAppear {self.onUpdate(); self.originalMarkup = self.markup}
         }
+    }
+    
+    func markup() -> String {
+        return userNotes[formalName] ?? defaultNotes[formalName] ?? "No note"
+    }
+    
+    func hasUserNote() -> Bool {
+        return !((userNotes[formalName] ?? "").isEmpty)
     }
     
     func onEdit() {
         self.editModal = true
     }
     
-    func onFinishedEditing() {
-        self.onUpdate()
-    }
-
     func onRevert() {
-        userNotes[formalName] = nil
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-        
-        onUpdate()
+        self.display.send(.SetUserNote(self.formalName, nil))
     }
 
     func onDone() {
         self.presentationMode.wrappedValue.dismiss()
     }
-    
-    func onUpdate() {
-        self.markup = self.getNote()
-        self.hasUserNote = !((userNotes[formalName] ?? "").isEmpty)
-    }
-    
-    func getNote() -> String {
-        return userNotes[formalName] ?? defaultNotes[formalName] ?? "No note"
-    }
 }
 
 struct NoteView_Previews: PreviewProvider {
+    static let display = previewDisplay()
+
     static var previews: some View {
-        NoteView(formalName: "Arch Hold")
+        NoteView(display, formalName: "Arch Hold")
     }
 }

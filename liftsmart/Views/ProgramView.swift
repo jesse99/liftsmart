@@ -204,7 +204,7 @@ struct ProgramView: View {
                 HStack {
                     Spacer()
                     Button("Edit", action: onEdit)
-                        .font(.callout)
+                        .font(.callout).labelStyle(/*@START_MENU_TOKEN@*/DefaultLabelStyle()/*@END_MENU_TOKEN@*/)
                         .sheet(isPresented: self.$editModal) {EditProgramView(self.display)}
                 }
                 .padding()

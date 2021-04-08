@@ -50,6 +50,7 @@ enum Action {
     case SetHistoryWeight(History.Record, Double)
 
     // Misc
+    case SetUserNote(String, String?)    // formalName, note
     case TimePassed
     case ValidateWeight(String, String)
 
@@ -387,6 +388,9 @@ class Display: ObservableObject {
             update()
 
         // Misc
+        case .SetUserNote(let formalName, let note):
+            userNotes[formalName] = note
+            update()
         case .TimePassed:
             // Enough time has passed that UIs should be refreshed.
             update()

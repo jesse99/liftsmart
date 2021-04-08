@@ -81,7 +81,7 @@ struct ExerciseMaxRepsView: View {
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
-                    .sheet(isPresented: self.$noteModal) {NoteView(formalName: self.exercise.formalName)}
+                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise.formalName)}
                 Button("Apparatus", action: onApparatus)
                     .font(.callout)
                     .disabled(self.exercise.isBodyWeight())

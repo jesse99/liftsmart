@@ -4,14 +4,22 @@ import SwiftUI
 import TextView
 
 struct EditNoteView: View {
-    @Environment(\.presentationMode) private var presentationMode
     let formalName: String
-    @State var text = ""
+    @State var text: String
     @State var isEditing = false
-        
+    @ObservedObject var display: Display
+    @Environment(\.presentationMode) private var presentationMode
+
+    init(_ display: Display, formalName: String) {
+        self.display = display
+        self.formalName = formalName
+        self._text = State(initialValue: userNotes[formalName] ?? defaultNotes[formalName] ?? "")
+        self.display.send(.BeginTransaction(name: "change note"))
+    }
+    
     var body: some View {
         VStack {
-            Text("Edit " + self.formalName).font(.largeTitle)
+            Text("Edit " + self.formalName + self.display.edited).font(.largeTitle)
             TextView(text: $text, isEditing: $isEditing).padding()  // TODO: with ios14 can use TextEditor
             Spacer()
             HStack {
@@ -22,7 +30,6 @@ struct EditNoteView: View {
                 Button("Done", action: onDone).font(.callout)
             }.padding()
         }
-        .onAppear {self.text = userNotes[self.formalName] ?? defaultNotes[self.formalName] ?? ""}
     }
     
     func onHelp() {
@@ -30,21 +37,23 @@ struct EditNoteView: View {
     }
 
     func onCancel() {
+        self.display.send(.RollbackTransaction(name: "change note"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onDone() {
-        userNotes[formalName] = text
-
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
-
+        if self.text != (userNotes[formalName] ?? defaultNotes[formalName] ?? "") {
+            self.display.send(.SetUserNote(self.formalName, self.text))
+        }
+        self.display.send(.ConfirmTransaction(name: "change note"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct EditNoteView_Previews: PreviewProvider {
+    static let display = previewDisplay()
+
     static var previews: some View {
-        EditNoteView(formalName: "Arch Hold")
+        EditNoteView(display, formalName: "Arch Hold")
     }
 }
