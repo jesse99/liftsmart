@@ -1,6 +1,7 @@
 //  Created by Jesse Jones on 3/13/21.
 //  Copyright © 2021 MushinApps. All rights reserved.
 import Foundation
+import os.log
 import struct SwiftUI.Color // note that, in general, Display should not depend on view stuff
 import class SwiftUI.UIApplication
 
@@ -41,6 +42,13 @@ enum Action {
     case ValidateMaxReps(String)
     case ValidateMaxRepsTarget(String)
     case ValidateRepRanges(String, String, String, String?) // reps, percent, rest, expected
+    
+    // Fixed Weights
+    case ActivateFixedWeightSet(String, Exercise)
+    case AddFixedWeightSet(String)
+    case DeactivateFixedWeightSet(Exercise)
+    case DeleteFixedWeightSet(String)
+    case ValidateFixedWeightSetName(String)
 
     // History
     case AppendHistory(Workout, Exercise)
@@ -78,6 +86,8 @@ enum Action {
 class Display: ObservableObject {
     private(set) var program: Program
     private(set) var history: History
+    private(set) var fixedWeights: [String: FixedWeightSet] = [:]
+    private(set) var userNotes: [String: String] = [:]    // this overrides defaultNotes
     private(set) var exerciseClipboard: Exercise? = nil
     @Published private(set) var edited = ""         // above should be published but that doesn't work well with classes so we use this lame string to publish chaanges
     @Published private(set) var errMesg = ""        // set when an Action cannot be performed
@@ -95,12 +105,27 @@ class Display: ObservableObject {
         } else {
             self.history = History()
         }
+        if let store = app.loadStore(from: "fws") {
+            let names = store.getStrArray("fwsKeys")
+            for (i, name) in names.enumerated() {
+                let weights = store.getDblArray("fwsValues-\(i)")
+                self.fixedWeights[name] = FixedWeightSet(weights)
+            }
+        }
+        if let store = app.loadStore(from: "userNotes") {
+            let keys = store.getStrArray("userNoteKeys")
+            let values = store.getStrArray("userNoteValues")
+            for (i, key) in keys.enumerated() {
+                self.userNotes[key] = values[i]
+            }
+        }
     }
     
     // For testing
-    init(program: Program, history: History) {
+    init(_ program: Program, _ history: History, _ weights: [String: FixedWeightSet]) {
         self.program = program
         self.history = history
+        self.fixedWeights = weights
     }
     
     var hasError: Bool {
@@ -255,17 +280,61 @@ class Display: ObservableObject {
             }
         }
 
+        func checkFixedWeightSetName(_ name: String) -> String? {
+            if name.isBlankOrEmpty() {
+                return "Need a name"
+            }
+            
+            return fixedWeights[name] != nil ? "Name already exists" : nil
+        }
+
         func update() {
             if updateUI {
                 self.edited = self.edited.isEmpty ? "\u{200B}" : ""     // toggle between zero-width space and empty
-//                self.edited += "\u{200B}"
             }
         }
         
         func saveState() {
+            func storeFixedWeights(_ app: AppDelegate, to fileName: String) {
+                let store = Store()
+                
+                let names = Array(self.fixedWeights.keys)
+                let weights = Array(self.fixedWeights.values)
+                store.addStrArray("fwsKeys", names)
+                for i in 0..<weights.count {
+                    store.addDblArray("fwsValues-\(i)", weights[i].weights)
+                }
+
+                let encoder = JSONEncoder()
+                encoder.dateEncodingStrategy = .secondsSince1970
+                do {
+                    let data = try encoder.encode(store)
+                    app.saveEncoded(data as AnyObject, to: fileName)
+                } catch {
+                    os_log("Error encoding fixed weights %@: %@", type: .error, self.program.name, error.localizedDescription)
+                }
+            }
+
+            func storeUserNotes(_ app: AppDelegate, to fileName: String) {
+                let store = Store()
+                store.addStrArray("userNoteKeys", Array(userNotes.keys))
+                store.addStrArray("userNoteValues", Array(userNotes.values))
+
+                let encoder = JSONEncoder()
+                encoder.dateEncodingStrategy = .secondsSince1970
+                do {
+                    let data = try encoder.encode(store)
+                    app.saveEncoded(data as AnyObject, to: fileName)
+                } catch {
+                    os_log("Error encoding user notes %@: %@", type: .error, self.program.name, error.localizedDescription)
+                }
+            }
+
             let app = UIApplication.shared.delegate as! AppDelegate
             app.storeObject(self.program, to: "program11")
             app.storeObject(self.history, to: "history")
+            storeFixedWeights(app, to: "fws")
+            storeUserNotes(app, to: "userNotes")
         }
         
         let errors = self.transactions.last?.errors
@@ -279,12 +348,16 @@ class Display: ObservableObject {
             // 2) init methods are called many more times than you might naively expect so we
             // can't simply push and pop them,
             if !self.transactions.contains(where: {$0.name == name}) {
-                self.transactions.append(Transaction(name: name, program: self.program.clone()))
+                self.transactions.append(Transaction(name, self))
             }
             return
         case .RollbackTransaction(let name):
             assert(name == self.transactions.last!.name)
-            self.program = self.transactions.popLast()!.program
+            self.program = self.transactions.last!.program
+            self.history = self.transactions.last!.history
+            self.fixedWeights = self.transactions.last!.fixedWeights
+            self.userNotes = self.transactions.last!.userNotes
+            let _ = self.transactions.popLast()
         case .ConfirmTransaction(let name):
             assert(name == self.transactions.last!.name)
             assert(!errors!.hasError)
@@ -369,10 +442,30 @@ class Display: ObservableObject {
                 errors!.reset(key: "set rep ranges")
             }
 
+        // Fixed Weights
+        case .ActivateFixedWeightSet(let name, let exercise):
+            exercise.modality.apparatus = .fixedWeights(name: name)
+            update()
+        case .AddFixedWeightSet(let name):
+            fixedWeights[name] = FixedWeightSet([])
+            update()
+        case .DeactivateFixedWeightSet(let exercise):
+            exercise.modality.apparatus = .fixedWeights(name: nil)
+            update()
+        case .DeleteFixedWeightSet(let name):
+            fixedWeights[name] = nil
+            update()
+        case .ValidateFixedWeightSetName(let name):
+            if let err = checkFixedWeightSetName(name) {
+                errors!.add(key: "set fixed weight sets names", error: err)
+            } else {
+                errors!.reset(key: "set fixed weight sets names")
+            }
+
         // History
         case .AppendHistory(let workout, let exercise):
             self.history.append(workout, exercise)
-            saveState()
+            saveState()     // most state changes happen via edit views so confirm takes care of the save, but this one is different
             update()
         case .DeleteAllHistory(let workout, let exercise):
             self.history.deleteAll(workout, exercise)
@@ -480,7 +573,23 @@ class Display: ObservableObject {
     private struct Transaction {
         let name: String
         let program: Program
+        let history: History
+        let fixedWeights: [String: FixedWeightSet]
+        let userNotes: [String: String]
         let errors = ActionErrors()
+        
+        init(_ name: String, _ display: Display) {
+            self.name = name
+            self.program = display.program.clone()
+            self.history = display.history.clone()
+            
+            var weights: [String: FixedWeightSet] = [:]
+            for (name, set) in display.fixedWeights {
+                weights[name] = set.clone()
+            }
+            self.fixedWeights = weights
+            self.userNotes = display.userNotes
+        }
     }
     
     // This is used to avoid losing UI errors as the user switches context. For example if there are A

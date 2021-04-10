@@ -14,6 +14,13 @@ class FixedWeightSet: CustomDebugStringConvertible, Storable {
         self.weights = store.getDblArray("weights")
     }
     
+    func clone() -> FixedWeightSet {
+        let store = Store()
+        store.addObj("self", self)
+        let result: FixedWeightSet = store.getObj("self")
+        return result
+    }
+        
     func save(_ store: Store) {
         store.addDblArray("weights", self.weights)
     }

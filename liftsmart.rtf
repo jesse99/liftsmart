@@ -104,11 +104,23 @@ Name: [Dumbbells]   use a placeholder\
 \
 Cancel   OK     \
 \
-\
-\
+\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
+
+\f0\fs34 \cf2 case\cf3  \cf7 ActivateFixedWeightSet\cf3 (\cf6 String\cf3 , \cf5 Exercise\cf3 )\
+\cf2 case\cf3  \cf7 AddFixedWeightSet\cf3 (\cf6 String\cf3 )\
+\cf2 case\cf3  \cf7 DeactivateFixedWeightSet\cf3 (\cf5 Exercise\cf3 )\
+\cf2 case\cf3  \cf7 DeleteFixedWeightSet\cf3 (\cf6 String\cf3 )\
+\cf2 case\cf3  \cf7 ValidateFixedWeightSetName\cf3 (\cf6 String\cf3 )\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+
+\f2\fs48 \cf11 \
+\'95 BeginTransaction is not saving history or fixedWeights\
+	- make sure "Split Squat" previews still work\
 \'95\'a0Work on model/display/view architecture:\
 	- EditFWSView\
 	- EditFWSsView\
+	- make sure fixed weights persist\
+	- make sure user notes persist\
 	- review all the views, especially any @State fields\
 	- get rid of Programs.swift\
 	- remove TODOs\

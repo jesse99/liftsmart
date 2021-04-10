@@ -3,6 +3,7 @@
 import SwiftUI
 
 protocol ExerciseContext {
+    var display: Display {get}
     var showHelp: Bool {get set}
     var helpText: String {get set}
 }
@@ -34,7 +35,7 @@ func exerciseFormalNameView(_ context: ExerciseContext, _ text: Binding<String>,
         let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
 
         // First match any custom names defined by the user.
-        for candidate in userNotes.keys {
+        for candidate in context.display.userNotes.keys {
             if defaultNotes[candidate] == nil {
                 let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
                 if haystack.contains(needle) {

@@ -240,8 +240,9 @@ func previewDisplay() -> Display {
             let warmup = RepsSet(reps: RepRange(4), percent: WeightPercent(0.0), restSecs: 90)
             let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 3*60)
             let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
-            let modality = Modality(Apparatus.bodyWeight, sets)
-            return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
+//            let modality = Modality(Apparatus.bodyWeight, sets)
+            let modality = Modality(Apparatus.fixedWeights(name: "Dumbbells"), sets)
+            return Exercise("Split Squat", "Dumbbell Single Leg Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
         }
         
         func planks() -> Exercise { // TODO: this should be some sort of progression
@@ -311,7 +312,8 @@ func previewDisplay() -> Display {
     }
     
     let program = previewProgram()
-    return Display(program: program, history: previewHistory(program))
+    let weights: [String: FixedWeightSet] = ["Dumbbells": FixedWeightSet([5.0, 20.0, 10.0, 15.0]), "Kettlebells": FixedWeightSet([10.0, 20.0, 30.0])]
+    return Display(program, previewHistory(program), weights)
 }
 
 struct ProgramView_Previews: PreviewProvider {

@@ -20,6 +20,8 @@ struct ListEntry: Identifiable {
     }
 }
 
+var fixedWeightsXXXX: [String: FixedWeightSet] = [:]   // TODO: remove this
+
 /// Used to edit a single FixedWeightSet.
 struct EditFWSView: View {
     class Stateful {
@@ -44,7 +46,7 @@ struct EditFWSView: View {
         case .fixedWeights(name: let name):
             if let n = name {
                 self.state.name = n
-                self.state.weights = fixedWeights[n]!.weights.sorted()
+                self.state.weights = fixedWeightsXXXX[n]!.weights.sorted()
             }
         default:
             assert(false)
@@ -115,7 +117,7 @@ struct EditFWSView: View {
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
-        buttons.append(.default(Text("Delete"), action: self.onDelete))
+        buttons.append(.destructive(Text("Delete"), action: self.onDelete))
         buttons.append(.default(Text("Edit"), action: self.onEdit))
         buttons.append(.cancel(Text("Cancel"), action: {}))
 
@@ -178,7 +180,7 @@ struct EditFWSView: View {
             assert(false)
         }
 
-        return fixedWeights[name] != nil ? "Name already exists" : nil
+        return fixedWeightsXXXX[name] != nil ? "Name already exists" : nil
     }
 
     func onAdd() {
@@ -190,7 +192,7 @@ struct EditFWSView: View {
     }
 
     func onOK() {
-        fixedWeights[self.state.name] = FixedWeightSet(self.state.weights)
+        fixedWeightsXXXX[self.state.name] = FixedWeightSet(self.state.weights)
         self.exercise.modality.apparatus = .fixedWeights(name: self.state.name)
 
         let app = UIApplication.shared.delegate as! AppDelegate
@@ -200,19 +202,13 @@ struct EditFWSView: View {
 }
 
 struct EditFWSView_Previews: PreviewProvider {
-    static var previews: some View {
-        EditFWSView(bench())
-    }
-    
-    static func bench() -> Exercise {
-        fixedWeights["Dumbbells"] = FixedWeightSet([5.0, 20.0, 10.0, 15.0])
-        fixedWeights["Kettlebells"] = FixedWeightSet([10.0, 20.0, 30.0])
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[2]
+    static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
 
-        let warmup = RepsSet(reps: RepRange(4), percent: WeightPercent(0.0), restSecs: 90)
-        let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 3*60)
-        let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
-        let modality = Modality(Apparatus.fixedWeights(name: "Dumbbells"), sets)
-        return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
+    static var previews: some View {
+        EditFWSView(exercise)
+//        EditFWSView(display, exercise)
     }
 }
 

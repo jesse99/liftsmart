@@ -60,6 +60,13 @@ class History: Storable {
         }
     }
     
+    func clone() -> History {
+        let store = Store()
+        store.addObj("self", self)
+        let result: History = store.getObj("self")
+        return result
+    }
+        
     func save(_ store: Store) {
         let keys1 = Array(records.keys)
         store.addStrArray("record-keys", keys1)

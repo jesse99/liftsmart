@@ -105,7 +105,7 @@ struct EditWorkoutView: View {
         } else {
             buttons.append(.default(Text("Enable Exercise"), action: {self.onToggleEnabled()}))
         }
-        buttons.append(.default(Text("Delete Exercise"), action: {self.onDelete()}))
+        buttons.append(.destructive(Text("Delete Exercise"), action: {self.onDelete()}))
         if self.workout.exercises.first != self.selection {
             buttons.append(.default(Text("Move Up"), action: {self.onMove(by: -1)}))
         }

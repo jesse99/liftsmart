@@ -13,7 +13,7 @@ struct EditNoteView: View {
     init(_ display: Display, formalName: String) {
         self.display = display
         self.formalName = formalName
-        self._text = State(initialValue: userNotes[formalName] ?? defaultNotes[formalName] ?? "")
+        self._text = State(initialValue: display.userNotes[formalName] ?? defaultNotes[formalName] ?? "")
         self.display.send(.BeginTransaction(name: "change note"))
     }
     
@@ -42,7 +42,7 @@ struct EditNoteView: View {
     }
 
     func onDone() {
-        if self.text != (userNotes[formalName] ?? defaultNotes[formalName] ?? "") {
+        if self.text != (self.display.userNotes[formalName] ?? defaultNotes[formalName] ?? "") {
             self.display.send(.SetUserNote(self.formalName, self.text))
         }
         self.display.send(.ConfirmTransaction(name: "change note"))

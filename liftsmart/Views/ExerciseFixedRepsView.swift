@@ -72,7 +72,7 @@ struct ExerciseFixedRepsView: View {
                 Button("Apparatus", action: onApparatus)
                     .font(.callout)
                     .disabled(self.exercise.isBodyWeight())
-                    .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.exercise)}
+                    .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.display, self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
                     .sheet(isPresented: self.$editModal) {EditFixedRepsView(display, self.workout, self.exercise)}

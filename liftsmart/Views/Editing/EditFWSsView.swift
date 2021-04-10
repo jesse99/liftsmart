@@ -2,32 +2,34 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-var fixedWeights: [String: FixedWeightSet] = [:]
-
 /// Used to edit the list of FixedWeightSet's.
 struct EditFWSsView: View {
     var exercise: Exercise
-    let oldExercise: Exercise
-    let oldWeights: [String: FixedWeightSet]
-    @State var entries: [ListEntry] = []
+//    let oldExercise: Exercise
+//    let oldWeights: [String: FixedWeightSet]
+//    @State var entries: [ListEntry] = []
     @State var showEditActions: Bool = false
-    @State var editIndex: Int = 0             // TODO: be sure to lose this
+//    @State var editIndex: Int = 0             // TODO: be sure to lose this
     @State var showSheet: Bool = false
+    @State var selection: ListEntry? = nil
     @State var showAlert: Bool = false
     @State var alertMesg: String = ""
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ exercise: Exercise) {
+    init(_ display: Display, _ exercise: Exercise) {
+        self.display = display
         self.exercise = exercise
-        self.oldExercise = exercise.clone()
-        self.oldWeights = fixedWeights
+//        self.oldExercise = exercise.clone()
+//        self.oldWeights = fixedWeights
+        self.display.send(.BeginTransaction(name: "change fixed weight sets"))
     }
 
     var body: some View {
         VStack() {
-            Text("Fixed Weight Sets").font(.largeTitle)
+            Text("Fixed Weight Sets" + self.display.edited).font(.largeTitle)
 
-            List(self.entries) {entry in
+            List(self.getEntries()) {entry in
                 VStack() {
                     if entry.index >= 9000 {
                         Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
@@ -37,28 +39,29 @@ struct EditFWSsView: View {
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
                     .onTapGesture {
-                        self.editIndex = entry.index
-                        if entry.index == 9889 {
+                        self.selection = entry
+                        if entry.index == 9889 {    // TODO: switch to an add button
                             self.onAdd()
                         } else {
                             self.showEditActions = true
                         }
                     }
             }
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK).font(.callout)
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
-            .onAppear {self.refresh()}
+//            .onAppear {self.refresh()}
         }
         .actionSheet(isPresented: $showEditActions) {
-            ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
-//        .sheet(isPresented: self.$showSheet) {
+            ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
+//        .sheet(isPresented: self.$showSheet) {    // TODO: switch to new view
 //            OldEditTextView(title: "Name", content: "", validator: self.onValidName, completion: self.onAdded)}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             return Alert(
@@ -67,6 +70,15 @@ struct EditFWSsView: View {
                 primaryButton: .destructive(Text("Delete")) {self.doDelete()},
                 secondaryButton: .default(Text("Cancel")))
             }
+    }
+    
+    func getEntries() -> [ListEntry] {
+        let names = Array(fixedWeightsXXXX.keys).sorted()
+        if let name = name() {
+            return names.mapi {ListEntry($1, $1 == name ? .blue : .black, $0)} + [ListEntry("Add", .black, 9889)]
+        } else {
+            return names.mapi {ListEntry($1, .black, $0)} + [ListEntry("Add", .black, 9889)]
+        }
     }
 
     func name() -> String? {
@@ -79,25 +91,15 @@ struct EditFWSsView: View {
         }
     }
     
-    func refresh() {
-        let names = Array(fixedWeights.keys).sorted()
-        if let name = name() {
-            self.entries = names.mapi {ListEntry($1, $1 == name ? .blue : .black, $0)}
-        } else {
-            self.entries = names.mapi {ListEntry($1, .black, $0)}
-        }
-        self.entries.append(ListEntry("Add", .black, 9889))
-    }
-    
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
-        if let name = name(), name == self.entries[self.editIndex].name {
+        if let name = name(), name == self.selection!.name {
             buttons.append(.default(Text("Deactivate"), action: self.onDeactivate))
         } else {
             buttons.append(.default(Text("Activate"), action: self.onActivate))
         }
-        buttons.append(.default(Text("Delete"), action: self.onDelete))
+        buttons.append(.destructive(Text("Delete"), action: self.onDelete))
         buttons.append(.default(Text("Edit"), action: self.onEdit))
         buttons.append(.cancel(Text("Cancel"), action: {}))
 
@@ -105,21 +107,21 @@ struct EditFWSsView: View {
     }
     
     func onActivate() {
-        let name = self.entries[self.editIndex].name
+        let name = self.selection!.name
         self.exercise.modality.apparatus = .fixedWeights(name: name)
-        self.refresh()
+//        self.refresh()
     }
     
     func onDeactivate() {
         self.exercise.modality.apparatus = .fixedWeights(name: nil)
-        self.refresh()
+//        self.refresh()
     }
     
     func doDelete() {
-        let name = self.entries[self.editIndex].name
-        fixedWeights[name] = nil
+        let name = self.selection!.name
+        fixedWeightsXXXX[name] = nil
         
-        self.refresh()
+//        self.refresh()
     }
     
     func onDelete() {
@@ -144,7 +146,7 @@ struct EditFWSsView: View {
         
         self.showAlert = true
         
-        let name = self.entries[self.editIndex].name
+        let name = self.selection!.name
         let uses = findUses(name)
         if uses.count == 0 {
             self.alertMesg = "\(name) isn't being used"
@@ -158,7 +160,7 @@ struct EditFWSsView: View {
     }
     
     func onEdit() {
-        self.refresh()
+//        self.refresh()
     }
 
     func onValidName(_ name: String) -> String? {
@@ -166,12 +168,12 @@ struct EditFWSsView: View {
             return "Need a name"
         }
         
-        return fixedWeights[name] != nil ? "Name already exists" : nil
+        return fixedWeightsXXXX[name] != nil ? "Name already exists" : nil
     }
     
     func onAdded(_ name: String) {
-        fixedWeights[name] = FixedWeightSet([])
-        self.refresh()
+        fixedWeightsXXXX[name] = FixedWeightSet([])
+//        self.refresh()
     }
 
     func onAdd() {
@@ -179,31 +181,22 @@ struct EditFWSsView: View {
     }
 
     func onCancel() {
-        self.exercise.restore(self.oldExercise)
-        fixedWeights = self.oldWeights
+        self.display.send(.RollbackTransaction(name: "change fixed weight sets"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
+        self.display.send(.ConfirmTransaction(name: "change fixed weight sets"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct EditFWSsView_Previews: PreviewProvider {
-    static var previews: some View {
-        EditFWSsView(bench())
-    }
-    
-    static func bench() -> Exercise {
-        fixedWeights["Dumbbells"] = FixedWeightSet([5.0, 10.0, 15.0, 20.0])
-        fixedWeights["Kettlebells"] = FixedWeightSet([10.0, 20.0, 30.0])
+    static let display = previewDisplay()
+    static let workout = display.program.workouts[1]
+    static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
 
-        let warmup = RepsSet(reps: RepRange(4), percent: WeightPercent(0.0), restSecs: 90)
-        let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 3*60)
-        let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
-        let modality = Modality(Apparatus.fixedWeights(name: "Dumbbells"), sets)
-        return Exercise("Split Squat", "Body-weight Split Squat", modality, Expected(weight: 16.4, reps: [8, 8, 8]))
+    static var previews: some View {
+        EditFWSsView(display, exercise)
     }
 }

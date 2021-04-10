@@ -14,9 +14,6 @@ private func noteToMarkdown(notes: [String], links: [String: String]) -> String 
     return text
 }
 
-/// These override defaultNotes.
-var userNotes: [String: String] = [:]
-
 /// Key is the formal name for an exercise. Value is markdown describing how to do do the exercise
 /// and normally link(s) with more detaiuls.
 let defaultNotes: [String: String] = [

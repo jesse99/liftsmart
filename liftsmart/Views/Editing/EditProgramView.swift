@@ -75,7 +75,7 @@ struct EditProgramView: View {
         } else {
             buttons.append(.default(Text("Enable Workout"), action: self.onToggleEnabled))
         }
-        buttons.append(.default(Text("Delete Workout"), action: self.doDelete))
+        buttons.append(.destructive(Text("Delete Workout"), action: self.doDelete))
 
         buttons.append(.cancel(Text("Cancel"), action: {}))
 

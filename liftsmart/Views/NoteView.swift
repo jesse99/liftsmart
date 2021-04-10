@@ -37,11 +37,11 @@ struct NoteView: View {
     }
     
     func markup() -> String {
-        return userNotes[formalName] ?? defaultNotes[formalName] ?? "No note"
+        return self.display.userNotes[formalName] ?? defaultNotes[formalName] ?? "No note"
     }
     
     func hasUserNote() -> Bool {
-        return !((userNotes[formalName] ?? "").isEmpty)
+        return !((self.display.userNotes[formalName] ?? "").isEmpty)
     }
     
     func onEdit() {
