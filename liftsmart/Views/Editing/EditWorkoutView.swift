@@ -2,15 +2,6 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-enum WorkoutSheetType {
-    case add
-    case changeApparatus
-    case changeType
-}
-
-// TODO: After a paste new was trying to do a change instead of a new when this was a @State variable.
-var workoutSheetType = WorkoutSheetType.add
-
 struct EditWorkoutView: View {
     var workout: Workout
     @State var name: String
@@ -79,25 +70,14 @@ struct EditWorkoutView: View {
             }
             .padding()
         }
-//        .actionSheet(isPresented: $showEditActions) {
-//            ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
-//        .sheet(isPresented: self.$showSheet) {
-//            switch workoutSheetType {
-//            case .add:
-//                AddExerciseView(self.display, self.workout)
-//            case .changeType:
-//                ChangeTypeView(self.workout, self.display, self.selection!)
-//            case .changeApparatus:
-//                ChangeApparatusView(self.workout, self.display, self.self.selection!)
-//            }
-//        }
+        .actionSheet(isPresented: $showEditActions) {
+            ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
+        .sheet(isPresented: self.$showSheet) {EditTextView(self.display, title: "Exercise Name", content: "", validator: {return .ValidateExerciseName(self.workout, $0)}, sender: {return .AddExercise(self.workout, self.defaultExercise($0))})}
     }
         
     func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
-        buttons.append(.default(Text("Change Apparatus"), action: {self.onChangeApparatus()}))
-        buttons.append(.default(Text("Change Type"), action: {self.onChangeType()}))
         buttons.append(.default(Text("Copy"), action: {self.onCopy()}))
         buttons.append(.default(Text("Cut"), action: {self.onCopy(); self.onDelete()}))
         if self.selection!.enabled {
@@ -118,22 +98,7 @@ struct EditWorkoutView: View {
         return buttons
     }
     
-//    func doAdd(_ name: String) {
-//        self.workout.addExercise(name)
-//    }
-    
     func onAdd() {
-        workoutSheetType = .add
-        self.showSheet = true
-    }
-
-    func onChangeApparatus() {
-        workoutSheetType = .changeApparatus
-        self.showSheet = true
-    }
-
-    func onChangeType() {
-        workoutSheetType = .changeType
         self.showSheet = true
     }
 
@@ -182,6 +147,11 @@ struct EditWorkoutView: View {
         let modifier = self.workout.days[day.rawValue] ? "Remove " : "Add "
         let label = String(describing: day)
         return modifier + label
+    }
+    
+    func defaultExercise(_ name: String) -> Exercise {
+        let modality = Modality(defaultBodyWeight(), defaultRepRanges())
+        return Exercise(name, "None", modality)
     }
     
     func daysStr(_ days: [Bool]) -> String {

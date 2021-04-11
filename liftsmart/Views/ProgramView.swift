@@ -8,12 +8,14 @@ var programEntryId = 0
 
 struct ProgramEntry: Identifiable {
     let id: Int
+    let index: Int
     let workout: Workout
     var subLabel = ""           // subLabel and color are initialized using initSubLabels
     var subColor = Color.black
 
-    init(_ workout: Workout) {
+    init(_ workout: Workout, _ index: Int) {
         self.id = programEntryId
+        self.index = index
         self.workout = workout
         programEntryId += 1
     }
@@ -38,7 +40,7 @@ func initEntries(_ display: Display) -> ([ProgramEntry], [ExerciseCompletions]) 
 
     var completions: [ExerciseCompletions] = []
     var entries: [ProgramEntry] = []
-    for workout in display.program.workouts {
+    for (index, workout) in display.program.workouts.enumerated() {
         if workout.enabled {
             var dates: [Date] = []
             for exercise in workout.exercises {
@@ -54,11 +56,11 @@ func initEntries(_ display: Display) -> ([ProgramEntry], [ExerciseCompletions]) 
                 let count = workout.exercises.count {$0.enabled}
                 let didAll = dates.count >= count
                 completions.append(ExerciseCompletions(latest: last, latestIsComplete: didAll && allOnSameDay(dates), completedAll: didAll))
-                entries.append(ProgramEntry(workout))
+                entries.append(ProgramEntry(workout, index))
 
             } else {
                 completions.append(ExerciseCompletions(latest: nil, latestIsComplete: false, completedAll: false))
-                entries.append(ProgramEntry(workout))
+                entries.append(ProgramEntry(workout, index))
             }
         }
     }
@@ -184,11 +186,13 @@ struct ProgramView: View {
         self.display = display
     }
 
+    // Note that if we create a view here that acts as the root of views with Cancel buttons then
+    // we need to be careful init'ing it. See WorkoutView for more.
     var body: some View {
         NavigationView {
             VStack {
                 List(self.getEntries()) {entry in
-                    NavigationLink(destination: WorkoutView(self.display, entry.workout)) {
+                    NavigationLink(destination: WorkoutView(self.display, entry.index)) {
                         VStack(alignment: .leading) {
                             Text(entry.workout.name).font(.title)
                             Text(entry.subLabel).foregroundColor(entry.subColor).font(.headline) // 10+ Reps or As Many Reps As Possible

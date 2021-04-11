@@ -99,13 +99,13 @@ struct WorkoutEntry: Identifiable {
 }
 
 struct WorkoutView: View {
-    var workout: Workout
+    let workoutIndex: Int
     @State var editModal = false
     @ObservedObject var display: Display
 
-    init(_ display: Display, _ workout: Workout) {
+    init(_ display: Display, _ index: Int) {
         self.display = display
-        self.workout = workout
+        self.workoutIndex = index
     }
 
     var body: some View {
@@ -132,12 +132,21 @@ struct WorkoutView: View {
             .padding()
         }
     }
-    
+
+    // We have to be very careful with State that may change when RollbackTransaction replaces
+    // display.program. In general, this means that top-level views that record state need to
+    // do so indirectly. Child views will then auto-magically update as views are rebuilt (because
+    // we operate at a coarse grain and all views update when display changes).
+    var workout: Workout {
+        get {return self.display.program.workouts[workoutIndex]}
+    }
+
     private func onEdit() {
         self.editModal = true
     }
     
     private func getEntries() -> [WorkoutEntry] {
+        assert(display.program.workouts.first(where: {$0 === workout}) != nil)
         var entries: [WorkoutEntry] = []
         for exercise in workout.exercises {
             if exercise.enabled {
@@ -169,9 +178,8 @@ struct WorkoutView: View {
 
 struct WorkoutView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[0]
 
     static var previews: some View {
-        WorkoutView(display, workout)
+        WorkoutView(display, 0)
     }
 }

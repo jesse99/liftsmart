@@ -113,6 +113,7 @@ struct ExerciseDurationsView: View {
     }
     
     func getTimerTitle() -> String {
+        assert(display.program.workouts.first(where: {$0 === workout}) != nil)
         if durationModal {
             let durations = self.durations()
             if exercise.current!.setIndex < durations.count {

@@ -2,6 +2,80 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+func getSetsLabel(_ sets: Sets) -> String {
+    switch sets {
+    case .durations(_, targetSecs: _):
+        return "Durations"
+    case .fixedReps(_):
+        return "Fixed Reps"
+    case .maxReps(restSecs: _, targetReps: _):
+        return "Max Reps"
+    case .repRanges(warmups: _, worksets: _, backoffs: _):
+        return "Rep Ranges"
+    }
+}
+
+func getApparatusLabel(_ apparatus: Apparatus) -> String {
+    switch apparatus {
+    case .bodyWeight:
+        return "Body Weight"
+    case .fixedWeights(_):
+        return "Fixed Weights"
+    }
+}
+
+func getSetsHelp(_ sets: Sets) -> String {
+    switch sets {
+    case .durations(_, targetSecs: _):
+        return "Fixed number of sets where each set is done for a time interval."
+    case .fixedReps(_):
+        return "Fixed number of sets where each set has a fixed number of reps."
+    case .maxReps(restSecs: _, targetReps: _):
+        return "Fixed number of sets doing as many reps as possible for each set."
+    case .repRanges(warmups: _, worksets: _, backoffs: _):
+        return "Fixed number of sets where each set has a min and max number of reps with optional warmup and backoff sets."
+    }
+}
+
+func getApparatusHelp(_ apparatus: Apparatus) -> String {
+    switch apparatus {
+    case .bodyWeight:
+        return "Includes an optional arbitrary weight."
+    case .fixedWeights(_):
+        return "Dumbbells, kettlebells, cable machines, etc."
+    }
+}
+
+func defaultBodyWeight() -> Apparatus {
+    return .bodyWeight
+}
+
+func defaultFixedWeights() -> Apparatus {
+    return .fixedWeights(name: nil)
+}
+
+func defaultDurations() -> Sets {
+    let durations = [
+        DurationSet(secs: 30, restSecs: 60),
+        DurationSet(secs: 30, restSecs: 60),
+        DurationSet(secs: 30, restSecs: 60)]
+    return Sets.durations(durations)
+}
+
+func defaultFixedReps() -> Sets {
+    let work = RepsSet(reps: RepRange(min: 10, max: 10), restSecs: 30)
+    return Sets.fixedReps([work, work, work])
+}
+
+func defaultMaxReps() -> Sets {
+    return Sets.maxReps(restSecs: [60, 60, 60])
+}
+
+func defaultRepRanges() -> Sets {
+    let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 120)
+    return Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
+}
+
 struct EditExerciseView: View, ExerciseContext {
     let workout: Workout
     let exercise: Exercise
