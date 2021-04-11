@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3704511D26220C9900ADFF93 /* EditExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3704511C26220C9900ADFF93 /* EditExerciseView.swift */; };
 		3714DA9924FADE47007DFB45 /* ExerciseRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */; };
 		372D2231249744B70024C8F3 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2230249744B70024C8F3 /* History.swift */; };
 		372D2233249E8D1B0024C8F3 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2232249E8D1B0024C8F3 /* Store.swift */; };
@@ -80,6 +81,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3704511C26220C9900ADFF93 /* EditExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditExerciseView.swift; sourceTree = "<group>"; };
 		3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRepRangesView.swift; sourceTree = "<group>"; };
 		372D2230249744B70024C8F3 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
 		372D2232249E8D1B0024C8F3 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
@@ -264,6 +266,7 @@
 				37BFEBC625DB56FA00158BE2 /* ChangeApparatusView.swift */,
 				3756D25A25AA756D0004A99F /* ChangeTypeView.swift */,
 				374896E82550E1E70030D7B2 /* EditDurationsView.swift */,
+				3704511C26220C9900ADFF93 /* EditExerciseView.swift */,
 				374896E2255097410030D7B2 /* EditExerciseHelpers.swift */,
 				3756D25425AA5FA90004A99F /* EditFixedRepsView.swift */,
 				37A5172D25EC5958000B0B91 /* EditFWSView.swift */,
@@ -436,6 +439,7 @@
 				37BFEBD125E32B7300158BE2 /* EditFWSsView.swift in Sources */,
 				3756443725C7289800BD57F0 /* Parsers.swift in Sources */,
 				373209E525AA330A00EBD64F /* ArrayExtension.swift in Sources */,
+				3704511D26220C9900ADFF93 /* EditExerciseView.swift in Sources */,
 				37BFEBCD25E324FC00158BE2 /* FixedWeightSet.swift in Sources */,
 				378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */,
 				3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */,

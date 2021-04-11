@@ -5,6 +5,7 @@ import SwiftUI
 struct EditRepsSetView: View {
     enum Kind {case Warmup; case WorkSets; case Backoff}
 
+    let workout: Workout
     let exercise: Exercise
     let name: String
     let kind: Kind
@@ -15,8 +16,9 @@ struct EditRepsSetView: View {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ exercise: Exercise, _ kind: Kind) {
+    init(_ display: Display, _ workout: Workout, _ exercise: Exercise, _ kind: Kind) {
         self.display = display
+        self.workout = workout
         self.exercise = exercise
         self._expected = State(initialValue: " ")
 
@@ -161,8 +163,8 @@ struct EditRepsSetView_Previews: PreviewProvider {
 
     static var previews: some View {
         Group {
-            EditRepsSetView(display, exercise, .WorkSets)
-            EditRepsSetView(display, exercise, .Warmup)
+            EditRepsSetView(display, workout, exercise, .WorkSets)
+            EditRepsSetView(display, workout, exercise, .Warmup)
         }
     }
 }

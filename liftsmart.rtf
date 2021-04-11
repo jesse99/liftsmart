@@ -104,18 +104,26 @@ Name: [Dumbbells]   use a placeholder\
 \
 Cancel   OK     \
 \
-\pard\tx816\pardeftab816\pardirnatural\partightenfactor0
-
-\f0\fs34 \cf2 case\cf3  \cf7 ActivateFixedWeightSet\cf3 (\cf6 String\cf3 , \cf5 Exercise\cf3 )\
-\cf2 case\cf3  \cf7 AddFixedWeightSet\cf3 (\cf6 String\cf3 )\
-\cf2 case\cf3  \cf7 DeactivateFixedWeightSet\cf3 (\cf5 Exercise\cf3 )\
-\cf2 case\cf3  \cf7 DeleteFixedWeightSet\cf3 (\cf6 String\cf3 )\
-\cf2 case\cf3  \cf7 ValidateFixedWeightSetName\cf3 (\cf6 String\cf3 )\
+\
+\'95\'a0License: https://fortress.wa.gov/dol/extdriveses/NoLogon/_/\
+\'95\'a0Work on EditExerciseView:\
+	- cancel invalidates still like exercise and workout in parent views\
+	- get this working\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-
-\f2\fs48 \cf11 \
-\'95 BeginTransaction is not saving history or fixedWeights\
-	- make sure "Split Squat" previews still work\
+\cf11 	- make sure change app is persisting\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 	- make sure change type is persisting\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 	- make sure don\'92t blow away sets when switching back to original\
+	- make sure don\'92t blow away app when switching back to original\
+		` will need to be able to set fws name\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 	- remove Edit buttons from exercise views\
+	- remove change app/type from workout view\
+	- remove ChangeApp/Type views\
+		` also associated State\
+	- maybe AddExercise shouldn\'92t have app/type buttons?\
+		` could just ask for a name\
 \'95\'a0Work on model/display/view architecture:\
 	- EditFWSView\
 	- EditFWSsView\

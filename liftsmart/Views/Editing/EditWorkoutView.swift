@@ -79,18 +79,18 @@ struct EditWorkoutView: View {
             }
             .padding()
         }
-        .actionSheet(isPresented: $showEditActions) {
-            ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
-        .sheet(isPresented: self.$showSheet) {
-            switch workoutSheetType {
-            case .add:
-                AddExerciseView(self.display, self.workout)
-            case .changeType:
-                ChangeTypeView(self.display, self.selection!)
-            case .changeApparatus:
-                ChangeApparatusView(self.display, self.self.selection!)
-            }
-        }
+//        .actionSheet(isPresented: $showEditActions) {
+//            ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
+//        .sheet(isPresented: self.$showSheet) {
+//            switch workoutSheetType {
+//            case .add:
+//                AddExerciseView(self.display, self.workout)
+//            case .changeType:
+//                ChangeTypeView(self.workout, self.display, self.selection!)
+//            case .changeApparatus:
+//                ChangeApparatusView(self.workout, self.display, self.self.selection!)
+//            }
+//        }
     }
         
     func editButtons() -> [ActionSheet.Button] {

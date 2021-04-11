@@ -27,6 +27,8 @@ enum Action {
     case AdvanceCurrent(Exercise)
     case AppendCurrent(Exercise, String, String)
     case CopyExercise(Exercise)
+    case DefaultApparatus(Workout, Exercise, Apparatus) // these two are used to (re)set the exercise to a default value
+    case DefaultSets(Workout, Exercise, Sets)
     case ResetCurrent(Exercise)
     case SetApparatus(Exercise, Apparatus)
     case SetCompleted(Exercise, [Int])
@@ -86,7 +88,7 @@ enum Action {
 class Display: ObservableObject {
     private(set) var program: Program
     private(set) var history: History
-    private(set) var fixedWeights: [String: FixedWeightSet] = [:]
+    private(set) var fixedWeights: [String: FixedWeightSet]
     private(set) var userNotes: [String: String] = [:]    // this overrides defaultNotes
     private(set) var exerciseClipboard: Exercise? = nil
     @Published private(set) var edited = ""         // above should be published but that doesn't work well with classes so we use this lame string to publish chaanges
@@ -106,11 +108,18 @@ class Display: ObservableObject {
             self.history = History()
         }
         if let store = app.loadStore(from: "fws") {
+            self.fixedWeights = [:]
+            self.fixedWeights = ["Dumbbells": FixedWeightSet([5, 10, 20, 25, 35]), "Cable machine": FixedWeightSet([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])]
             let names = store.getStrArray("fwsKeys")
             for (i, name) in names.enumerated() {
                 let weights = store.getDblArray("fwsValues-\(i)")
                 self.fixedWeights[name] = FixedWeightSet(weights)
             }
+        } else {
+            // We'll seed the fixedWeights with something semi-useful and more
+            // important something that will help clue the user into what this
+            // is for.
+            self.fixedWeights = ["Dumbbells": FixedWeightSet([5, 10, 20, 25, 35]), "Cable machine": FixedWeightSet([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])]
         }
         if let store = app.loadStore(from: "userNotes") {
             let keys = store.getStrArray("userNoteKeys")
@@ -375,6 +384,20 @@ class Display: ObservableObject {
             update()
         case .CopyExercise(let exercise):
             exerciseClipboard = exercise
+        case .DefaultApparatus(let workout, let exercise, let apparatus):
+            if let use = useOriginalApparatus(workout, exercise, apparatus) {
+                exercise.modality.apparatus = use
+            } else {
+                exercise.modality.apparatus = apparatus
+            }
+            update()
+        case .DefaultSets(let workout, let exercise, let sets):
+            if let use = useOriginalSets(workout, exercise, sets) {
+                exercise.modality = Modality(exercise.modality.apparatus, use)
+            } else {
+                exercise.modality = Modality(exercise.modality.apparatus, sets)
+            }
+            update()
         case .ResetCurrent(let exercise):
             let current = Current(weight: exercise.expected.weight)
             exercise.current = current
@@ -568,6 +591,38 @@ class Display: ObservableObject {
             self.errMesg = err
             self.errColor = color
         }
+    }
+    
+    private func findOriginalExercise(_ transaction: Transaction, _ workout: Workout, _ exercise: Exercise) -> Exercise? {
+        if let originalWorkout = transaction.program.workouts.first(where: {$0.name == workout.name}) {
+            let originalExercise = originalWorkout.exercises.first(where: {$0.name == exercise.name})
+            return originalExercise
+        }
+        return nil
+    }
+    
+    // When setting apparatus or sets the user may switch back to what he originally had. In this
+    // case we don't want to lose the associated enum values he may have been using.
+    private func useOriginalSets(_ workout: Workout, _ exercise: Exercise, _ sets: Sets) -> Sets? {
+        if let transaction = self.transactions.last {
+            if let original = findOriginalExercise(transaction, workout, exercise) {
+                if sets.sameCase(original.modality.sets) {
+                    return original.modality.sets
+                }
+            }
+        }
+        return nil
+    }
+
+    private func useOriginalApparatus(_ workout: Workout, _ exercise: Exercise, _ apparatus: Apparatus) -> Apparatus? {
+        if let transaction = self.transactions.last {
+            if let original = findOriginalExercise(transaction, workout, exercise) {
+                if apparatus.sameCase(original.modality.apparatus) {
+                    return original.modality.apparatus
+                }
+            }
+        }
+        return nil
     }
 
     private struct Transaction {

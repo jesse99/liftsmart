@@ -55,4 +55,17 @@ extension Apparatus: Storable {
             }
         }
     }
+
+    func sameCase(_ rhs: Apparatus) -> Bool {
+        func token(_ apparatus: Apparatus) -> Int {
+            switch apparatus {
+            case .bodyWeight:
+                return 0
+            case .fixedWeights(name: _):
+                return 1
+            }
+        }
+        
+        return token(self) == token(rhs)
+    }
 }

@@ -61,7 +61,7 @@ struct EditRepRangesView: View, ExerciseContext {
                             self.showHelp = true
                         }).font(.callout).padding(.trailing)
                     }.padding(.leading)
-                    .sheet(isPresented: self.$repsModal) {EditRepsSetView(self.display, self.exercise, self.repsKind)}
+                    .sheet(isPresented: self.$repsModal) {EditRepsSetView(self.display, self.workout, self.exercise, self.repsKind)}
                 }
                 // apparatus (conditional)
             }

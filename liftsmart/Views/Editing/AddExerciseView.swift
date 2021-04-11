@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-func getTypeLabel(_ sets: Sets) -> String {
+func getSetsLabel(_ sets: Sets) -> String {
     switch sets {
     case .durations(_, targetSecs: _):
         return "Durations"
@@ -24,7 +24,7 @@ func getApparatusLabel(_ apparatus: Apparatus) -> String {
     }
 }
 
-func getTypeHelp(_ sets: Sets) -> String {
+func getSetsHelp(_ sets: Sets) -> String {
     switch sets {
     case .durations(_, targetSecs: _):
         return "Fixed number of sets where each set is done for a time interval."
@@ -101,15 +101,15 @@ struct AddExerciseView: View {
 
             VStack(alignment: .leading) {
                 HStack {
-                    Menu(getTypeLabel(self.exercise.modality.sets)) {
-                        Button("Durations", action: {self.onChangeType(defaultDurations())})
-                        Button("Fixed Reps", action: {self.onChangeType(defaultFixedReps())})
-                        Button("Max Reps", action: {self.onChangeType(defaultMaxReps())})
-                        Button("Rep Ranges", action: {self.onChangeType(defaultRepRanges())})
+                    Menu(getSetsLabel(self.exercise.modality.sets)) {
+                        Button("Durations", action: {self.onChangeSets(defaultDurations())})
+                        Button("Fixed Reps", action: {self.onChangeSets(defaultFixedReps())})
+                        Button("Max Reps", action: {self.onChangeSets(defaultMaxReps())})
+                        Button("Rep Ranges", action: {self.onChangeSets(defaultRepRanges())})
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
-                    Button("?", action: self.onTypeHelp).font(.callout).padding(.trailing)
+                    Button("?", action: self.onSetsHelp).font(.callout).padding(.trailing)
                 }
                 HStack {
                     Menu(getApparatusLabel(self.exercise.modality.apparatus)) {
@@ -140,7 +140,7 @@ struct AddExerciseView: View {
         }
     }
     
-    func onChangeType(_ sets: Sets) {
+    func onChangeSets(_ sets: Sets) {
         self.display.send(.SetSets(self.exercise, sets))
     }
     
@@ -148,8 +148,8 @@ struct AddExerciseView: View {
         self.display.send(.SetApparatus(self.exercise, apparatus))
     }
     
-    func onTypeHelp() {
-        self.helpText = getTypeHelp(self.exercise.modality.sets)
+    func onSetsHelp() {
+        self.helpText = getSetsHelp(self.exercise.modality.sets)
         self.showHelp = true
     }
 

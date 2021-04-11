@@ -12,7 +12,6 @@ struct ExerciseDurationsView: View {
     @State var durationModal = false
     @State var historyModal = false
     @State var noteModal = false
-    @State var apparatusModal = false
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
@@ -62,13 +61,9 @@ struct ExerciseDurationsView: View {
                 Button("Note", action: onStartNote)
                     .font(.callout)
                     .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise.formalName)}
-                Button("Apparatus", action: onApparatus)
-                    .font(.callout)
-                    .disabled(self.exercise.isBodyWeight())
-                    .sheet(isPresented: self.$apparatusModal) {EditFWSsView(self.display, self.exercise)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditDurationsView(self.display,  self.workout, self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditExerciseView(self.display,  self.workout, self.exercise)}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -89,10 +84,6 @@ struct ExerciseDurationsView: View {
     
     func onEdit() {
         self.editModal = true
-    }
-    
-    func onApparatus() {
-        self.apparatusModal = true
     }
 
     func onNext() {

@@ -317,4 +317,21 @@ extension Sets: Storable {
             return warmups.count + worksets.count + backoffs.count
         }
     }
+    
+    func sameCase(_ rhs: Sets) -> Bool {
+        func token(_ sets: Sets) -> Int {
+            switch sets {
+            case .durations(_, targetSecs: _):
+                return 0
+            case .fixedReps(_):
+                return 1
+            case .maxReps(restSecs: _, targetReps: _):
+                return 2
+            case .repRanges(warmups: _, worksets: _, backoffs: _):
+                return 3
+            }
+        }
+        
+        return token(self) == token(rhs)
+    }
 }
