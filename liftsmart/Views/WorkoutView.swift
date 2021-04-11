@@ -133,10 +133,11 @@ struct WorkoutView: View {
         }
     }
 
-    // We have to be very careful with State that may change when RollbackTransaction replaces
-    // display.program. In general, this means that top-level views that record state need to
-    // do so indirectly. Child views will then auto-magically update as views are rebuilt (because
-    // we operate at a coarse grain and all views update when display changes).
+    // Despite the fact that our state changes are quite coarse there are times when child
+    // views are not rebuilt with the new versions of exercise and workout. It seems tough
+    // to fix that especially given the opacity about when and how views are rebuilt. So
+    // we'll just dodge the whole issue and have views grab whatever they need from the
+    // current version of display.program.
     var workout: Workout {
         get {return self.display.program.workouts[workoutIndex]}
     }
@@ -159,16 +160,16 @@ struct WorkoutView: View {
     private func exerciseView(_ exercise: Exercise) -> AnyView {
         switch exercise.modality.sets {
         case .durations(_, _):
-            return AnyView(ExerciseDurationsView(display, workout, exercise))
+            return AnyView(ExerciseDurationsView(display, workoutIndex, exercise.id))
 
         case .fixedReps(_):
-            return AnyView(ExerciseFixedRepsView(display, workout, exercise))
+            return AnyView(ExerciseFixedRepsView(display, workoutIndex, exercise.id))
 
         case .maxReps(_, _):
-            return AnyView(ExerciseMaxRepsView(display, workout, exercise))
+            return AnyView(ExerciseMaxRepsView(display, workoutIndex, exercise.id))
 
         case .repRanges(_, _, _):
-            return AnyView(ExerciseRepRangesView(display, workout, exercise))
+            return AnyView(ExerciseRepRangesView(display, workoutIndex, exercise.id))
 
 //      case .untimed(restSecs: let secs):
 //          sets = Array(repeating: "untimed", count: secs.count)

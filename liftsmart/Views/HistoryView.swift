@@ -22,8 +22,8 @@ struct HistoryView: View {
     enum ActiveSheet {case editNote, editWeight}
     enum ActiveAlert {case deleteSelected, deleteAll}
     
-    let workout: Workout
-    let exercise: Exercise
+    let workoutIndex: Int
+    let exerciseID: Int
     @Environment(\.presentationMode) private var presentationMode
     @State var showEditActions: Bool = false
     @State var showSheet: Bool = false
@@ -35,10 +35,10 @@ struct HistoryView: View {
     @ObservedObject var display: Display
 
     // Note that updating @State members in init doesn't actually work: https://stackoverflow.com/questions/61661581/swiftui-view-apparently-laid-out-before-init-runs
-    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+    init(_ display: Display, _ workoutIndex: Int, _ exerciseID: Int) {
         self.display = display
-        self.workout = workout
-        self.exercise = exercise
+        self.workoutIndex = workoutIndex
+        self.exerciseID = exerciseID
     }
 
     var body: some View {
@@ -95,6 +95,14 @@ struct HistoryView: View {
             }}
     }
     
+    var workout: Workout {
+        get {return self.display.program.workouts[workoutIndex]}
+    }
+    
+    var exercise: Exercise {
+        get {return self.workout.exercises.first(where: {$0.id == self.exerciseID})!}
+    }
+
     private func getEntries() -> ([HistoryEntry], Bool) {
         let items = Array(self.display.history.exercise(workout, exercise).suffix(200).reversed())
         let entries = items.mapi({HistoryEntry($1, $0)})
@@ -162,10 +170,11 @@ struct HistoryView: View {
 
 struct HistoryView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[0]
+    static let workoutIndex = 0
+    static let workout = display.program.workouts[workoutIndex]
     static let exercise = workout.exercises.first(where: {$0.name == "Curls"})!
 
     static var previews: some View {
-        HistoryView(display, workout, exercise)
+        HistoryView(display, workoutIndex, exercise.id)
     }
 }

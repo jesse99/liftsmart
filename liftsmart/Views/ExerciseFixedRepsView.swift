@@ -3,8 +3,8 @@
 import SwiftUI
 
 struct ExerciseFixedRepsView: View {
-    let workout: Workout
-    let exercise: Exercise
+    let workoutIndex: Int
+    let exerciseID: Int
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
     @State var startTimer = false
     @State var durationModal = false
@@ -15,14 +15,16 @@ struct ExerciseFixedRepsView: View {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentation
     
-    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+    init(_ display: Display, _ workoutIndex: Int, _ exerciseID: Int) {
+        let workout = display.program.workouts[workoutIndex]
+        let exercise = workout.exercises.first(where: {$0.id == exerciseID})!
         if exercise.shouldReset() {
             display.send(.ResetCurrent(exercise), updateUI: false)
         }
 
         self.display = display
-        self.workout = workout
-        self.exercise = exercise
+        self.workoutIndex = workoutIndex
+        self.exerciseID = exerciseID
 
         let count = exercise.modality.sets.numSets()
         self._underway = State(initialValue: count > 1 && exercise.current!.setIndex > 0)
@@ -63,7 +65,7 @@ struct ExerciseFixedRepsView: View {
                 Button("Reset", action: onReset).font(.callout).disabled(!self.underway)
                 Button("History", action: onStartHistory)
                     .font(.callout)
-                    .sheet(isPresented: self.$historyModal) {HistoryView(self.display, self.workout, self.exercise)}
+                    .sheet(isPresented: self.$historyModal) {HistoryView(self.display, self.workoutIndex, self.exerciseID)}
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
@@ -79,6 +81,14 @@ struct ExerciseFixedRepsView: View {
         }
     }
     
+    var workout: Workout {
+        get {return self.display.program.workouts[workoutIndex]}
+    }
+    
+    var exercise: Exercise {
+        get {return self.workout.exercises.first(where: {$0.id == self.exerciseID})!}
+    }
+
     func onTimer() {
         if self.exercise.current!.setIndex > 0 {
             self.onReset()
@@ -268,12 +278,13 @@ struct ExerciseFixedRepsView: View {
 
 struct ExerciseFixedRepsView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[3]
+    static let workoutIndex = 3
+    static let workout = display.program.workouts[workoutIndex]
     static let exercise = workout.exercises.first(where: {$0.name == "Foam Rolling"})!
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseFixedRepsView(display, workout, exercise)
+            ExerciseFixedRepsView(display, workoutIndex, exercise.id)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

@@ -87,6 +87,8 @@ struct EditExerciseView: View, ExerciseContext {
     @Environment(\.presentationMode) private var presentationMode
     
     init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+        print("initing EditExerciseView for \(exercise.name)")
+        assert(display.program.workouts.first(where: {$0 === workout}) != nil)
         self.display = display
         self.workout = workout
         self.exercise = exercise

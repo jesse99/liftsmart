@@ -63,6 +63,14 @@ class Exercise: Hashable, Identifiable, Storable {
         let store = Store()
         store.addObj("self", self)
         let result: Exercise = store.getObj("self")
+        return result
+    }
+
+    // We're using clone as a unique id into a program so that views can find the correct
+    // objects as display.program changes from things like RollbackTransaction. But
+    // sometimes we do need a new copy of an exercise which this method is for,
+    func copy() -> Exercise {
+        let result = self.clone()
         result.id = nextID
         nextID += 1
         return result

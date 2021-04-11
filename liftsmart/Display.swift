@@ -367,6 +367,7 @@ class Display: ObservableObject {
             self.fixedWeights = self.transactions.last!.fixedWeights
             self.userNotes = self.transactions.last!.userNotes
             let _ = self.transactions.popLast()
+            update()    // state may have changed back so we need to trigger an update
         case .ConfirmTransaction(let name):
             assert(name == self.transactions.last!.name)
             assert(!errors!.hasError)
@@ -567,7 +568,7 @@ class Display: ObservableObject {
             workout.moveExercise(index, by: by)
             update()
         case .PasteExercise(let workout):
-            let exercise = self.exerciseClipboard!.clone()     // clone so pasting twice doesn't add the same exercise
+            let exercise = self.exerciseClipboard!.copy()     // copy so pasting twice doesn't add the same exercise
             exercise.name = newExerciseName(workout, self.exerciseClipboard!.name)
             workout.exercises.append(exercise)
             update()
