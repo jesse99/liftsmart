@@ -34,7 +34,6 @@ struct HistoryView: View {
     private let timer = RestartableTimer(every: TimeInterval.minutes(30))
     @ObservedObject var display: Display
 
-    // Note that updating @State members in init doesn't actually work: https://stackoverflow.com/questions/61661581/swiftui-view-apparently-laid-out-before-init-runs
     init(_ display: Display, _ workoutIndex: Int, _ exerciseID: Int) {
         self.display = display
         self.workoutIndex = workoutIndex
@@ -44,7 +43,7 @@ struct HistoryView: View {
     var body: some View {
         let (entries, hasNote) = self.getEntries()
         VStack() {
-            Text("\(exercise.name) History" + self.display.edited).font(.largeTitle)
+            Text("\(exercise().name) History" + self.display.edited).font(.largeTitle)
             
             List(entries) {entry in
                 VStack(alignment: .leading) {
@@ -95,16 +94,16 @@ struct HistoryView: View {
             }}
     }
     
-    var workout: Workout {
-        get {return self.display.program.workouts[workoutIndex]}
+    func workout() -> Workout {
+        return self.display.program.workouts[workoutIndex]
     }
     
-    var exercise: Exercise {
-        get {return self.workout.exercises.first(where: {$0.id == self.exerciseID})!}
+    func exercise() -> Exercise {
+        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
     }
 
     private func getEntries() -> ([HistoryEntry], Bool) {
-        let items = Array(self.display.history.exercise(workout, exercise).suffix(200).reversed())
+        let items = Array(self.display.history.exercise(workout(), exercise()).suffix(200).reversed())
         let entries = items.mapi({HistoryEntry($1, $0)})
         return (entries, entries.any({!$0.note.isEmpty}))
     }
@@ -156,11 +155,11 @@ struct HistoryView: View {
     }
     
     func doDelete() {
-        self.display.send(.DeleteHistory(workout, self.exercise, self.selection!.record))
+        self.display.send(.DeleteHistory(workout(), self.exercise(), self.selection!.record))
     }
 
     func doDeleteAll() {
-        self.display.send(.DeleteAllHistory(self.workout, self.exercise))
+        self.display.send(.DeleteAllHistory(self.workout(), self.exercise()))
     }
 
     func onDone() {

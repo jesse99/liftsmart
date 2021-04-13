@@ -37,7 +37,7 @@ struct ExerciseMaxRepsView: View {
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
-                Text(exercise.name + self.display.edited).font(.largeTitle)   // Curls
+                Text(exercise().name + self.display.edited).font(.largeTitle)   // Curls
                 Spacer()
             
                 Group {
@@ -54,8 +54,8 @@ struct ExerciseMaxRepsView: View {
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
-                                let completed = self.exercise.current!.completed
-                                self.display.send(.SetExpectedReps(self.exercise, completed))
+                                let completed = self.exercise().current!.completed
+                                self.display.send(.SetExpectedReps(self.exercise(), completed))
                                 self.popView()}),
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
@@ -82,10 +82,10 @@ struct ExerciseMaxRepsView: View {
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
-                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise.formalName)}
+                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise().formalName)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditExerciseView(self.display, self.workout, self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditExerciseView(self.display, self.workout(), self.exercise())}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -94,12 +94,12 @@ struct ExerciseMaxRepsView: View {
         }
     }
     
-    var workout: Workout {
-        get {return self.display.program.workouts[workoutIndex]}
+    func workout() -> Workout {
+        return self.display.program.workouts[workoutIndex]
     }
     
-    var exercise: Exercise {
-        get {return self.workout.exercises.first(where: {$0.id == self.exerciseID})!}
+    func exercise() -> Exercise {
+        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
     }
 
     func repsDoneButtons() -> [ActionSheet.Button] {
@@ -136,18 +136,18 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onRepsPressed(_ reps: Int) {
-        if exercise.expected.weight > 0.0 {
-            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", friendlyUnitsWeight(exercise.expected.weight)))
+        if exercise().expected.weight > 0.0 {
+            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", friendlyUnitsWeight(exercise().expected.weight)))
         } else {
-            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", ""))
+            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", ""))
         }
         self.startTimer = startDuration(-1) > 0
 
-        let completed = self.exercise.current!.completed + [reps]
-        self.display.send(.SetCompleted(self.exercise, completed))
+        let completed = self.exercise().current!.completed + [reps]
+        self.display.send(.SetCompleted(self.exercise(), completed))
 
         self.lastReps = reps
-        self.underway = self.getRestSecs().count > 1 && exercise.current!.setIndex > 0
+        self.underway = self.getRestSecs().count > 1 && exercise().current!.setIndex > 0
     }
     
     private func onEdit() {
@@ -155,21 +155,21 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onTimer() {
-        if self.exercise.current!.setIndex > 0 {
+        if self.exercise().current!.setIndex > 0 {
             self.onReset()
         }
     }
     
     func onReset() {
-        self.display.send(.ResetCurrent(self.exercise))
-        self.display.send(.SetCompleted(self.exercise, [0]))
+        self.display.send(.ResetCurrent(self.exercise()))
+        self.display.send(.SetCompleted(self.exercise(), [0]))
         self.lastReps = nil
     }
     
     func onNextOrDone() {
-        if exercise.current!.setIndex < self.getRestSecs().count {
+        if exercise().current!.setIndex < self.getRestSecs().count {
             self.updateRepsDone = true
-        } else if self.exercise.expected.reps.count != 1 || self.exercise.current!.completed[0] != self.exercise.expected.reps.first! {
+        } else if self.exercise().expected.reps.count != 1 || self.exercise().current!.completed[0] != self.exercise().expected.reps.first! {
             self.updateRepsDone = false
             self.startTimer = false
             self.updateExpected = true
@@ -180,20 +180,20 @@ struct ExerciseMaxRepsView: View {
     
     func popView() {
         self.presentation.wrappedValue.dismiss()
-        self.display.send(.AppendHistory(self.workout, self.exercise))
-        self.display.send(.ResetCurrent(self.exercise))
+        self.display.send(.AppendHistory(self.workout(), self.exercise()))
+        self.display.send(.ResetCurrent(self.exercise()))
     }
     
     func getTimerTitle() -> String {
         let restSecs = self.getRestSecs()
         if durationModal {
-            if exercise.current!.setIndex+1 <= restSecs.count {
-                return "On set \(exercise.current!.setIndex+1) of \(restSecs.count)"
+            if exercise().current!.setIndex+1 <= restSecs.count {
+                return "On set \(exercise().current!.setIndex+1) of \(restSecs.count)"
             } else {
                 return "Finished"
             }
         } else {
-            return "Did set \(exercise.current!.setIndex) of \(restSecs.count)"
+            return "Did set \(exercise().current!.setIndex) of \(restSecs.count)"
         }
     }
     
@@ -210,14 +210,14 @@ struct ExerciseMaxRepsView: View {
     }
     
     func startDuration(_ delta: Int) -> Int {
-        return self.getRestSecs()[exercise.current!.setIndex + delta]
+        return self.getRestSecs()[exercise().current!.setIndex + delta]
     }
     
     func timerDuration() -> Int {
         var secs = 0
         let restSecs = self.getRestSecs()
-        if exercise.current!.setIndex < restSecs.count {
-            secs = restSecs[exercise.current!.setIndex]
+        if exercise().current!.setIndex < restSecs.count {
+            secs = restSecs[exercise().current!.setIndex]
         } else {
             secs = restSecs.last!
         }
@@ -226,11 +226,11 @@ struct ExerciseMaxRepsView: View {
     }
     
     func expected() -> Int? {
-        if let expected = exercise.expected.reps.first {
+        if let expected = exercise().expected.reps.first {
             let restSecs = self.getRestSecs()
-            if exercise.current!.setIndex < restSecs.count {
-                let remaining = Double(expected - self.exercise.current!.completed[0])
-                let numSets = Double(restSecs.count - exercise.current!.setIndex)
+            if exercise().current!.setIndex < restSecs.count {
+                let remaining = Double(expected - (self.exercise().current!.completed.first ?? 0))
+                let numSets = Double(restSecs.count - exercise().current!.setIndex)
                 let reps = (remaining/numSets).rounded()
                 return Int(reps)
             } else {
@@ -243,8 +243,8 @@ struct ExerciseMaxRepsView: View {
 
     func getTitle() -> String {
         let restSecs = self.getRestSecs()
-        if exercise.current!.setIndex < restSecs.count {
-            return "Set \(exercise.current!.setIndex+1) of \(restSecs.count)"
+        if exercise().current!.setIndex < restSecs.count {
+            return "Set \(exercise().current!.setIndex+1) of \(restSecs.count)"
         } else if restSecs.count == 1 {
             return "Finished"
         } else {
@@ -253,12 +253,12 @@ struct ExerciseMaxRepsView: View {
     }
     
     func getSubTitle() -> String {
-        if exercise.current!.setIndex >= self.getRestSecs().count {
+        if exercise().current!.setIndex >= self.getRestSecs().count {
             return  ""
         } else {
             var suffix = ""
-            if exercise.expected.weight > 0.0 {
-                suffix = " @ " + friendlyUnitsWeight(exercise.expected.weight)
+            if exercise().expected.weight > 0.0 {
+                suffix = " @ " + friendlyUnitsWeight(exercise().expected.weight)
             }
 
             if let target = expected() {
@@ -271,10 +271,10 @@ struct ExerciseMaxRepsView: View {
     
     func getSubSubTitle() -> String {
         let restSecs = self.getRestSecs()
-        let completed = self.exercise.current!.completed[0]
+        let completed = self.exercise().current!.completed.first ?? 0
         if completed > 0 {
-            if let expected = exercise.expected.reps.first {
-                if exercise.current!.setIndex < restSecs.count {
+            if let expected = exercise().expected.reps.first {
+                if exercise().current!.setIndex < restSecs.count {
                     return "Did \(completed) reps (expecting \(expected) reps)"
                 } else if completed == expected {
                     return "Did all \(expected) expected reps"
@@ -288,8 +288,8 @@ struct ExerciseMaxRepsView: View {
             }
 
         } else {
-            if let expected = exercise.expected.reps.first {
-                if exercise.current!.setIndex < restSecs.count {
+            if let expected = exercise().expected.reps.first {
+                if exercise().current!.setIndex < restSecs.count {
                     return "Expecting \(expected) total reps"
                 } else {
                     return "Expected \(expected) total reps"
@@ -300,7 +300,7 @@ struct ExerciseMaxRepsView: View {
     }
 
     func getStartLabel() -> String {
-        if (exercise.current!.setIndex == self.getRestSecs().count) {
+        if (exercise().current!.setIndex == self.getRestSecs().count) {
             return "Done"
         } else {
             return "Next"
@@ -308,15 +308,15 @@ struct ExerciseMaxRepsView: View {
     }
     
     func getNoteLabel() -> String {
-        return getPreviouslabel(workout, exercise)
+        return getPreviouslabel(workout(), exercise())
     }
     
     private func getRestSecs() -> [Int] {
-        switch exercise.modality.sets {
+        switch exercise().modality.sets {
         case .maxReps(let rs, targetReps: _):   // TODO: shouldn't we do something with targetReps? wizard?
             return rs
         default:
-            assert(false)   // exercise must use maxReps sets
+//            assert(false)   // exercise must use maxReps sets
             return []
         }
     }

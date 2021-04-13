@@ -29,11 +29,12 @@ struct ExerciseFixedRepsView: View {
         let count = exercise.modality.sets.numSets()
         self._underway = State(initialValue: count > 1 && exercise.current!.setIndex > 0)
     }
+    
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
                 Group {
-                    Text(exercise.name + self.display.edited).font(.largeTitle)   // OHP
+                    Text(exercise().name + self.display.edited).font(.largeTitle)   // OHP
                     Spacer()
                 
                     Text(self.getSetTitle()).font(.title)         // WorkSet 1 of 3
@@ -69,10 +70,10 @@ struct ExerciseFixedRepsView: View {
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
-                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise.formalName)}
+                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise().formalName)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditExerciseView(display, self.workout, self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditExerciseView(display, self.workout(), self.exercise())}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -81,22 +82,22 @@ struct ExerciseFixedRepsView: View {
         }
     }
     
-    var workout: Workout {
-        get {return self.display.program.workouts[workoutIndex]}
+    func workout() -> Workout {
+        return self.display.program.workouts[workoutIndex]
     }
     
-    var exercise: Exercise {
-        get {return self.workout.exercises.first(where: {$0.id == self.exerciseID})!}
+    func exercise() -> Exercise {
+        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
     }
 
     func onTimer() {
-        if self.exercise.current!.setIndex > 0 {
+        if self.exercise().current!.setIndex > 0 {
             self.onReset()
         }
     }
 
     func onReset() {
-        self.display.send(.ResetCurrent(self.exercise))
+        self.display.send(.ResetCurrent(self.exercise()))
     }
         
     func onEdit() {
@@ -106,19 +107,19 @@ struct ExerciseFixedRepsView: View {
     func updateReps() {
         let reps = expected()
         let percent = getRepsSet().percent
-        let weight = exercise.expected.weight * percent
+        let weight = exercise().expected.weight * percent
         if percent.value >= 0.01 && weight >= 0.1 {
-            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", friendlyUnitsWeight(weight)))
+            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", friendlyUnitsWeight(weight)))
         } else {
-            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", ""))
+            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", ""))
         }
 
         self.startTimer = startDuration(-1) > 0
-        let completed = self.exercise.current!.completed + [reps]
-        self.display.send(.SetCompleted(self.exercise, completed))
+        let completed = self.exercise().current!.completed + [reps]
+        self.display.send(.SetCompleted(self.exercise(), completed))
 
         let count = self.getWorkSets().count
-        self.underway = count > 1 && exercise.current!.setIndex > 0
+        self.underway = count > 1 && exercise().current!.setIndex > 0
     }
     
     func onNextOrDone() {
@@ -129,26 +130,26 @@ struct ExerciseFixedRepsView: View {
 
             // Most exercises ask to update expected but for fixedReps there's no real wiggle room
             // so we'll always update it.
-            self.display.send(.SetExpectedReps(self.exercise, self.exercise.current!.completed))
-            self.display.send(.AppendHistory(self.workout, self.exercise))
-            self.display.send(.ResetCurrent(self.exercise))
+            self.display.send(.SetExpectedReps(self.exercise(), self.exercise().current!.completed))
+            self.display.send(.AppendHistory(self.workout(), self.exercise()))
+            self.display.send(.ResetCurrent(self.exercise()))
         }
     }
     
     private func inProgress() -> Bool {
-        return self.exercise.current!.setIndex < self.getWorkSets().count
+        return self.exercise().current!.setIndex < self.getWorkSets().count
     }
     
     func getTimerTitle() -> String {
         let worksets = self.getWorkSets()
         if durationModal {
-            if exercise.current!.setIndex+1 <= worksets.count {
-                return "On set \(exercise.current!.setIndex+1) of \(worksets.count)"
+            if exercise().current!.setIndex+1 <= worksets.count {
+                return "On set \(exercise().current!.setIndex+1) of \(worksets.count)"
             } else {
                 return "Finished"
             }
         } else {
-            return "Did set \(exercise.current!.setIndex) of \(worksets.count)"
+            return "Did set \(exercise().current!.setIndex) of \(worksets.count)"
         }
     }
     
@@ -172,7 +173,7 @@ struct ExerciseFixedRepsView: View {
         var secs = 0
         let worksets = self.getWorkSets()
         let count = worksets.count
-        if exercise.current!.setIndex < count {
+        if exercise().current!.setIndex < count {
             secs = getRepsSet().restSecs
         } else {
             secs = worksets.last!.restSecs
@@ -191,7 +192,7 @@ struct ExerciseFixedRepsView: View {
     
     func getSetTitle() -> String {
         if inProgress() {
-            let i = exercise.current!.setIndex
+            let i = exercise().current!.setIndex
             return "Workset \(i+1) of \(self.getWorkSets().count)"
         } else {
             return "Finished"
@@ -199,12 +200,12 @@ struct ExerciseFixedRepsView: View {
     }
     
     func getPercentTitle() -> String {
-        if !exercise.overridePercent.isEmpty {
-            return exercise.overridePercent
+        if !exercise().overridePercent.isEmpty {
+            return exercise().overridePercent
         } else if inProgress() {
             let percent = getRepsSet().percent
             let display = percent.value >= 0.01 && percent.value <= 0.99
-            return display ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
+            return display ? "\(percent.label) of \(exercise().expected.weight) lbs" : ""
         } else {
             return ""
         }
@@ -214,7 +215,7 @@ struct ExerciseFixedRepsView: View {
         var title = ""
         if inProgress() {
             let percent = getRepsSet().percent
-            let weight = exercise.expected.weight * percent
+            let weight = exercise().expected.weight * percent
             
             let reps = expected()
             title = reps == 1 ? "1 rep" : "\(reps) reps"
@@ -231,46 +232,46 @@ struct ExerciseFixedRepsView: View {
         func shouldTrackHistory() -> Bool {
             // TODO: also true if apparatus is barbell, dumbbell, or machine
             let worksets = self.getWorkSets()
-            if worksets[0].reps.min < worksets[0].reps.max {
+            if let reps = worksets.first?.reps, reps.min < reps.max {
                 return true
             }
             return false
         }
         
         if shouldTrackHistory() {
-            return getPreviouslabel(workout, exercise)
+            return getPreviouslabel(workout(), exercise())
         } else {
             return ""
         }
     }
 
     private func getRepsSet(_ delta: Int = 0) -> RepsSet {
-        let i = self.exercise.current!.setIndex + delta
+        let i = self.exercise().current!.setIndex + delta
 
         let worksets = self.getWorkSets()
         if i < worksets.count {
             return worksets[i]
         }
 
-        assert(false)
+//        assert(false)
         return RepsSet(reps: RepRange(5))
     }
 
     private func expected() -> Int {
         if inProgress() {
-            let i = self.exercise.current!.setIndex
-            return self.exercise.expected.reps.at(i) ?? getRepsSet().reps.min
+            let i = self.exercise().current!.setIndex
+            return self.exercise().expected.reps.at(i) ?? getRepsSet().reps.min
         } else {
             return getRepsSet().reps.min
         }
     }
     
     private func getWorkSets() -> [RepsSet] {
-        switch exercise.modality.sets {
+        switch exercise().modality.sets {
         case .fixedReps(let ws):
             return ws
         default:
-            assert(false)   // this exercise must use fixedReps sets
+//            assert(false)   // this exercise must use fixedReps sets
             return []
         }
     }
@@ -278,7 +279,7 @@ struct ExerciseFixedRepsView: View {
 
 struct ExerciseFixedRepsView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workoutIndex = 3
+    static let workoutIndex = 0
     static let workout = display.program.workouts[workoutIndex]
     static let exercise = workout.exercises.first(where: {$0.name == "Foam Rolling"})!
 

@@ -79,6 +79,10 @@ func defaultRepRanges() -> Sets {
 struct EditExerciseView: View, ExerciseContext {
     let workout: Workout
     let exercise: Exercise
+    @State var name: String
+    @State var formalName: String
+    @State var weight: String
+    @State var formalNameModal = false
     @State var editModal = false
     @State var editSets = false
     @State var showHelp = false
@@ -87,19 +91,27 @@ struct EditExerciseView: View, ExerciseContext {
     @Environment(\.presentationMode) private var presentationMode
     
     init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
-        print("initing EditExerciseView for \(exercise.name)")
+//        print("initing EditExerciseView for \(exercise.name)")
         assert(display.program.workouts.first(where: {$0 === workout}) != nil)
         self.display = display
         self.workout = workout
         self.exercise = exercise
+
+        self._name = State(initialValue: exercise.name)
+        self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
+        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
+
         self.display.send(.BeginTransaction(name: "change exercise"))
     }
 
     var body: some View {
         VStack() {
-            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle).padding()
+            Text("Edit Exercise" + self.display.edited).font(.largeTitle).padding()
 
             VStack(alignment: .leading) {
+                exerciseNameView(self, self.$name, self.onEditedName)   // TODO: these helpers don't make much sense now
+                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
+                exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 HStack {
                     Button("Edit", action: self.onEditSets).font(.callout)
                     Spacer()
@@ -111,7 +123,7 @@ struct EditExerciseView: View, ExerciseContext {
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
-                    Button("?", action: self.onSetsHelp).font(.callout).padding(.trailing)
+                    Button("?", action: self.onSetsHelp).font(.callout)
                 }.padding()
                 HStack {
                     Button("Edit", action: self.onEditApparatus)
@@ -119,6 +131,10 @@ struct EditExerciseView: View, ExerciseContext {
                         .disabled(self.exercise.isBodyWeight())
                         .sheet(isPresented: self.$editModal) {
                             if self.editSets {
+                                // TODO: When the type view is dismissed all the views are rebuilt and
+                                // because the ExerciseView typically changes its body we pop out of
+                                // the edit view. To fix we'd probably have to somehow remember that
+                                // were editing and set the new modal field in the new view.
                                 self.typeView()
                             } else {
                                 self.apparatusView()
@@ -130,10 +146,11 @@ struct EditExerciseView: View, ExerciseContext {
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
-                    Button("?", action: self.onApparatusHelp).font(.callout).padding(.trailing)
+                    Button("?", action: self.onApparatusHelp).font(.callout)
                 }.padding()
             }
             Spacer()
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
@@ -152,6 +169,18 @@ struct EditExerciseView: View, ExerciseContext {
         }
     }
     
+    private func onEditedName(_ text: String) {
+        self.display.send(.ValidateExerciseName(self.workout, text))
+    }
+
+    private func onEditedFormalName(_ text: String) {
+        self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
+    }
+
+    private func onEditedWeight(_ text: String) {
+        self.display.send(.ValidateWeight(text, "weight"))
+    }
+
     private func onEditSets() {
         self.editModal = true
         self.editSets = true
@@ -213,6 +242,18 @@ struct EditExerciseView: View, ExerciseContext {
     }
 
     private func onOK() {
+        if self.formalName != self.exercise.formalName {
+            self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
+        }
+        if self.name != self.exercise.name {
+            self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
+        }
+        
+        let weight = Double(self.weight)!
+        if weight != self.exercise.expected.weight {
+            self.display.send(.SetExpectedWeight(self.exercise, weight))
+        }
+
         self.display.send(.ConfirmTransaction(name: "change exercise"))
         self.presentationMode.wrappedValue.dismiss()
     }

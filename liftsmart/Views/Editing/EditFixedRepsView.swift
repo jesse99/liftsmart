@@ -7,9 +7,6 @@ struct EditFixedRepsView: View, ExerciseContext {
 
     let workout: Workout
     let exercise: Exercise
-    @State var name: String
-    @State var formalName: String
-    @State var weight: String
     @State var reps: String
     @State var rests: String
     @State var showHelp = false
@@ -22,10 +19,6 @@ struct EditFixedRepsView: View, ExerciseContext {
         self.display = display
         self.workout = workout
         self.exercise = exercise
-
-        self._name = State(initialValue: exercise.name)
-        self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
-        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
 
         switch exercise.modality.sets {
         case .fixedReps(let reps):
@@ -42,12 +35,9 @@ struct EditFixedRepsView: View, ExerciseContext {
 
     var body: some View {
         VStack() {
-            Text("Edit Exercise" + self.display.edited).font(.largeTitle)
+            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
-                exerciseNameView(self, self.$name, self.onEditedName)
-                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
-                exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 HStack {
                     Text("Reps:").font(.headline)
                     TextField("", text: self.$reps)
@@ -81,18 +71,6 @@ struct EditFixedRepsView: View, ExerciseContext {
         }
     }
     
-    private func onEditedName(_ text: String) {
-        self.display.send(.ValidateExerciseName(self.workout, text))
-    }
-
-    private func onEditedFormalName(_ text: String) {
-        self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
-    }
-
-    private func onEditedWeight(_ text: String) {
-        self.display.send(.ValidateWeight(text, "weight"))
-    }
-
     func onEditedSets(_ inText: String) {
         self.display.send(.ValidateFixedReps(self.reps, self.rests))
     }
@@ -108,18 +86,6 @@ struct EditFixedRepsView: View, ExerciseContext {
     }
 
     func onOK() {
-        if self.formalName != self.exercise.formalName {
-            self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
-        }
-        if self.name != self.exercise.name {
-            self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
-        }
-        
-        let weight = Double(self.weight)!
-        if weight != self.exercise.expected.weight {
-            self.display.send(.SetExpectedWeight(self.exercise, weight))
-        }
-        
         let reps = parseRepRanges(self.reps, label: "reps").unwrap()
         let rest = parseTimes(self.rests, label: "rest", zeroOK: true).unwrap()
         let sets = (0..<reps.count).map({RepsSet(reps: reps[$0], restSecs: rest[$0])})

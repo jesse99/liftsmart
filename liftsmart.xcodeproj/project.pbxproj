@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3704511D26220C9900ADFF93 /* EditExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3704511C26220C9900ADFF93 /* EditExerciseView.swift */; };
+		370451232623C38B00ADFF93 /* ExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 370451222623C38B00ADFF93 /* ExerciseView.swift */; };
 		3714DA9924FADE47007DFB45 /* ExerciseRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */; };
 		372D2231249744B70024C8F3 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2230249744B70024C8F3 /* History.swift */; };
 		372D2233249E8D1B0024C8F3 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2232249E8D1B0024C8F3 /* Store.swift */; };
@@ -82,6 +83,7 @@
 
 /* Begin PBXFileReference section */
 		3704511C26220C9900ADFF93 /* EditExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditExerciseView.swift; sourceTree = "<group>"; };
+		370451222623C38B00ADFF93 /* ExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseView.swift; sourceTree = "<group>"; };
 		3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRepRangesView.swift; sourceTree = "<group>"; };
 		372D2230249744B70024C8F3 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
 		372D2232249E8D1B0024C8F3 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				373209DE25AA288B00EBD64F /* ExerciseFixedRepsView.swift */,
 				37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */,
 				3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */,
+				370451222623C38B00ADFF93 /* ExerciseView.swift */,
 				37455BFF24AB07B200C26AD0 /* HistoryView.swift */,
 				376AF37A24CC053000AEAE1C /* NoteView.swift */,
 				374896D4254F31C60030D7B2 /* PickerView.swift */,
@@ -440,6 +443,7 @@
 				3756443725C7289800BD57F0 /* Parsers.swift in Sources */,
 				373209E525AA330A00EBD64F /* ArrayExtension.swift in Sources */,
 				3704511D26220C9900ADFF93 /* EditExerciseView.swift in Sources */,
+				370451232623C38B00ADFF93 /* ExerciseView.swift in Sources */,
 				37BFEBCD25E324FC00158BE2 /* FixedWeightSet.swift in Sources */,
 				378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */,
 				3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */,

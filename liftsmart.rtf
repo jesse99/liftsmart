@@ -105,15 +105,8 @@ Name: [Dumbbells]   use a placeholder\
 Cancel   OK     \
 \
 \
-\'95\'a0License: https://fortress.wa.gov/dol/extdriveses/NoLogon/_/\
-\'95 EditExerciseView isn\'92t canceling correctly:\
-	- clone needs to preserve id (id represents a value within a program)\
-	- copy/paste should probably use a special method\
-	- all views need to take ids\
-	- will need methods to find ids\
-	- will need properties to get an exercise and workout\
-\'95 Change sets will be tricky\
-	- should we have an ExerciseView that just switches between bodies?\
+\'95\'a0Edit history weight didn\'92t seem to work\
+	- label is hard-coded to a string when the record was added\
 \'95\'a0Work on EditExerciseView:\
 	- get this working\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
@@ -130,6 +123,8 @@ Cancel   OK     \
 	- remove ChangeApp/Type views\
 		` also associated State\
 	- remove AddExercise\
+	- get rid of exerciseNameView, exerciseFormalNameView, and exerciseWeightView helpers\
+\'95 DurationsView should include weight if it\'92s non-zero\
 \'95\'a0Work on model/display/view architecture:\
 	- EditFWSView\
 	- EditFWSsView\

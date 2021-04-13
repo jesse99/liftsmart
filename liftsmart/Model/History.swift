@@ -104,8 +104,8 @@ class History: Storable {
         
         // Using startDate instead of Date() makes testing a bit easier...
         let key = workout.name + "-" + exercise.name
-        let actual = getActual(exercise.current!)
-        let record = Record(exercise.current!.startDate, exercise.current!.weight, actual, key)
+        let label = getActual(exercise.current!)
+        let record = Record(exercise.current!.startDate, exercise.current!.weight, label, key)
         self.records[exercise.formalName, default: []].append(record)
         self.completed[key] = exercise.current!.startDate
         return record

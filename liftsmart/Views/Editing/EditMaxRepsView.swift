@@ -5,10 +5,7 @@ import SwiftUI
 struct EditMaxRepsView: View, ExerciseContext {
     let workout: Workout
     let exercise: Exercise
-    @State var name: String
-    @State var formalName: String
     @State var reps: String
-    @State var weight: String
     @State var target: String
     @State var rest: String
     @State var showHelp = false
@@ -22,10 +19,6 @@ struct EditMaxRepsView: View, ExerciseContext {
         self.workout = workout
         self.exercise = exercise
 
-        self._name = State(initialValue: exercise.name)
-        self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
-        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
-        
         self._reps = State(initialValue: exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])")
         
         switch exercise.modality.sets {
@@ -43,12 +36,9 @@ struct EditMaxRepsView: View, ExerciseContext {
 
     var body: some View {
         VStack() {
-            Text("Edit Exercise" + self.display.edited).font(.largeTitle)
+            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
-                exerciseNameView(self, self.$name, self.onEditedName)
-                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
-                exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 exerciseRestView(self, self.$rest, self.onEditedReps)
                 HStack {
                     Text("Expected Reps:").font(.headline)
@@ -90,18 +80,6 @@ struct EditMaxRepsView: View, ExerciseContext {
         }
     }
     
-    private func onEditedName(_ text: String) {
-        self.display.send(.ValidateExerciseName(self.workout, text))
-    }
-
-    private func onEditedFormalName(_ text: String) {
-        self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
-    }
-
-    private func onEditedWeight(_ text: String) {
-        self.display.send(.ValidateWeight(text, "weight"))
-    }
-
     func onEditedReps(_ text: String) {
         self.display.send(.ValidateMaxReps(text))
     }
@@ -126,18 +104,6 @@ struct EditMaxRepsView: View, ExerciseContext {
     }
 
     func onOK() {        
-        if self.formalName != self.exercise.formalName {
-            self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
-        }
-        if self.name != self.exercise.name {
-            self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
-        }
-        
-        let weight = Double(self.weight)!
-        if weight != self.exercise.expected.weight {
-            self.display.send(.SetExpectedWeight(self.exercise, weight))
-        }
-        
         if let reps = parseOptionalRep(self.reps, label: "reps").unwrap(), [reps] != self.exercise.expected.reps {
             self.display.send(.SetExpectedReps(self.exercise, [reps]))
         }

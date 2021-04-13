@@ -55,7 +55,7 @@ struct ExerciseRepRangesView: View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
                 Group {
-                    Text(exercise.name + self.display.edited).font(.largeTitle)   // OHP
+                    Text(exercise().name + self.display.edited).font(.largeTitle)   // OHP
                     Spacer()
                 
                     Text(self.getSetTitle()).font(.title)         // WorkSet 1 of 3
@@ -74,8 +74,8 @@ struct ExerciseRepRangesView: View {
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
-                                let completed = self.exercise.current!.completed
-                                self.display.send(.SetExpectedReps(self.exercise, completed))
+                                let completed = self.exercise().current!.completed
+                                self.display.send(.SetExpectedReps(self.exercise(), completed))
                                 self.popView()}),
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
@@ -102,10 +102,10 @@ struct ExerciseRepRangesView: View {
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
-                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise.formalName)}
+                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise().formalName)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditExerciseView(self.display, self.workout, self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditExerciseView(self.display, self.workout(), self.exercise())}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -114,12 +114,12 @@ struct ExerciseRepRangesView: View {
         }
     }
     
-    var workout: Workout {
-        get {return self.display.program.workouts[workoutIndex]}
+    func workout() -> Workout {
+        return self.display.program.workouts[workoutIndex]
     }
     
-    var exercise: Exercise {
-        get {return self.workout.exercises.first(where: {$0.id == self.exerciseID})!}
+    func exercise() -> Exercise {
+        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
     }
 
     func repsDoneButtons() -> [ActionSheet.Button] {
@@ -142,32 +142,32 @@ struct ExerciseRepRangesView: View {
     
     func onRepsPressed(_ reps: Int) {
         let percent = getRepsSet().percent
-        let weight = exercise.expected.weight * percent
+        let weight = exercise().expected.weight * percent
         if percent.value >= 0.01 && weight >= 0.1 {
-            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", friendlyUnitsWeight(weight)))
+            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", friendlyUnitsWeight(weight)))
         } else {
-            self.display.send(.AppendCurrent(self.exercise, "\(reps) reps", ""))
+            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", ""))
         }
 
         self.startTimer = startDuration(-1) > 0
 
-        let completed = self.exercise.current!.completed + [reps]
-        self.display.send(.SetCompleted(self.exercise, completed))
+        let completed = self.exercise().current!.completed + [reps]
+        self.display.send(.SetCompleted(self.exercise(), completed))
 
-        let count = self.exercise.modality.sets.numSets()
-        self.underway = count > 1 && exercise.current!.setIndex > 0
+        let count = self.exercise().modality.sets.numSets()
+        self.underway = count > 1 && exercise().current!.setIndex > 0
     }
     
     func onTimer() {
-        if self.exercise.current!.setIndex > 0 {
+        if self.exercise().current!.setIndex > 0 {
             self.onReset()
         }
     }
     
     func popView() {
         self.presentation.wrappedValue.dismiss()
-        self.display.send(.AppendHistory(self.workout, self.exercise))
-        self.display.send(.ResetCurrent(self.exercise))
+        self.display.send(.AppendHistory(self.workout(), self.exercise()))
+        self.display.send(.ResetCurrent(self.exercise()))
     }
     
     func onStartTimer() {
@@ -188,8 +188,8 @@ struct ExerciseRepRangesView: View {
     
     func timerDuration() -> Int {
         var secs = 0
-        let count = self.exercise.modality.sets.numSets()
-        if exercise.current!.setIndex < count {
+        let count = self.exercise().modality.sets.numSets()
+        if exercise().current!.setIndex < count {
             secs = getRepsSet().restSecs
         } else {
             let (_, worksets, _) = self.getSets()
@@ -200,7 +200,7 @@ struct ExerciseRepRangesView: View {
     }
     
     func onReset() {
-        self.display.send(.ResetCurrent(self.exercise))
+        self.display.send(.ResetCurrent(self.exercise()))
     }
         
     func onEdit() {
@@ -210,17 +210,17 @@ struct ExerciseRepRangesView: View {
     func onNextOrDone() {
         switch stage() {
         case .warmup:
-            self.display.send(.AdvanceCurrent(self.exercise))
+            self.display.send(.AdvanceCurrent(self.exercise()))
             self.startTimer = startDuration(-1) > 0
 
-            let count = self.exercise.modality.sets.numSets()
-            self.underway = count > 1 && exercise.current!.setIndex > 0
+            let count = self.exercise().modality.sets.numSets()
+            self.underway = count > 1 && exercise().current!.setIndex > 0
 
         case .workset, .backoff:
             self.updateRepsDone = true
 
         case .done:
-            if !self.exercise.current!.completed.elementsEqual(self.exercise.expected.reps) {
+            if !self.exercise().current!.completed.elementsEqual(self.exercise().expected.reps) {
                 self.updateRepsDone = false
                 self.startTimer = false
                 self.updateExpected = true
@@ -239,7 +239,7 @@ struct ExerciseRepRangesView: View {
     }
     
     private func stage(delta: Int = 0) -> Stage {
-        var i = self.exercise.current!.setIndex + delta
+        var i = self.exercise().current!.setIndex + delta
         let (warmups, worksets, backoffs) = self.getSets()
         if i < warmups.count {
             return .warmup
@@ -259,7 +259,7 @@ struct ExerciseRepRangesView: View {
     }
     
     private func getRepsSet(_ delta: Int = 0) -> RepsSet {
-        var i = self.exercise.current!.setIndex + delta
+        var i = self.exercise().current!.setIndex + delta
 
         let (warmups, worksets, backoffs) = self.getSets()
         if i < warmups.count {
@@ -276,7 +276,7 @@ struct ExerciseRepRangesView: View {
             return backoffs[i]
         }
 
-        assert(false)
+//        assert(false)
         return RepsSet(reps: RepRange(5))
     }
 
@@ -288,9 +288,9 @@ struct ExerciseRepRangesView: View {
 
         default:
             let (warmups, _, _) = self.getSets()
-            let i = self.exercise.current!.setIndex - warmups.count
-            if i < exercise.expected.reps.count {
-                let expected = exercise.expected.reps[i]
+            let i = self.exercise().current!.setIndex - warmups.count
+            if i < exercise().expected.reps.count {
+                let expected = exercise().expected.reps[i]
                 if expected < reps.max {
                     return RepRange(min: expected, max: reps.max)
                 } else {
@@ -309,9 +309,9 @@ struct ExerciseRepRangesView: View {
 
         default:
             let (warmups, _, _) = self.getSets()
-            let i = self.exercise.current!.setIndex - warmups.count
-            if i < exercise.expected.reps.count {
-                return exercise.expected.reps[i]
+            let i = self.exercise().current!.setIndex - warmups.count
+            if i < exercise().expected.reps.count {
+                return exercise().expected.reps[i]
             } else {
                 return getRepsSet().reps.min
             }
@@ -322,11 +322,11 @@ struct ExerciseRepRangesView: View {
         let (warmups, worksets, backoffs) = self.getSets()
         switch stage() {
         case .warmup:
-            let i = exercise.current!.setIndex
+            let i = exercise().current!.setIndex
             return "Warmup \(i+1) of \(warmups.count)"  // some duplication here but it's awkward to get rid of
 
         case .workset:
-            let i = exercise.current!.setIndex - warmups.count
+            let i = exercise().current!.setIndex - warmups.count
             if warmups.count + backoffs.count == 0 {
                 return "Set \(i+1) of \(worksets.count)"
             } else {
@@ -334,7 +334,7 @@ struct ExerciseRepRangesView: View {
             }
 
         case .backoff:
-            let i = exercise.current!.setIndex - warmups.count - worksets.count
+            let i = exercise().current!.setIndex - warmups.count - worksets.count
             return "Backoff \(i+1) of \(backoffs.count)"
 
         case .done:
@@ -343,8 +343,8 @@ struct ExerciseRepRangesView: View {
     }
     
     func getPercentTitle() -> String {
-        if !exercise.overridePercent.isEmpty {
-            return exercise.overridePercent
+        if !exercise().overridePercent.isEmpty {
+            return exercise().overridePercent
         }
         
         switch stage() {
@@ -353,8 +353,8 @@ struct ExerciseRepRangesView: View {
             
         default:
             let percent = getRepsSet().percent
-            let suffix = weightSuffix(percent, exercise.expected.weight)
-            return !suffix.isEmpty ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
+            let suffix = weightSuffix(percent, exercise().expected.weight)
+            return !suffix.isEmpty ? "\(percent.label) of \(exercise().expected.weight) lbs" : ""
         }
     }
     
@@ -365,7 +365,7 @@ struct ExerciseRepRangesView: View {
             
         default:
             let percent = getRepsSet().percent
-            let suffix = weightSuffix(percent, exercise.expected.weight)
+            let suffix = weightSuffix(percent, exercise().expected.weight)
             return getRepRange().label + suffix
         }
     }
@@ -394,14 +394,14 @@ struct ExerciseRepRangesView: View {
         func shouldTrackHistory() -> Bool {
             // TODO: also true if apparatus is barbell, dumbbell, or machine
             let (_, worksets, _) = self.getSets()
-            if worksets[0].reps.min < worksets[0].reps.max {
+            if let reps = worksets.first?.reps, reps.min < reps.max {
                 return true
             }
             return false
         }
         
         if shouldTrackHistory() {
-            return getPreviouslabel(workout, exercise)
+            return getPreviouslabel(workout(), exercise())
         }
         
         return ""
@@ -412,7 +412,7 @@ struct ExerciseRepRangesView: View {
         let (warmups, worksets, backoffs) = self.getSets()
         if warmups.count + backoffs.count == 0 {
             let delta = self.durationModal ? 1 : 0
-            let i = exercise.current!.setIndex
+            let i = exercise().current!.setIndex
             return "\(prefix) set \(i+delta) of \(worksets.count)"
 
         } else {
@@ -420,15 +420,15 @@ struct ExerciseRepRangesView: View {
             let d2 = self.durationModal ? 1 : 0
             switch stage(delta: d1) {
             case .warmup:
-                let i = exercise.current!.setIndex
+                let i = exercise().current!.setIndex
                 return "\(prefix) warmup \(i+d2) of \(warmups.count)"
 
             case .workset:
-                let i = exercise.current!.setIndex - warmups.count
+                let i = exercise().current!.setIndex - warmups.count
                 return "\(prefix) workset \(i+d2) of \(worksets.count)"
 
             case .backoff:
-                let i = exercise.current!.setIndex - warmups.count - worksets.count
+                let i = exercise().current!.setIndex - warmups.count - worksets.count
                 return "\(prefix) backoff \(i+d2) of \(backoffs.count)"
 
             case .done:
@@ -439,11 +439,11 @@ struct ExerciseRepRangesView: View {
     
     // TODO: some of these can be replaced with numSets()
     private func getSets() -> ([RepsSet], [RepsSet], [RepsSet]) {
-        switch exercise.modality.sets {
+        switch exercise().modality.sets {
         case .repRanges(warmups: let wu, worksets: let ws, backoffs: let bo):
             return (wu, ws, bo)
         default:
-            assert(false)   // this exercise must use repRanges sets
+//            assert(false)   // this exercise must use repRanges sets
             return ([], [], [])
         }
     }

@@ -5,9 +5,6 @@ import SwiftUI
 struct EditDurationsView: View, ExerciseContext {
     let workout: Workout
     let exercise: Exercise
-    @State var name: String
-    @State var formalName: String
-    @State var weight: String
     @State var durations: String
     @State var target: String
     @State var rest: String
@@ -22,10 +19,6 @@ struct EditDurationsView: View, ExerciseContext {
         self.workout = workout
         self.exercise = exercise
 
-        self._name = State(initialValue: exercise.name)
-        self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
-        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
-        
         switch exercise.modality.sets {
         case .durations(let d, targetSecs: let t):
             self._durations = State(initialValue: d.map({restToStr($0.secs)}).joined(separator: " "))
@@ -43,12 +36,9 @@ struct EditDurationsView: View, ExerciseContext {
 
     var body: some View {
         VStack() {
-            Text("Edit Exercise" + self.display.edited).font(.largeTitle)
+            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
-                exerciseNameView(self, self.$name, self.onEditedName)
-                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
-                exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 HStack {
                     Text("Durations:").font(.headline)
                     TextField("", text: self.$durations)
@@ -90,18 +80,6 @@ struct EditDurationsView: View, ExerciseContext {
         }
     }
     
-    private func onEditedName(_ text: String) {
-        self.display.send(.ValidateExerciseName(self.workout, text))
-    }
-
-    private func onEditedFormalName(_ text: String) {
-        self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
-    }
-
-    private func onEditedWeight(_ text: String) {
-        self.display.send(.ValidateWeight(text, "weight"))
-    }
-
     private func onEditedSets(_ text: String) {
         self.display.send(.ValidateDurations(self.durations, self.target, self.rest))
     }
@@ -122,18 +100,6 @@ struct EditDurationsView: View, ExerciseContext {
     }
 
     func onOK() {
-        if self.formalName != self.exercise.formalName {
-            self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
-        }
-        if self.name != self.exercise.name {
-            self.display.send(.SetExerciseName(self.workout, self.exercise, self.name))
-        }
-        
-        let weight = Double(self.weight)!
-        if weight != self.exercise.expected.weight {
-            self.display.send(.SetExpectedWeight(self.exercise, weight))
-        }
-        
         let durations = parseTimes(self.durations, label: "durations").unwrap()
         let rest = parseTimes(self.rest, label: "rest", zeroOK: true).unwrap()
         let target = parseTimes(self.target, label: "target").unwrap()

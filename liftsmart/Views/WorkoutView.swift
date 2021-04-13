@@ -111,7 +111,7 @@ struct WorkoutView: View {
     var body: some View {
         VStack {
             List(self.getEntries()) {entry in
-                NavigationLink(destination: self.exerciseView(entry.exercise)) {
+                NavigationLink(destination: ExerciseView(self.display, self.workoutIndex, entry.exercise.id)) {
                     VStack(alignment: .leading) {
                         Text(entry.exercise.name).font(.headline).foregroundColor(entry.color)
                         if !entry.label.isEmpty {
@@ -120,14 +120,14 @@ struct WorkoutView: View {
                     }
                 }
             }
-            .navigationBarTitle(Text(workout.name + " Exercises" + self.display.edited))
+            .navigationBarTitle(Text(workout().name + " Exercises" + self.display.edited))
 
             Divider()
             HStack {
                 Spacer()
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditWorkoutView(self.display, self.workout)}
+                    .sheet(isPresented: self.$editModal) {EditWorkoutView(self.display, self.workout())}
             }
             .padding()
         }
@@ -138,8 +138,8 @@ struct WorkoutView: View {
     // to fix that especially given the opacity about when and how views are rebuilt. So
     // we'll just dodge the whole issue and have views grab whatever they need from the
     // current version of display.program.
-    var workout: Workout {
-        get {return self.display.program.workouts[workoutIndex]}
+    func workout() -> Workout {
+        return self.display.program.workouts[workoutIndex]
     }
 
     private func onEdit() {
@@ -147,33 +147,14 @@ struct WorkoutView: View {
     }
     
     private func getEntries() -> [WorkoutEntry] {
-        assert(display.program.workouts.first(where: {$0 === workout}) != nil)
+        assert(display.program.workouts.first(where: {$0 === workout()}) != nil)
         var entries: [WorkoutEntry] = []
-        for exercise in workout.exercises {
+        for exercise in workout().exercises {
             if exercise.enabled {
-                entries.append(WorkoutEntry(workout, exercise, display.history))
+                entries.append(WorkoutEntry(workout(), exercise, display.history))
             }
         }
         return entries
-    }
-    
-    private func exerciseView(_ exercise: Exercise) -> AnyView {
-        switch exercise.modality.sets {
-        case .durations(_, _):
-            return AnyView(ExerciseDurationsView(display, workoutIndex, exercise.id))
-
-        case .fixedReps(_):
-            return AnyView(ExerciseFixedRepsView(display, workoutIndex, exercise.id))
-
-        case .maxReps(_, _):
-            return AnyView(ExerciseMaxRepsView(display, workoutIndex, exercise.id))
-
-        case .repRanges(_, _, _):
-            return AnyView(ExerciseRepRangesView(display, workoutIndex, exercise.id))
-
-//      case .untimed(restSecs: let secs):
-//          sets = Array(repeating: "untimed", count: secs.count)
-        }
     }
 }
 

@@ -34,7 +34,7 @@ struct ExerciseDurationsView: View {
     var body: some View {
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
-                Text(exercise.name + self.display.edited).font(.largeTitle)   // Burpees
+                Text(exercise().name + self.display.edited).font(.largeTitle)   // Burpees
                 Spacer()
             
                 Text(self.getTitle()).font(.title)         // Set 1 of 1
@@ -62,10 +62,10 @@ struct ExerciseDurationsView: View {
                 Spacer()
                 Button("Note", action: onStartNote)
                     .font(.callout)
-                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise.formalName)}
+                    .sheet(isPresented: self.$noteModal) {NoteView(self.display, formalName: self.exercise().formalName)}
                 Button("Edit", action: onEdit)
                     .font(.callout)
-                    .sheet(isPresented: self.$editModal) {EditExerciseView(self.display,  self.workout, self.exercise)}
+                    .sheet(isPresented: self.$editModal) {EditExerciseView(self.display,  self.workout(), self.exercise())}
             }
             .padding()
             .onReceive(timer.timer) {_ in self.onTimer()}
@@ -74,22 +74,33 @@ struct ExerciseDurationsView: View {
         }
     }
     
-    var workout: Workout {
-        get {return self.display.program.workouts[workoutIndex]}
+    // TODO: Code would be a lot nicer if properties were used but that causes a preview compiler
+    // error complaining about missing semi-colon between statements that points to the properties
+    // even though they build fine.
+    func workout() -> Workout {
+        return self.display.program.workouts[workoutIndex]
     }
     
-    var exercise: Exercise {
-        get {return self.workout.exercises.first(where: {$0.id == self.exerciseID})!}
+    func exercise() -> Exercise {
+        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
     }
+    
+//    var workout: Workout {
+//        get {return self.display.program.workouts[workoutIndex]}
+//    }
+
+//    var exercise: Exercise {
+//        get {return self.workout().exercises.first(where: {$0.id == self.exerciseID})!}
+//    }
 
     func onTimer() {
-        if self.exercise.current!.setIndex > 0 {
+        if self.exercise().current!.setIndex > 0 {
             self.onReset()
         }
     }
     
     func onReset() {
-        self.display.send(.ResetCurrent(self.exercise))
+        self.display.send(.ResetCurrent(self.exercise()))
     }
     
     func onEdit() {
@@ -98,35 +109,35 @@ struct ExerciseDurationsView: View {
 
     func onNext() {
         let durations = self.durations()
-        if exercise.current!.setIndex < durations.count {
+        if exercise().current!.setIndex < durations.count {
             self.startModal = true
         } else {
             self.presentation.wrappedValue.dismiss()
-            self.display.send(.AppendHistory(self.workout, self.exercise))
-            self.display.send(.ResetCurrent(self.exercise))
+            self.display.send(.AppendHistory(self.workout(), self.exercise()))
+            self.display.send(.ResetCurrent(self.exercise()))
         }
     }
     
     func onNextCompleted() {
         let durations = self.durations()
-        let duration = durations[exercise.current!.setIndex]
+        let duration = durations[exercise().current!.setIndex]
         
         let reps = "\(duration)"
         let weight = ""
-        self.display.send(.AppendCurrent(self.exercise, reps, weight))
+        self.display.send(.AppendCurrent(self.exercise(), reps, weight))
         self.underway = durations.count > 1
     }
     
     func getSetTitle(_ prefix: String) -> String {
-        let i = exercise.current!.setIndex
+        let i = exercise().current!.setIndex
         return "\(prefix) \(i+1) of \(numSets())"
     }
     
     func getTimerTitle() -> String {
-        assert(display.program.workouts.first(where: {$0 === workout}) != nil)
+        assert(display.program.workouts.first(where: {$0 === workout()}) != nil)
         if durationModal {
             let durations = self.durations()
-            if exercise.current!.setIndex < durations.count {
+            if exercise().current!.setIndex < durations.count {
                 return getSetTitle("On set")
             } else {
                 return "Finished"
@@ -151,14 +162,14 @@ struct ExerciseDurationsView: View {
     
     func startDuration() -> Int {
         let durations = self.durations()
-        return durations[exercise.current!.setIndex].secs
+        return durations[exercise().current!.setIndex].secs
     }
     
     func timerDuration() -> Int {
         var secs = 0
         let durations = self.durations()
-        if exercise.current!.setIndex < durations.count {
-            secs = durations[exercise.current!.setIndex].restSecs
+        if exercise().current!.setIndex < durations.count {
+            secs = durations[exercise().current!.setIndex].restSecs
         } else {
             secs = durations.last!.restSecs
         }
@@ -168,44 +179,47 @@ struct ExerciseDurationsView: View {
     
     func restSecs() -> Int {
         let durations = self.durations()
-        return durations[exercise.current!.setIndex].restSecs
+        return durations[exercise().current!.setIndex].restSecs
     }
     
     func numSets() -> Int {
-        switch exercise.modality.sets {
+        switch exercise().modality.sets {
         case .durations(let d, targetSecs: _):
             return d.count
         default:
-            assert(false)   // exercise must use durations sets
+            // Note that we can't assert this because of the user changes the sets type
+            // then this will rebuild before ExerciseView has a chance to change the view
+            // body type.
+//            assert(false)   // exercise must use durations sets
             return 0
         }
     }
 
     func durations() -> [DurationSet] {
-        switch exercise.modality.sets {
+        switch exercise().modality.sets {
         case .durations(let d, targetSecs: _):
             return d
         default:
-            assert(false)   // exercise must use durations sets
+//            assert(false)   // exercise must use durations sets
             return []
         }
     }
     
     func targetSecs() -> [Int] {
-        switch exercise.modality.sets {
+        switch exercise().modality.sets {
         case .durations(_, targetSecs: let target):
             return target
         default:
-            assert(false)   // exercise must use durations sets
+//            assert(false)   // exercise must use durations sets
             return []
         }
     }
     
     func getTitle() -> String {
-        assert(display.program.workouts.first(where: {$0 === workout}) != nil)
+        assert(display.program.workouts.first(where: {$0 === workout()}) != nil)
         let durations = self.durations()
-        if exercise.current!.setIndex < durations.count {
-            return "Set \(exercise.current!.setIndex+1) of \(durations.count)"
+        if exercise().current!.setIndex < durations.count {
+            return "Set \(exercise().current!.setIndex+1) of \(durations.count)"
         } else if durations.count == 1 {
             return "Finished"
         } else {
@@ -217,11 +231,11 @@ struct ExerciseDurationsView: View {
         let durations = self.durations()
 
         // TODO: If there is an expected weight I think we'd annotate subTitle.
-        if exercise.current!.setIndex < durations.count {
-            let duration = durations[exercise.current!.setIndex]
+        if exercise().current!.setIndex < durations.count {
+            let duration = durations[exercise().current!.setIndex]
             let targetSecs = self.targetSecs()
             if targetSecs.count > 0 {
-                let target = targetSecs[exercise.current!.setIndex]
+                let target = targetSecs[exercise().current!.setIndex]
                 return "\(duration) (target is \(target)s)"
             } else {
                 return "\(duration)"
@@ -233,8 +247,7 @@ struct ExerciseDurationsView: View {
     
     func getNextLabel() -> String {
         let durations = self.durations()
-
-        if (exercise.current!.setIndex == durations.count) {
+        if (exercise().current!.setIndex == durations.count) {
             return "Done"
         } else {
             return "Start"
@@ -244,22 +257,22 @@ struct ExerciseDurationsView: View {
     func getNoteLabel() -> String {
         let targetSecs = self.targetSecs()
         if !targetSecs.isEmpty {    // TODO: maybe if have target and progression path
-            return getPreviouslabel(workout, exercise)
+            return getPreviouslabel(workout(), exercise())
         } else {
             return ""
         }
     }
 }
 
-struct ExerciseView_Previews: PreviewProvider {
+struct ExerciseDurationsView_Previews2: PreviewProvider {
     static let display = previewDisplay()
-    static let workoutIndex = 0
-    static let workout = display.program.workouts[workoutIndex]
-    static let exercise = workout.exercises.first(where: {$0.name == "Planks"})!
+    static let workoutIndex2 = 0
+    static let workout2 = display.program.workouts[workoutIndex2]
+    static let exercise2 = workout2.exercises.first(where: {$0.name == "Planks"})!
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseDurationsView(display, workoutIndex, exercise.id)
+            ExerciseDurationsView(display, workoutIndex2, exercise2.id)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }
