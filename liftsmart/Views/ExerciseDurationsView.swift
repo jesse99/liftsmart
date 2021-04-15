@@ -123,8 +123,7 @@ struct ExerciseDurationsView: View {
         let duration = durations[exercise().current!.setIndex]
         
         let reps = "\(duration)"
-        let weight = ""
-        self.display.send(.AppendCurrent(self.exercise(), reps, weight))
+        self.display.send(.AppendCurrent(self.exercise(), reps, nil))
         self.underway = durations.count > 1
     }
     

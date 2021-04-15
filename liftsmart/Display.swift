@@ -25,7 +25,7 @@ enum Action {
     
     // Exercise
     case AdvanceCurrent(Exercise)
-    case AppendCurrent(Exercise, String, String)
+    case AppendCurrent(Exercise, String, Double?)
     case CopyExercise(Exercise)
     case DefaultApparatus(Workout, Exercise, Apparatus) // these two are used to (re)set the exercise to a default value
     case DefaultSets(Workout, Exercise, Sets)
@@ -378,9 +378,13 @@ class Display: ObservableObject {
         case .AdvanceCurrent(let exercise):
             exercise.current!.setIndex += 1
             update()
-        case .AppendCurrent(let exercise, let reps, let weight):
+        case .AppendCurrent(let exercise, let reps, let percent):
             exercise.current!.actualReps.append(reps)
-            exercise.current!.actualWeights.append(weight)
+            if let percent = percent {
+                exercise.current!.actualPercents.append(percent)
+            } else {
+                exercise.current!.actualPercents = []
+            }
             exercise.current!.setIndex += 1
             update()
         case .CopyExercise(let exercise):

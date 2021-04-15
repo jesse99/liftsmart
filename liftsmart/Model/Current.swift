@@ -5,11 +5,11 @@ import Foundation
 /// Where the user is now with respect to an Exercise. Unlike Workouts this is information that
 /// is expected to regularly change.
 final class Current: CustomDebugStringConvertible, Storable {
-    var startDate: Date         // date exercise was started
-    var weight: Double          // may be 0.0
-    var setIndex: Int           // if this is sets.count then the user has finished those sets
-    var actualReps: [String]    // what the user has done so far
-    var actualWeights: [String] // entries may be empty
+    var startDate: Date          // date exercise was started
+    var weight: Double           // may be 0.0, this is from expected.weight
+    var setIndex: Int            // if this is sets.count then the user has finished those sets
+    var actualReps: [String]     // what the user has done so far, e.g. ["5", "3", "1"] or ["60s", "60s"]
+    var actualPercents: [Double] // empty for 100% of weight or [0.7, 0.8, 0.9]
     
     // durations: not used
     // fixed reps: number of reps the user has done so far
@@ -22,7 +22,7 @@ final class Current: CustomDebugStringConvertible, Storable {
         self.weight = weight
         self.setIndex = 0
         self.actualReps = []
-        self.actualWeights = []
+        self.actualPercents = []
         self.completed = []
     }
     
@@ -32,10 +32,13 @@ final class Current: CustomDebugStringConvertible, Storable {
         self.setIndex = store.getInt("setIndex")
         if store.hasKey("actualReps") {
             self.actualReps = store.getStrArray("actualReps")
-            self.actualWeights = store.getStrArray("actualWeights")
         } else {
             self.actualReps = []
-            self.actualWeights = []
+        }
+        if store.hasKey("actualPercents") {
+            self.actualPercents = store.getDblArray("actualPercents")
+        } else {
+            self.actualPercents = []
         }
         if store.hasKey("completed") {
             self.completed = store.getIntArray("completed")
@@ -49,7 +52,7 @@ final class Current: CustomDebugStringConvertible, Storable {
         store.addDbl("weight", weight)
         store.addInt("setIndex", setIndex)
         store.addStrArray("actualReps", actualReps)
-        store.addStrArray("actualWeights", actualWeights)
+        store.addDblArray("actualPercents", actualPercents)
         store.addIntArray("completed", completed)
     }
 

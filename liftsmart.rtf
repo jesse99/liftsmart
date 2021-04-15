@@ -105,24 +105,21 @@ Name: [Dumbbells]   use a placeholder\
 Cancel   OK     \
 \
 \
-\'95\'a0Edit history weight didn\'92t seem to work\
-	- label is hard-coded to a string when the record was added\
 \'95\'a0Work on EditExerciseView:\
 	- get this working\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	- make sure change app is persisting\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	- make sure change type is persisting\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	- make sure don\'92t blow away sets when switching back to original\
+	- make sure change app is persisting\
+	- make sure change type is persisting\
+	- make sure don\'92t blow away sets when switching back to original\
 	- make sure don\'92t blow away app when switching back to original\
 		` will need to be able to set fws name\
+	- get rid of exerciseNameView, exerciseFormalNameView, and exerciseWeightView helpers\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 	- get rid of exerciseNameView, exerciseFormalNameView, and exerciseWeightView helpers\
-\'95 DurationsView should include weight if it\'92s non-zero\
+\cf11 \'95\'a0EditFWSsView\
+	- make sure this is working (see scratch pad)\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 DurationsView should include weight if it\'92s non-zero\
 \'95\'a0Work on model/display/view architecture:\
 	- EditFWSView\
-	- EditFWSsView\
 	- make sure fixed weights persist\
 	- make sure user notes persist\
 	- review all the views, especially any @State fields\
@@ -130,12 +127,10 @@ Cancel   OK     \
 	- remove TODOs\
 \'95 Try the app out\
 \'95\'a0Merge back into master\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 ExerciseMaxRepsView.lastReps is problematic\
+\'95 ExerciseMaxRepsView.lastReps is problematic\
 	- maybe do something lame and use completed[1]?\
 	- moot if we switch reps picker to use arrows?\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Work on fixed weight apparatus:\
+\'95 Work on fixed weight apparatus:\
 	- probably want to make FixedWeightSet.weights private\
 		` then can keep the weights sorted\
 		` and have methods like findClosestBelow\

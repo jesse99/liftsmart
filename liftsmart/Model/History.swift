@@ -5,22 +5,30 @@ import Foundation
 class History: Storable {
     class Record: CustomDebugStringConvertible, Storable {
         var completed: Date     // date exercise was finished
-        var weight: Double      // may be 0.0
-        var label: String       // "3x60s" includes weight if that was used
+        var weight: Double      // may be 0.0, this is from current.weight
+        var reps: [String]      // ["5", "3", "1"] or ["60s", "60s"]
+        var percents: [Double]  // empty for 100% of weight or [0.7, 0.8, 0.9]
         var key: String         // exercise.name + workout.name
         var note: String = ""   // optional arbitrary text set by user
 
-        init(_ date: Date, _ weight: Double, _ label: String, _ key: String) {
+        init(_ date: Date, _ weight: Double, _ reps: [String], _ percents: [Double], _ key: String) {
             self.completed = date
             self.weight = weight
-            self.label = label
+            self.reps = reps
+            self.percents = percents
             self.key = key
         }
         
         required init(from store: Store) {
             self.completed = store.getDate("completed")
             self.weight = store.getDbl("weight")
-            self.label = store.getStr("label")
+            if store.hasKey("reps") {
+                self.reps = store.getStrArray("reps")
+                self.percents = store.getDblArray("percents")
+            } else {
+                self.reps = [store.getStr("label")]
+                self.percents = []
+            }
             self.key = store.getStr("key", ifMissing: "")
             self.note = store.getStr("note", ifMissing: "")
         }
@@ -28,14 +36,43 @@ class History: Storable {
         func save(_ store: Store) {
             store.addDate("completed", completed)
             store.addDbl("weight", weight)
-            store.addStr("label", label)
+            store.addStrArray("reps", reps)
+            store.addDblArray("percents", percents)
             store.addStr("key", key)
             store.addStr("note", note)
+        }
+
+        var label: String {
+            get {
+                if percents.all({$0 == 1.0}) {
+                    return dedupe(reps).joined(separator: ", ") + self.suffix(1.0)
+                }
+
+                if percents.all({$0 == percents[0]}) {
+                    return dedupe(reps).joined(separator: ", ") + self.suffix(percents[0])
+                }
+                
+                var actual: [String] = []
+                for i in 0..<reps.count {
+                    actual.append(reps[i] + self.suffix(percents[i]))
+                }
+                
+                return dedupe(actual).joined(separator: ", ")
+            }
         }
 
         var debugDescription: String {
             get {
                 return self.completed.description
+            }
+        }
+        
+        private func suffix(_ percent: Double) -> String {
+            let w = weight*percent
+            if w >= 0.01 {
+                return " @ " + friendlyUnitsWeight(w)
+            } else {
+                return ""
             }
         }
     }
@@ -81,31 +118,9 @@ class History: Storable {
     }
 
     @discardableResult func append(_ workout: Workout, _ exercise: Exercise) -> History.Record {
-        func getActual(_ current: Current) -> String {
-            if current.actualWeights.all({$0 == ""}) {
-                return dedupe(current.actualReps).joined(separator: ", ")
-            }
-
-            if current.actualWeights.all({$0 == current.actualWeights[0]}) {
-                return dedupe(current.actualReps).joined(separator: ", ") + " @ " + current.actualWeights[0]
-            }
-            
-            var actual: [String] = []
-            for i in 0..<current.actualReps.count {
-                if i < current.actualWeights.count && current.actualWeights[i] != "" {
-                    actual.append("\(current.actualReps[i]) @ \(current.actualWeights[i])")
-                } else {
-                    actual.append(current.actualReps[i])
-                }
-            }
-            
-            return dedupe(actual).joined(separator: ", ")
-        }
-        
         // Using startDate instead of Date() makes testing a bit easier...
         let key = workout.name + "-" + exercise.name
-        let label = getActual(exercise.current!)
-        let record = Record(exercise.current!.startDate, exercise.current!.weight, label, key)
+        let record = Record(exercise.current!.startDate, exercise.current!.weight, exercise.current!.actualReps, exercise.current!.actualPercents, key)
         self.records[exercise.formalName, default: []].append(record)
         self.completed[key] = exercise.current!.startDate
         return record

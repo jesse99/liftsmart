@@ -136,11 +136,7 @@ struct ExerciseMaxRepsView: View {
     }
     
     func onRepsPressed(_ reps: Int) {
-        if exercise().expected.weight > 0.0 {
-            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", friendlyUnitsWeight(exercise().expected.weight)))
-        } else {
-            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", ""))
-        }
+        self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", nil))
         self.startTimer = startDuration(-1) > 0
 
         let completed = self.exercise().current!.completed + [reps]

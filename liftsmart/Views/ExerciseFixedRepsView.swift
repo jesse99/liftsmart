@@ -107,12 +107,7 @@ struct ExerciseFixedRepsView: View {
     func updateReps() {
         let reps = expected()
         let percent = getRepsSet().percent
-        let weight = exercise().expected.weight * percent
-        if percent.value >= 0.01 && weight >= 0.1 {
-            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", friendlyUnitsWeight(weight)))
-        } else {
-            self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", ""))
-        }
+        self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", percent.value))
 
         self.startTimer = startDuration(-1) > 0
         let completed = self.exercise().current!.completed + [reps]

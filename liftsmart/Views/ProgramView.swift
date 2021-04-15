@@ -229,6 +229,40 @@ struct ProgramView: View {
 }
 
 func previewDisplay() -> Display {
+    func previewHistory(_ program: Program) -> History {
+        let history = History()
+        history.append(program.workouts[0], program.workouts[0].exercises[0])
+        history.append(program.workouts[1], program.workouts[1].exercises[0])
+
+        // This stuff is for HistoryView.
+        let exercise = program.workouts[0].exercises.first(where: {$0.name == "Curls"})!
+        exercise.current = Current(weight: 0.0)
+        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())!
+        exercise.current!.setIndex = 1
+        exercise.current!.actualReps = ["5 reps", "5 reps", "5 reps"]
+        exercise.current!.actualPercents = []
+        history.append(program.workouts[0], exercise)
+
+        exercise.current!.weight = 135.0
+        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -4, to: Date())!
+        exercise.current!.actualPercents = [1.0, 1.0, 1.0]
+        history.append(program.workouts[0], exercise)
+
+        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+        exercise.current!.actualReps = ["5 reps", "5 reps", "3 reps"]
+        exercise.current!.actualPercents = [1.0, 1.0, 1.0]
+        history.append(program.workouts[0], exercise)
+
+        exercise.current?.startDate = Date()
+        exercise.current = Current(weight: 135.0)
+        exercise.current!.actualReps = ["5 reps", "3 reps", "1 reps"]
+        exercise.current!.actualPercents = [0.70, 0.8, 0.9]
+        let record = history.append(program.workouts[0], exercise)
+        record.note = "Felt strong!"
+
+        return history
+    }
+    
     func previewProgram() -> Program {
         func burpees() -> Exercise {
             let sets = Sets.durations([DurationSet(secs: 60, restSecs: 60)])
@@ -288,33 +322,6 @@ func previewDisplay() -> Display {
         return Program("Split", workouts)
     }
 
-    func previewHistory(_ program: Program) -> History {
-        let history = History()
-        history.append(program.workouts[0], program.workouts[0].exercises[0])
-        history.append(program.workouts[0], program.workouts[0].exercises[1])
-        history.append(program.workouts[1], program.workouts[1].exercises[0])
-
-        // This stuff is for HistoryView.
-        let exercise = program.workouts[0].exercises.first(where: {$0.name == "Curls"})!
-        exercise.current = Current(weight: 0.0)
-        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())!
-        exercise.current!.setIndex = 1
-        history.append(program.workouts[0], exercise)
-
-        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -4, to: Date())!
-        history.append(program.workouts[0], exercise)
-
-        exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
-        history.append(program.workouts[0], exercise)
-
-        exercise.current?.startDate = Date()
-        exercise.current = Current(weight: 10.0)
-        let record = history.append(program.workouts[0], exercise)
-        record.note = "Felt strong!"
-
-        return history
-    }
-    
     let program = previewProgram()
     let weights: [String: FixedWeightSet] = ["Dumbbells": FixedWeightSet([5.0, 20.0, 10.0, 15.0]), "Kettlebells": FixedWeightSet([10.0, 20.0, 30.0])]
     return Display(program, previewHistory(program), weights)
