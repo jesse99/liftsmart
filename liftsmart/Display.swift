@@ -71,7 +71,7 @@ enum Action {
     case MoveWorkout(Workout, Int)
     case SetProgramName(String)
     case ValidateProgramName(String)
-    case ValidateWorkoutName(String)
+    case ValidateWorkoutName(String, Workout?)
     
     // Workout
     case AddExercise(Workout, Exercise)
@@ -80,7 +80,7 @@ enum Action {
     case PasteExercise(Workout)
     case SetWorkoutName(Workout, String)
     case ToggleWorkoutDay(Workout, WeekDay)
-    case ValidateExerciseName(Workout, String)
+    case ValidateExerciseName(Workout, Exercise?, String)
 }
 
 /// This is Redux style where Display is serving as the Store object which mediates
@@ -552,7 +552,11 @@ class Display: ObservableObject {
             } else {
                 errors!.reset(key: "add program")
             }
-        case .ValidateWorkoutName(let name):
+        case .ValidateWorkoutName(let name, let workout):
+            if let workout = workout, workout.name == name {
+                errors!.reset(key: "add workout")
+                return
+            }
             if let err = checkWorkoutName(name) {
                 errors!.add(key: "add workout", error: err)
             } else {
@@ -583,7 +587,11 @@ class Display: ObservableObject {
         case .ToggleWorkoutDay(let workout, let day):
             workout.days[day.rawValue] = !workout.days[day.rawValue]
             update()
-        case .ValidateExerciseName(let workout, let name):
+        case .ValidateExerciseName(let workout, let exercise, let name):
+            if let exercise = exercise, exercise.name == name {
+                errors!.reset(key: "add exercise")
+                return
+            }
             if let err = checkExerciseName(workout, name) {
                 errors!.add(key: "add exercise", error: err)
             } else {

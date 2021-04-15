@@ -72,7 +72,7 @@ struct EditWorkoutView: View {
         }
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
-        .sheet(isPresented: self.$showSheet) {EditTextView(self.display, title: "Exercise Name", content: "", validator: {return .ValidateExerciseName(self.workout, $0)}, sender: {return .AddExercise(self.workout, self.defaultExercise($0))})}
+        .sheet(isPresented: self.$showSheet) {EditTextView(self.display, title: "Exercise Name", content: "", validator: {return .ValidateExerciseName(self.workout, nil, $0)}, sender: {return .AddExercise(self.workout, self.defaultExercise($0))})}
     }
         
     func editButtons() -> [ActionSheet.Button] {
@@ -127,7 +127,7 @@ struct EditWorkoutView: View {
     }
     
     func onEditedName(_ text: String) {
-        self.display.send(.ValidateWorkoutName(text))
+        self.display.send(.ValidateWorkoutName(text, self.workout))
     }
     
     func onCancel() {

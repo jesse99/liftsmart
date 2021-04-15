@@ -76,6 +76,8 @@ func defaultRepRanges() -> Sets {
     return Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
 }
 
+var editSets = false
+
 struct EditExerciseView: View, ExerciseContext {
     let workout: Workout
     let exercise: Exercise
@@ -84,7 +86,7 @@ struct EditExerciseView: View, ExerciseContext {
     @State var weight: String
     @State var formalNameModal = false
     @State var editModal = false
-    @State var editSets = false
+//    @State var editSets = false
     @State var showHelp = false
     @State var helpText = ""
     @ObservedObject var display: Display
@@ -113,7 +115,7 @@ struct EditExerciseView: View, ExerciseContext {
                 exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
                 exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 HStack {
-                    Button("Edit", action: self.onEditSets).font(.callout)
+                    Button("Edit", action: self.onEditSets).font(.callout).disabled(self.display.hasError)
                     Spacer()
                     Menu(getSetsLabel(self.exercise.modality.sets)) {
                         Button("Durations", action: {self.onChangeSets(defaultDurations())})
@@ -130,15 +132,12 @@ struct EditExerciseView: View, ExerciseContext {
                         .font(.callout)
                         .disabled(self.exercise.isBodyWeight())
                         .sheet(isPresented: self.$editModal) {
-                            if self.editSets {
-                                // TODO: When the type view is dismissed all the views are rebuilt and
-                                // because the ExerciseView typically changes its body we pop out of
-                                // the edit view. To fix we'd probably have to somehow remember that
-                                // were editing and set the new modal field in the new view.
-                                self.typeView()
+                            if editSets {
+                                self.setsView()
                             } else {
                                 self.apparatusView()
-                            }}
+                            }
+                        }
                     Spacer()
                     Menu(getApparatusLabel(self.exercise.modality.apparatus)) {
                         Button("Body Weight", action: {self.onChangeApparatus(defaultBodyWeight())})
@@ -170,7 +169,7 @@ struct EditExerciseView: View, ExerciseContext {
     }
     
     private func onEditedName(_ text: String) {
-        self.display.send(.ValidateExerciseName(self.workout, text))
+        self.display.send(.ValidateExerciseName(self.workout, self.exercise, text))
     }
 
     private func onEditedFormalName(_ text: String) {
@@ -180,20 +179,27 @@ struct EditExerciseView: View, ExerciseContext {
     private func onEditedWeight(_ text: String) {
         self.display.send(.ValidateWeight(text, "weight"))
     }
-
+    
     private func onEditSets() {
+        editSets = true
         self.editModal = true
-        self.editSets = true
     }
     
     private func onEditApparatus() {
+        editSets = false
         self.editModal = true
-        self.editSets = false
     }
     
     private func onChangeSets(_ sets: Sets) {
         if !sets.sameCase(self.exercise.modality.sets) {
             self.display.send(.DefaultSets(self.workout, self.exercise, sets))
+
+            // TODO: When the setsView is dismissed display changes so all the views
+            // are rebuilt. This will typically cause ExerciseView to rebuild its
+            // body so we'll pop out of this view and go back to the ExerciseView.
+            // If we somehow fix this we'll need to remove onDismissModal and also
+            // allow the sets edit button to be enabled even if there are errors.
+            self.doOK()
         }
     }
     
@@ -213,7 +219,7 @@ struct EditExerciseView: View, ExerciseContext {
         self.showHelp = true
     }
 
-    private func typeView() -> AnyView {
+    private func setsView() -> AnyView {
         switch self.exercise.modality.sets {
         case .durations(_, targetSecs: _):
             return AnyView(EditDurationsView(self.display, self.workout, self.exercise))
@@ -241,7 +247,7 @@ struct EditExerciseView: View, ExerciseContext {
         self.presentationMode.wrappedValue.dismiss()
     }
 
-    private func onOK() {
+    private func doOK() {
         if self.formalName != self.exercise.formalName {
             self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
         }
@@ -255,6 +261,10 @@ struct EditExerciseView: View, ExerciseContext {
         }
 
         self.display.send(.ConfirmTransaction(name: "change exercise"))
+    }
+
+    private func onOK() {
+        self.doOK()
         self.presentationMode.wrappedValue.dismiss()
     }
 }
