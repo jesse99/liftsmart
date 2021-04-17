@@ -94,19 +94,24 @@ enum Action {
 class Display: ObservableObject {
     private(set) var program: Program
     private(set) var history: History
-    private(set) var fixedWeights: [String: FixedWeightSet]
     private(set) var userNotes: [String: String] = [:]    // this overrides defaultNotes
+    private(set) var fixedWeights: [String: FixedWeightSet]
     private(set) var exerciseClipboard: Exercise? = nil
     @Published private(set) var edited = ""         // above should be published but that doesn't work well with classes so we use this lame string to publish chaanges
     @Published private(set) var errMesg = ""        // set when an Action cannot be performed
     @Published private(set) var errColor = Color.black
 
     init() {
+        var savedName = "program11"     // historical
         let app = UIApplication.shared.delegate as! AppDelegate
-        if let store = app.loadStore(from: "program11") {
+        if let store = app.loadStore(from: "current-program") {
+            savedName = store.getStr("name")
+        }
+
+        if let store = app.loadStore(from: savedName) {
             self.program = Program(from: store)
         } else {
-            self.program = home()
+            self.program = home()   // TODO: should be based on some sort of wizard
         }
         if let store = app.loadStore(from: "history") {
             self.history = History(from: store)
@@ -399,9 +404,22 @@ class Display: ObservableObject {
                     os_log("Error encoding user notes %@: %@", type: .error, self.program.name, error.localizedDescription)
                 }
             }
+            
+            let store = Store()
+            let savedName = "program11-" + self.program.name.toFileName()
+            store.addStr("name", savedName)
 
             let app = UIApplication.shared.delegate as! AppDelegate
-            app.storeObject(self.program, to: "program11")
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .secondsSince1970
+            do {
+                let data = try encoder.encode(store)
+                app.saveEncoded(data as AnyObject, to: "current-program")
+            } catch {
+                os_log("Error encoding current-program %@: %@", type: .error, self.program.name, error.localizedDescription)
+            }
+
+            app.storeObject(self.program, to: savedName)
             app.storeObject(self.history, to: "history")
             storeFixedWeights(app, to: "fws")
             storeUserNotes(app, to: "userNotes")

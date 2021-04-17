@@ -2,10 +2,10 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-func getPreviouslabel(_ workout: Workout, _ exercise: Exercise) -> String {
+func getPreviouslabel(_ display: Display, _ workout: Workout, _ exercise: Exercise) -> String {
     var count = 0
     var actual = ""
-    for record in historyX.exercise(workout, exercise).reversed() {
+    for record in display.history.exercise(workout, exercise).reversed() {
         if actual.isEmpty {
             if record.label.isEmpty {
                 break
@@ -395,7 +395,7 @@ struct ExerciseRepRangesView: View {
         }
         
         if shouldTrackHistory() {
-            return getPreviouslabel(workout(), exercise())
+            return getPreviouslabel(self.display, workout(), exercise())
         }
         
         return ""

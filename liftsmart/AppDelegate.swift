@@ -29,7 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            totalWorkouts = program.numWorkouts
 //        }
         
-//        loadState()
 //        loadAchievements()
 
         //        let warmups = Warmups(withBar: 0, firstPercent: 0.5, lastPercent: 0.9, reps: [5, 3, 1])
@@ -77,22 +76,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        saveState()
+//        saveState()
     }
 
-    // TODO: get rid of this
-    private func loadState() {
-        if let store = loadStore(from: "history") {
-            historyX = History(from: store)
-        }
-        if let store = loadStore(from: "program11") {
-            programX = Program(from: store)
-        }
-    }
-    
     func saveState() {
-        storeObject(programX, to: "program11")
-        storeObject(historyX, to: "history")
+//        storeObject(programX, to: "program11")
+//        storeObject(historyX, to: "history")
         
 //        for achievement in achievements {
 //            achievement.save(self)
@@ -166,23 +155,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             os_log("Error saving object to %@: %@", type: .error, fileName, error.localizedDescription)
         }
     }
-
-//    private func sanitizeFileName(_ name: String) -> String {
-//        var result = ""
-//
-//        for ch in name {
-//            switch ch {
-//            // All we really should have to re-map is "/" but other characters can be annoying
-//            // in file names so we'll zap those too. List is from:
-//            // https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
-//            case "/", "\\", "?", "%", "*", ":", "|", "\"", "<", ">", ".", " ":
-//                result += "_"
-//            default:
-//                result.append(ch)
-//            }
-//        }
-//
-//        return result
-//    }
 }
 

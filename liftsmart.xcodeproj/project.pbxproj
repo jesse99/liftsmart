@@ -57,7 +57,6 @@
 		37BFEBD125E32B7300158BE2 /* EditFWSsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BFEBD025E32B7300158BE2 /* EditFWSsView.swift */; };
 		37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */; };
 		37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D0F8E52516C6A7000FAAC7 /* Either.swift */; };
-		37DEA437247C46B1008297A2 /* Programs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DEA436247C46B1008297A2 /* Programs.swift */; };
 		37E83136245E248500A135C7 /* Current.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E83135245E248500A135C7 /* Current.swift */; };
 		37FB6E7E24686BC600EB4916 /* Modality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FB6E7D24686BC600EB4916 /* Modality.swift */; };
 		37FB6E8124687A4300EB4916 /* Apparatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FB6E8024687A4300EB4916 /* Apparatus.swift */; };
@@ -132,7 +131,6 @@
 		37BFEBD025E32B7300158BE2 /* EditFWSsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFWSsView.swift; sourceTree = "<group>"; };
 		37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMaxRepsView.swift; sourceTree = "<group>"; };
 		37D0F8E52516C6A7000FAAC7 /* Either.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Either.swift; sourceTree = "<group>"; };
-		37DEA436247C46B1008297A2 /* Programs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Programs.swift; sourceTree = "<group>"; };
 		37E83135245E248500A135C7 /* Current.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Current.swift; sourceTree = "<group>"; };
 		37FB6E7D24686BC600EB4916 /* Modality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modality.swift; sourceTree = "<group>"; };
 		37FB6E8024687A4300EB4916 /* Apparatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apparatus.swift; sourceTree = "<group>"; };
@@ -259,6 +257,7 @@
 		379461FC251FB96F006774A0 /* Editing */ = {
 			isa = PBXGroup;
 			children = (
+				3796D2BA262B519C00CA319B /* AddFixedWeightsView.swift */,
 				374896E82550E1E70030D7B2 /* EditDurationsView.swift */,
 				3704511C26220C9900ADFF93 /* EditExerciseView.swift */,
 				3756D25425AA5FA90004A99F /* EditFixedRepsView.swift */,
@@ -271,7 +270,6 @@
 				37B8750D258EAD230097FA9F /* EditRepsSetView.swift */,
 				37B9DEB525FE8B96001654AF /* EditTextView.swift */,
 				379461FD251FF98D006774A0 /* EditWorkoutView.swift */,
-				3796D2BA262B519C00CA319B /* AddFixedWeightsView.swift */,
 			);
 			path = Editing;
 			sourceTree = "<group>";
@@ -305,7 +303,6 @@
 				372D2230249744B70024C8F3 /* History.swift */,
 				37FB6E7D24686BC600EB4916 /* Modality.swift */,
 				37FB6E8A246B52ED00EB4916 /* Program.swift */,
-				37DEA436247C46B1008297A2 /* Programs.swift */,
 				37FB6E8224687A6B00EB4916 /* Sets.swift */,
 				37FB6E88246B52C200EB4916 /* Workout.swift */,
 			);
@@ -446,7 +443,6 @@
 				376987BF244B95D30021D0FB /* AppDelegate.swift in Sources */,
 				3781EB3F25FD953E00348E87 /* Display.swift in Sources */,
 				37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */,
-				37DEA437247C46B1008297A2 /* Programs.swift in Sources */,
 				376987C1244B95D30021D0FB /* SceneDelegate.swift in Sources */,
 				376AF37924CC018C00AEAE1C /* Notes.swift in Sources */,
 				374896D5254F31C60030D7B2 /* PickerView.swift in Sources */,

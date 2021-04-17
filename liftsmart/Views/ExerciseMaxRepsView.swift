@@ -304,7 +304,7 @@ struct ExerciseMaxRepsView: View {
     }
     
     func getNoteLabel() -> String {
-        return getPreviouslabel(workout(), exercise())
+        return getPreviouslabel(self.display, workout(), exercise())
     }
     
     private func getRestSecs() -> [Int] {

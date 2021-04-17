@@ -234,7 +234,7 @@ struct ExerciseFixedRepsView: View {
         }
         
         if shouldTrackHistory() {
-            return getPreviouslabel(workout(), exercise())
+            return getPreviouslabel(self.display, workout(), exercise())
         } else {
             return ""
         }

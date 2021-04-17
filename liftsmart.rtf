@@ -94,16 +94,21 @@ Worked out 35 times.
 \
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Work on model/display/view architecture:\
-	- make sure user notes persist\
-	- get rid of Programs.swift\
-	- review all the views, especially any @State fields\
-	- remove TODOs\
+\cf11 \'95\'a0Should be able to save and load programs\
+	- use a Programs tab for this\
+	- do a save before activate\
+	- make sure there is a save after changing program name\
+	- probably just program, not history or anything else\
+	- would be nice to be able to delete programs\
+\'95 Try the app out\
+\'95\'a0Need to support weekly scheduling somehow:\
+	- is there a general way to do this? julian calendar?\
+	- ideally this would key off the current week\
+\'95\'a0Merge back into master\
+\'95 Get rid of Programs.swift\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf11 \'95 DurationsView should include weight if it\'92s non-zero\
 	- probably getSubTitle\
-\'95 Try the app out\
-\'95\'a0Merge back into master\
 \'95 ExerciseMaxRepsView.lastReps is problematic\
 	- maybe do something lame and use completed[1]?\
 	- moot if we switch reps picker to use arrows?\
