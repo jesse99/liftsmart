@@ -22,11 +22,16 @@ struct ListEntry: Identifiable {
 
 /// Used to edit a single FixedWeightSet.
 struct EditFWSView: View {
+    enum ActiveAlert {case deleteSelected, deleteAll}
+
     let originalName: String
     @State var name: String
-    @State var showEditActions: Bool = false
-    @State var showSheet: Bool = false
-    @State var showAlert: Bool = false
+    @State var showEditActions = false
+    @State var showAdd = false
+    @State var showEdit = false
+    @State var showAlert = false
+    @State var alertAction: HistoryView.ActiveAlert = .deleteSelected
+    @State var deletingAll = false
     @State var selection: ListEntry? = nil
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
@@ -61,29 +66,39 @@ struct EditFWSView: View {
                         self.showEditActions = true
                     }
             }
+            .sheet(isPresented: self.$showEdit) {EditTextView(self.display, title: "\(self.name) Weight", content: friendlyWeight(self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]), validator: self.onValidWeight, sender: self.onEditedWeight)}
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
+                // TODO: also need Add Extra/Magnet
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("Add", action: onAdd).font(.callout) // TODO: also need Add Extra/Magnet
+                Button("Add", action: onAdd)
+                    .font(.callout)
+                    .sheet(isPresented: self.$showAdd) {AddFixedWeightsView(self.display, self.originalName)}
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
         }
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
-        .sheet(isPresented: self.$showSheet) {
-            EditTextView(self.display, title: "Weight", content: "", type: .decimalPad, validator: self.onValidWeight, sender: self.onAddWeight)}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
-            return Alert(
-                title: Text("Confirm delete"),
-                primaryButton: .destructive(Text("Delete")) {self.doDelete()},
-                secondaryButton: .default(Text("Cancel")))
-            }
+            if self.alertAction == .deleteSelected {
+                return Alert(
+                    title: Text("Confirn delete"),
+                    message: Text(self.selection!.name),
+                    primaryButton: .destructive(Text("Delete")) {self.doDelete()},
+                    secondaryButton: .default(Text("Cancel")))
+            } else {
+                return Alert(
+                    title: Text("Confirm delete all"),
+                    message: Text("\(self.display.fixedWeights[self.originalName]!.weights.count) weights"),
+                    primaryButton: .destructive(Text("Delete")) {self.doDeleteAll()},
+                    secondaryButton: .default(Text("Cancel")))
+            }}
     }
 
     private func getEntries() -> [ListEntry] {
@@ -95,6 +110,7 @@ struct EditFWSView: View {
         var buttons: [ActionSheet.Button] = []
 
         buttons.append(.destructive(Text("Delete"), action: self.onDelete))
+        buttons.append(.destructive(Text("Delete All"), action: self.onDeleteAll))
         buttons.append(.default(Text("Edit"), action: self.onEdit))
         buttons.append(.cancel(Text("Cancel"), action: {}))
 
@@ -104,29 +120,53 @@ struct EditFWSView: View {
     private func onEditedName(_ text: String) {
         self.display.send(.ValidateFixedWeightSetName(self.originalName, text))
     }
+
+    func onValidWeight(_ text: String) -> Action {
+        if let newWeight = Double(text) {
+            let originalWeight = self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]
+            if abs(newWeight - originalWeight) <= 0.01 {
+                return .NoOp
+            }
+        }
+        
+        return .ValidateWeight(text, "weight")
+    }
     
+    func onEditedWeight(_ text: String) -> Action {
+        let newWeight = Double(text)!
+        let originalWeight = self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]
+        if abs(newWeight - originalWeight) <= 0.01 {
+            return .NoOp
+        }
+        
+        self.display.send(.DeleteFixedWeight(self.originalName, self.selection!.index), updateUI: false)
+        return .AddFixedWeight(self.originalName, newWeight)
+    }
+
     func doDelete() {
         self.display.send(.DeleteFixedWeight(self.originalName, self.selection!.index))
     }
     
+    func doDeleteAll() {
+        self.display.send(.SetFixedWeightSet(self.originalName, []))
+    }
+    
     func onDelete() {
         self.showAlert = true
+        self.alertAction = .deleteSelected
     }
     
-    // TODO: do something here, probably want to implement add first
+    func onDeleteAll() {
+        self.showAlert = true
+        self.alertAction = .deleteAll
+    }
+    
     func onEdit() {
-    }
-
-    func onValidWeight(_ str: String) -> Action {
-        return .ValidateFixedWeight(self.originalName, str)
-    }
-    
-    func onAddWeight(_ str: String) -> Action {
-        return .AddFixedWeight(self.originalName, Double(str)!)
+        self.showEdit = true
     }
 
     func onAdd() {
-        self.showSheet = true
+        self.showAdd = true
     }
 
     func onCancel() {

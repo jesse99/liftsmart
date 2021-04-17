@@ -46,6 +46,7 @@ enum Action {
     case ValidateRepRanges(String, String, String, String?) // reps, percent, rest, expected
     
     // Fixed Weights
+    case AddFixedWeightRange(String, Double, Double, Double)   // fws name, first, step, max
     case ActivateFixedWeightSet(String, Exercise)
     case AddFixedWeight(String, Double)
     case DeactivateFixedWeightSet(Exercise)
@@ -53,6 +54,7 @@ enum Action {
     case DeleteFixedWeightSet(String)
     case SetFixedWeightSet(String, [Double])
     case ValidateFixedWeight(String, String)
+    case ValidateFixedWeightRange(String, String, String)   // first, step, max
     case ValidateFixedWeightSetName(String, String)
 
     // History
@@ -63,6 +65,7 @@ enum Action {
     case SetHistoryWeight(History.Record, Double)
 
     // Misc
+    case NoOp
     case SetUserNote(String, String?)    // formalName, note
     case TimePassed
     case ValidateWeight(String, String)
@@ -308,6 +311,44 @@ class Display: ObservableObject {
             
             return nil
         }
+        
+        func checkFixedWeightSetRange(_ first: String, _ step: String, _ max: String) -> String? {
+            if first.isBlankOrEmpty() {
+                return "First must be a weight"
+            }
+            if !max.isBlankOrEmpty() && step.isBlankOrEmpty() {
+                return "If max is set then step must also be set"
+            }
+
+            if let f = Double(first) {
+                if f < 0.0 {                    // zero can be useful, e.g. rehab using light dumbbell or no dumbbell
+                    return "First cannot be negative"
+                }
+
+                if max.isBlankOrEmpty() {
+                    return nil                  // adding just first
+                } else {
+                    if let m = Double(max) {
+                        if m < f {
+                            return "Max cannot be less than first"
+                        }
+
+                        if let s = Double(step) {
+                            if s <= 0.0 {
+                                return "Step should be larger than zero"
+                            }
+                            return nil
+                        } else {
+                            return "Step should be a floating point number"
+                        }
+                    } else {
+                        return "Max should be a floating point number"
+                    }
+                }
+            } else {
+                return "First should be a floating point number"
+            }
+        }
 
         func checkFixedWeightSetName(_ name: String) -> String? {
             if name.isBlankOrEmpty() {
@@ -491,6 +532,24 @@ class Display: ObservableObject {
             }
 
         // Fixed Weights
+        case .AddFixedWeightRange(let name, let first, let step, let max):
+            if self.fixedWeights[name] == nil {
+                self.fixedWeights[name] = FixedWeightSet([])
+            }
+            let fws = self.fixedWeights[name]!
+            
+            var weight = first
+            while weight <= max {
+                if let index = fws.weights.firstIndex(where: {$0 >= weight}) {
+                    if fws.weights[index] != weight {   // ValidateFixedWeightRange allows overlapping ranges so we need to test for dupes
+                        fws.weights.insert(weight, at: index)
+                    }
+                } else {
+                    fws.weights.append(weight)
+                }
+                weight += step
+            }
+            update()
         case .ActivateFixedWeightSet(let name, let exercise):
             exercise.modality.apparatus = .fixedWeights(name: name)
             update()
@@ -499,7 +558,7 @@ class Display: ObservableObject {
                 if let index = fws.weights.firstIndex(where: {$0 > weight}) {
                     fws.weights.insert(weight, at: index)
                 } else {
-                    fws.weights.append(weight)
+                    fws.weights.append(weight)  // ValidateFixedWeight will ensure no dupes
                 }
             } else {
                 self.fixedWeights[name] = FixedWeightSet([weight])
@@ -522,6 +581,12 @@ class Display: ObservableObject {
                 errors!.add(key: "set fixed weight", error: err)
             } else {
                 errors!.reset(key: "set fixed weight")
+            }
+        case .ValidateFixedWeightRange(let first, let step, let max):
+            if let err = checkFixedWeightSetRange(first, step, max) {
+                errors!.add(key: "set fixed weight sets range", error: err)
+            } else {
+                errors!.reset(key: "set fixed weight sets range")
             }
         case .ValidateFixedWeightSetName(let originalName, let name):
             if let err = checkFixedWeightSetName(name), name != originalName {
@@ -549,6 +614,8 @@ class Display: ObservableObject {
             update()
 
         // Misc
+        case .NoOp:
+            break
         case .SetUserNote(let formalName, let note):
             userNotes[formalName] = note
             update()
