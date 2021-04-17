@@ -76,7 +76,8 @@ func defaultRepRanges() -> Sets {
     return Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
 }
 
-// TODO: Wasn't read as true when a State variable.
+// TODO: Wasn't read as true when a State variable. Likely because of the way state variables
+// get unplugged from the state store, see https://nalexn.github.io/stranger-things-swiftui-state.
 var editSets = false
 
 struct EditExerciseView: View {

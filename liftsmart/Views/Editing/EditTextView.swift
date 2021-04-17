@@ -31,8 +31,7 @@ struct EditTextView: View {
 
     var body: some View {
         VStack {
-            Text(self.title).font(.largeTitle)
-//            Spacer()  // TODO: maybe https://www.hackingwithswift.com/quick-start/swiftui/how-to-make-a-fixed-size-spacer
+            Text(self.title).font(.largeTitle).padding(.bottom)
             TextField(self.placeHolder, text: self.$content)    // for multi-line use TextEditor (could do this with an if)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(self.type)

@@ -24,8 +24,7 @@ enum Apparatus: Equatable {
 
 extension Apparatus: Storable {
     init(from store: Store) {
-        let tname = store.hasKey("type") ? store.getStr("type") : "fixedWeights"    // TODO: remove this
-//        let tname = store.getStr("type")
+        let tname = store.getStr("type")
         switch tname {
         case "bodyWeight":
             self = .bodyWeight
