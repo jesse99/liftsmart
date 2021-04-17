@@ -20,87 +20,64 @@ struct ListEntry: Identifiable {
     }
 }
 
-var fixedWeightsXXXX: [String: FixedWeightSet] = [:]   // TODO: remove this
-
 /// Used to edit a single FixedWeightSet.
 struct EditFWSView: View {
-    class Stateful {
-        var name: String = ""
-        var weights: [Double] = []
-    }
-    
-    var exercise: Exercise
-    let state: Stateful
-    @State var entries: [ListEntry] = []
+    let originalName: String
+    @State var name: String
     @State var showEditActions: Bool = false
-    @State var editIndex: Int = 0             // TODO: be sure to lose this
     @State var showSheet: Bool = false
     @State var showAlert: Bool = false
+    @State var selection: ListEntry? = nil
+    @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ exercise: Exercise) {
-        self.exercise = exercise
-        self.state = Stateful()
-
-        switch self.exercise.modality.apparatus {
-        case .fixedWeights(name: let name):
-            if let n = name {
-                self.state.name = n
-                self.state.weights = fixedWeightsXXXX[n]!.weights.sorted()
-            }
-        default:
-            assert(false)
-        }
+    init(_ display: Display, _ name: String) {
+        self.display = display
+        self.originalName = name
+        self._name = State(initialValue: name)
+        self.display.send(.BeginTransaction(name: "edit fws"))
     }
 
     var body: some View {
         VStack() {
-            Text("Fixed Weight Set").font(.largeTitle)
+            Text("Fixed Weights\(self.display.edited)").font(.largeTitle)
 
-            // TODO: we need a Binding here so Stateful doesn't seem so great
-//            HStack {
-//                Text("Name:").font(.headline)
-//                TextField("", text: self.$name)
-//                    .textFieldStyle(RoundedBorderTextFieldStyle())
-//                    .keyboardType(.default)
-//                    .disableAutocorrection(false)
-//                    .onChange(of: self.name, perform: self.onEditedName)
-//            }.padding()
+            HStack {
+                Text("Name:").font(.headline)
+                TextField("", text: self.$name)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .keyboardType(.default)
+                    .disableAutocorrection(false)
+                    .onChange(of: self.name, perform: self.onEditedName)
+            }.padding()
 
-            List(self.entries) {entry in
+            List(self.getEntries()) {entry in
                 VStack() {
-                    if entry.index >= 9000 {
-                        Text(entry.name).foregroundColor(entry.color).font(.headline).italic()
-                    } else {
-                        Text(entry.name).foregroundColor(entry.color).font(.headline)
-                    }
+                    Text(entry.name).foregroundColor(entry.color).font(.headline)
                 }
                 .contentShape(Rectangle())  // so we can click within spacer
                     .onTapGesture {
-                        self.editIndex = entry.index
-                        if entry.index == 9889 {
-                            self.onAdd()
-                        } else {
-                            self.showEditActions = true
-                        }
+                        self.selection = entry
+                        self.showEditActions = true
                     }
             }
+            Spacer()
+            Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
             HStack {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("OK", action: onOK).font(.callout)
+                Button("Add", action: onAdd).font(.callout) // TODO: also need Add Extra/Magnet
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
-            .onAppear {self.refresh()}
         }
         .actionSheet(isPresented: $showEditActions) {
-            ActionSheet(title: Text(self.entries[self.editIndex].name), buttons: editButtons())}
-//        .sheet(isPresented: self.$showSheet) {
-//            OldEditTextView(title: "Weight", content: "", type: .decimalPad, validator: self.onValidWeight, completion: self.onAddWeight)}
-//            EditTextView(title: "Name", content: "", validator: self.onValidName, completion: self.onEditedName)}
+            ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
+        .sheet(isPresented: self.$showSheet) {
+            EditTextView(self.display, title: "Weight", content: "", type: .decimalPad, validator: self.onValidWeight, sender: self.onAddWeight)}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             return Alert(
                 title: Text("Confirm delete"),
@@ -109,12 +86,12 @@ struct EditFWSView: View {
             }
     }
 
-    func refresh() {
-        self.entries = self.state.weights.mapi {ListEntry(friendlyUnitsWeight($1), .black, $0)}
-        self.entries.append(ListEntry("Add", .black, 9889))
+    private func getEntries() -> [ListEntry] {
+        let weights = display.fixedWeights[self.originalName]?.weights ?? []
+        return weights.mapi {ListEntry(friendlyUnitsWeight($1), .black, $0)}
     }
     
-    func editButtons() -> [ActionSheet.Button] {
+    private func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
         buttons.append(.destructive(Text("Delete"), action: self.onDelete))
@@ -124,9 +101,12 @@ struct EditFWSView: View {
         return buttons
     }
     
+    private func onEditedName(_ text: String) {
+        self.display.send(.ValidateFixedWeightSetName(self.originalName, text))
+    }
+    
     func doDelete() {
-        self.state.weights.remove(at: self.editIndex)
-        self.refresh()
+        self.display.send(.DeleteFixedWeight(self.originalName, self.selection!.index))
     }
     
     func onDelete() {
@@ -135,52 +115,14 @@ struct EditFWSView: View {
     
     // TODO: do something here, probably want to implement add first
     func onEdit() {
-        self.refresh()
     }
 
-    func onValidWeight(_ str: String) -> String? {
-        if let weight = Double(str) {
-            if weight <= 0.0 {
-                return "Weight should be larger than zero"
-            }
-            
-            if self.state.weights.contains(where: {abs(weight - $0) > 0.001}) {
-                return "Weight already exists"
-            }
-        } else {
-            return "Weight should be a floating point number"
-        }
-        
-        return nil
+    func onValidWeight(_ str: String) -> Action {
+        return .ValidateFixedWeight(self.originalName, str)
     }
     
-    func onAddWeight(_ str: String) {
-        let weight = Double(str)!
-        if let index = self.state.weights.firstIndex(where: {$0 > weight}) {
-            self.state.weights.insert(weight, at: index)
-        } else {
-            self.state.weights.append(weight)
-        }
-        self.refresh()
-    }
-
-    func onValidName(_ name: String) -> String? {
-        if name.isEmpty { // TODO: need to use isEmptyOrBlank
-            return "Need a name"
-        }
-        
-        switch self.exercise.modality.apparatus {
-        case .fixedWeights(name: let oldN):
-            if let oldName = oldN {
-                if name == oldName {
-                    return nil
-                }
-            }
-        default:
-            assert(false)
-        }
-
-        return fixedWeightsXXXX[name] != nil ? "Name already exists" : nil
+    func onAddWeight(_ str: String) -> Action {
+        return .AddFixedWeight(self.originalName, Double(str)!)
     }
 
     func onAdd() {
@@ -188,27 +130,27 @@ struct EditFWSView: View {
     }
 
     func onCancel() {
+        self.display.send(.RollbackTransaction(name: "edit fws"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        fixedWeightsXXXX[self.state.name] = FixedWeightSet(self.state.weights)
-        self.exercise.modality.apparatus = .fixedWeights(name: self.state.name)
+        if self.name != self.originalName {
+            let weights = self.display.fixedWeights[self.originalName]?.weights ?? []
+            self.display.send(.DeleteFixedWeightSet(self.originalName))
+            self.display.send(.SetFixedWeightSet(self.name, weights))
+        }
 
-        let app = UIApplication.shared.delegate as! AppDelegate
-        app.saveState()
+        self.display.send(.ConfirmTransaction(name: "edit fws"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct EditFWSView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[2]
-    static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
 
     static var previews: some View {
-        EditFWSView(exercise)
-//        EditFWSView(display, exercise)
+        EditFWSView(display, "Dumbbells")
     }
 }
 

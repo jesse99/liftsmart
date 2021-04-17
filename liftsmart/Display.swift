@@ -47,10 +47,13 @@ enum Action {
     
     // Fixed Weights
     case ActivateFixedWeightSet(String, Exercise)
-    case AddFixedWeightSet(String)
+    case AddFixedWeight(String, Double)
     case DeactivateFixedWeightSet(Exercise)
+    case DeleteFixedWeight(String, Int)
     case DeleteFixedWeightSet(String)
-    case ValidateFixedWeightSetName(String)
+    case SetFixedWeightSet(String, [Double])
+    case ValidateFixedWeight(String, String)
+    case ValidateFixedWeightSetName(String, String)
 
     // History
     case AppendHistory(Workout, Exercise)
@@ -288,6 +291,23 @@ class Display: ObservableObject {
                 }
             }
         }
+        
+        func checkFixedWeight(_ name: String, _ str: String) -> String? {
+            if let weight = Double(str) {
+                if weight <= 0.0 {
+                    return "Weight should be larger than zero"
+                }
+                
+                let weights = self.fixedWeights[name]?.weights ?? []
+                if weights.contains(where: {abs(weight - $0) <= 0.01}) {
+                    return "Weight already exists"
+                }
+            } else {
+                return "Weight should be a floating point number"
+            }
+            
+            return nil
+        }
 
         func checkFixedWeightSetName(_ name: String) -> String? {
             if name.isBlankOrEmpty() {
@@ -474,17 +494,37 @@ class Display: ObservableObject {
         case .ActivateFixedWeightSet(let name, let exercise):
             exercise.modality.apparatus = .fixedWeights(name: name)
             update()
-        case .AddFixedWeightSet(let name):
-            fixedWeights[name] = FixedWeightSet([])
+        case .AddFixedWeight(let name, let weight):
+            if let fws = self.fixedWeights[name] {
+                if let index = fws.weights.firstIndex(where: {$0 > weight}) {
+                    fws.weights.insert(weight, at: index)
+                } else {
+                    fws.weights.append(weight)
+                }
+            } else {
+                self.fixedWeights[name] = FixedWeightSet([weight])
+            }
             update()
         case .DeactivateFixedWeightSet(let exercise):
             exercise.modality.apparatus = .fixedWeights(name: nil)
             update()
-        case .DeleteFixedWeightSet(let name):
-            fixedWeights[name] = nil
+        case .DeleteFixedWeight(let name, let index):
+            self.fixedWeights[name]?.weights.remove(at: index)
             update()
-        case .ValidateFixedWeightSetName(let name):
-            if let err = checkFixedWeightSetName(name) {
+        case .DeleteFixedWeightSet(let name):
+            self.fixedWeights[name] = nil
+            update()
+        case .SetFixedWeightSet(let name, let weights):
+            fixedWeights[name] = FixedWeightSet(weights)
+            update()
+        case .ValidateFixedWeight(let name, let weight):
+            if let err = checkFixedWeight(name, weight) {
+                errors!.add(key: "set fixed weight", error: err)
+            } else {
+                errors!.reset(key: "set fixed weight")
+            }
+        case .ValidateFixedWeightSetName(let originalName, let name):
+            if let err = checkFixedWeightSetName(name), name != originalName {
                 errors!.add(key: "set fixed weight sets names", error: err)
             } else {
                 errors!.reset(key: "set fixed weight sets names")

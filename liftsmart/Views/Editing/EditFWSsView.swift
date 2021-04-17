@@ -4,10 +4,11 @@ import SwiftUI
 
 /// Used to edit the list of FixedWeightSet's.
 struct EditFWSsView: View {
-    var exercise: Exercise
+    let exercise: Exercise
     @State var showEditActions: Bool = false
     @State var selection: ListEntry? = nil
-    @State var showSheet: Bool = false
+    @State var adding: Bool = false
+    @State var editing: Bool = false
     @State var showAlert: Bool = false
     @State var alertMesg: String = ""
     @ObservedObject var display: Display
@@ -33,6 +34,9 @@ struct EditFWSsView: View {
                         self.showEditActions = true
                     }
             }
+            .sheet(isPresented: self.$editing) {
+                EditFWSView(self.display, self.selection!.name)
+            }
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
             Divider()
@@ -41,14 +45,15 @@ struct EditFWSsView: View {
                 Spacer()
                 Spacer()
                 Button("Add", action: self.onAdd).font(.callout)
+                    .sheet(isPresented: self.$adding) {
+                        EditTextView(self.display, title: "Name", content: "", validator: self.onValidName, sender: self.onAdded)
+                    }
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
         }
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
-        .sheet(isPresented: self.$showSheet) {
-            EditTextView(self.display, title: "Name", content: "", validator: self.onValidName, sender: self.onAdded)}
         .alert(isPresented: $showAlert) {   // and views can only have one alert
             return Alert(
                 title: Text("Confirm delete"),
@@ -108,7 +113,7 @@ struct EditFWSsView: View {
         func findUses(_ name: String) -> [String] {
             var uses: [String] = []
             
-            for workout in programX.workouts {
+            for workout in self.display.program.workouts {
                 for exercise in workout.exercises {
                     switch exercise.modality.apparatus {
                     case .fixedWeights(name: let n):
@@ -139,21 +144,20 @@ struct EditFWSsView: View {
         }
     }
     
-    // TODO: implement this
+    func onAdd() {
+        self.adding = true
+    }
+
     func onEdit() {
-//        self.refresh()
+        self.editing = true
     }
 
     func onValidName(_ name: String) -> Action {
-        return .ValidateFixedWeightSetName(name)
+        return .ValidateFixedWeightSetName("", name)
     }
     
     func onAdded(_ name: String) -> Action {
-        return .AddFixedWeightSet(name)
-    }
-
-    func onAdd() {
-        self.showSheet = true
+        return .SetFixedWeightSet(name, [])
     }
 
     func onCancel() {
