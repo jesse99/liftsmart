@@ -79,7 +79,7 @@ func defaultRepRanges() -> Sets {
 // TODO: Wasn't read as true when a State variable.
 var editSets = false
 
-struct EditExerciseView: View, ExerciseContext {
+struct EditExerciseView: View {
     let workout: Workout
     let exercise: Exercise
     @State var name: String
@@ -114,9 +114,39 @@ struct EditExerciseView: View, ExerciseContext {
             Text("Edit Exercise" + self.display.edited).font(.largeTitle).padding()
 
             VStack(alignment: .leading) {
-                exerciseNameView(self, self.$name, self.onEditedName)   // TODO: these helpers don't make much sense now
-                exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
-                exerciseWeightView(self, self.$weight, self.onEditedWeight)
+                HStack {
+                    Text("Name:").font(.headline)
+                    TextField("", text: self.$name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .autocapitalization(.words)
+                        .onChange(of: self.name, perform: self.onEditedName)
+                    Button("?", action: self.onNameHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
+
+                HStack {
+                    Text("Formal Name:").font(.headline)
+                    Button(self.formalName, action: {self.formalNameModal = true})
+                        .font(.callout)
+                        .sheet(isPresented: self.$formalNameModal) {PickerView(title: "Formal Name", prompt: "Name: ", initial: self.formalName, populate: matchFormalName, confirm: self.onEditedFormalName)}
+                    Spacer()
+                    Button("?", action: self.onFormalNameHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
+
+                // Probably want to handle weight differently for different apparatus. For example, for barbell
+                // could use a picker like formal name uses: user can type in a weight and then is able to see
+                // all the nearby weights and select one if he wants.
+                HStack {
+                    Text("Weight:").font(.headline)
+                    TextField("", text: self.$weight)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.decimalPad)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.weight, perform: self.onEditedWeight)
+                    Button("?", action: self.onWeightHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
+
                 HStack {
                     Button("Edit", action: self.onEditSets).font(.callout)
                     Spacer()
@@ -130,6 +160,7 @@ struct EditExerciseView: View, ExerciseContext {
                     Spacer()
                     Button("?", action: self.onSetsHelp).font(.callout)
                 }.padding()
+                
                 HStack {
                     Button("Edit", action: self.onEditApparatus)
                         .font(.callout)
@@ -142,6 +173,7 @@ struct EditExerciseView: View, ExerciseContext {
                             }
                         }
                     Spacer()
+                
                     Menu(getApparatusLabel(self.exercise.modality.apparatus)) {
                         Button("Body Weight", action: {self.onChangeApparatus(defaultBodyWeight())})
                         Button("Fixed Weights", action: {self.onChangeApparatus(defaultFixedWeights())})
@@ -176,6 +208,7 @@ struct EditExerciseView: View, ExerciseContext {
     }
 
     private func onEditedFormalName(_ text: String) {
+        self.formalName = text
         self.display.send(.ValidateFormalName(text))    // shouldn't ever fail
     }
 
@@ -193,6 +226,38 @@ struct EditExerciseView: View, ExerciseContext {
         self.editModal = true
     }
     
+    private func matchFormalName(_ inText: String) -> [String] {
+        var names: [String] = []
+        
+        // TODO: better to do a proper fuzzy search
+        let needle = inText.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+
+        // First match any custom names defined by the user.
+        for candidate in self.display.userNotes.keys {
+            if defaultNotes[candidate] == nil {
+                let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+                if haystack.contains(needle) {
+                    names.append(candidate)
+                }
+            }
+        }
+        
+        // Then match the standard names.
+        for candidate in defaultNotes.keys {
+            let haystack = candidate.filter({!$0.isWhitespace}).filter({!$0.isPunctuation}).lowercased()
+            if haystack.contains(needle) {
+                names.append(candidate)
+            }
+            
+            // Not much point in showing the user a huge list of names.
+            if names.count >= 100 {
+                break
+            }
+        }
+
+        return names
+    }
+
     // If we use the normal approach and change the exercise sets then views will be rebuilt
     // and ExerciseView will rebuilt its body which will pop the user back into ExerciseView.
     // This is a bad user experience and can also lead to the user losing associated values
@@ -215,6 +280,21 @@ struct EditExerciseView: View, ExerciseContext {
     
     private func onSetsHelp() {
         self.helpText = getSetsHelp(self.sets)
+        self.showHelp = true
+    }
+
+    private func onNameHelp() {
+        self.helpText = "Your name for the exercise, e.g. 'Light OHP'."
+        self.showHelp = true
+    }
+
+    private func onFormalNameHelp() {
+        self.helpText = "The actual name for the exercise, e.g. 'Overhead Press'. This is used to lookup notes for the exercise."
+        self.showHelp = true
+    }
+
+    private func onWeightHelp() {
+        self.helpText = "An arbitrary weight. For stuff like barbells the app will use the closest supported weight below this weight."
         self.showHelp = true
     }
 

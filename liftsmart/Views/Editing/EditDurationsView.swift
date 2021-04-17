@@ -2,7 +2,9 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditDurationsView: View, ExerciseContext {
+let restHelpText = "The amount of time to rest after each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
+
+struct EditDurationsView: View {
     let name: String
     let sets: Binding<Sets>
     @State var durations: String
@@ -55,7 +57,15 @@ struct EditDurationsView: View, ExerciseContext {
                         .onChange(of: self.target, perform: self.onEditedSets)
                     Button("?", action: self.onTargetHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                exerciseRestView(self, self.$rest, self.onEditedSets)
+                HStack {
+                    Text("Rest:").font(.headline)
+                    TextField("", text: self.$rest)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.rest, perform: self.onEditedSets)
+                    Button("?", action: self.onResttHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
             }
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
@@ -83,6 +93,11 @@ struct EditDurationsView: View, ExerciseContext {
     
     func onDurationsHelp() {
         self.helpText = "The amount of time to perform each set. Time units may be omitted so '1.5m 60s 30 0' is a minute and a half, 60 seconds, 30 seconds, and no rest time."
+        self.showHelp = true
+    }
+
+    private func onResttHelp() {
+        self.helpText = restHelpText
         self.showHelp = true
     }
 

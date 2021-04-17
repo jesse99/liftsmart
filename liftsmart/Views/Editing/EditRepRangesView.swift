@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditRepRangesView: View, ExerciseContext {
+struct EditRepRangesView: View {
     let name: String
     let sets: Binding<Sets>
     let expectedReps: Binding<[Int]>

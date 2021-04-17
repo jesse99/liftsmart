@@ -2,7 +2,7 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditMaxRepsView: View, ExerciseContext {
+struct EditMaxRepsView: View {
     let name: String
     let sets: Binding<Sets>
     let expectedReps: Binding<[Int]>
@@ -39,7 +39,15 @@ struct EditMaxRepsView: View, ExerciseContext {
             Text("Edit " + self.name + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
-                exerciseRestView(self, self.$rest, self.onEditedReps)
+                HStack {
+                    Text("Rest:").font(.headline)
+                    TextField("", text: self.$rest)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.rest, perform: self.onEditedReps)
+                    Button("?", action: self.onResttHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
                 HStack {
                     Text("Expected Reps:").font(.headline)
                     TextField("", text: self.$reps)
@@ -87,7 +95,12 @@ struct EditMaxRepsView: View, ExerciseContext {
     func onEditedTarget(_ text: String) {
         self.display.send(.ValidateMaxRepsTarget(text))
     }
-        
+
+    private func onResttHelp() {
+        self.helpText = restHelpText
+        self.showHelp = true
+    }
+
     func onRepsHelp() {
         self.helpText = "The number of reps you expect to do across all the sets, e.g. '60'. Can be empty."
         self.showHelp = true

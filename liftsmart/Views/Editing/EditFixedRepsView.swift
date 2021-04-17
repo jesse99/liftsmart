@@ -2,7 +2,7 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditFixedRepsView: View, ExerciseContext {
+struct EditFixedRepsView: View {
     enum ActiveSheet {case formalName, editReps}
 
     let name: String
@@ -46,7 +46,15 @@ struct EditFixedRepsView: View, ExerciseContext {
                         .padding()
                     Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
-                exerciseRestView(self, self.$rests, self.onEditedSets)
+                HStack {
+                    Text("Rest:").font(.headline)
+                    TextField("", text: self.$rests)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.rests, perform: self.onEditedSets)
+                    Button("?", action: self.onResttHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
             }
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
@@ -71,7 +79,12 @@ struct EditFixedRepsView: View, ExerciseContext {
     func onEditedSets(_ inText: String) {
         self.display.send(.ValidateFixedReps(self.reps, self.rests))
     }
-        
+
+    private func onResttHelp() {
+        self.helpText = restHelpText
+        self.showHelp = true
+    }
+
     func onRepsHelp() {
         self.helpText = "The number of reps to do for each set."
         self.showHelp = true
