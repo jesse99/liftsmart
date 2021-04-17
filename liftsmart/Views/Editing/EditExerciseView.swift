@@ -76,6 +76,7 @@ func defaultRepRanges() -> Sets {
     return Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
 }
 
+// TODO: Wasn't read as true when a State variable.
 var editSets = false
 
 struct EditExerciseView: View, ExerciseContext {
@@ -84,16 +85,16 @@ struct EditExerciseView: View, ExerciseContext {
     @State var name: String
     @State var formalName: String
     @State var weight: String
+    @State var sets: Sets
+    @State var expectedReps: [Int]
     @State var formalNameModal = false
     @State var editModal = false
-//    @State var editSets = false
     @State var showHelp = false
     @State var helpText = ""
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
     init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
-//        print("initing EditExerciseView for \(exercise.name)")
         assert(display.program.workouts.first(where: {$0 === workout}) != nil)
         self.display = display
         self.workout = workout
@@ -102,6 +103,8 @@ struct EditExerciseView: View, ExerciseContext {
         self._name = State(initialValue: exercise.name)
         self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
         self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
+        self._sets = State(initialValue: exercise.modality.sets)
+        self._expectedReps = State(initialValue: exercise.expected.reps)
 
         self.display.send(.BeginTransaction(name: "change exercise"))
     }
@@ -115,9 +118,9 @@ struct EditExerciseView: View, ExerciseContext {
                 exerciseFormalNameView(self, self.$formalName, self.$formalNameModal, self.onEditedFormalName)
                 exerciseWeightView(self, self.$weight, self.onEditedWeight)
                 HStack {
-                    Button("Edit", action: self.onEditSets).font(.callout).disabled(self.display.hasError)
+                    Button("Edit", action: self.onEditSets).font(.callout)
                     Spacer()
-                    Menu(getSetsLabel(self.exercise.modality.sets)) {
+                    Menu(getSetsLabel(self.sets)) {
                         Button("Durations", action: {self.onChangeSets(defaultDurations())})
                         Button("Fixed Reps", action: {self.onChangeSets(defaultFixedReps())})
                         Button("Max Reps", action: {self.onChangeSets(defaultMaxReps())})
@@ -190,16 +193,17 @@ struct EditExerciseView: View, ExerciseContext {
         self.editModal = true
     }
     
-    private func onChangeSets(_ sets: Sets) {
-        if !sets.sameCase(self.exercise.modality.sets) {
-            self.display.send(.DefaultSets(self.workout, self.exercise, sets))
-
-            // TODO: When the setsView is dismissed display changes so all the views
-            // are rebuilt. This will typically cause ExerciseView to rebuild its
-            // body so we'll pop out of this view and go back to the ExerciseView.
-            // If we somehow fix this we'll need to remove onDismissModal and also
-            // allow the sets edit button to be enabled even if there are errors.
-            self.doOK()
+    // If we use the normal approach and change the exercise sets then views will be rebuilt
+    // and ExerciseView will rebuilt its body which will pop the user back into ExerciseView.
+    // This is a bad user experience and can also lead to the user losing associated values
+    // in their current sets value so we won't apply the sets changes until they hit OK.
+    private func onChangeSets(_ newSets: Sets) {
+        if !newSets.sameCase(self.sets) {
+            if newSets.sameCase(self.exercise.modality.sets) {
+                self.sets = self.exercise.modality.sets // don't lose original associated values
+            } else {
+                self.sets = newSets
+            }
         }
     }
     
@@ -210,7 +214,7 @@ struct EditExerciseView: View, ExerciseContext {
     }
     
     private func onSetsHelp() {
-        self.helpText = getSetsHelp(self.exercise.modality.sets)
+        self.helpText = getSetsHelp(self.sets)
         self.showHelp = true
     }
 
@@ -220,15 +224,15 @@ struct EditExerciseView: View, ExerciseContext {
     }
 
     private func setsView() -> AnyView {
-        switch self.exercise.modality.sets {
+        switch self.sets {
         case .durations(_, targetSecs: _):
-            return AnyView(EditDurationsView(self.display, self.workout, self.exercise))
+            return AnyView(EditDurationsView(self.display, self.exercise.name, self.$sets))
         case .fixedReps(_):
-            return AnyView(EditFixedRepsView(self.display, self.workout, self.exercise))
+            return AnyView(EditFixedRepsView(self.display, self.exercise.name, self.$sets))
         case .maxReps(restSecs: _, targetReps: _):
-            return AnyView(EditMaxRepsView(self.display, self.workout, self.exercise))
+            return AnyView(EditMaxRepsView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         case .repRanges(warmups: _, worksets: _, backoffs: _):
-            return AnyView(EditRepRangesView(self.display, self.workout, self.exercise))
+            return AnyView(EditRepRangesView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         }
     }
     
@@ -247,7 +251,7 @@ struct EditExerciseView: View, ExerciseContext {
         self.presentationMode.wrappedValue.dismiss()
     }
 
-    private func doOK() {
+    private func onOK() {
         if self.formalName != self.exercise.formalName {
             self.display.send(.SetExerciseFormalName(self.exercise, self.formalName))
         }
@@ -260,11 +264,15 @@ struct EditExerciseView: View, ExerciseContext {
             self.display.send(.SetExpectedWeight(self.exercise, weight))
         }
 
-        self.display.send(.ConfirmTransaction(name: "change exercise"))
-    }
+        if self.expectedReps != self.exercise.expected.reps {
+            self.display.send(.SetExpectedReps(self.exercise, self.expectedReps))
+        }
 
-    private func onOK() {
-        self.doOK()
+        if !self.sets.sameCase(self.exercise.modality.sets) {
+            self.display.send(.SetSets(self.exercise, self.sets))
+        }
+
+        self.display.send(.ConfirmTransaction(name: "change exercise"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }

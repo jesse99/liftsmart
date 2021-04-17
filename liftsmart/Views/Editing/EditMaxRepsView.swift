@@ -3,8 +3,9 @@
 import SwiftUI
 
 struct EditMaxRepsView: View, ExerciseContext {
-    let workout: Workout
-    let exercise: Exercise
+    let name: String
+    let sets: Binding<Sets>
+    let expectedReps: Binding<[Int]>
     @State var reps: String
     @State var target: String
     @State var rest: String
@@ -14,14 +15,15 @@ struct EditMaxRepsView: View, ExerciseContext {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+    init(_ display: Display, _ name: String, _ sets: Binding<Sets>, _ expectedReps: Binding<[Int]>) {
         self.display = display
-        self.workout = workout
-        self.exercise = exercise
+        self.name = name
+        self.sets = sets
+        self.expectedReps = expectedReps
 
-        self._reps = State(initialValue: exercise.expected.reps.isEmpty ? "" : "\(exercise.expected.reps[0])")
+        self._reps = State(initialValue: expectedReps.wrappedValue.isEmpty ? "" : "\(expectedReps.wrappedValue[0])")
         
-        switch exercise.modality.sets {
+        switch sets.wrappedValue {
         case .maxReps(restSecs: let r, targetReps: let t):
             self._rest = State(initialValue: r.map({restToStr($0)}).joined(separator: " "))
             self._target = State(initialValue: t != nil ? "\(t!)" : "")
@@ -30,13 +32,11 @@ struct EditMaxRepsView: View, ExerciseContext {
             self._target = State(initialValue: "")
             assert(false)
         }
-
-        self.display.send(.BeginTransaction(name: "change max reps"))
     }
 
     var body: some View {
         VStack() {
-            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle)
+            Text("Edit " + self.name + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
                 exerciseRestView(self, self.$rest, self.onEditedReps)
@@ -99,23 +99,21 @@ struct EditMaxRepsView: View, ExerciseContext {
     }
     
     func onCancel() {
-        self.display.send(.RollbackTransaction(name: "change max reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {        
-        if let reps = parseOptionalRep(self.reps, label: "reps").unwrap(), [reps] != self.exercise.expected.reps {
-            self.display.send(.SetExpectedReps(self.exercise, [reps]))
+        if let reps = parseOptionalRep(self.reps, label: "reps").unwrap(), [reps] != self.expectedReps.wrappedValue {
+            self.expectedReps.wrappedValue = [reps]
         }
         
         let target = parseOptionalRep(self.target, label: "target").unwrap()
         let rest = parseTimes(self.rest, label: "rest", zeroOK: true).unwrap()
         let msets = Sets.maxReps(restSecs: rest, targetReps: target)
-        if msets != self.exercise.modality.sets {
-            self.display.send(.SetSets(self.exercise, msets))
+        if msets != self.sets.wrappedValue {
+            self.sets.wrappedValue = msets
         }
 
-        self.display.send(.ConfirmTransaction(name: "change max reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
@@ -124,9 +122,11 @@ struct EditMaxRepsView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
     static let exercise = workout.exercises.first(where: {$0.name == "Curls"})!
+    static let sets = Binding.constant(exercise.modality.sets)
+    static let expectedReps = Binding.constant(exercise.expected.reps)
 
     static var previews: some View {
-        EditMaxRepsView(display, workout, exercise)
+        EditMaxRepsView(display, exercise.name, sets, expectedReps)
     }
 }
 

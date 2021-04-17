@@ -3,8 +3,9 @@
 import SwiftUI
 
 struct EditRepRangesView: View, ExerciseContext {
-    let workout: Workout
-    let exercise: Exercise
+    let name: String
+    let sets: Binding<Sets>
+    let expectedReps: Binding<[Int]>
     @State var showHelp = false
     @State var helpText = ""
     @State var repsModal = false
@@ -12,16 +13,16 @@ struct EditRepRangesView: View, ExerciseContext {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+    init(_ display: Display, _ name: String, _ sets: Binding<Sets>, _ expectedReps: Binding<[Int]>) {
         self.display = display
-        self.workout = workout
-        self.exercise = exercise
-        self.display.send(.BeginTransaction(name: "change rep ranges"))
+        self.name = name
+        self.sets = sets
+        self.expectedReps = expectedReps
     }
 
     var body: some View {
         VStack() {
-            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle).padding()
+            Text("Edit " + self.name + self.display.edited).font(.largeTitle).padding()
 
             VStack(alignment: .leading) {
                 VStack(alignment: .leading, spacing: 20) {
@@ -49,9 +50,8 @@ struct EditRepRangesView: View, ExerciseContext {
                             self.showHelp = true
                         }).font(.callout).padding(.trailing)
                     }.padding(.leading)
-                    .sheet(isPresented: self.$repsModal) {EditRepsSetView(self.display, self.workout, self.exercise, self.repsKind)}
+                    .sheet(isPresented: self.$repsModal) {EditRepsSetView(self.display, self.name, self.repsKind, self.sets, self.expectedReps)}
                 }
-                // apparatus (conditional)
             }
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
@@ -89,12 +89,10 @@ struct EditRepRangesView: View, ExerciseContext {
     }
     
     func onCancel() {
-        self.display.send(.RollbackTransaction(name: "change rep ranges"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     func onOK() {
-        self.display.send(.ConfirmTransaction(name: "change rep ranges"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
@@ -103,9 +101,11 @@ struct EditRepRangesView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[1]
     static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
+    static let sets = Binding.constant(exercise.modality.sets)
+    static let expectedReps = Binding.constant(exercise.expected.reps)
 
     static var previews: some View {
-        EditRepRangesView(display, workout, exercise)
+        EditRepRangesView(display, exercise.name, sets, expectedReps)
     }
 }
 

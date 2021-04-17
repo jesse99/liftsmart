@@ -3,8 +3,8 @@
 import SwiftUI
 
 struct EditDurationsView: View, ExerciseContext {
-    let workout: Workout
-    let exercise: Exercise
+    let name: String
+    let sets: Binding<Sets>
     @State var durations: String
     @State var target: String
     @State var rest: String
@@ -14,12 +14,12 @@ struct EditDurationsView: View, ExerciseContext {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+    init(_ display: Display, _ name: String, _ sets: Binding<Sets>) {
         self.display = display
-        self.workout = workout
-        self.exercise = exercise
+        self.name = name
+        self.sets = sets
 
-        switch exercise.modality.sets {
+        switch sets.wrappedValue {
         case .durations(let d, targetSecs: let t):
             self._durations = State(initialValue: d.map({restToStr($0.secs)}).joined(separator: " "))
             self._rest = State(initialValue: d.map({restToStr($0.restSecs)}).joined(separator: " "))
@@ -30,13 +30,11 @@ struct EditDurationsView: View, ExerciseContext {
             self._target = State(initialValue: "")
             assert(false)
         }
-
-        self.display.send(.BeginTransaction(name: "change durations"))
     }
 
     var body: some View {
         VStack() {
-            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle)
+            Text("Edit " + self.name + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
                 HStack {
@@ -58,7 +56,6 @@ struct EditDurationsView: View, ExerciseContext {
                     Button("?", action: self.onTargetHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 exerciseRestView(self, self.$rest, self.onEditedSets)
-                // apparatus (conditional)
             }
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
@@ -95,7 +92,6 @@ struct EditDurationsView: View, ExerciseContext {
     }
 
     func onCancel() {
-        self.display.send(.RollbackTransaction(name: "change durations"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
@@ -105,11 +101,10 @@ struct EditDurationsView: View, ExerciseContext {
         let target = parseTimes(self.target, label: "target").unwrap()
         let sets = zip(durations, rest).map({DurationSet(secs: $0, restSecs: $1)})
         let dsets = Sets.durations(sets, targetSecs: target)
-        if dsets != self.exercise.modality.sets {
-            self.display.send(.SetSets(self.exercise, dsets))
+        if dsets != self.sets.wrappedValue {
+            self.sets.wrappedValue = dsets
         }
 
-        self.display.send(.ConfirmTransaction(name: "change durations"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
@@ -118,9 +113,9 @@ struct EditDurationsView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
     static let exercise = workout.exercises.first(where: {$0.name == "Planks"})!
+    static var sets = Binding.constant(exercise.modality.sets)
 
     static var previews: some View {
-        EditDurationsView(display, workout, exercise)
+        EditDurationsView(display, exercise.name, sets)
     }
 }
-

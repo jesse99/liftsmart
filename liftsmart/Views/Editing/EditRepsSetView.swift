@@ -5,9 +5,10 @@ import SwiftUI
 struct EditRepsSetView: View {
     enum Kind {case Warmup; case WorkSets; case Backoff}
 
-    let workout: Workout
-    let exercise: Exercise
     let name: String
+    let sets: Binding<Sets>
+    let expectedReps: Binding<[Int]>
+    let setsName: String
     let kind: Kind
     @State var reps: String
     @State var percents: String
@@ -16,43 +17,42 @@ struct EditRepsSetView: View {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ workout: Workout, _ exercise: Exercise, _ kind: Kind) {
+    init(_ display: Display, _ name: String, _ kind: Kind, _ sets: Binding<Sets>, _ expectedReps: Binding<[Int]>) {
         self.display = display
-        self.workout = workout
-        self.exercise = exercise
+        self.name = name
+        self.sets = sets
+        self.expectedReps = expectedReps
         self._expected = State(initialValue: " ")
 
-        var sets: [RepsSet] = []
-        switch exercise.modality.sets {
+        var newSets: [RepsSet] = []
+        switch sets.wrappedValue {
         case .repRanges(warmups: let warm, worksets: let work, backoffs: let back):
             switch kind {
             case .Warmup:
-                sets = warm
-                self.name = "Warmups"
+                newSets = warm
+                self.setsName = "Warmups"
             case .WorkSets:
-                sets = work
-                self.name = "Work Sets"
-                self._expected = State(initialValue: exercise.expected.reps.map({$0.description}).joined(separator: " "))
+                newSets = work
+                self.setsName = "Work Sets"
+                self._expected = State(initialValue: expectedReps.wrappedValue.map({$0.description}).joined(separator: " "))
             case .Backoff:
-                sets = back
-                self.name = "Backoff"
+                newSets = back
+                self.setsName = "Backoff"
             }
         default:
-            self.name = "?"
+            self.setsName = "?"
             assert(false)
         }
         self.kind = kind
 
-        self._reps = State(initialValue: sets.map({$0.reps.editable}).joined(separator: " "))
-        self._percents = State(initialValue: sets.map({$0.percent.editable}).joined(separator: " "))
-        self._rests = State(initialValue: sets.map({restToStr($0.restSecs)}).joined(separator: " "))
-
-        self.display.send(.BeginTransaction(name: "change reps sets"))
+        self._reps = State(initialValue: newSets.map({$0.reps.editable}).joined(separator: " "))
+        self._percents = State(initialValue: newSets.map({$0.percent.editable}).joined(separator: " "))
+        self._rests = State(initialValue: newSets.map({restToStr($0.restSecs)}).joined(separator: " "))
     }
 
     var body: some View {
         VStack {
-            Text("Edit " + self.name + self.display.edited).font(.largeTitle).font(.largeTitle)
+            Text("\(self.name) \(self.setsName)\(self.display.edited)").font(.largeTitle).font(.largeTitle)
             HStack {
                 Text("Reps:").font(.headline)
                 TextField("", text: self.$reps)
@@ -113,7 +113,6 @@ struct EditRepsSetView: View {
     }
     
     func onCancel() {
-        self.display.send(.RollbackTransaction(name: "change reps sets"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
@@ -126,7 +125,7 @@ struct EditRepsSetView: View {
             newSets.append(RepsSet(reps: reps[i], percent: percent[i], restSecs: rest[i]))
         }
 
-        switch self.exercise.modality.sets {
+        switch self.sets.wrappedValue {
         case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
             var sets: Sets
             switch self.kind {
@@ -136,22 +135,21 @@ struct EditRepsSetView: View {
                 sets = .repRanges(warmups: warmups, worksets: newSets, backoffs: backoffs)
 
                 let expected = parseReps(self.expected, label: "expected", emptyOK: true).unwrap()
-                if expected != self.exercise.expected.reps {
-                    self.display.send(.SetExpectedReps(self.exercise, expected))
+                if expected != self.expectedReps.wrappedValue {
+                    self.expectedReps.wrappedValue = expected
                 }
             case .Backoff:
                 sets = .repRanges(warmups: warmups, worksets: worksets, backoffs: newSets)
             }
 
-            if sets != self.exercise.modality.sets {
-                self.display.send(.SetSets(self.exercise, sets))
+            if sets != self.sets.wrappedValue {
+                self.sets.wrappedValue = sets
             }
 
         default:
             assert(false)
         }
 
-        self.display.send(.ConfirmTransaction(name: "change reps sets"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
@@ -160,11 +158,13 @@ struct EditRepsSetView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[1]
     static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
+    static let sets = Binding.constant(exercise.modality.sets)
+    static let expectedReps = Binding.constant(exercise.expected.reps)
 
     static var previews: some View {
         Group {
-            EditRepsSetView(display, workout, exercise, .WorkSets)
-            EditRepsSetView(display, workout, exercise, .Warmup)
+            EditRepsSetView(display, exercise.name, .WorkSets, sets, expectedReps)
+            EditRepsSetView(display, exercise.name, .Warmup, sets, expectedReps)
         }
     }
 }

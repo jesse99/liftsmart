@@ -5,8 +5,8 @@ import SwiftUI
 struct EditFixedRepsView: View, ExerciseContext {
     enum ActiveSheet {case formalName, editReps}
 
-    let workout: Workout
-    let exercise: Exercise
+    let name: String
+    let sets: Binding<Sets>
     @State var reps: String
     @State var rests: String
     @State var showHelp = false
@@ -15,12 +15,12 @@ struct EditFixedRepsView: View, ExerciseContext {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
+    init(_ display: Display, _ name: String, _ sets: Binding<Sets>) {
         self.display = display
-        self.workout = workout
-        self.exercise = exercise
+        self.name = name
+        self.sets = sets
 
-        switch exercise.modality.sets {
+        switch sets.wrappedValue {
         case .fixedReps(let reps):
             self._reps = State(initialValue: reps.map({$0.reps.editable}).joined(separator: " "))
             self._rests = State(initialValue: reps.map({restToStr($0.restSecs)}).joined(separator: " "))
@@ -29,13 +29,11 @@ struct EditFixedRepsView: View, ExerciseContext {
             self._rests = State(initialValue: "")
             assert(false)
         }
-
-        self.display.send(.BeginTransaction(name: "change fixed reps"))
     }
 
     var body: some View {
         VStack() {
-            Text("Edit " + self.exercise.name + self.display.edited).font(.largeTitle)
+            Text("Edit " + self.name + self.display.edited).font(.largeTitle)
 
             VStack(alignment: .leading) {
                 HStack {
@@ -49,7 +47,6 @@ struct EditFixedRepsView: View, ExerciseContext {
                     Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 exerciseRestView(self, self.$rests, self.onEditedSets)
-                // apparatus (conditional)
             }
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
@@ -81,7 +78,6 @@ struct EditFixedRepsView: View, ExerciseContext {
     }
 
     func onCancel() {
-        self.display.send(.RollbackTransaction(name: "change fixed reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 
@@ -90,11 +86,10 @@ struct EditFixedRepsView: View, ExerciseContext {
         let rest = parseTimes(self.rests, label: "rest", zeroOK: true).unwrap()
         let sets = (0..<reps.count).map({RepsSet(reps: reps[$0], restSecs: rest[$0])})
         let dsets = Sets.fixedReps(sets)
-        if dsets != self.exercise.modality.sets {
-            self.display.send(.SetSets(self.exercise, dsets))
+        if dsets != self.sets.wrappedValue {
+            self.sets.wrappedValue = dsets
         }
 
-        self.display.send(.ConfirmTransaction(name: "change fixed reps"))
         self.presentationMode.wrappedValue.dismiss()
     }
 }
@@ -103,9 +98,10 @@ struct EditFixedRepsView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
     static let exercise = workout.exercises.first(where: {$0.name == "Foam Rolling"})!
+    static var sets = Binding.constant(exercise.modality.sets)
 
     static var previews: some View {
-        EditFixedRepsView(display, workout, exercise)
+        EditFixedRepsView(display, exercise.name, sets)
     }
 }
 
