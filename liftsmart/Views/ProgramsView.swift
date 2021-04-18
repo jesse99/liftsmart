@@ -2,7 +2,7 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-/// Used to edit saved programs.
+/// Used to manage saved programs.
 struct ProgramsView: View {
     @State var showEditActions = false
     @State var showAdd = false
@@ -30,7 +30,7 @@ struct ProgramsView: View {
                         self.showEditActions = true
                     }
             }
-//            .sheet(isPresented: self.$showRename) {EditTextView(self.display, title: "\(self.name) Weight", content: friendlyWeight(self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]), validator: self.onValidWeight, sender: self.onEditedWeight)}
+            .sheet(isPresented: self.$showRename) {EditTextView(self.display, title: "Rename \(self.selection!.name)", content: "", validator: self.onValidRename, sender: self.onRename)}
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
@@ -39,7 +39,7 @@ struct ProgramsView: View {
                 Spacer()
                 Button("Add", action: onAdd)
                     .font(.callout)
-//                    .sheet(isPresented: self.$showAdd) {EditTextView(self.display, title: "\(self.name) Weight", content: friendlyWeight(self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]), validator: self.onValidWeight, sender: self.onEditedWeight)}
+                    .sheet(isPresented: self.$showAdd) {EditTextView(self.display, title: "Add Program", content: "", validator: self.onValidNewName, sender: self.onNew)}
             }
             .padding()
         }
@@ -55,55 +55,33 @@ struct ProgramsView: View {
     }
 
     private func getEntries() -> [ListEntry] {
-        return self.display.programs.keys.mapi {ListEntry($1, $1 == self.display.program.name ? .blue : .black, $0)}
+        let names = Array(self.display.programs.keys).sorted()
+        return names.mapi {ListEntry($1, $1 == self.display.program.name ? .blue : .black, $0)}
     }
     
     private func editButtons() -> [ActionSheet.Button] {
         var buttons: [ActionSheet.Button] = []
 
-        buttons.append(.default(Text("Activate"), action: self.onActivate))
-        buttons.append(.destructive(Text("Delete"), action: self.onDelete))
+        if self.selection!.name != self.display.program.name {
+            buttons.append(.default(Text("Activate"), action: self.onActivate))
+            buttons.append(.destructive(Text("Delete"), action: self.onDelete))
+        }
         buttons.append(.default(Text("Rename"), action: self.onRename))
         buttons.append(.cancel(Text("Cancel"), action: {}))
 
         return buttons
     }
     
-//    private func onEditedName(_ text: String) {
-//        self.display.send(.ValidateFixedWeightSetName(self.originalName, text))
-//    }
-//
-//    func onValidWeight(_ text: String) -> Action {
-//        if let newWeight = Double(text) {
-//            let originalWeight = self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]
-//            if abs(newWeight - originalWeight) <= 0.01 {
-//                return .NoOp
-//            }
-//        }
-//
-//        return .ValidateWeight(text, "weight")
-//    }
-//
-//    func onEditedWeight(_ text: String) -> Action {
-//        let newWeight = Double(text)!
-//        let originalWeight = self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]
-//        if abs(newWeight - originalWeight) <= 0.01 {
-//            return .NoOp
-//        }
-//
-//        self.display.send(.DeleteFixedWeight(self.originalName, self.selection!.index), updateUI: false)
-//        return .AddFixedWeight(self.originalName, newWeight)
-//    }
-
-    func doDelete() {
-//        self.display.send(.DeleteFixedWeight(self.originalName, self.selection!.index))
+    func onActivate() {
+        self.display.send(.ActivateProgram(self.selection!.name))
     }
     
     func onDelete() {
         self.showAlert = true
     }
     
-    func onActivate() {
+    func doDelete() {
+        self.display.send(.DeleteProgram(self.selection!.name))
     }
     
     func onRename() {
@@ -112,6 +90,27 @@ struct ProgramsView: View {
 
     func onAdd() {
         self.showAdd = true
+    }
+
+    private func onValidRename(_ newName: String) -> Action {
+        return .ValidateProgramName(self.display.program.name, newName)
+    }
+
+    private func onRename(_ newName: String) -> Action {
+        if newName != self.selection!.name {
+            return .RenameProgram(self.selection!.name, newName)
+        } else {
+            return .NoOp
+        }
+    }
+    
+    private func onValidNewName(_ name: String) -> Action {
+        return .ValidateProgramName("", name)
+    }
+
+    private func onNew(_ name: String) -> Action {
+        let program = defaultProgram(name)
+        return .AddProgram(program)
     }
 }
 

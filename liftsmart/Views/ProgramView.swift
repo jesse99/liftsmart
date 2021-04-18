@@ -324,7 +324,13 @@ func previewDisplay() -> Display {
 
     let program = previewProgram()
     let weights: [String: FixedWeightSet] = ["Dumbbells": FixedWeightSet([5.0, 20.0, 10.0, 15.0]), "Kettlebells": FixedWeightSet([10.0, 20.0, 30.0])]
-    return Display(program, previewHistory(program), weights)
+    let programs = [
+        program.name: program.name,
+        "GZCLP": "GZCLP",
+        "Texas Method": "Texas Method",
+        "Strong Curves": "Strong Curves",
+        "Boring But Big": "Boring But Big"]
+    return Display(program, previewHistory(program), weights, programs)
 }
 
 struct ProgramView_Previews: PreviewProvider {

@@ -124,7 +124,7 @@ struct EditFWSView: View {
         if let newWeight = Double(text) {
             let originalWeight = self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]
             if abs(newWeight - originalWeight) <= 0.01 {
-                return .NoOp
+                return .ValidateWeight("3435534", "weight") // bit of a hack but we need to clear the error key
             }
         }
         

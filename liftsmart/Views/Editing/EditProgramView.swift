@@ -95,7 +95,7 @@ struct EditProgramView: View {
     }
 
     func onEditedName(_ text: String) {
-        self.display.send(.ValidateProgramName(text))
+        self.display.send(.ValidateProgramName(self.display.program.name, text))
     }
     
     func onCancel() {

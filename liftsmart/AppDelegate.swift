@@ -121,6 +121,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func loadEncoded(from fileName: String) -> AnyObject? {
         guard let url = fileNameToURL(fileName) else {
+            // os_log
+            print("loadEncoded couldn't get URL from '\(fileName)'")
             return nil
         }
 
@@ -129,7 +131,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as AnyObject
             }
         } catch {
-            os_log("Error saving object %@: %@", type: .error, fileName, error.localizedDescription)
+//            os_log("Error saving object %@: %@", type: .error, fileName, error.localizedDescription)
+            print("loadEncoded failed: \(error.localizedDescription)")
         }
         return nil
     }

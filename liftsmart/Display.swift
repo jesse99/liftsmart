@@ -82,7 +82,7 @@ enum Action {
     case AddProgram(Program)
     case DeleteProgram(String)
     case RenameProgram(String, String)
-    case ValidateProgramName(String)
+    case ValidateProgramName(String, String)    // old name, new name
 
     // Workout
     case AddExercise(Workout, Exercise)
@@ -160,11 +160,11 @@ class Display: ObservableObject {
     }
     
     // For testing
-    init(_ program: Program, _ history: History, _ weights: [String: FixedWeightSet]) {
+    init(_ program: Program, _ history: History, _ weights: [String: FixedWeightSet], _ programs: [String: String]) {
         self.program = program
         self.history = history
         self.fixedWeights = weights
-        self.programs = [program.name: program.name]
+        self.programs = programs
     }
     
     var hasError: Bool {
@@ -209,10 +209,12 @@ class Display: ObservableObject {
                 return "Program name cannot be empty"
             }
             
-            let newFName = programNameToFName(name)
-            for (name, fname) in self.programs {
-                if fname == newFName {
-                    return "Program file name matches '\(name)'"
+            let fname = programNameToFName(name)
+            for (oldName, oldFname) in self.programs {
+                if oldName == name {
+                    return "There's already a program named '\(oldName)'"
+                } else if oldFname == fname {
+                    return "Program file name matches that of '\(oldName)'"
                 }
             }
             return nil
@@ -728,6 +730,7 @@ class Display: ObservableObject {
 
         // Programs
         case .ActivateProgram(let name):
+            assert(name != self.program.name)
             assert(self.programs[name] != nil)
             let fname = programNameToFName(name)
             let app = UIApplication.shared.delegate as! AppDelegate
@@ -735,12 +738,10 @@ class Display: ObservableObject {
                 saveState()
                 self.program = Program(from: store)
                 update()
-            } else {
-                errors!.add(key: "activate program", warning: "Load failed")
             }
         case .AddProgram(let program):
-            assert(self.programs[program.name] == nil)
             assert(program.name != self.program.name)
+            assert(self.programs[program.name] == nil)
             let fname = programNameToFName(program.name)
             let app = UIApplication.shared.delegate as! AppDelegate
             app.storeObject(program, to: fname)
@@ -755,10 +756,7 @@ class Display: ObservableObject {
                     self.programs[name] = nil
                     update()
                 } catch {
-                    errors!.add(key: "delete program", warning: "Delete \(name) failed")
                 }
-            } else {
-                errors!.add(key: "delete program", warning: "Delete \(name) failed")
             }
         case .RenameProgram(let oldName, let newName):
             assert(oldName != newName)
@@ -776,17 +774,18 @@ class Display: ObservableObject {
                         self.program.name = newName
                     }
                     update()
-                } else {
-                    errors!.add(key: "rename program", warning: "Rename \(oldName) to \(newName) URL failed")
                 }
             } catch {
-                errors!.add(key: "rename program", warning: "Rename \(oldName) to \(newName) failed")
             }
-        case .ValidateProgramName(let name):
-            if let err = checkProgramName(name) {
-                errors!.add(key: "add program", error: err)
-            } else {
+        case .ValidateProgramName(let oldName, let newName):
+            if !oldName.isBlankOrEmpty() && oldName == newName {
                 errors!.reset(key: "add program")
+            } else {
+                if let err = checkProgramName(newName) {
+                    errors!.add(key: "add program", error: err)
+                } else {
+                    errors!.reset(key: "add program")
+                }
             }
 
         // Workout

@@ -75,6 +75,6 @@ struct EditTextView_Previews: PreviewProvider {
     }
     
     static func done(_ text: String) -> Action {
-        return .ValidateProgramName(text)
+        return .ValidateProgramName("", text)
     }
 }
