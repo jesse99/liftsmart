@@ -31,7 +31,7 @@ struct ProgramsView: View {
                         self.showEditActions = true
                     }
             }
-            .sheet(isPresented: self.$showRename) {EditTextView(self.display, title: "Rename \(self.selection!.name)", content: "", validator: self.onValidRename, sender: self.onRename)}
+            .sheet(isPresented: self.$showRename) {EditTextView(self.display, title: "Rename \(self.selection!.name)", content: "", caps: .words, validator: self.onValidRename, sender: self.onRename)}
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
@@ -41,7 +41,7 @@ struct ProgramsView: View {
                 Spacer()
                 Button("Add", action: onAdd)
                     .font(.callout)
-                    .sheet(isPresented: self.$showAdd) {EditTextView(self.display, title: "Add Program", content: "", validator: self.onValidNewName, sender: self.onNew)}
+                    .sheet(isPresented: self.$showAdd) {EditTextView(self.display, title: "Add Program", content: "", caps: .words, validator: self.onValidNewName, sender: self.onNew)}
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()

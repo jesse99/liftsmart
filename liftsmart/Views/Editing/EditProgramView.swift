@@ -58,7 +58,7 @@ struct EditProgramView: View {
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
         .sheet(isPresented: self.$showAdd) {
-            EditTextView(self.display, title: "Workout Name", content: "", validator: {return .ValidateWorkoutName($0, nil)}, sender: {return .AddWorkout($0)})}
+            EditTextView(self.display, title: "Workout Name", content: "", caps: .words, validator: {return .ValidateWorkoutName($0, nil)}, sender: {return .AddWorkout($0)})}
     }
 
     func editButtons() -> [ActionSheet.Button] {

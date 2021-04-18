@@ -46,7 +46,7 @@ struct EditFWSsView: View {
                 Spacer()
                 Button("Add", action: self.onAdd).font(.callout)
                     .sheet(isPresented: self.$adding) {
-                        EditTextView(self.display, title: "Name", content: "", validator: self.onValidName, sender: self.onAdded)
+                        EditTextView(self.display, title: "Name", content: "", caps: .words, validator: self.onValidName, sender: self.onAdded)
                     }
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }

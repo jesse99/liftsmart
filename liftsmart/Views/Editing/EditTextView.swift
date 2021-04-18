@@ -11,17 +11,19 @@ struct EditTextView: View {
     let placeHolder: String
     let type: UIKeyboardType
     let autoCorrect: Bool
+    let caps: UITextAutocapitalizationType
     let validator: Validator?           // nil if any string is OK
     let sender: Sender
     @State var content: String
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
 
-    init(_ display: Display, title: String, content: String, placeHolder: String = "", type: UIKeyboardType = .default, autoCorrect: Bool = true, validator: Validator? = nil, sender: @escaping Sender) {
+    init(_ display: Display, title: String, content: String, placeHolder: String = "", type: UIKeyboardType = .default, autoCorrect: Bool = true, caps: UITextAutocapitalizationType = .none, validator: Validator? = nil, sender: @escaping Sender) {
         self.display = display
         self.title = title
         self.placeHolder = placeHolder
         self.type = type
+        self.caps = caps
         self.autoCorrect = autoCorrect
         self.validator = validator
         self.sender = sender
@@ -36,6 +38,7 @@ struct EditTextView: View {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(self.type)
                 .disableAutocorrection(!self.autoCorrect)
+                .autocapitalization(caps)
                 .onChange(of: self.content, perform: self.onEdited)
                 .padding()
             Spacer()

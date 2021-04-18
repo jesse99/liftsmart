@@ -74,7 +74,7 @@ struct HistoryView: View {
             ActionSheet(title: Text(self.selection!.sublabel), buttons: editButtons())}
         .sheet(isPresented: self.$showSheet) {
             if self.sheetAction == .editNote {
-                EditTextView(self.display, title: "Edit Note", content: self.selection!.note, placeHolder: "user note", sender: self.onEditedNote)
+                EditTextView(self.display, title: "Edit Note", content: self.selection!.note, placeHolder: "user note", caps: .sentences, sender: self.onEditedNote)
             } else {
                 EditTextView(self.display, title: "Edit Weight", content: friendlyWeight(self.selection!.record.weight), type: .decimalPad, validator: self.onValidWeight, sender: self.onEditedWeight)
             }}
