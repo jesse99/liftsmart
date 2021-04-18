@@ -12,7 +12,7 @@ struct ProgramsView: View {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ name: String) {
+    init(_ display: Display) {
         self.display = display
     }
 
@@ -119,7 +119,7 @@ struct ProgramsView_Previews: PreviewProvider {
     static let display = previewDisplay()
 
     static var previews: some View {
-        ProgramsView(display, "Dumbbells")
+        ProgramsView(display)
     }
 }
 
