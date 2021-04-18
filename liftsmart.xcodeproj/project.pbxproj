@@ -39,6 +39,7 @@
 		376AF38324CCE7AD00AEAE1C /* EditNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376AF38224CCE7AD00AEAE1C /* EditNoteView.swift */; };
 		376E9C50262BA73A007BBB50 /* Programs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376E9C4F262BA73A007BBB50 /* Programs.swift */; };
 		376E9C56262BC546007BBB50 /* ProgramsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376E9C55262BC546007BBB50 /* ProgramsView.swift */; };
+		376E9C5C262C9D95007BBB50 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376E9C5B262C9D95007BBB50 /* Logger.swift */; };
 		3781EB3F25FD953E00348E87 /* Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3781EB3E25FD953E00348E87 /* Display.swift */; };
 		3781EB4325FDB45900348E87 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3781EB4225FDB45900348E87 /* StringExtension.swift */; };
 		378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378796F925438F5D004C2D43 /* EditMaxRepsView.swift */; };
@@ -114,6 +115,7 @@
 		376AF38224CCE7AD00AEAE1C /* EditNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNoteView.swift; sourceTree = "<group>"; };
 		376E9C4F262BA73A007BBB50 /* Programs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Programs.swift; sourceTree = "<group>"; };
 		376E9C55262BC546007BBB50 /* ProgramsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramsView.swift; sourceTree = "<group>"; };
+		376E9C5B262C9D95007BBB50 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		3781EB3E25FD953E00348E87 /* Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Display.swift; sourceTree = "<group>"; };
 		3781EB4225FDB45900348E87 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		378796F925438F5D004C2D43 /* EditMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMaxRepsView.swift; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				37D0F8E52516C6A7000FAAC7 /* Either.swift */,
 				37881BCF244FF7DE00CFB411 /* Extensions */,
 				378D567724843AB9006A041C /* FriendlyStrings.swift */,
+				376E9C5B262C9D95007BBB50 /* Logger.swift */,
 				37FB6E7F24687A2E00EB4916 /* Model */,
 				376AF37824CC018C00AEAE1C /* Notes.swift */,
 				3756443625C7289800BD57F0 /* Parsers.swift */,
@@ -442,6 +445,7 @@
 				378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */,
 				376E9C50262BA73A007BBB50 /* Programs.swift in Sources */,
 				3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */,
+				376E9C5C262C9D95007BBB50 /* Logger.swift in Sources */,
 				37B9DEB625FE8B96001654AF /* EditTextView.swift in Sources */,
 				37FB6E8524687B9400EB4916 /* Expected.swift in Sources */,
 				37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */,

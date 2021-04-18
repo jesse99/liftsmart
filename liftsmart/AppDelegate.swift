@@ -2,13 +2,12 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import UIKit
 import UserNotifications
-import os.log
 
 var allowsNotify = false
 
 func fileNameToURL(_ fname: String) -> URL? {
     guard let dirURL = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first else {
-        os_log("fileNameToURL failed for '%@", type: .error, fname)
+        log(.Error, "Failed to get URL for '\(fname)'")
         return nil
     }
 
@@ -110,10 +109,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 do {
                     return try decoder.decode(Store.self, from: data)
                 } catch {
-                    os_log("Error decoding %@: %@", type: .error, fileName, error.localizedDescription)
+                    log(.Error, "Failed to decode '\(fileName)': \(error.localizedDescription)")
                 }
             } else {
-                os_log("%@ couldnt be cast to Data", type: .error, fileName)
+                log(.Error, "Failed to get data for '\(fileName)'")
             }
         }
         return nil
@@ -121,8 +120,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func loadEncoded(from fileName: String) -> AnyObject? {
         guard let url = fileNameToURL(fileName) else {
-            // os_log
-            print("loadEncoded couldn't get URL from '\(fileName)'")
+            log(.Error, "Failed to get URL for '\(fileName)'")
             return nil
         }
 
@@ -131,8 +129,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as AnyObject
             }
         } catch {
-//            os_log("Error saving object %@: %@", type: .error, fileName, error.localizedDescription)
-            print("loadEncoded failed: \(error.localizedDescription)")
+            log(.Error, "Failed to encode '\(fileName)': \(error.localizedDescription)")
         }
         return nil
     }
@@ -147,12 +144,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let data = try encoder.encode(store)
             saveEncoded(data as AnyObject, to: fileName)
         } catch {
-            os_log("Error encoding to %@: %@", type: .error, fileName, error.localizedDescription)
+            log(.Error, "Failed to store '\(fileName)': \(error.localizedDescription)")
         }
     }
     
     func saveEncoded(_ object: AnyObject, to fileName: String) {
         guard let url = fileNameToURL(fileName) else {
+            log(.Error, "Failed to get URL for '\(fileName)'")
             return
         }
 
@@ -160,7 +158,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let data = try NSKeyedArchiver.archivedData(withRootObject: object, requiringSecureCoding: true)
             try data.write(to: url)
         } catch {
-            os_log("Error saving object to %@: %@", type: .error, fileName, error.localizedDescription)
+            log(.Error, "Failed to archive '\(fileName)': \(error.localizedDescription)")
         }
     }
 }

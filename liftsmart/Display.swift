@@ -1,7 +1,6 @@
 //  Created by Jesse Jones on 3/13/21.
 //  Copyright © 2021 MushinApps. All rights reserved.
 import Foundation
-import os.log
 import struct SwiftUI.Color // note that, in general, Display should not depend on view stuff
 import class SwiftUI.UIApplication
 
@@ -409,7 +408,7 @@ class Display: ObservableObject {
                 let data = try encoder.encode(store)
                 app.saveEncoded(data as AnyObject, to: "current-program")
             } catch {
-                os_log("Error encoding current-program %@: %@", type: .error, self.program.name, error.localizedDescription)
+                log(.Error, "Failed to save current-program: \(error.localizedDescription)")
             }
             return fname
         }
@@ -431,7 +430,7 @@ class Display: ObservableObject {
                     let data = try encoder.encode(store)
                     app.saveEncoded(data as AnyObject, to: fileName)
                 } catch {
-                    os_log("Error encoding fixed weights %@: %@", type: .error, self.program.name, error.localizedDescription)
+                    log(.Error, "Failed to save fixed weights: \(error.localizedDescription)")
                 }
             }
 
@@ -446,7 +445,7 @@ class Display: ObservableObject {
                     let data = try encoder.encode(store)
                     app.saveEncoded(data as AnyObject, to: fileName)
                 } catch {
-                    os_log("Error encoding user notes %@: %@", type: .error, self.program.name, error.localizedDescription)
+                    log(.Error, "Failed to save user notes: \(error.localizedDescription)")
                 }
             }
 
@@ -461,12 +460,12 @@ class Display: ObservableObject {
                     let data = try encoder.encode(store)
                     app.saveEncoded(data as AnyObject, to: fileName)
                 } catch {
-                    os_log("Error encoding programs %@: %@", type: .error, self.program.name, error.localizedDescription)
+                    log(.Error, "Failed to save programs: \(error.localizedDescription)")
                 }
             }
             
+            log(.Info, "Saving state")
             let fname = saveCurentProgram()
-
             let app = UIApplication.shared.delegate as! AppDelegate
             app.storeObject(self.program, to: fname)
             app.storeObject(self.history, to: "history")
