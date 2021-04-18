@@ -5,7 +5,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selection = 0
     @StateObject var display = Display()
-    
+
     var body: some View {
         TabView(selection: $selection){
             ProgramView(self.display)
@@ -17,12 +17,12 @@ struct ContentView: View {
                     }
                 }
                 .tag(0)
-            ProgramsView(display)
+            Text("Settings")
                 .font(.title)
                 .tabItem {
                     VStack {
                         Image("second")
-                        Text("Programs")
+                        Text("Settings")
                     }
                 }
                 .tag(1)

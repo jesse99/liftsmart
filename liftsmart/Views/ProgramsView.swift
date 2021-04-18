@@ -14,6 +14,7 @@ struct ProgramsView: View {
     
     init(_ display: Display) {
         self.display = display
+        self.display.send(.BeginTransaction(name: "manage programs"))
     }
 
     var body: some View {
@@ -36,10 +37,12 @@ struct ProgramsView: View {
 
             Divider()
             HStack {
+                // TODO: Would be nice to support cancel tho that would be annoying.
                 Spacer()
                 Button("Add", action: onAdd)
                     .font(.callout)
                     .sheet(isPresented: self.$showAdd) {EditTextView(self.display, title: "Add Program", content: "", validator: self.onValidNewName, sender: self.onNew)}
+                Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
         }
@@ -93,7 +96,7 @@ struct ProgramsView: View {
     }
 
     private func onValidRename(_ newName: String) -> Action {
-        return .ValidateProgramName(self.display.program.name, newName)
+        return .ValidateProgramName(self.selection!.name, newName)
     }
 
     private func onRename(_ newName: String) -> Action {
@@ -111,6 +114,11 @@ struct ProgramsView: View {
     private func onNew(_ name: String) -> Action {
         let program = defaultProgram(name)
         return .AddProgram(program)
+    }
+
+    func onOK() {
+        self.display.send(.ConfirmTransaction(name: "manage programs"))
+        self.presentationMode.wrappedValue.dismiss()
     }
 }
 

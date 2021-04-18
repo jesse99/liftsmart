@@ -178,6 +178,7 @@ func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ e
 struct ProgramView: View {
     let timer = RestartableTimer(every: TimeInterval.minutes(30)) // subData will change every day so we'll refresh fairly often
     @State var editModal = false
+    @State var programsModal = false
     @ObservedObject var display: Display // nicer if this was an EnvironmentObject but then we can't use display from init methods
     
     // Note that View init methods are called quite a bit more often than what one might expect and,
@@ -206,6 +207,11 @@ struct ProgramView: View {
 
                 Divider()
                 HStack {
+                    // Would be nice to make this a tab but then switching programs completely hoses all
+                    // existing views.
+                    Button("Programs", action: onPrograms)
+                        .font(.callout).labelStyle(/*@START_MENU_TOKEN@*/DefaultLabelStyle()/*@END_MENU_TOKEN@*/)
+                        .sheet(isPresented: self.$programsModal) {ProgramsView(self.display)}
                     Spacer()
                     Button("Edit", action: onEdit)
                         .font(.callout).labelStyle(/*@START_MENU_TOKEN@*/DefaultLabelStyle()/*@END_MENU_TOKEN@*/)
@@ -225,6 +231,10 @@ struct ProgramView: View {
     
     private func onEdit() {
         self.editModal = true
+    }
+    
+    private func onPrograms() {
+        self.programsModal = true
     }
 }
 
