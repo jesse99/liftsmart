@@ -87,7 +87,7 @@ struct EditProgramView: View {
     }
 
     private func doDelete() {
-        self.display.send(.DelWorkout(self.selection!))
+        self.display.send(.DeleteWorkout(self.selection!))
     }
 
     private func doMove(by: Int) {
@@ -105,7 +105,7 @@ struct EditProgramView: View {
 
     func onOK() {
         if name != self.display.program.name {
-            self.display.send(.SetProgramName(self.name))
+            self.display.send(.RenameProgram(self.display.program.name, self.name))
         }
         self.display.send(.ConfirmTransaction(name: "edit program"))
         self.presentationMode.wrappedValue.dismiss()   

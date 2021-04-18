@@ -6,6 +6,15 @@ import os.log
 
 var allowsNotify = false
 
+func fileNameToURL(_ fname: String) -> URL? {
+    guard let dirURL = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first else {
+        os_log("fileNameToURL failed for '%@", type: .error, fname)
+        return nil
+    }
+
+    return dirURL.appendingPathComponent(fname)
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     override init() {
@@ -109,14 +118,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         return nil
     }
-
+    
     func loadEncoded(from fileName: String) -> AnyObject? {
-        guard let dirURL = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first else {
-            os_log("urls for documentDirectory failed", type: .error)
+        guard let url = fileNameToURL(fileName) else {
             return nil
         }
 
-        let url = dirURL.appendingPathComponent(fileName)
         do {
             if let data = try? Data(contentsOf: url) {
                 return try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as AnyObject
@@ -142,12 +149,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func saveEncoded(_ object: AnyObject, to fileName: String) {
-        guard let dirURL = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first else {
-            os_log("urls for documentDirectory failed", type: .error)
+        guard let url = fileNameToURL(fileName) else {
             return
         }
 
-        let url = dirURL.appendingPathComponent(fileName)
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: object, requiringSecureCoding: true)
             try data.write(to: url)

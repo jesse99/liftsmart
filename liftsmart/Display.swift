@@ -72,13 +72,18 @@ enum Action {
 
     // Program
     case AddWorkout(String)
-    case DelWorkout(Workout)
+    case DeleteWorkout(Workout)
     case EnableWorkout(Workout, Bool)
     case MoveWorkout(Workout, Int)
-    case SetProgramName(String)
-    case ValidateProgramName(String)
     case ValidateWorkoutName(String, Workout?)
     
+    // Programs
+    case ActivateProgram(String)
+    case AddProgram(Program)
+    case DeleteProgram(String)
+    case RenameProgram(String, String)
+    case ValidateProgramName(String)
+
     // Workout
     case AddExercise(Workout, Exercise)
     case DelExercise(Workout, Exercise)
@@ -96,23 +101,25 @@ class Display: ObservableObject {
     private(set) var history: History
     private(set) var userNotes: [String: String] = [:]    // this overrides defaultNotes
     private(set) var fixedWeights: [String: FixedWeightSet]
+    private(set) var programs: [String: String]     // program name => file name
     private(set) var exerciseClipboard: Exercise? = nil
     @Published private(set) var edited = ""         // above should be published but that doesn't work well with classes so we use this lame string to publish chaanges
     @Published private(set) var errMesg = ""        // set when an Action cannot be performed
     @Published private(set) var errColor = Color.black
 
     init() {
-        var savedName = "program11"     // historical
+        var savedFName = "program11"     // historical
         let app = UIApplication.shared.delegate as! AppDelegate
         if let store = app.loadStore(from: "current-program") {
-            savedName = store.getStr("name")
+            savedFName = store.getStr("fname")
         }
 
-        if let store = app.loadStore(from: savedName) {
+        if let store = app.loadStore(from: savedFName) {
             self.program = Program(from: store)
         } else {
             self.program = home()   // TODO: should be based on some sort of wizard
         }
+
         if let store = app.loadStore(from: "history") {
             self.history = History(from: store)
         } else {
@@ -139,6 +146,17 @@ class Display: ObservableObject {
                 self.userNotes[key] = values[i]
             }
         }
+
+        self.programs = [:]
+        if let store = app.loadStore(from: "programs") {
+            let names = store.getStrArray("names")
+            let fnames = store.getStrArray("fnames")
+            for (i, name) in names.enumerated() {
+                self.programs[name] = fnames[i]
+            }
+        } else {
+            self.programs[self.program.name] = programNameToFName(self.program.name)
+        }
     }
     
     // For testing
@@ -146,6 +164,7 @@ class Display: ObservableObject {
         self.program = program
         self.history = history
         self.fixedWeights = weights
+        self.programs = [program.name: program.name]
     }
     
     var hasError: Bool {
@@ -188,6 +207,13 @@ class Display: ObservableObject {
         func checkProgramName(_ name: String) -> String? {
             if name.isBlankOrEmpty() {
                 return "Program name cannot be empty"
+            }
+            
+            let newFName = programNameToFName(name)
+            for (name, fname) in self.programs {
+                if fname == newFName {
+                    return "Program file name matches '\(name)'"
+                }
             }
             return nil
         }
@@ -369,6 +395,23 @@ class Display: ObservableObject {
             }
         }
         
+        func saveCurentProgram() -> String {
+            let store = Store()
+            let fname = programNameToFName(self.program.name)
+            store.addStr("fname", fname)
+
+            let app = UIApplication.shared.delegate as! AppDelegate
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .secondsSince1970
+            do {
+                let data = try encoder.encode(store)
+                app.saveEncoded(data as AnyObject, to: "current-program")
+            } catch {
+                os_log("Error encoding current-program %@: %@", type: .error, self.program.name, error.localizedDescription)
+            }
+            return fname
+        }
+        
         func saveState() {
             func storeFixedWeights(_ app: AppDelegate, to fileName: String) {
                 let store = Store()
@@ -404,25 +447,30 @@ class Display: ObservableObject {
                     os_log("Error encoding user notes %@: %@", type: .error, self.program.name, error.localizedDescription)
                 }
             }
+
+            func storePrograms(_ app: AppDelegate, to fileName: String) {
+                let store = Store()
+                store.addStrArray("names", Array(programs.keys))
+                store.addStrArray("fnames", Array(programs.values))
+
+                let encoder = JSONEncoder()
+                encoder.dateEncodingStrategy = .secondsSince1970
+                do {
+                    let data = try encoder.encode(store)
+                    app.saveEncoded(data as AnyObject, to: fileName)
+                } catch {
+                    os_log("Error encoding programs %@: %@", type: .error, self.program.name, error.localizedDescription)
+                }
+            }
             
-            let store = Store()
-            let savedName = "program11-" + self.program.name.toFileName()
-            store.addStr("name", savedName)
+            let fname = saveCurentProgram()
 
             let app = UIApplication.shared.delegate as! AppDelegate
-            let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .secondsSince1970
-            do {
-                let data = try encoder.encode(store)
-                app.saveEncoded(data as AnyObject, to: "current-program")
-            } catch {
-                os_log("Error encoding current-program %@: %@", type: .error, self.program.name, error.localizedDescription)
-            }
-
-            app.storeObject(self.program, to: savedName)
+            app.storeObject(self.program, to: fname)
             app.storeObject(self.history, to: "history")
             storeFixedWeights(app, to: "fws")
             storeUserNotes(app, to: "userNotes")
+            storePrograms(app, to: "programs")
         }
         
         let errors = self.transactions.last?.errors
@@ -654,7 +702,7 @@ class Display: ObservableObject {
             let workout = Workout(name, [], days: [])
             self.program.workouts.append(workout)
             update()
-        case .DelWorkout(let workout):
+        case .DeleteWorkout(let workout):
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             self.program.workouts.remove(at: index)
             update()
@@ -667,16 +715,6 @@ class Display: ObservableObject {
             let _ = self.program.workouts.remove(at: index)
             self.program.workouts.insert(workout, at: index + by)
             update()
-        case .SetProgramName(let name):
-            assert(checkProgramName(name) == nil)
-            self.program.name = name
-            update()
-        case .ValidateProgramName(let name):
-            if let err = checkProgramName(name) {
-                errors!.add(key: "add program", error: err)
-            } else {
-                errors!.reset(key: "add program")
-            }
         case .ValidateWorkoutName(let name, let workout):
             if let workout = workout, workout.name == name {
                 errors!.reset(key: "add workout")
@@ -686,6 +724,69 @@ class Display: ObservableObject {
                 errors!.add(key: "add workout", error: err)
             } else {
                 errors!.reset(key: "add workout")
+            }
+
+        // Programs
+        case .ActivateProgram(let name):
+            assert(self.programs[name] != nil)
+            let fname = programNameToFName(name)
+            let app = UIApplication.shared.delegate as! AppDelegate
+            if let store = app.loadStore(from: fname) {
+                saveState()
+                self.program = Program(from: store)
+                update()
+            } else {
+                errors!.add(key: "activate program", warning: "Load failed")
+            }
+        case .AddProgram(let program):
+            assert(self.programs[program.name] == nil)
+            assert(program.name != self.program.name)
+            let fname = programNameToFName(program.name)
+            let app = UIApplication.shared.delegate as! AppDelegate
+            app.storeObject(program, to: fname)
+            self.programs[program.name] = fname
+            update()
+        case .DeleteProgram(let name):
+            assert(name != self.program.name)
+            let fname = programNameToFName(name)
+            if let url = fileNameToURL(fname) {
+                do {
+                    try FileManager.default.removeItem(at: url)
+                    self.programs[name] = nil
+                    update()
+                } catch {
+                    errors!.add(key: "delete program", warning: "Delete \(name) failed")
+                }
+            } else {
+                errors!.add(key: "delete program", warning: "Delete \(name) failed")
+            }
+        case .RenameProgram(let oldName, let newName):
+            assert(oldName != newName)
+            assert(self.programs[oldName] != nil)
+            assert(self.programs[newName] == nil)
+            
+            do {
+                let oldFname = programNameToFName(oldName)
+                let newFname = programNameToFName(newName)
+                if let oldUrl = fileNameToURL(oldFname), let newUrl = fileNameToURL(newFname) {
+                    try FileManager.default.moveItem(at: oldUrl, to: newUrl)
+                    self.programs[oldName] = nil
+                    self.programs[newName] = newFname
+                    if oldName == self.program.name {
+                        self.program.name = newName
+                    }
+                    update()
+                } else {
+                    errors!.add(key: "rename program", warning: "Rename \(oldName) to \(newName) URL failed")
+                }
+            } catch {
+                errors!.add(key: "rename program", warning: "Rename \(oldName) to \(newName) failed")
+            }
+        case .ValidateProgramName(let name):
+            if let err = checkProgramName(name) {
+                errors!.add(key: "add program", error: err)
+            } else {
+                errors!.reset(key: "add program")
             }
 
         // Workout
@@ -761,6 +862,12 @@ class Display: ObservableObject {
             }
         }
         return nil
+    }
+
+    private func programNameToFName(_ name: String) -> String {
+        // Program names may not work as file names so we sanitize them here.
+        // The "program11" helps distinguish programs from other saved objects (the name is for historical reasons).
+        return "program11-" + name.toFileName()
     }
 
     private struct Transaction {

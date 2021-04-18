@@ -260,3 +260,6 @@ func home() -> Program {
     return Program("Home", workouts)
 }
 
+func defaultProgram(_ name: String) -> Program {
+    return Program(name, [])
+}

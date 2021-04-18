@@ -1,6 +1,6 @@
 //  Created by Jesse Jones on 1/31/21.
 //  Copyright © 2021 MushinApps. All rights reserved.
-import SwiftUI
+import Foundation
 
 // Rep = Int?
 func parseOptionalRep(_ text: String, label: String) -> Either<String, Int?> {

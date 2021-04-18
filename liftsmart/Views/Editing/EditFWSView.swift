@@ -31,7 +31,6 @@ struct EditFWSView: View {
     @State var showEdit = false
     @State var showAlert = false
     @State var alertAction: HistoryView.ActiveAlert = .deleteSelected
-    @State var deletingAll = false
     @State var selection: ListEntry? = nil
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode

@@ -37,6 +37,8 @@
 		376AF37E24CCB0AB00AEAE1C /* MDText in Frameworks */ = {isa = PBXBuildFile; productRef = 376AF37D24CCB0AB00AEAE1C /* MDText */; };
 		376AF38124CCE79400AEAE1C /* TextView in Frameworks */ = {isa = PBXBuildFile; productRef = 376AF38024CCE79400AEAE1C /* TextView */; };
 		376AF38324CCE7AD00AEAE1C /* EditNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376AF38224CCE7AD00AEAE1C /* EditNoteView.swift */; };
+		376E9C50262BA73A007BBB50 /* Programs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376E9C4F262BA73A007BBB50 /* Programs.swift */; };
+		376E9C56262BC546007BBB50 /* ProgramsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376E9C55262BC546007BBB50 /* ProgramsView.swift */; };
 		3781EB3F25FD953E00348E87 /* Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3781EB3E25FD953E00348E87 /* Display.swift */; };
 		3781EB4325FDB45900348E87 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3781EB4225FDB45900348E87 /* StringExtension.swift */; };
 		378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378796F925438F5D004C2D43 /* EditMaxRepsView.swift */; };
@@ -110,6 +112,8 @@
 		376AF37824CC018C00AEAE1C /* Notes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
 		376AF37A24CC053000AEAE1C /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
 		376AF38224CCE7AD00AEAE1C /* EditNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNoteView.swift; sourceTree = "<group>"; };
+		376E9C4F262BA73A007BBB50 /* Programs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Programs.swift; sourceTree = "<group>"; };
+		376E9C55262BC546007BBB50 /* ProgramsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramsView.swift; sourceTree = "<group>"; };
 		3781EB3E25FD953E00348E87 /* Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Display.swift; sourceTree = "<group>"; };
 		3781EB4225FDB45900348E87 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		378796F925438F5D004C2D43 /* EditMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMaxRepsView.swift; sourceTree = "<group>"; };
@@ -196,6 +200,7 @@
 				37FB6E7F24687A2E00EB4916 /* Model */,
 				376AF37824CC018C00AEAE1C /* Notes.swift */,
 				3756443625C7289800BD57F0 /* Parsers.swift */,
+				376E9C4F262BA73A007BBB50 /* Programs.swift */,
 				3766CA6124B1A84A00EF604A /* RestartableTimer.swift */,
 				376987C0244B95D30021D0FB /* SceneDelegate.swift */,
 				372D2232249E8D1B0024C8F3 /* Store.swift */,
@@ -235,6 +240,7 @@
 				376AF37A24CC053000AEAE1C /* NoteView.swift */,
 				374896D4254F31C60030D7B2 /* PickerView.swift */,
 				378D567324830271006A041C /* ProgramView.swift */,
+				376E9C55262BC546007BBB50 /* ProgramsView.swift */,
 				378D567524842C95006A041C /* TimerView.swift */,
 				37412F5A2482D5C400FA78A7 /* WorkoutView.swift */,
 			);
@@ -430,9 +436,11 @@
 				3756443725C7289800BD57F0 /* Parsers.swift in Sources */,
 				373209E525AA330A00EBD64F /* ArrayExtension.swift in Sources */,
 				3704511D26220C9900ADFF93 /* EditExerciseView.swift in Sources */,
+				376E9C56262BC546007BBB50 /* ProgramsView.swift in Sources */,
 				370451232623C38B00ADFF93 /* ExerciseView.swift in Sources */,
 				37BFEBCD25E324FC00158BE2 /* FixedWeightSet.swift in Sources */,
 				378796FA25438F5D004C2D43 /* EditMaxRepsView.swift in Sources */,
+				376E9C50262BA73A007BBB50 /* Programs.swift in Sources */,
 				3766CA6224B1A84A00EF604A /* RestartableTimer.swift in Sources */,
 				37B9DEB625FE8B96001654AF /* EditTextView.swift in Sources */,
 				37FB6E8524687B9400EB4916 /* Expected.swift in Sources */,
