@@ -485,10 +485,16 @@ class Display: ObservableObject {
             // 2) init methods are called many more times than you might naively expect so we
             // can't simply push and pop them,
             if !self.transactions.contains(where: {$0.name == name}) {
+                log(.Debug, "Begin \(name)")
                 self.transactions.append(Transaction(name, self))
+            } else {
+                let names = self.transactions.reversed().map {$0.name}
+                let summary = names.joined(separator: ", ")
+                log(.Debug, "Skipping begin for \(name), transaction: \(summary)")
             }
             return
         case .RollbackTransaction(let name):
+            log(.Debug, "Rollback \(name)")
             assert(name == self.transactions.last!.name)
             self.program = self.transactions.last!.program
             self.history = self.transactions.last!.history
@@ -497,6 +503,7 @@ class Display: ObservableObject {
             let _ = self.transactions.popLast()
             update()    // state may have changed back so we need to trigger an update
         case .ConfirmTransaction(let name):
+            log(.Debug, "Confirming \(name)")
             assert(name == self.transactions.last!.name)
             assert(!errors!.hasError)
             let _ = self.transactions.popLast()

@@ -21,6 +21,7 @@ func log(_ level: LogLevel, _ message: String) {
     logLines.append(LogLine(seconds: elapsed, level: level, line: message))
 
 #if targetEnvironment(simulator)
+    // TODO: Include hours and minutes (when non-zero?)
     let timestamp = String(format: "%.1f", elapsed)
 
     var prefix = ""
@@ -35,9 +36,9 @@ func log(_ level: LogLevel, _ message: String) {
         prefix = "DBG "
     }
 
-    print("\(timestamp) \(prefix): \(message)")
+    print("\(timestamp) \(prefix) \(message)")
 #endif
 }
 
-// TODO: I think this isn't set until log() is called
-fileprivate let startTime = Date().timeIntervalSince1970
+// Note that this is set when log is called for the first time.
+fileprivate let startTime = Date().timeIntervalSince1970 - 0.00001  // subtract a tiny time so we don't print a -0.0 timestamp

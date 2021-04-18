@@ -17,6 +17,7 @@ func fileNameToURL(_ fname: String) -> URL? {
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     override init() {
+        log(.Debug, "Starting up")
         super.init()
 
 //        let path = getPath(fileName: "program_name")
