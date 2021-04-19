@@ -276,8 +276,10 @@ struct EditExerciseView: View {
         if !newSets.sameCase(self.sets) {
             if newSets.sameCase(self.exercise.modality.sets) {
                 self.sets = self.exercise.modality.sets // don't lose original associated values
+                self.expectedReps = exercise.expected.reps
             } else {
                 self.sets = newSets
+                self.expectedReps = []  // TODO: reset expected weight too?
             }
         }
     }
@@ -285,6 +287,7 @@ struct EditExerciseView: View {
     private func onChangeApparatus(_ apparatus: Apparatus) {
         if !apparatus.sameCase(self.exercise.modality.apparatus) {
             self.display.send(.DefaultApparatus(self.workout, self.exercise, apparatus))
+            self.expectedReps = []  // TODO: reset expected weight too?
         }
     }
     
