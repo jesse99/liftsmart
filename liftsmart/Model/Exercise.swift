@@ -98,8 +98,11 @@ class Exercise: Hashable, Identifiable, Storable {
         if let current = self.current {
             // 1) If it's been a long time since the user began the exercise then start over.
             // 2) If setIndex has become whacked as a result of user edits then start over.
-            let numSets = self.modality.sets.numSets()
-            return Date().hoursSinceDate(current.startDate) > RecentHours || current.setIndex > numSets
+            if let numSets = self.modality.sets.numSets() {
+                return Date().hoursSinceDate(current.startDate) > RecentHours || current.setIndex > numSets
+            } else {
+                return Date().hoursSinceDate(current.startDate) > RecentHours
+            }
         } else {
             return true
         }

@@ -69,6 +69,13 @@ struct WorkoutEntry: Identifiable {
         case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
             sets = worksets.mapi(getRepsLabel)
             limit = 5
+
+        case .repTarget(target: let target, rest: _):
+            if exercise.expected.reps.isEmpty {
+                sets = ["\(target) reps"]
+            } else {
+                sets = ["\(target) reps over \(exercise.expected.reps.count) sets"]
+            }
         }
         
         if sets.count == 0 {

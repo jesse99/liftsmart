@@ -39,7 +39,10 @@ struct ExerciseView: View {
         case .repRanges(_, _, _):
             return AnyView(ExerciseRepRangesView(display, workoutIndex, exerciseID))
 
-//      case .untimed(restSecs: let secs):
+        case .repTarget(target: _, rest: _):
+            return AnyView(ExerciseRepTargetView(display, workoutIndex, exerciseID))
+
+        //      case .untimed(restSecs: let secs):
 //          sets = Array(repeating: "untimed", count: secs.count)
         }
     }

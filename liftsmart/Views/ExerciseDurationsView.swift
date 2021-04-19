@@ -129,7 +129,7 @@ struct ExerciseDurationsView: View {
     
     func getSetTitle(_ prefix: String) -> String {
         let i = exercise().current!.setIndex
-        return "\(prefix) \(i+1) of \(numSets())"
+        return "\(prefix) \(i+1) of \(self.exercise().modality.sets.numSets()!)"
     }
     
     func getTimerTitle() -> String {
@@ -179,19 +179,6 @@ struct ExerciseDurationsView: View {
     func restSecs() -> Int {
         let durations = self.durations()
         return durations[exercise().current!.setIndex].restSecs
-    }
-    
-    func numSets() -> Int {
-        switch exercise().modality.sets {
-        case .durations(let d, targetSecs: _):
-            return d.count
-        default:
-            // Note that we can't assert this because of the user changes the sets type
-            // then this will rebuild before ExerciseView has a chance to change the view
-            // body type.
-//            assert(false)   // exercise must use durations sets
-            return 0
-        }
     }
 
     func durations() -> [DurationSet] {

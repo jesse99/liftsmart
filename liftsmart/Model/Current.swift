@@ -15,6 +15,7 @@ final class Current: CustomDebugStringConvertible, Storable {
     // fixed reps: number of reps the user has done so far
     // max reps: total number of reps the user has done so far (only one value)
     // rep ranges: number of reps the user has done so far (not counting warmup)
+    // rep target: number of reps the user has done so far
     var completed: [Int]
 
     init(weight: Double) {

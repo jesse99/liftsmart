@@ -38,10 +38,12 @@ enum Action {
     case SetSets(Exercise, Sets)
     case ToggleEnableExercise(Exercise)
     case ValidateDurations(String, String, String)  // durations, target, rest
+    case ValidateExpectedRepList(String)
     case ValidateFixedReps(String, String)          // reps, rest
     case ValidateFormalName(String)
-    case ValidateMaxReps(String)
-    case ValidateMaxRepsTarget(String)
+    case ValidateOptionalRep(String, String)        // label, rep
+    case ValidateRep(String, String)                // label, rep
+    case ValidateRest(String)
     case ValidateRepRanges(String, String, String, String?) // reps, percent, rest, expected
     
     // Fixed Weights
@@ -252,6 +254,15 @@ class Display: ObservableObject {
             }
         }
         
+        func checkExpectedRepList(_ text: String) -> String? {
+            switch parseRepList(text, label: "expected", emptyOK: true) {
+            case .right(_):
+                return nil
+            case .left(let err):
+                return err
+            }
+        }
+        
         func checkFixedReps(_ repsStr: String, _ restStr: String) -> String? {
             switch coalesce(parseRepRanges(repsStr, label: "reps"), parseTimes(restStr, label: "rest", zeroOK: true)) {
             case .right((let reps, let rest)):
@@ -265,18 +276,31 @@ class Display: ObservableObject {
                 return err
             }
         }
+        
+        func checkRest(_ text: String) -> String? {
+            switch parseTimes(text, label: "rest", zeroOK: true) {
+            case .right(let times):
+                if times.count == 1 {
+                    return nil
+                } else {
+                    return "Rest should have one value"
+                }
+            case .left(let err):
+                return err
+            }
+        }
 
-        func checkMaxReps(_ repsStr: String) -> String? {
-            switch parseOptionalRep(repsStr, label: "reps") {
+        func checkRep(_ label: String, _ text: String) -> String? {
+            switch parseRep(text, label: label) {
             case .right(_):
                 return nil
             case .left(let err):
                 return err
             }
         }
-        
-        func checkMaxRepsTarget(_ targetStr: String) -> String? {
-            switch parseOptionalRep(targetStr, label: "target") {
+
+        func checkOptionalRep(_ label: String, _ text: String) -> String? {
+            switch parseOptionalRep(text, label: label) {
             case .right(_):
                 return nil
             case .left(let err):
@@ -574,6 +598,12 @@ class Display: ObservableObject {
             } else {
                 errors!.reset(key: "set durations sets")
             }
+        case .ValidateExpectedRepList(let expected):
+            if let err = checkExpectedRepList(expected) {
+                errors!.add(key: "set expected reps list", error: err)
+            } else {
+                errors!.reset(key: "set expected reps list")
+            }
         case .ValidateFixedReps(let reps, let rest):
             if let err = checkFixedReps(reps, rest) {
                 errors!.add(key: "set fixed reps sets", error: err)
@@ -586,23 +616,29 @@ class Display: ObservableObject {
             } else {
                 errors!.reset(key: "set formal name")
             }
-        case .ValidateMaxReps(let reps):
-            if let err = checkMaxReps(reps) {
-                errors!.add(key: "set max reps sets", error: err)
+        case .ValidateOptionalRep(let label, let target):
+            if let err = checkOptionalRep(label, target) {
+                errors!.add(key: "set optional \(label) rep", error: err)
             } else {
-                errors!.reset(key: "set max reps sets")
+                errors!.reset(key: "set optional \(label) rep")
             }
-        case .ValidateMaxRepsTarget(let target):
-            if let err = checkMaxRepsTarget(target) {
-                errors!.add(key: "set max reps target", error: err)
+        case .ValidateRep(let label, let target):
+            if let err = checkRep(label, target) {
+                errors!.add(key: "set \(label) rep", error: err)
             } else {
-                errors!.reset(key: "set max reps target")
+                errors!.reset(key: "set \(label) rep")
             }
         case .ValidateRepRanges(let reps, let percent, let rest, let expected):
             if let err = checkRepRanges(reps, percent, rest, expected) {
                 errors!.add(key: "set rep ranges", error: err)
             } else {
                 errors!.reset(key: "set rep ranges")
+            }
+        case .ValidateRest(let rest):
+            if let err = checkRest(rest) {
+                errors!.add(key: "set rest", error: err)
+            } else {
+                errors!.reset(key: "set rest")
             }
 
         // Fixed Weights

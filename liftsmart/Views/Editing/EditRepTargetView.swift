@@ -1,12 +1,12 @@
-//  Created by Jesse Jones on 10/23/20.
-//  Copyright © 2020 MushinApps. All rights reserved.
+//  Created by Jesse Jones on 4/18/21.
+//  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditMaxRepsView: View {
+struct EditRepTargetView: View {
     let name: String
     let sets: Binding<Sets>
     let expectedReps: Binding<[Int]>
-    @State var reps: String
+    @State var expected: String
     @State var target: String
     @State var rest: String
     @State var showHelp = false
@@ -21,12 +21,13 @@ struct EditMaxRepsView: View {
         self.sets = sets
         self.expectedReps = expectedReps
 
-        self._reps = State(initialValue: expectedReps.wrappedValue.isEmpty ? "" : "\(expectedReps.wrappedValue[0])")
+        let reps = expectedReps.wrappedValue.map {"\($0)"}
+        self._expected = State(initialValue: reps.joined(separator: " "))
         
         switch sets.wrappedValue {
-        case .maxReps(restSecs: let r, targetReps: let t):
-            self._rest = State(initialValue: r.map({restToStr($0)}).joined(separator: " "))
-            self._target = State(initialValue: t != nil ? "\(t!)" : "")
+        case .repTarget(target: let target, rest: let rest):
+            self._rest = State(initialValue: restToStr(rest))
+            self._target = State(initialValue: "\(target)")
         default:
             self._rest = State(initialValue: "")
             self._target = State(initialValue: "")
@@ -45,17 +46,17 @@ struct EditMaxRepsView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
                         .disableAutocorrection(true)
-                        .onChange(of: self.rest, perform: self.onEditedReps)
+                        .onChange(of: self.rest, perform: self.onEditedRest)
                     Button("?", action: self.onRestHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 HStack {
                     Text("Expected Reps:").font(.headline)
-                    TextField("", text: self.$reps)
+                    TextField("", text: self.$expected)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.numberPad)
+                        .keyboardType(.default)
                         .disableAutocorrection(true)
-                        .onChange(of: self.reps, perform: self.onEditedReps)
-                    Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
+                        .onChange(of: self.expected, perform: self.onEditedExpected)
+                    Button("?", action: onExpectedHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 HStack {
                     Text("Target Reps:").font(.headline)
@@ -79,7 +80,7 @@ struct EditMaxRepsView: View {
             }
             .padding()
         }
-        .alert(isPresented: $showHelp) {   // and views can only have one alert
+        .alert(isPresented: $showHelp) {
             return Alert(
                 title: Text("Help"),
                 message: Text(self.helpText),
@@ -87,12 +88,17 @@ struct EditMaxRepsView: View {
         }
     }
     
-    func onEditedReps(_ text: String) {
-        self.display.send(.ValidateOptionalRep("expected", text))
+    func onEditedRest(_ text: String) {
+        self.display.send(.ValidateRest(text))
+    }
+    
+    func onEditedExpected(_ text: String) {
+        // TODO: complain if expected sum > target?
+        self.display.send(.ValidateExpectedRepList(text))
     }
     
     func onEditedTarget(_ text: String) {
-        self.display.send(.ValidateOptionalRep("target", text))
+        self.display.send(.ValidateRep("target", text))
     }
 
     private func onRestHelp() {
@@ -100,13 +106,13 @@ struct EditMaxRepsView: View {
         self.showHelp = true
     }
 
-    func onRepsHelp() {
-        self.helpText = "The number of reps you expect to do across all the sets, e.g. '60'. Can be empty."
+    func onExpectedHelp() {
+        self.helpText = "The number of reps you expect to do for each set. Can be empty."
         self.showHelp = true
     }
         
     func onTargetHelp() {
-        self.helpText = "The goal for this particular exercise. Often when the goal is reached weight is increased or a harder variant of the exercise is used. Empty means that there is no target."
+        self.helpText = "Number of reps to do across arbitrary number of sets."
         self.showHelp = true
     }
     
@@ -114,14 +120,15 @@ struct EditMaxRepsView: View {
         self.presentationMode.wrappedValue.dismiss()
     }
 
-    func onOK() {        
-        if let reps = parseOptionalRep(self.reps, label: "reps").unwrap(), [reps] != self.expectedReps.wrappedValue {
-            self.expectedReps.wrappedValue = [reps]
+    func onOK() {
+        let expected = parseReps(self.expected, label: "expected", emptyOK: true).unwrap()
+        if expected != self.expectedReps.wrappedValue {
+            self.expectedReps.wrappedValue = expected
         }
-        
-        let target = parseOptionalRep(self.target, label: "target").unwrap()
-        let rest = parseTimes(self.rest, label: "rest", zeroOK: true).unwrap()
-        let msets = Sets.maxReps(restSecs: rest, targetReps: target)
+
+        let target = parseRep(self.target, label: "target").unwrap()
+        let rest = parseTimes(self.rest, label: "rest", zeroOK: true).unwrap()[0]
+        let msets = Sets.repTarget(target: target, rest: rest)
         if msets != self.sets.wrappedValue {
             self.sets.wrappedValue = msets
         }
@@ -130,15 +137,15 @@ struct EditMaxRepsView: View {
     }
 }
 
-struct EditMaxRepsView_Previews: PreviewProvider {
+struct EditRepTargetView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises.first(where: {$0.name == "Curls"})!
+    static let exercise = workout.exercises.first(where: {$0.name == "Pullups"})!
     static let sets = Binding.constant(exercise.modality.sets)
     static let expectedReps = Binding.constant(exercise.expected.reps)
 
     static var previews: some View {
-        EditMaxRepsView(display, exercise.name, sets, expectedReps)
+        EditRepTargetView(display, exercise.name, sets, expectedReps)
     }
 }
 

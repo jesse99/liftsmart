@@ -26,7 +26,7 @@ struct ExerciseFixedRepsView: View {
         self.workoutIndex = workoutIndex
         self.exerciseID = exerciseID
 
-        let count = exercise.modality.sets.numSets()
+        let count = exercise.modality.sets.numSets()!
         self._underway = State(initialValue: count > 1 && exercise.current!.setIndex > 0)
     }
     

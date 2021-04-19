@@ -12,6 +12,8 @@ func getSetsLabel(_ sets: Sets) -> String {
         return "Max Reps"
     case .repRanges(warmups: _, worksets: _, backoffs: _):
         return "Rep Ranges"
+    case .repTarget(target: _, rest: _):
+        return "Rep Target"
     }
 }
 
@@ -34,6 +36,8 @@ func getSetsHelp(_ sets: Sets) -> String {
         return "Fixed number of sets doing as many reps as possible for each set."
     case .repRanges(warmups: _, worksets: _, backoffs: _):
         return "Fixed number of sets where each set has a min and max number of reps with optional warmup and backoff sets."
+    case .repTarget(target: _, rest: _):
+        return "As many sets as required to do target reps."
     }
 }
 
@@ -74,6 +78,10 @@ func defaultMaxReps() -> Sets {
 func defaultRepRanges() -> Sets {
     let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 120)
     return Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
+}
+
+func defaultRepTarget() -> Sets {
+    return Sets.repTarget(target: 15, rest: 60)
 }
 
 // TODO: Wasn't read as true when a State variable. Likely because of the way state variables
@@ -156,6 +164,7 @@ struct EditExerciseView: View {
                         Button("Fixed Reps", action: {self.onChangeSets(defaultFixedReps())})
                         Button("Max Reps", action: {self.onChangeSets(defaultMaxReps())})
                         Button("Rep Ranges", action: {self.onChangeSets(defaultRepRanges())})
+                        Button("Rep Target", action: {self.onChangeSets(defaultRepTarget())})
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
@@ -314,6 +323,8 @@ struct EditExerciseView: View {
             return AnyView(EditMaxRepsView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         case .repRanges(warmups: _, worksets: _, backoffs: _):
             return AnyView(EditRepRangesView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
+        case .repTarget(target: _, rest: _):
+            return AnyView(EditRepTargetView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         }
     }
     

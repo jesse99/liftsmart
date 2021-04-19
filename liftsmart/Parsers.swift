@@ -2,6 +2,25 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import Foundation
 
+// Rep = Int
+func parseRep(_ text: String, label: String) -> Either<String, Int> {
+    let scanner = Scanner(string: text)
+    
+    let rep = scanner.scanInt()
+    if rep == nil {
+        return .left("Expected a number for \(label)")
+    }
+    if rep! <= 0 {
+        return .left("\(label.capitalized) must be greater than zero")
+    }
+
+    if !scanner.isAtEnd {
+        return .left("\(label.capitalized) should be just a number")
+    }
+    
+    return .right(rep!)
+}
+
 // Rep = Int?
 func parseOptionalRep(_ text: String, label: String) -> Either<String, Int?> {
     let scanner = Scanner(string: text)
@@ -64,6 +83,33 @@ func parsePercents(_ text: String, label: String) -> Either<String, [WeightPerce
     }
 
     return .right(percents)
+}
+
+// RepList = Int (Space Int)*
+// Int = [0-9]+
+func parseRepList(_ text: String, label: String, emptyOK: Bool = false) -> Either<String, [Int]> {
+    var reps: [Int] = []
+    let scanner = Scanner(string: text)
+    while !scanner.isAtEnd {
+        if let rep = scanner.scanInt() {
+            if rep <= 0 {
+                return .left("\(label.capitalized) must be greater than zero")
+            }
+            reps.append(rep)
+        } else {
+            return .left("Expected space separated integers for \(label)")
+        }
+    }
+    
+    if !scanner.isAtEnd {
+        return .left("Expected space separated integers for \(label)")
+    }
+
+    if reps.isEmpty && !emptyOK {
+        return .left("\(label.capitalized) needs at least one rep")
+    }
+    
+    return .right(reps)
 }
 
 // RepRanges = RepRange+ ('x' Int)?

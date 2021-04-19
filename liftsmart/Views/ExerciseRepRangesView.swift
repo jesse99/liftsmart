@@ -47,7 +47,7 @@ struct ExerciseRepRangesView: View {
         self.workoutIndex = workoutIndex
         self.exerciseID = exerciseID
 
-        let count = exercise.modality.sets.numSets()
+        let count = exercise.modality.sets.numSets()!
         self._underway = State(initialValue: count > 1 && exercise.current!.setIndex > 0)
     }
     
@@ -148,7 +148,7 @@ struct ExerciseRepRangesView: View {
         let completed = self.exercise().current!.completed + [reps]
         self.display.send(.SetCompleted(self.exercise(), completed))
 
-        let count = self.exercise().modality.sets.numSets()
+        let count = self.exercise().modality.sets.numSets()!
         self.underway = count > 1 && exercise().current!.setIndex > 0
     }
     
@@ -182,7 +182,7 @@ struct ExerciseRepRangesView: View {
     
     func timerDuration() -> Int {
         var secs = 0
-        let count = self.exercise().modality.sets.numSets()
+        let count = self.exercise().modality.sets.numSets()!
         if exercise().current!.setIndex < count {
             secs = getRepsSet().restSecs
         } else {
@@ -207,7 +207,7 @@ struct ExerciseRepRangesView: View {
             self.display.send(.AdvanceCurrent(self.exercise()))
             self.startTimer = startDuration(-1) > 0
 
-            let count = self.exercise().modality.sets.numSets()
+            let count = self.exercise().modality.sets.numSets()!
             self.underway = count > 1 && exercise().current!.setIndex > 0
 
         case .workset, .backoff:

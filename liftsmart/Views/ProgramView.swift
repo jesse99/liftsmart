@@ -316,6 +316,16 @@ func previewDisplay() -> Display {
             e.current!.setIndex = 1
             return e
         }
+        
+        func pullups() -> Exercise {
+            let sets = Sets.repTarget(target: 15, rest: 120)
+            let modality = Modality(Apparatus.bodyWeight, sets)
+            let e = Exercise("Pullups", "Pullups", modality)
+            e.current = Current(weight: 0.0)
+            e.current?.startDate = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+            e.current!.setIndex = 1
+            return e
+        }
 
         func formRolling() -> Exercise {
             let work = RepsSet(reps: RepRange(15), restSecs: 0)
@@ -325,7 +335,7 @@ func previewDisplay() -> Display {
         }
 
         let workouts = [
-            createWorkout("Temp1", [planks(), curls(), formRolling()], day: .friday).unwrap(),
+            createWorkout("Temp1", [planks(), curls(), formRolling(), pullups()], day: .friday).unwrap(),
             createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
             createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),
             createWorkout("Upper", [planks(), curls()], day: .monday).unwrap()]
