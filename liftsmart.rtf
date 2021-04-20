@@ -1,7 +1,6 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2577
 \cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 AndaleMono;\f1\froman\fcharset0 Times-Roman;\f2\fswiss\fcharset0 Helvetica;
-\f3\fswiss\fcharset0 Helvetica-Bold;\f4\fswiss\fcharset0 Helvetica-Oblique;\f5\fnil\fcharset0 Menlo-Regular;
-}
+\f3\fswiss\fcharset0 Helvetica-Bold;\f4\fnil\fcharset0 Menlo-Regular;}
 {\colortbl;\red255\green255\blue255;\red170\green13\blue145;\red0\green0\blue0;\red11\green79\blue121;
 \red63\green110\blue116;\red92\green38\blue153;\red15\green104\blue160;\red0\green116\blue0;\red196\green26\blue22;
 \red0\green0\blue233;\red2\green2\blue2;\red0\green0\blue0;}
@@ -94,43 +93,25 @@ Worked out 35 times.
 \
 \
 \
+last workout executed sets week number\
+	doesn\'92t have to be completed\
+workouts with a larger week number are scheduled that far in advance\
+workouts with a smaller week number require a bit of math\
+\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Change sets should reset expected\
-	- probably change apparatus too\
-\'95\'a0Need to support weekly scheduling somehow:\
-	- is there a general way to do this? julian calendar?\
-	- ideally this would key off the current week\
-	\cf11 M W F                
-\f4\i basic
-\f2\i0 \
+\cf11 \'95 Might want to add a divider to edit workout view\
+	- maybe some other views too?\
+\'95\'a0Need to support weekly scheduling:\
+	- scheduled weeks should be an array\
+	- empty weeks implies every week\
+	- edit as a list of week numbers, e.g. \'931 3 5\'94 or \'931-8\'94\
+	- implement the scheduling logic\
+	- should be able to test with previews\
+	- home should use \'931 3 5 7\'94 and \'932 4 6 8\'94 with week 9 being rest workout\
+	- every 3rd day could be an option in days	\
+		` tho that seems a bit annoying\
+		` doesn\'92t fit too well with weeks either\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
-\cf11 	\
-	M W1/W2 F\cf11         
-\f4\i alternating
-\f2\i0 \cf11 \
-	\
-	M1 W1 F1\cf11            
-\f4\i block
-\f2\i0 \cf11 \
-	M2 W2 F2\
-	M3 W3 F3\
-	M4 W4 F4\
-	\
-	M W1 F\cf11                 
-\f4\i alternating with extra rest
-\f2\i0 \cf11 \
-	M W2 F\
-	M W1 F\
-	M W2 F\
-	M W1 F\
-	M W2 F\
-	M W1 F\
-	M W2 F\
-	R R    R\
-	\
-	W1 Rx2 W2 Rx2\cf11     
-\f4\i every 3rd day
-\f2\i0 \cf11 \
 \cf11 \'95\'a0Merge back into master\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf11 \'95 Get rid of Programs.swift\
@@ -178,7 +159,7 @@ Worked out 35 times.
 \'95 Start using isEmptyOrBlank\
 \'95\'a0Show how many times worked out?\
 	- maybe missed days instead?
-\f5\fs36 \cf12 \CocoaLigature0 \
+\f4\fs36 \cf12 \CocoaLigature0 \
 
 \f2\fs48 \cf11 \CocoaLigature1 \'95\'a0Add some sort of warning if enter a workout on the wrong day?\
 \'95\'a0Workout scheduling should be more flexible:\
@@ -343,4 +324,6 @@ level\
 \
 117/77\
 116/78\
-113/79}
+113/79\
+124/77\
+}

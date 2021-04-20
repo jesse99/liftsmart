@@ -51,7 +51,7 @@ struct PickerView: View {
                         .disableAutocorrection(true)
                 }.padding(.leading)
             }
-            Spacer()
+            Divider().background(Color.black)
 
             List(self.getEntries()) {entry in
                 VStack(alignment: .leading) {

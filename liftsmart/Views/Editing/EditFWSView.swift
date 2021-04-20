@@ -53,7 +53,8 @@ struct EditFWSView: View {
                     .keyboardType(.default)
                     .disableAutocorrection(false)
                     .onChange(of: self.name, perform: self.onEditedName)
-            }.padding()
+            }.padding(.leading).padding(.trailing)
+            Divider().background(Color.black)
 
             List(self.getEntries()) {entry in
                 VStack() {

@@ -363,7 +363,7 @@ struct EditExerciseView: View {
             self.display.send(.SetExpectedReps(self.exercise, self.expectedReps))
         }
 
-        if !self.sets.sameCase(self.exercise.modality.sets) {
+        if self.sets != self.exercise.modality.sets {
             self.display.send(.SetSets(self.exercise, self.sets))
         }
 

@@ -41,6 +41,7 @@ struct EditWorkoutView: View {
                     Button(buttonStr(.saturday), action:{self.onToggleDay(.saturday)})
                     Button("Cancel", action: {})
                 }.font(.callout).padding(.leading)
+                Divider().background(Color.black)
                 
                 List(self.workout.exercises) {exercise in
                     VStack() {
