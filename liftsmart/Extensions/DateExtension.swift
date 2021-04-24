@@ -57,8 +57,8 @@ func daysBetween(fromWeek: Int, fromDay: Int, toWeek: Int, toDay: Int, numWeeks:
     assert(toWeek <= numWeeks)
     
     var toWeek = toWeek
-    while toWeek < fromWeek {
-        toWeek += 7
+    if toWeek < fromWeek {
+        toWeek += numWeeks
     }
     
     if fromWeek == toWeek && toDay < fromDay {
