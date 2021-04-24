@@ -75,7 +75,7 @@ struct EditWorkoutView: View {
                 Button("Cancel", action: onCancel).font(.callout)
                 Spacer()
                 Spacer()
-                Button("Paste", action: self.onPaste).font(.callout).disabled(self.display.exerciseClipboard == nil)
+                Button("Paste", action: self.onPaste).font(.callout).disabled(self.display.exerciseClipboard.isEmpty)
                 Button("Add", action: self.onAdd).font(.callout)
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
@@ -90,6 +90,7 @@ struct EditWorkoutView: View {
         var buttons: [ActionSheet.Button] = []
 
         buttons.append(.default(Text("Copy"), action: {self.onCopy()}))
+        buttons.append(.default(Text("Copy All"), action: {self.onCopyAll()}))
         buttons.append(.default(Text("Cut"), action: {self.onCopy(); self.onDelete()}))
         if self.selection!.enabled {
             buttons.append(.default(Text("Disable Exercise"), action: {self.onToggleEnabled()}))
@@ -97,6 +98,7 @@ struct EditWorkoutView: View {
             buttons.append(.default(Text("Enable Exercise"), action: {self.onToggleEnabled()}))
         }
         buttons.append(.destructive(Text("Delete Exercise"), action: {self.onDelete()}))
+        buttons.append(.destructive(Text("Delete All Exercises"), action: {self.onDeleteAll()}))
         if self.workout.exercises.first != self.selection {
             buttons.append(.default(Text("Move Up"), action: {self.onMove(by: -1)}))
         }
@@ -122,7 +124,11 @@ struct EditWorkoutView: View {
     }
 
     private func onCopy() {
-        self.display.send(.CopyExercise(self.selection!))
+        self.display.send(.CopyExercise([self.selection!]))
+    }
+
+    private func onCopyAll() {
+        self.display.send(.CopyExercise(self.workout.exercises))
     }
 
     private func onPaste() {
@@ -131,6 +137,13 @@ struct EditWorkoutView: View {
 
     private func onDelete() {
         self.display.send(.DelExercise(self.workout, self.selection!))
+    }
+
+    private func onDeleteAll() {
+        let exercises = self.workout.exercises
+        for exercise in exercises {
+            self.display.send(.DelExercise(self.workout, exercise))
+        }
     }
 
     private func onMove(by: Int) {

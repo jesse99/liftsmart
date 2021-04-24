@@ -25,7 +25,7 @@ enum Action {
     // Exercise
     case AdvanceCurrent(Exercise)
     case AppendCurrent(Exercise, String, Double?)
-    case CopyExercise(Exercise)
+    case CopyExercise([Exercise])
     case DefaultApparatus(Workout, Exercise, Apparatus) // these two are used to (re)set the exercise to a default value
     case DefaultSets(Workout, Exercise, Sets)
     case ResetCurrent(Exercise)
@@ -107,7 +107,7 @@ class Display: ObservableObject {
     private(set) var userNotes: [String: String] = [:]    // this overrides defaultNotes
     private(set) var fixedWeights: [String: FixedWeightSet]
     private(set) var programs: [String: String]     // program name => file name
-    private(set) var exerciseClipboard: Exercise? = nil
+    private(set) var exerciseClipboard: [Exercise] = []
     @Published private(set) var edited = ""         // above should be published but that doesn't work well with classes so we use this lame string to publish chaanges
     @Published private(set) var errMesg = ""        // set when an Action cannot be performed
     @Published private(set) var errColor = Color.black
@@ -575,8 +575,8 @@ class Display: ObservableObject {
             }
             exercise.current!.setIndex += 1
             update()
-        case .CopyExercise(let exercise):
-            exerciseClipboard = exercise
+        case .CopyExercise(let exercises):
+            exerciseClipboard = exercises
         case .DefaultApparatus(let workout, let exercise, let apparatus):
             if let use = useOriginalApparatus(workout, exercise, apparatus) {
                 exercise.modality.apparatus = use
@@ -891,9 +891,11 @@ class Display: ObservableObject {
             workout.moveExercise(index, by: by)
             update()
         case .PasteExercise(let workout):
-            let exercise = self.exerciseClipboard!.copy()     // copy so pasting twice doesn't add the same exercise
-            exercise.name = newExerciseName(workout, self.exerciseClipboard!.name)
-            workout.exercises.append(exercise)
+            for exercise in self.exerciseClipboard {
+                let exercise = exercise.copy()     // copy so pasting twice doesn't add the same exercise
+                exercise.name = newExerciseName(workout, exercise.name)
+                workout.exercises.append(exercise)
+            }
             update()
         case .SetWeeks(let workout, let weeks):
             workout.weeks = weeks.sorted()
