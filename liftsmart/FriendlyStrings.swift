@@ -33,7 +33,7 @@ extension Date {
         // reported interval fairly coarse so that we can run timers on a long interval (and avoid chewing
         // up battery life).
         let hours = Date().hoursSinceDate(self).rounded()
-        if let candidate = (calendar as NSCalendar).date(byAdding: .day, value: -1, to: Date(), options: .searchBackwards) , calendar.isDate(self, inSameDayAs: candidate) {
+        if let candidate = (calendar as NSCalendar).date(byAdding: .day, value: -1, to: Date(), options: .searchBackwards) , calendar.isDate(self, inSameDayAs: candidate) { // TODO: can use Calendar now to do math
             if hours > 4.0 {
                 return "yesterday"
             } else {

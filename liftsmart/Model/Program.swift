@@ -34,11 +34,13 @@ class Program: CustomDebugStringConvertible, Storable {
     var name: String
     var workouts: [Workout]
     var notes: [EditNote]
+    var blockStart: Date?
 
     init(_ name: String, _ workouts: [Workout]) {
         self.name = name
         self.workouts = workouts
         self.notes = []
+        self.blockStart = nil
         
         self.addNote("Created")
     }
@@ -47,12 +49,20 @@ class Program: CustomDebugStringConvertible, Storable {
         self.name = store.getStr("name")
         self.workouts = store.getObjArray("workouts")
         self.notes = store.getObjArray("notes")
+        if store.hasKey("blockStart") {
+            self.blockStart = store.getDate("blockStart")
+        } else {
+            self.blockStart = nil
+        }
     }
     
     func save(_ store: Store) {
         store.addStr("name", name)
         store.addObjArray("workouts", workouts)
         store.addObjArray("notes", notes)
+        if let date = blockStart {
+            store.addDate("blockStart", date)
+        }
     }
     
     func clone() -> Program {
@@ -66,6 +76,14 @@ class Program: CustomDebugStringConvertible, Storable {
         self.name = original.name
         self.workouts = original.workouts
         self.notes = original.notes
+    }
+    
+    // Largest week number in workouts.
+    func numWeeks() -> Int? {
+        if let workout = workouts.max(by: {($0.weeks.max() ?? 0) < ($1.weeks.max() ?? 0)}) {
+            return workout.weeks.max()
+        }
+        return nil
     }
 
     /// A note has to be added after significant changes. This makes it possible for users and advisors

@@ -76,6 +76,8 @@ enum Action {
     case DeleteWorkout(Workout)
     case EnableWorkout(Workout, Bool)
     case MoveWorkout(Workout, Int)
+    case SetCurrentWeek(Int?)
+    case ValidateCurrentWeek(String)
     case ValidateWorkoutName(String, Workout?)
     
     // Programs
@@ -90,9 +92,11 @@ enum Action {
     case DelExercise(Workout, Exercise)
     case MoveExercise(Workout, Exercise, Int)
     case PasteExercise(Workout)
+    case SetWeeks(Workout, [Int])
     case SetWorkoutName(Workout, String)
     case ToggleWorkoutDay(Workout, WeekDay)
     case ValidateExerciseName(Workout, Exercise?, String)
+    case ValidateWeeks(String)
 }
 
 /// This is Redux style where Display is serving as the Store object which mediates
@@ -221,6 +225,31 @@ class Display: ObservableObject {
             return nil
         }
         
+        func checkCurrentWeek(_ text: String) -> String? {
+            if text.isBlankOrEmpty() {
+                return nil
+            }
+            
+            if let week = Int(text) {
+                if week <= 0 {  // TODO: should week be <= numWeeks?
+                    return "Current week must be greater than zero"
+                } else {
+                   return nil
+                }
+            } else {
+                return "Current week should be an integer or empty"
+            }
+        }
+        
+        func checkWeeks(_ text: String) -> String? {
+            switch parseIntList(text, label: "weeks", emptyOK: true) {
+            case .right(_):
+                return nil
+            case .left(let err):
+                return err
+            }
+        }
+
         func checkWeight(_ text: String) -> String? {
             if let weight = Double(text) {
                 if weight < 0.0 {
@@ -708,6 +737,11 @@ class Display: ObservableObject {
         // History
         case .AppendHistory(let workout, let exercise):
             self.history.append(workout, exercise)
+            if !workout.weeks.isEmpty && self.program.blockStart == nil {
+                let delta = workout.weeks.first! - 1
+                let date = Calendar.current.date(byAdding: .weekOfYear, value: -delta, to: Date())
+                self.program.blockStart = date
+            }
             saveState()     // most state changes happen via edit views so confirm takes care of the save, but this one is different
             update()
         case .DeleteAllHistory(let workout, let exercise):
@@ -753,6 +787,20 @@ class Display: ObservableObject {
         case .EnableWorkout(let workout, let enable):
             workout.enabled = enable
             update()
+        case .SetCurrentWeek(let week):
+            if let w = week {
+                self.program.blockStart = Calendar.current.date(byAdding: .weekOfYear, value: -(w - 1), to: Date())
+//                log(.Info, "Current week is now \(self.program.currentWeek()!)")    // may not be week (depending on that and numWeeks)
+            } else {
+                self.program.blockStart = nil
+            }
+            update()
+        case .ValidateCurrentWeek(let text):
+            if let err = checkCurrentWeek(text) {
+                errors!.add(key: "set current week", error: err)
+            } else {
+                errors!.reset(key: "set current week")
+            }
         case .MoveWorkout(let workout, let by):
             assert(by != 0)
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
@@ -847,6 +895,9 @@ class Display: ObservableObject {
             exercise.name = newExerciseName(workout, self.exerciseClipboard!.name)
             workout.exercises.append(exercise)
             update()
+        case .SetWeeks(let workout, let weeks):
+            workout.weeks = weeks.sorted()
+            update()
         case .SetWorkoutName(let workout, let name):
             assert(checkWorkoutName(name) == nil);
             workout.name = name
@@ -863,6 +914,12 @@ class Display: ObservableObject {
                 errors!.add(key: "add exercise", error: err)
             } else {
                 errors!.reset(key: "add exercise")
+            }
+        case .ValidateWeeks(let weeks):
+            if let err = checkWeeks(weeks) {
+                errors!.add(key: "add weeks", error: err)
+            } else {
+                errors!.reset(key: "add weeks")
             }
         }
 

@@ -25,8 +25,9 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     var enabled: Bool           // true if the user wants to perform this workout
     var exercises: [Exercise]   // exercise names don't have to be unique
     var days: [Bool]            // indices are Sun, Mon, ..., Sat, true means workout is scheduled for that day, all false means can do the workout any day
+    var weeks: [Int]            // empty => every week, otherwise 1-based sorted week indexes
 
-    init(_ name: String, _ exercises: [Exercise], days: [WeekDay]) {
+    init(_ name: String, _ exercises: [Exercise], days: [WeekDay], weeks: [Int] = []) {
         self.name = name
         self.enabled = true
         self.exercises = exercises
@@ -34,6 +35,7 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         for d in days {
             self.days[d.rawValue] = true
         }
+        self.weeks = weeks
     }
     
     required init(from store: Store) {
@@ -41,6 +43,7 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         self.enabled = store.getBool("enabled", ifMissing: true)
         self.exercises = store.getObjArray("exercises")
         self.days = store.getBoolArray("days", ifMissing: [])
+        self.weeks = store.getIntArray("weeks", ifMissing: [])
     }
     
     func save(_ store: Store) {
@@ -48,6 +51,7 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         store.addBool("enabled", enabled)
         store.addObjArray("exercises", exercises)
         store.addBoolArray("days", days)
+        store.addIntArray("weeks", weeks)
     }
     
     func clone() -> Workout {
@@ -57,13 +61,6 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
         return result
     }
         
-    func restore(_ original: Workout) {
-        self.name = original.name
-        self.enabled = original.enabled
-        self.exercises = original.exercises
-        self.days = original.days
-    }
-
     func moveExercise(_ index: Int, by: Int) {
         assert(by != 0)
         let exercise = self.exercises.remove(at: index)

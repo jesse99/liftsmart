@@ -21,7 +21,7 @@ struct ProgramEntry: Identifiable {
     }
 }
 
-struct ExerciseCompletions {
+struct ExerciseCompletions {    // for a workout
     let latest: Date?           // date latest exercise was completed
     let latestIsComplete: Bool  // true if all exercises were completed on latest date
     let completedAll: Bool      // true if all exercises were ever completed
@@ -71,14 +71,14 @@ func initEntries(_ display: Display) -> ([ProgramEntry], [ExerciseCompletions]) 
 // The goal here is to highlight what the user should be doing today or what they should be doing next.
 // It's not always possible to do that with exactness but, if that's the case, we'll provide information
 // to help them decide what to do.
-func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ entries: [ProgramEntry], _ now: Date) -> [ProgramEntry] {
+func initSubLabels(_ display: Display, _ completions: [ExerciseCompletions], _ entries: [ProgramEntry], _ now: Date) -> [ProgramEntry] {
     // The workout can be performed on any day.
     func isAnyDay(_ days: [Bool]) -> Bool {
         return days.all({!$0})
     }
 
     func ageInDays(_ workout: Workout) -> Double {
-        if let completed = workout.dateCompleted(history) {
+        if let completed = workout.dateCompleted(display.history) {
             return now.daysSinceDate(completed.0)
         } else {
             // If the workout has never been completed then we'll just use a really old date
@@ -98,26 +98,50 @@ func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ e
         return abs(ageInDays(oldest) - ageInDays(workout)) <= 0.3   // same day if they are within +/- 8 hours (for those whackos who workout through midnight)
     }
 
-    func nextWorkout(_ entry: ProgramEntry) -> Int? {
-        for delta in 1...7 {
-            if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: now) {
-                let weekday = cal.component(.weekday, from: candidate)
-                if entry.workout.days[weekday - 1] {
-                    return delta
+    func nextWorkout(_ entry: ProgramEntry, thisWeek: Int?) -> Int? {
+        var next: Int? = nil
+
+        if entry.workout.weeks.isEmpty || thisWeek == nil {
+            for delta in 1...7 {
+                if let candidate = (cal as NSCalendar).date(byAdding: .day, value: delta, to: now) {
+                    let weekday = cal.component(.weekday, from: candidate)
+                    if entry.workout.days[weekday - 1] || isAnyDay(entry.workout.days) {
+                        return delta
+                    }
+                }
+            }
+
+        } else {
+            let totalWeeks = display.program.numWeeks()!
+            let thisDay = Calendar.current.component(.weekday, from: Date()) - 1
+            for workoutWeek in entry.workout.weeks {   // TODO: could optimize this a bit, eg think we want to just use week closest to todaysWeek
+                for (workoutDay, enabled) in entry.workout.days.enumerated() {
+                    if enabled || isAnyDay(entry.workout.days) {
+                        let candidate = daysBetween(fromWeek: thisWeek!, fromDay: thisDay, toWeek: workoutWeek, toDay: workoutDay, numWeeks: totalWeeks)
+                        if next == nil || candidate < next! {
+                            next = candidate
+                        }
+                    }
                 }
             }
         }
-        return nil
+        
+        return next
     }
 
     let cal = Calendar.current
     let weekday = cal.component(.weekday, from: now)
     let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
+    var todaysWeek: Int? = nil
+    if let start = display.program.blockStart, let num = display.program.numWeeks() {
+        todaysWeek = currentWeek(blockStart: start, currentDate: Date(), numWeeks: num)
+    }
 
     var result = entries
     for i in 0..<entries.count {
         var entry = entries[i]
         let completion = completions[i]
+        let thisWeek = entry.workout.weeks.isEmpty || (todaysWeek != nil && entry.workout.weeks.contains(todaysWeek!))
 
         var doneRecently = false
         if let last = completion.latest {
@@ -137,7 +161,7 @@ func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ e
             }
 
         // If the workout can be performed on any day (including days on which other workouts are scheduled),
-        } else if isAnyDay(entry.workout.days) {
+        } else if isAnyDay(entry.workout.days) && thisWeek {
             if completion.latest != nil {
                 entry.subLabel = "today"
             } else {
@@ -146,7 +170,7 @@ func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ e
             entry.subColor = .orange
 
         // If the workout is scheduled for today,
-        } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil {
+        } else if todaysWorkouts.findLast({$0.workout.name == entry.workout.name}) != nil && thisWeek {
             if let oldest = oldestWorkout(todaysWorkouts) {
                 entry.subLabel = "today"
                 if agesMatch(oldest, entry.workout) {
@@ -160,13 +184,20 @@ func initSubLabels(_ history: History, _ completions: [ExerciseCompletions], _ e
             }
 
         // If the workout is scheduled for later.
-        } else if let delta = nextWorkout(entry) {
+        } else if let delta = nextWorkout(entry, thisWeek: todaysWeek) {
             entry.subLabel = delta == 1 ? "tomorrow" : "in \(delta) days"
             if todaysWorkouts.isEmpty && delta == 1 {
                 entry.subColor = .blue
             } else {
                 entry.subColor = .black
             }
+        }
+        
+        if entry.workout.weeks.isEmpty {
+            entry.subLabel += " (any week)"
+        } else {
+            let weeks = (entry.workout.weeks.map {"\($0)"}).joined(separator: " ")
+            entry.subLabel += " (\(weeks))"
         }
 
         result[i] = entry
@@ -200,7 +231,7 @@ struct ProgramView: View {
                         }
                     }
                 }
-                .navigationBarTitle(Text(self.display.program.name + " Workouts" + self.display.edited))
+                .navigationBarTitle(Text(getTitle() + self.display.edited))
                 .onAppear {self.timer.restart(); self.display.send(.TimePassed)}
                 .onDisappear {self.timer.stop()}
                 .onReceive(self.timer.timer) {_ in self.display.send(.TimePassed)}
@@ -224,9 +255,18 @@ struct ProgramView: View {
         // and also how many times the user has worked out
     }
     
+    func getTitle() -> String {
+        if let start = display.program.blockStart, let num = display.program.numWeeks() {
+            let todaysWeek = currentWeek(blockStart: start, currentDate: Date(), numWeeks: num)
+            return "\(self.display.program.name) Workouts \(todaysWeek)"
+        } else {
+            return "\(self.display.program.name) Workouts"
+        }
+    }
+
     private func getEntries() -> [ProgramEntry] {
         let (entries, completions) = initEntries(display)
-        return initSubLabels(display.history, completions, entries, Date())
+        return initSubLabels(display, completions, entries, Date())
     }
     
     private func onEdit() {

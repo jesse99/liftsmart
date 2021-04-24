@@ -5,6 +5,7 @@ import SwiftUI
 struct EditWorkoutView: View {
     var workout: Workout
     @State var name: String
+    @State var weeks: String
     @State var showEditActions: Bool = false
     @State var selection: Exercise? = nil
     @State var showSheet: Bool = false
@@ -14,7 +15,8 @@ struct EditWorkoutView: View {
     init(_ display: Display, _ workout: Workout) {
         self.workout = workout
         self.display = display
-        self._name = State(initialValue: workout.name)        
+        self._name = State(initialValue: workout.name)
+        self._weeks = State(initialValue: workout.weeks.map({"\($0)"}).joined(separator: " "))
         self.display.send(.BeginTransaction(name: "edit workout"))
     }
 
@@ -41,6 +43,14 @@ struct EditWorkoutView: View {
                     Button(buttonStr(.saturday), action:{self.onToggleDay(.saturday)})
                     Button("Cancel", action: {})
                 }.font(.callout).padding(.leading)
+                HStack {
+                    Text("Weeks:").font(.headline)
+                    TextField("1 3", text: self.$weeks)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.weeks, perform: self.onEditedWeeks)
+                }.padding(.leading)
                 Divider().background(Color.black)
                 
                 List(self.workout.exercises) {exercise in
@@ -131,17 +141,8 @@ struct EditWorkoutView: View {
         self.display.send(.ValidateWorkoutName(text, self.workout))
     }
     
-    func onCancel() {
-        self.display.send(.RollbackTransaction(name: "edit workout"))
-        self.presentationMode.wrappedValue.dismiss()
-    }
-
-    func onOK() {
-        if self.name != self.workout.name {
-            self.display.send(.SetWorkoutName(self.workout, self.name))
-        }
-        self.display.send(.ConfirmTransaction(name: "edit workout"))
-        self.presentationMode.wrappedValue.dismiss()
+    func onEditedWeeks(_ text: String) {
+        self.display.send(.ValidateWeeks(text))
     }
 
     func buttonStr(_ day: WeekDay) -> String {
@@ -200,6 +201,23 @@ struct EditWorkoutView: View {
             labels.append("Saturday")
         }
         return labels.joined(separator: ", ")
+    }
+    
+    func onCancel() {
+        self.display.send(.RollbackTransaction(name: "edit workout"))
+        self.presentationMode.wrappedValue.dismiss()
+    }
+
+    func onOK() {
+        if self.name != self.workout.name {
+            self.display.send(.SetWorkoutName(self.workout, self.name))
+        }
+        let weeks = parseIntList(self.weeks, label: "weeks", emptyOK: true).unwrap()
+        if weeks != self.workout.weeks {
+            self.display.send(.SetWeeks(self.workout, weeks))
+        }
+        self.display.send(.ConfirmTransaction(name: "edit workout"))
+        self.presentationMode.wrappedValue.dismiss()
     }
 }
 

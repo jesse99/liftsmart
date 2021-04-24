@@ -95,22 +95,22 @@ Worked out 35 times.
 \
 last workout executed sets week number\
 	doesn\'92t have to be completed\
+	
+\f3\b if weeks are 1 and 3 how do we know which week we\'92re on?\
+	maybe the program can track the current week?\
+		and let user edit it?
+\f2\b0 \
 workouts with a larger week number are scheduled that far in advance\
 workouts with a smaller week number require a bit of math\
 \
+\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Might want to add a divider to edit workout view\
-	- maybe some other views too?\
-\'95\'a0Need to support weekly scheduling:\
-	- scheduled weeks should be an array\
-	- empty weeks implies every week\
-	- edit as a list of week numbers, e.g. \'931 3 5\'94 or \'931-8\'94\
-	- implement the scheduling logic\
-	- should be able to test with previews\
-	- home should use \'931 3 5 7\'94 and \'932 4 6 8\'94 with week 9 being rest workout\
-	- every 3rd day could be an option in days	\
-		` tho that seems a bit annoying\
-		` doesn\'92t fit too well with weeks either\
+\cf11 \'95\'a0Need to support weekly scheduling:\
+	- see if things look OK after fiddling with current week\
+	- need lower1/2 and upper1/2 so that we can do the alternating thing\
+\'95\'a0Burpees aren\'92t saying how many were done		\
+\'95 Do need a copy all exercises\
+\'95 Get rid of restore methods\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
 \cf11 \'95\'a0Merge back into master\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
@@ -326,4 +326,8 @@ level\
 116/78\
 113/79\
 124/77\
+113/71\
+113/72\
+105/76\
+\'97\'97\'97\
 }

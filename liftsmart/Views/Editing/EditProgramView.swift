@@ -7,6 +7,7 @@ import SwiftUI
 // to create these, delete them, and load them. Would need a warning when loading.
 struct EditProgramView: View {
     @State var name: String
+    @State var currentWeek: String
     @State var selection: Workout? = nil
     @State var showEditActions = false
     @State var showAdd = false
@@ -16,6 +17,12 @@ struct EditProgramView: View {
     init(_ display: Display) {
         self._name = State(initialValue: display.program.name)
         self.display = display
+        if let start = display.program.blockStart, let numWeeks = display.program.numWeeks() {
+            let thisWeek = liftsmart.currentWeek(blockStart: start, currentDate: Date(), numWeeks: numWeeks)
+            self._currentWeek = State(initialValue: "\(thisWeek)")
+        } else {
+            self._currentWeek = State(initialValue: "")
+        }
         self.display.send(.BeginTransaction(name: "edit program"))
     }
 
@@ -30,6 +37,14 @@ struct EditProgramView: View {
                     .keyboardType(.default)
                     .disableAutocorrection(false)
                     .onChange(of: self.name, perform: self.onEditedName)
+            }.padding(.leading).padding(.trailing)
+            HStack {
+                Text("Current Week:").font(.headline)   // TODO: probably should have help here
+                TextField("1", text: self.$currentWeek)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .keyboardType(.default)
+                    .disableAutocorrection(false)
+                    .onChange(of: self.currentWeek, perform: self.onEditedCurrentWeek)
             }.padding(.leading).padding(.trailing)
             Divider().background(Color.black)
 
@@ -99,6 +114,10 @@ struct EditProgramView: View {
         self.display.send(.ValidateProgramName(self.display.program.name, text))
     }
     
+    func onEditedCurrentWeek(_ text: String) {
+        self.display.send(.ValidateCurrentWeek(text))
+    }
+    
     func onCancel() {
         self.display.send(.RollbackTransaction(name: "edit program"))
         self.presentationMode.wrappedValue.dismiss()
@@ -107,6 +126,17 @@ struct EditProgramView: View {
     func onOK() {
         if name != self.display.program.name {
             self.display.send(.RenameProgram(self.display.program.name, self.name))
+        }
+        if let week = Int(self.currentWeek) {
+            if let start = display.program.blockStart, let numWeeks = display.program.numWeeks() {
+                if week != liftsmart.currentWeek(blockStart: start, currentDate: Date(), numWeeks: numWeeks) {
+                    self.display.send(.SetCurrentWeek(week))
+                }
+            }
+        } else {
+            if self.display.program.blockStart != nil {
+                self.display.send(.SetCurrentWeek(nil))
+            }
         }
         self.display.send(.ConfirmTransaction(name: "edit program"))
         self.presentationMode.wrappedValue.dismiss()   
