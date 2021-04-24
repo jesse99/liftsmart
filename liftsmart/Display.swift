@@ -547,7 +547,7 @@ class Display: ObservableObject {
             }
             return
         case .RollbackTransaction(let name):
-            log(.Debug, "Rollback \(name)")
+            log(.Error, "Rollback \(name)")
             assert(name == self.transactions.last!.name)
             self.program = self.transactions.last!.program
             self.history = self.transactions.last!.history

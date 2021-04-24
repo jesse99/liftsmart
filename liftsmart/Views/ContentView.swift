@@ -17,15 +17,24 @@ struct ContentView: View {
                     }
                 }
                 .tag(0)
-            Text("Settings")
+            LogView(logLines)
                 .font(.title)
                 .tabItem {
                     VStack {
                         Image("second")
-                        Text("Settings")
+                        Text("Logs")
                     }
                 }
                 .tag(1)
+            Text("Settings")
+                .font(.title)
+                .tabItem {
+                    VStack {
+                        Image("first")
+                        Text("Settings")
+                    }
+                }
+                .tag(2)
         }
     }
 }

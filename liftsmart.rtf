@@ -87,47 +87,31 @@ Program = Workouts + Plan + Advisor(?)\
 Worked out 35 times.  
 \f3\b no one really cares about this
 \f2\b0 \
-2, 4, 8, 10 days ago \
-\
 3x in the last week, 10x in the last month\
 \
 \
 \
-last workout executed sets week number\
-	doesn\'92t have to be completed\
-	
-\f3\b if weeks are 1 and 3 how do we know which week we\'92re on?\
-	maybe the program can track the current week?\
-		and let user edit it?
-\f2\b0 \
-workouts with a larger week number are scheduled that far in advance\
-workouts with a smaller week number require a bit of math\
-\
-\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Burpees aren\'92t saying how many were done		\
+\cf11 \'95\'a0Add a custom logger:\
+	- provide a way to view this\
+		` newest first\
+		` color coded\
+		` two columns?\
+	- get rid of the Display hack that showed log lines\
+	- most display actions should log\
+	- if recent error could add a \'93See log view\'94 to ErrMesg\
+	- view log should have a copy or email button?\
+	- persist log\
+	- when loading log record times as negative offsets from startTime\
+\'95 Should have a custom assert\
+	- maybe persist and then load log lines\
+\'95\'a0Burpees aren\'92t saying how many were done		\
+	- review other exercise types\
 \'95 Get rid of restore methods\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
 \cf11 \'95\'a0Merge back into master\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf11 \'95 Get rid of Programs.swift\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 DurationsView should include weight if it\'92s non-zero\
-	- probably getSubTitle\
-\'95\'a0Add a custom logger:\
-	- logErr, warn, info, debug\
-	- if sim then echo with print\
-	- is there anything like __function__?\
-	- save in a circular buffer (maybe 100 lines)\
-	- provide a way to view this\
-	- get rid of the Display hack that showed log lines\
-	- if recent error could add a \'93See log view\'94 to ErrMesg\
-\'95 Should have a custom assert\
-	- maybe persist and then load log lines\
-\'95 Delete workout should have a confirm\
-\'95 ExerciseMaxRepsView.lastReps is problematic\
-	- maybe do something lame and use completed[1]?\
-	- moot if we switch reps picker to use arrows?\
 \'95 Work on fixed weight apparatus:\
 	- probably want to make FixedWeightSet.weights private\
 		` then can keep the weights sorted\
@@ -142,6 +126,15 @@ workouts with a smaller week number require a bit of math\
 		` should edit weight have a picker (like formal name)? maybe a text field and a picker?\
 		` handle case where have activated set but it was deleted\
 	- somehow support magnets/extra weights\
+		` maybe show this with sections, see https://subscription.packtpub.com/book/mobile/9781838981860/2/ch02lvl1sec23/adding-sections-to-a-list\
+\'95 DurationsView should include weight if it\'92s non-zero\
+	- probably getSubTitle\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Delete workout should have a confirm\
+\'95 Edit workout name should use cap words\
+\'95 ExerciseMaxRepsView.lastReps is problematic\
+	- maybe do something lame and use completed[1]?\
+	- moot if we switch reps picker to use arrows?\
 \'95 EditTextView should show errors\
 \'95 Should there be a Copy All option for exercises?\
 	- would be really nice for moving exercises to a different program\
@@ -164,7 +157,6 @@ workouts with a smaller week number require a bit of math\
 	- support mesocycles, probably just using a cycle index\
 	- support alternate weeks, maybe with a mesocycle\
 \'95\'a0ios 14 supports MenuPickerStyle and InlinePickerStyle\
-\'95 ios 14 has a bit better Logger\
 \'95\'a0Should expected be saved separately from program?\
 \'95\'a0Should exercise history include difficulty?\
 \'95 Can do a better job reserving space for keyboard?\

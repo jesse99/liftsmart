@@ -2,7 +2,7 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import Foundation
 
-enum LogLevel {case Error; case Warning; case Info; case Debug}
+enum LogLevel: Int {case Error; case Warning; case Info; case Debug}
 
 struct LogLine {
     let seconds: TimeInterval   // since program started
@@ -10,34 +10,55 @@ struct LogLine {
     let line: String
 }
 
-var logLines: [LogLine] = []
+var logLines: [LogLine] = []    // newest are at end
 
 func log(_ level: LogLevel, _ message: String) {
-    while let line = logLines.first, line.seconds > 5*60 {
+    while let line = logLines.first, line.seconds > 10*60 {
         logLines.remove(at: 0)
     }
 
     let elapsed = Date().timeIntervalSince1970 - startTime
-    logLines.append(LogLine(seconds: elapsed, level: level, line: message))
+    let entry = LogLine(seconds: elapsed, level: level, line: message)
+    logLines.append(entry)
 
 #if targetEnvironment(simulator)
-    // TODO: Include hours and minutes (when non-zero?)
-    let timestamp = String(format: "%.1f", elapsed)
+let timestamp = entry.timeStr()
+let prefix = entry.levelStr()
+print("\(timestamp) \(prefix) \(message)")
+#endif
+}
 
-    var prefix = ""
-    switch level {
-    case .Error:
-        prefix = "ERR "
-    case .Warning:
-        prefix = "WARN"
-    case .Info:
-        prefix = "INFO"
-    case .Debug:
-        prefix = "DBG "
+extension LogLine {
+    func timeStr() -> String {
+        var elapsed = self.seconds
+        if elapsed > 60*60 {
+            let hours = floor(elapsed/(60*60))
+            elapsed -= hours*60*60
+            
+            let mins = floor(elapsed/60)
+            elapsed -= mins*60
+            return String(format: "%.0f:%.0f:%.1f", hours, mins, elapsed)
+        } else if elapsed > 60 {
+            let mins = floor(elapsed/60)
+            elapsed -= mins*60
+            return String(format: "%.0f:%.1f", mins, elapsed)
+        } else {
+            return String(format: "%.1f", elapsed)
+        }
     }
 
-    print("\(timestamp) \(prefix) \(message)")
-#endif
+    func levelStr() -> String {
+        switch self.level {
+        case .Error:
+            return "ERR "
+        case .Warning:
+            return "WARN"
+        case .Info:
+            return "INFO"
+        case .Debug:
+            return "DBG "
+        }
+    }
 }
 
 // Note that this is set when log is called for the first time.
