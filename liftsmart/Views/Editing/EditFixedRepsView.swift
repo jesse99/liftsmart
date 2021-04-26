@@ -7,6 +7,8 @@ struct EditFixedRepsView: View {
 
     let name: String
     let sets: Binding<Sets>
+    let expectedReps: Binding<[Int]>
+    @State var expected: String
     @State var reps: String
     @State var rests: String
     @State var showHelp = false
@@ -15,10 +17,14 @@ struct EditFixedRepsView: View {
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
-    init(_ display: Display, _ name: String, _ sets: Binding<Sets>) {
+    init(_ display: Display, _ name: String, _ sets: Binding<Sets>, _ expectedReps: Binding<[Int]>) {
         self.display = display
         self.name = name
         self.sets = sets
+        self.expectedReps = expectedReps
+
+        let reps = expectedReps.wrappedValue.map {"\($0)"}
+        self._expected = State(initialValue: reps.joined(separator: " "))
 
         switch sets.wrappedValue {
         case .fixedReps(let reps):
@@ -47,13 +53,22 @@ struct EditFixedRepsView: View {
                     Button("?", action: onRepsHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 HStack {
+                    Text("Expected Reps:").font(.headline)
+                    TextField("", text: self.$expected)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.default)
+                        .disableAutocorrection(true)
+                        .onChange(of: self.expected, perform: self.onEditedExpected)
+                    Button("?", action: onExpectedHelp).font(.callout).padding(.trailing)
+                }.padding(.leading)
+                HStack {
                     Text("Rest:").font(.headline)
                     TextField("", text: self.$rests)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
                         .disableAutocorrection(true)
                         .onChange(of: self.rests, perform: self.onEditedSets)
-                    Button("?", action: self.onResttHelp).font(.callout).padding(.trailing)
+                    Button("?", action: self.onRestHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
             }
             Spacer()
@@ -80,7 +95,17 @@ struct EditFixedRepsView: View {
         self.display.send(.ValidateFixedReps(self.reps, self.rests))
     }
 
-    private func onResttHelp() {
+    func onEditedExpected(_ text: String) {
+        // TODO: complain if expected sum > target?
+        self.display.send(.ValidateExpectedRepList(text))
+    }
+    
+    func onExpectedHelp() {
+        self.helpText = "The number of reps you expect to do for each set. Can be empty."
+        self.showHelp = true
+    }
+
+    private func onRestHelp() {
         self.helpText = restHelpText
         self.showHelp = true
     }
@@ -95,6 +120,11 @@ struct EditFixedRepsView: View {
     }
 
     func onOK() {
+        let expected = parseReps(self.expected, label: "expected", emptyOK: true).unwrap()
+        if expected != self.expectedReps.wrappedValue {
+            self.expectedReps.wrappedValue = expected
+        }
+
         let reps = parseRepRanges(self.reps, label: "reps").unwrap()
         let rest = parseTimes(self.rests, label: "rest", zeroOK: true).unwrap()
         let sets = (0..<reps.count).map({RepsSet(reps: reps[$0], restSecs: rest[$0])})
@@ -112,9 +142,10 @@ struct EditFixedRepsView_Previews: PreviewProvider {
     static let workout = display.program.workouts[0]
     static let exercise = workout.exercises.first(where: {$0.name == "Foam Rolling"})!
     static var sets = Binding.constant(exercise.modality.sets)
+    static let expectedReps = Binding.constant(exercise.expected.reps)
 
     static var previews: some View {
-        EditFixedRepsView(display, exercise.name, sets)
+        EditFixedRepsView(display, exercise.name, sets, expectedReps)
     }
 }
 

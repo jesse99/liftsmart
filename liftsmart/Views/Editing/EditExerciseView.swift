@@ -321,7 +321,7 @@ struct EditExerciseView: View {
         case .durations(_, targetSecs: _):
             return AnyView(EditDurationsView(self.display, self.exercise.name, self.$sets))
         case .fixedReps(_):
-            return AnyView(EditFixedRepsView(self.display, self.exercise.name, self.$sets))
+            return AnyView(EditFixedRepsView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         case .maxReps(restSecs: _, targetReps: _):
             return AnyView(EditMaxRepsView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         case .repRanges(warmups: _, worksets: _, backoffs: _):

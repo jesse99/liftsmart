@@ -22,7 +22,8 @@ struct ExerciseView: View {
     }
     
     func exercise() -> Exercise {
-        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        let exercise = self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        return exercise
     }
 
     func getView() -> AnyView {
