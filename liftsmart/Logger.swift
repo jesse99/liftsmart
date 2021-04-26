@@ -61,5 +61,51 @@ extension LogLine {
     }
 }
 
+func ASSERT(_ predicate: Bool, _ prefix: String, file: StaticString = #file, line: UInt = #line)  {
+    // Thread.callStackSymbols can be used to print a back trace but it only includes mangled names and instructions offsets
+    // so it's rather annoying.
+    if !predicate {
+        let url = URL(fileURLWithPath: file.description)
+        log(.Error, "\(prefix) failed at \(url.lastPathComponent):\(line)")
+//        precondition(false, file: file, line: line)
+    }
+}
+
+func ASSERT_EQ<T>(_ lhs: T, _ rhs: T, _ prefix: String = "", file: StaticString = #file, line: UInt = #line) where T : Equatable {
+    if lhs != rhs {
+        let url = URL(fileURLWithPath: file.description)
+        if prefix.isEmpty {
+            log(.Error, "\(prefix) \(lhs) == \(rhs) failed at \(url.lastPathComponent):\(line)")
+        } else {
+            log(.Error, "\(lhs) == \(rhs) failed at \(url.lastPathComponent):\(line)")
+        }
+//        precondition(false, file: file, line: line)
+    }
+}
+
+func ASSERT_NE<T>(_ lhs: T, _ rhs: T, _ prefix: String = "", file: StaticString = #file, line: UInt = #line) where T : Equatable {
+    if lhs == rhs {
+        let url = URL(fileURLWithPath: file.description)
+        if prefix.isEmpty {
+            log(.Error, "\(prefix) \(lhs) != \(rhs) failed at \(url.lastPathComponent):\(line)")
+        } else {
+            log(.Error, "\(lhs) != \(rhs) failed at \(url.lastPathComponent):\(line)")
+        }
+//        precondition(false, file: file, line: line)
+    }
+}
+
+func ASSERT_NIL<T>(_ value: T?, _ prefix: String = "", file: StaticString = #file, line: UInt = #line) where T : Equatable {
+    if let v = value {
+        let url = URL(fileURLWithPath: file.description)
+        if prefix.isEmpty {
+            log(.Error, "\(prefix) \(v) == nil failed at \(url.lastPathComponent):\(line)")
+        } else {
+            log(.Error, "\(v) == == nil failed at \(url.lastPathComponent):\(line)")
+        }
+//        precondition(false, file: file, line: line)
+    }
+}
+
 // Note that this is set when log is called for the first time.
 fileprivate let startTime = Date().timeIntervalSince1970 - 0.00001  // subtract a tiny time so we don't print a -0.0 timestamp

@@ -547,8 +547,8 @@ class Display: ObservableObject {
             }
             return
         case .RollbackTransaction(let name):
-            log(.Error, "Rollback \(name)")
-            assert(name == self.transactions.last!.name)
+            log(.Debug, "Rollback \(name)")
+            ASSERT_EQ(name, self.transactions.last!.name, "rollback")
             self.program = self.transactions.last!.program
             self.history = self.transactions.last!.history
             self.fixedWeights = self.transactions.last!.fixedWeights
@@ -557,8 +557,8 @@ class Display: ObservableObject {
             update()    // state may have changed back so we need to trigger an update
         case .ConfirmTransaction(let name):
             log(.Debug, "Confirming \(name)")
-            assert(name == self.transactions.last!.name)
-            assert(!errors!.hasError)
+            ASSERT_EQ(name, self.transactions.last!.name, "confirm")
+            ASSERT(!errors!.hasError, "no error")
             let _ = self.transactions.popLast()
             saveState()
 
@@ -602,11 +602,11 @@ class Display: ObservableObject {
             exercise.current!.completed = completed
             update()
         case .SetExerciseName(let workout, let exercise, let name):
-            assert(checkExerciseName(workout, name) == nil)
+            ASSERT_NIL(checkExerciseName(workout, name), "SetExerciseName")
             exercise.name = name
             update()
         case .SetExerciseFormalName(let exercise, let name):
-            assert(checkFormalName(name) == nil)
+            ASSERT_NIL(checkFormalName(name), "checkFormalName")
             exercise.formalName = name
             update()
         case .SetExpectedReps(let exercise, let reps):
@@ -776,7 +776,7 @@ class Display: ObservableObject {
 
         // Program
         case .AddWorkout(let name):
-            assert(checkWorkoutName(name) == nil)
+            ASSERT_NIL(checkWorkoutName(name), "AddWorkout")
             let workout = Workout(name, [], days: [])
             self.program.workouts.append(workout)
             update()
@@ -802,7 +802,7 @@ class Display: ObservableObject {
                 errors!.reset(key: "set current week")
             }
         case .MoveWorkout(let workout, let by):
-            assert(by != 0)
+            ASSERT_NE(by, 0, "MoveWorkout")
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             let _ = self.program.workouts.remove(at: index)
             self.program.workouts.insert(workout, at: index + by)
