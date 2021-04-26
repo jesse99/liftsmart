@@ -50,13 +50,8 @@ struct ExerciseRepTargetView: View {
                         ActionSheet(title: Text("Reps Completed"), buttons: repsDoneButtons())}
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
-                            primaryButton: .default(Text("Yes"), action: {
-                                let completed = self.exercise().current!.completed
-                                self.display.send(.SetExpectedReps(self.exercise(), completed))
-                                self.popView()}),
-                            secondaryButton: .default(Text("No"), action: {
-                                self.popView()
-                            }))}
+                            primaryButton:   .default(Text("Yes"), action: self.onUpdateExpected),
+                            secondaryButton: .default(Text("No"),  action: self.popView))}
                     .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
                 
                 Spacer().frame(height: 50)
@@ -162,7 +157,24 @@ struct ExerciseRepTargetView: View {
             self.popView()
         }
     }
-    
+        
+    func onUpdateExpected() {
+        let completed = self.exercise().current!.completed
+        self.display.send(.SetExpectedReps(self.exercise(), completed))
+        
+        switch exercise().modality.sets {
+        case .repTarget(target: let target, rest: let rest):
+            let total = completed.reduce(0, {$0 + $1})
+            if total > target {
+                let sets = Sets.repTarget(target: total, rest: rest)
+                self.display.send(.SetSets(self.exercise(), sets))
+            }
+        default:
+            assert(false)   // exercise must use repTarget sets
+        }
+        self.popView()
+    }
+
     func popView() {
         self.presentation.wrappedValue.dismiss()
         self.display.send(.AppendHistory(self.workout(), self.exercise()))
