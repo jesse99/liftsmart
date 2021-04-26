@@ -50,8 +50,10 @@ struct LogView: View {
             return log.level.rawValue <= self.show.rawValue
         }
         
+        // Would be kind of nice to reverse this but that does get wonky with multi-line logs
+        // (like caller traces).
         let lines = self.logs.filter(filterIn)
-        return lines.reversed().mapi {toEntry($0, $1)}
+        return lines.mapi {toEntry($0, $1)}
     }
     
     func buttonStr(_ level: LogLevel) -> String {
