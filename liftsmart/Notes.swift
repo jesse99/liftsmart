@@ -1866,7 +1866,7 @@ let defaultNotes: [String: String] = [
             "To reduce shoulder strain keep your elbows tucked so that your upper arms form a 45 degree angle to your torso.",
             "Difficulty can be lessened by keeping knees on the floor or by placing hands on a support.",
             "Difficulty can be increased by placing feet on a bench."],
-        links: ["Link": "http://www.exrx.net/WeightExercises/PectoralSternal/BWPushup.html", "Antranik": "https://www.youtube.com/watch?v=4dF1DOWzf20&feature=youtu.be", "Pushups": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Inclined": "http://www.bodybuilding.com/exercises/detail/view/name/incline-push-up", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://bit.ly/3qHoNtW"]),
+        links: ["Video": "https://www.youtube.com/watch?v=4dF1DOWzf20&feature=youtu.be", "Link": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/pushup", "Cues": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase2/pushup", "Progression": "https://bit.ly/3qHoNtW"]),
     
     "Pushup Plus": noteToMarkdown(
         notes: [
