@@ -141,7 +141,7 @@ class History: Storable {
                     }
                 }
             } else {
-                assert(false)
+                ASSERT(false, "couldn't find record for \(exercise.formalName)")
             }
         }
     }

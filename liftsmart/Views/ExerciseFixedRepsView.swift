@@ -248,7 +248,7 @@ struct ExerciseFixedRepsView: View {
             return worksets[i]
         }
 
-//        assert(false)
+//        ASSERT(false)
         return RepsSet(reps: RepRange(5))
     }
 
@@ -266,7 +266,7 @@ struct ExerciseFixedRepsView: View {
         case .fixedReps(let ws):
             return ws
         default:
-//            assert(false)   // this exercise must use fixedReps sets
+//            ASSERT(false)   // this exercise must use fixedReps sets
             return []
         }
     }

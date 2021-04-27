@@ -30,7 +30,7 @@ struct EditMaxRepsView: View {
         default:
             self._rest = State(initialValue: "")
             self._target = State(initialValue: "")
-            assert(false)
+            ASSERT(false, "expected maxReps")
         }
     }
 

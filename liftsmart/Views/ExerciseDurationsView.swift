@@ -133,7 +133,7 @@ struct ExerciseDurationsView: View {
     }
     
     func getTimerTitle() -> String {
-        assert(display.program.workouts.first(where: {$0 === workout()}) != nil)
+        ASSERT(display.program.workouts.first(where: {$0 === workout()}) != nil, "didn't find workout")
         if durationModal {
             let durations = self.durations()
             if exercise().current!.setIndex < durations.count {
@@ -186,7 +186,7 @@ struct ExerciseDurationsView: View {
         case .durations(let d, targetSecs: _):
             return d
         default:
-//            assert(false)   // exercise must use durations sets
+//            ASSERT(false)   // exercise must use durations sets
             return []
         }
     }
@@ -196,13 +196,13 @@ struct ExerciseDurationsView: View {
         case .durations(_, targetSecs: let target):
             return target
         default:
-//            assert(false)   // exercise must use durations sets
+//            ASSERT(false)   // exercise must use durations sets
             return []
         }
     }
     
     func getTitle() -> String {
-        assert(display.program.workouts.first(where: {$0 === workout()}) != nil)
+        ASSERT(display.program.workouts.first(where: {$0 === workout()}) != nil, "program doesn't have workout \(workout().name)")
         let durations = self.durations()
         if exercise().current!.setIndex < durations.count {
             return "Set \(exercise().current!.setIndex+1) of \(durations.count)"

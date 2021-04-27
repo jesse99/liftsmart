@@ -62,7 +62,7 @@ class Workout: CustomDebugStringConvertible, Identifiable, Storable {
     }
         
     func moveExercise(_ index: Int, by: Int) {
-        assert(by != 0)
+        ASSERT_NE(by, 0)
         let exercise = self.exercises.remove(at: index)
         self.exercises.insert(exercise, at: index + by)
     }

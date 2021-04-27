@@ -270,7 +270,7 @@ struct ExerciseRepRangesView: View {
             return backoffs[i]
         }
 
-//        assert(false)
+//        ASSERT(false)
         return RepsSet(reps: RepRange(5))
     }
 
@@ -437,7 +437,7 @@ struct ExerciseRepRangesView: View {
         case .repRanges(warmups: let wu, worksets: let ws, backoffs: let bo):
             return (wu, ws, bo)
         default:
-//            assert(false)   // this exercise must use repRanges sets
+//            ASSERT(false)   // this exercise must use repRanges sets
             return ([], [], [])
         }
     }

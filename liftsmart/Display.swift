@@ -820,8 +820,8 @@ class Display: ObservableObject {
 
         // Programs
         case .ActivateProgram(let name):
-            assert(name != self.program.name)
-            assert(self.programs[name] != nil)
+            ASSERT_NE(name, self.program.name, "ActivateProgram")
+            ASSERT_NOT_NIL(self.programs[name], "ActivateProgram")
             let fname = programNameToFName(name)
             let app = UIApplication.shared.delegate as! AppDelegate
             if let store = app.loadStore(from: fname) {
@@ -830,15 +830,15 @@ class Display: ObservableObject {
                 update()
             }
         case .AddProgram(let program):
-            assert(program.name != self.program.name)
-            assert(self.programs[program.name] == nil)
+            ASSERT_NE(program.name, self.program.name, "AddProgram")
+            ASSERT_NIL(self.programs[program.name], "AddProgram")
             let fname = programNameToFName(program.name)
             let app = UIApplication.shared.delegate as! AppDelegate
             app.storeObject(program, to: fname)
             self.programs[program.name] = fname
             update()
         case .DeleteProgram(let name):
-            assert(name != self.program.name)
+            ASSERT_NE(name, self.program.name, "DeleteProgram")
             let fname = programNameToFName(name)
             if let url = fileNameToURL(fname) {
                 do {
@@ -849,9 +849,9 @@ class Display: ObservableObject {
                 }
             }
         case .RenameProgram(let oldName, let newName):
-            assert(oldName != newName)
-            assert(self.programs[oldName] != nil)
-            assert(self.programs[newName] == nil)
+            ASSERT_NE(oldName, newName, "RenameProgram")
+            ASSERT_NOT_NIL(self.programs[oldName], "RenameProgram")
+            ASSERT_NIL(self.programs[newName], "RenameProgram")
             
             do {
                 let oldFname = programNameToFName(oldName)
@@ -901,7 +901,7 @@ class Display: ObservableObject {
             workout.weeks = weeks.sorted()
             update()
         case .SetWorkoutName(let workout, let name):
-            assert(checkWorkoutName(name) == nil);
+            ASSERT_NIL(checkWorkoutName(name), "SetWorkoutName")
             workout.name = name
             update()
         case .ToggleWorkoutDay(let workout, let day):
@@ -997,8 +997,8 @@ class Display: ObservableObject {
     // an error on editing A that is lost if the user switches to B without fixing the problem.
     private class ActionErrors {
         func add(key: String, error inMesg: String) {
-            assert(!key.isEmpty)
-            assert(!inMesg.isEmpty)
+            ASSERT(!key.isEmpty, "key is empty")
+            ASSERT(!inMesg.isEmpty, "inMesg is empty")
             
             var mesg = inMesg
             if !mesg.hasSuffix(".") {
@@ -1010,9 +1010,9 @@ class Display: ObservableObject {
         }
         
         func add(key: String, warning inMesg: String) {
-            assert(!key.isEmpty)
-            assert(!inMesg.isEmpty)
-            
+            ASSERT(!key.isEmpty, "key is empty")
+            ASSERT(!inMesg.isEmpty, "inMesg is empty")
+
             var mesg = inMesg
             if !mesg.hasSuffix(".") {
                 mesg += "."
@@ -1023,7 +1023,7 @@ class Display: ObservableObject {
         }
         
         func reset(key: String) {
-            assert(!key.isEmpty)
+            ASSERT(!key.isEmpty, "key is empty")
 
             errors[key] = nil
             warnings[key] = nil

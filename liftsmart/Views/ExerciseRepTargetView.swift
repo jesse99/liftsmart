@@ -170,7 +170,7 @@ struct ExerciseRepTargetView: View {
                 self.display.send(.SetSets(self.exercise(), sets))
             }
         default:
-            assert(false)   // exercise must use repTarget sets
+            ASSERT(false, "exercise must use repTarget sets")
         }
         self.popView()
     }
@@ -259,7 +259,7 @@ struct ExerciseRepTargetView: View {
         case .repTarget(target: let target, rest: _):
             return target
         default:
-            assert(false)   // exercise must use repTarget sets
+            ASSERT(false, "exercise must use repTarget sets")
             return 0
         }
     }
@@ -269,7 +269,7 @@ struct ExerciseRepTargetView: View {
         case .repTarget(target: _, rest: let rest):
             return rest
         default:
-            assert(false)   // exercise must use repTarget sets
+            ASSERT(false, "exercise must use repTarget sets") 
             return 0
         }
     }

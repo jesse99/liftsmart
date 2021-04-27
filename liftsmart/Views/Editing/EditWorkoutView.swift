@@ -170,7 +170,7 @@ struct EditWorkoutView: View {
     }
     
     func daysStr(_ days: [Bool]) -> String {
-        assert(days.count == 7)
+        ASSERT_EQ(days.count, 7)
         if days == [false, false, false, false, false, false, false] {
             return "Any Day"
         }

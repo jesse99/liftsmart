@@ -77,7 +77,7 @@ class Exercise: Hashable, Identifiable, Storable {
     }
         
     func restore(_ original: Exercise) {
-        assert(self.id == original.id)
+        ASSERT_EQ(self.id, original.id)
         self.name = original.name
         self.enabled = original.enabled
         self.formalName = original.formalName

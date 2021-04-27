@@ -30,7 +30,7 @@ struct EditDurationsView: View {
             self._durations = State(initialValue: "")
             self._rest = State(initialValue: "")
             self._target = State(initialValue: "")
-            assert(false)
+            ASSERT(false, "expected durations")
         }
     }
 

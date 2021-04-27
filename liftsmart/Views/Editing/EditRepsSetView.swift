@@ -41,7 +41,7 @@ struct EditRepsSetView: View {
             }
         default:
             self.setsName = "?"
-            assert(false)
+            ASSERT(false, "expected repRanges")
         }
         self.kind = kind
 
@@ -147,7 +147,7 @@ struct EditRepsSetView: View {
             }
 
         default:
-            assert(false)
+            ASSERT(false, "expected repRanges")
         }
 
         self.presentationMode.wrappedValue.dismiss()

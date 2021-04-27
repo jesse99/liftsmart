@@ -77,7 +77,7 @@ struct EditFWSsView: View {
         case .fixedWeights(name: let name):
             return name
         default:
-            assert(false)
+            ASSERT(false, "expected fixedWeights")
             return nil
         }
     }

@@ -104,7 +104,7 @@ struct EditExerciseView: View {
     @Environment(\.presentationMode) private var presentationMode
     
     init(_ display: Display, _ workout: Workout, _ exercise: Exercise) {
-        assert(display.program.workouts.first(where: {$0 === workout}) != nil)
+        ASSERT(display.program.workouts.first(where: {$0 === workout}) != nil, "didn't find workout")
         self.display = display
         self.workout = workout
         self.exercise = exercise
@@ -334,7 +334,7 @@ struct EditExerciseView: View {
     private func apparatusView() -> AnyView {
         switch self.exercise.modality.apparatus {
         case .bodyWeight:
-            assert(false)
+            ASSERT(false, "expected bodyweight")
             return AnyView(Text("shouldn't happen"))
         case .fixedWeights(name: _):
             return AnyView(EditFWSsView(self.display, self.exercise))

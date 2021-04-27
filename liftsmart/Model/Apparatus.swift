@@ -38,7 +38,7 @@ extension Apparatus: Storable {
             self = .fixedWeights(name: nil)
 
         default:
-            assert(false, "loading apparatus had unknown type: \(tname)"); abort()
+            ASSERT(false, "loading apparatus had unknown type: \(tname)"); abort()
         }
     }
     

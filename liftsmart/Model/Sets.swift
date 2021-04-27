@@ -281,7 +281,7 @@ extension Sets: Storable {
             self = .repTarget(target: store.getInt("target"), rest: store.getInt("rest"))
             
         default:
-            assert(false, "loading apparatus had unknown type: \(tname)"); abort()
+            ASSERT(false, "loading apparatus had unknown type: \(tname)"); abort()
         }
     }
     

@@ -154,7 +154,7 @@ struct WorkoutView: View {
     }
     
     private func getEntries() -> [WorkoutEntry] {
-        assert(display.program.workouts.first(where: {$0 === workout()}) != nil)  
+        ASSERT(display.program.workouts.first(where: {$0 === workout()}) != nil, "program doesn't have workout \(workout().name)")
         var entries: [WorkoutEntry] = []
         for exercise in workout().exercises {
             if exercise.enabled {

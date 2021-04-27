@@ -33,7 +33,7 @@ struct EditFixedRepsView: View {
         default:
             self._reps = State(initialValue: "")
             self._rests = State(initialValue: "")
-            assert(false)
+            ASSERT(false, "expected fixedReps")
         }
     }
 

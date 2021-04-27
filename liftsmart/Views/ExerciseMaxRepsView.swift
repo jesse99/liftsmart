@@ -312,7 +312,7 @@ struct ExerciseMaxRepsView: View {
         case .maxReps(let rs, targetReps: _):   // TODO: shouldn't we do something with targetReps? wizard?
             return rs
         default:
-//            assert(false)   // exercise must use maxReps sets
+//            ASSERT(false)   // exercise must use maxReps sets
             return []
         }
     }
