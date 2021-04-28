@@ -368,7 +368,7 @@ func previewDisplay() -> Display {
         }
 
         func formRolling() -> Exercise {
-            let work = RepsSet(reps: RepRange(15), restSecs: 0)
+            let work = FixedRepsSet(reps: FixedReps(15), restSecs: 0)
             let sets = Sets.fixedReps([work])
             let modality = Modality(Apparatus.bodyWeight, sets)
             return Exercise("Foam Rolling", "IT-Band Foam Roll", modality)

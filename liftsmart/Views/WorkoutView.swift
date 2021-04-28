@@ -36,6 +36,19 @@ struct WorkoutEntry: Identifiable {
             }
         }
         
+        func getFixedRepsLabel(_ index: Int, _ sets: FixedRepsSet) -> String {
+            let min = getExpectedReps(index) ?? sets.reps.reps
+            let max = sets.reps.reps
+            let reps = RepRange(min: min, max: max)
+            let set = RepsSet(reps: reps, percent: sets.percent, restSecs: sets.restSecs)
+            let suffix = weightSuffix(sets.percent, exercise.expected.weight)
+            if !suffix.isEmpty {
+                return set.reps.editable + suffix   // 3x5 @ 120 lbs
+            } else {
+                return set.reps.label               // 3x5 reps
+            }
+        }
+        
         var sets: [String] = []
         var limit = 8
 
@@ -46,7 +59,7 @@ struct WorkoutEntry: Identifiable {
             trailer = weightSuffix(WeightPercent(1.0), exercise.expected.weight)    // always the same for each set so we'll stick it at the end
 
         case .fixedReps(let worksets):
-            sets = worksets.mapi(getRepsLabel)
+            sets = worksets.mapi(getFixedRepsLabel)
             limit = 6
 
         case .maxReps(_, let targetReps):

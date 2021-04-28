@@ -102,49 +102,49 @@ class Program: CustomDebugStringConvertible, Storable {
 func home() -> Program {
     // https://www.defrancostraining.com/joe-ds-qlimber-11q-flexibility-routine/
     func formRolling() -> Exercise {
-        let work = RepsSet(reps: RepRange(15), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(15), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Foam Rolling", "IT-Band Foam Roll", modality)
     }
 
     func ironCross() -> Exercise {
-        let work = RepsSet(reps: RepRange(10), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(10), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Bent-knee Iron Cross", "Bent-knee Iron Cross", modality)
     }
 
     func vSit() -> Exercise {
-        let work = RepsSet(reps: RepRange(15), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(15), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Roll-over into V-sit", "Roll-over into V-sit", modality)
     }
 
     func frog() -> Exercise {
-        let work = RepsSet(reps: RepRange(10), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(10), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Rocking Frog Stretch", "Rocking Frog Stretch", modality)
     }
 
     func fireHydrant() -> Exercise {
-        let work = RepsSet(reps: RepRange(10), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(10), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Fire Hydrant Hip Circle", "Fire Hydrant Hip Circle", modality)
     }
 
     func mountain() -> Exercise {
-        let work = RepsSet(reps: RepRange(10), restSecs: 30)
+        let work = FixedRepsSet(reps: FixedReps(10), restSecs: 30)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Mountain Climber", "Mountain Climber", modality)
     }
 
     func cossack() -> Exercise {
-        let work = RepsSet(reps: RepRange(10), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(10), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Cossack Squat", "Cossack Squat", modality, Expected(weight: 0.0, reps: [8]))
@@ -158,7 +158,7 @@ func home() -> Program {
     
     // Rehab
     func shoulderFlexion() -> Exercise {
-        let work = RepsSet(reps: RepRange(12), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(12), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Shoulder Flexion", "Single Shoulder Flexion", modality)
@@ -175,7 +175,7 @@ func home() -> Program {
     }
     
     func externalRotation() -> Exercise {
-        let work = RepsSet(reps: RepRange(15), restSecs: 0)
+        let work = FixedRepsSet(reps: FixedReps(15), restSecs: 0)
         let sets = Sets.fixedReps([work])
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("External Rotation", "Lying External Rotation", modality)

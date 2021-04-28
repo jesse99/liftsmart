@@ -20,6 +20,42 @@ func weightSuffix(_ percent: WeightPercent, _ maxWeight: Double) -> String {
     return percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
 }
 
+struct FixedReps: CustomDebugStringConvertible, Equatable, Storable {
+    let reps: Int
+    
+    init(_ reps: Int) {
+        self.reps = reps
+    }
+    
+    var label: String {
+        get {
+            return "\(reps) reps"
+        }
+    }
+    
+    var editable: String {
+        get {
+            return "\(reps)"
+        }
+    }
+    
+    init(from store: Store) {
+        self.reps = store.getInt("min") // min for historical reasons
+    }
+    
+    func save(_ store: Store) {
+        store.addInt("min", reps)
+    }
+
+    var debugDescription: String {
+        return self.label
+    }
+    
+    fileprivate func phash() -> Int {
+        return self.reps.hashValue
+    }
+}
+
 struct RepRange: CustomDebugStringConvertible, Equatable, Storable {
     let min: Int
     let max: Int
@@ -126,6 +162,54 @@ struct WeightPercent: CustomDebugStringConvertible, Equatable, Storable {
     }
 }
 
+struct FixedRepsSet: CustomDebugStringConvertible, Equatable, Storable {
+    let reps: FixedReps
+    let percent: WeightPercent
+    let restSecs: Int
+    
+    init(reps: FixedReps, percent: WeightPercent = WeightPercent(1.0), restSecs: Int = 0) {
+        self.reps = reps
+        self.percent = percent
+        self.restSecs = restSecs
+    }
+    
+    init(from store: Store) {
+        self.reps = store.getObj("reps")
+        self.percent = store.getObj("percent")
+        self.restSecs = store.getInt("restSecs")
+    }
+    
+    func save(_ store: Store) {
+        store.addObj("reps", reps)
+        store.addObj("percent", percent)
+        store.addInt("restSecs", restSecs)
+    }
+    
+    func titles(_ expected: Expected, _ reps: FixedReps) -> (String, String) {
+        let weight = expected.weight * percent
+        let display = percent.value >= 0.01 && percent.value <= 0.99
+        let percentTitle = display ? "\(percent.label) of \(expected.weight) lbs" : ""
+
+        let suffix = percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+        let repsTitle = reps.label + suffix
+        
+        return (percentTitle, repsTitle)
+    }
+
+    var debugDescription: String {
+        get {
+            let display = self.percent.value >= 0.01 && self.percent.value <= 0.99
+            let suffix = display ? " @ \(self.percent.label)" : ""
+
+            return "\(self.reps.label)\(suffix)"
+        }
+    }
+    
+    fileprivate func phash() -> Int {
+        return self.reps.phash() &+ self.percent.phash() &+ self.restSecs.hashValue
+    }
+}
+
 struct RepsSet: CustomDebugStringConvertible, Equatable, Storable {
     let reps: RepRange
     let percent: WeightPercent
@@ -205,7 +289,7 @@ enum Sets: CustomDebugStringConvertible, Equatable {
     case durations([DurationSet], targetSecs: [Int] = [])
     
     /// Does not allow variable reps, useful for things like stretches.
-    case fixedReps([RepsSet])
+    case fixedReps([FixedRepsSet])
 
     /// Used for stuff like curls to exhaustion. targetReps is the reps across all sets.
     case maxReps(restSecs: [Int], targetReps: Int? = nil)

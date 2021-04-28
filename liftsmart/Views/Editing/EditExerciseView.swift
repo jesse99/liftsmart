@@ -67,7 +67,7 @@ func defaultDurations() -> Sets {
 }
 
 func defaultFixedReps() -> Sets {
-    let work = RepsSet(reps: RepRange(min: 10, max: 10), restSecs: 30)
+    let work = FixedRepsSet(reps: FixedReps(10), restSecs: 30)
     return Sets.fixedReps([work, work, work])
 }
 

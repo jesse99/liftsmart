@@ -293,7 +293,7 @@ class Display: ObservableObject {
         }
         
         func checkFixedReps(_ repsStr: String, _ restStr: String) -> String? {
-            switch coalesce(parseRepRanges(repsStr, label: "reps"), parseTimes(restStr, label: "rest", zeroOK: true)) {
+            switch coalesce(parseFixedRepRanges(repsStr, label: "reps"), parseTimes(restStr, label: "rest", zeroOK: true)) {
             case .right((let reps, let rest)):
                 if reps.count != rest.count {
                     return "Reps and rest counts must match"

@@ -226,10 +226,10 @@ struct ExerciseFixedRepsView: View {
     func getNoteLabel() -> String {
         func shouldTrackHistory() -> Bool {
             // TODO: also true if apparatus is barbell, dumbbell, or machine
-            let worksets = self.getWorkSets()
-            if let reps = worksets.first?.reps, reps.min < reps.max {
-                return true
-            }
+//            let worksets = self.getWorkSets()
+//            if let reps = worksets.first?.reps, reps.min < reps.max {
+//                return true
+//            }
             return false
         }
         
@@ -240,7 +240,7 @@ struct ExerciseFixedRepsView: View {
         }
     }
 
-    private func getRepsSet(_ delta: Int = 0) -> RepsSet {
+    private func getRepsSet(_ delta: Int = 0) -> FixedRepsSet {
         let i = self.exercise().current!.setIndex + delta
 
         let worksets = self.getWorkSets()
@@ -249,19 +249,19 @@ struct ExerciseFixedRepsView: View {
         }
 
 //        ASSERT(false)
-        return RepsSet(reps: RepRange(5))
+        return FixedRepsSet(reps: FixedReps(5))
     }
 
     private func expected() -> Int {
         if inProgress() {
             let i = self.exercise().current!.setIndex
-            return self.exercise().expected.reps.at(i) ?? getRepsSet().reps.min
+            return self.exercise().expected.reps.at(i) ?? getRepsSet().reps.reps
         } else {
-            return getRepsSet().reps.min
+            return getRepsSet().reps.reps
         }
     }
     
-    private func getWorkSets() -> [RepsSet] {
+    private func getWorkSets() -> [FixedRepsSet] {
         switch exercise().modality.sets {
         case .fixedReps(let ws):
             return ws

@@ -125,9 +125,9 @@ struct EditFixedRepsView: View {
             self.expectedReps.wrappedValue = expected
         }
 
-        let reps = parseRepRanges(self.reps, label: "reps").unwrap()
+        let reps = parseFixedRepRanges(self.reps, label: "reps").unwrap()
         let rest = parseTimes(self.rests, label: "rest", zeroOK: true).unwrap()
-        let sets = (0..<reps.count).map({RepsSet(reps: reps[$0], restSecs: rest[$0])})
+        let sets = (0..<reps.count).map({FixedRepsSet(reps: reps[$0], restSecs: rest[$0])})
         let dsets = Sets.fixedReps(sets)
         if dsets != self.sets.wrappedValue {
             self.sets.wrappedValue = dsets

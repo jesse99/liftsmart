@@ -7,13 +7,13 @@ func parseIntList(_ text: String, label: String, zeroOK: Bool = false, emptyOK: 
     var values: [Int] = []
     let scanner = Scanner(string: text)
     while !scanner.isAtEnd {
-        if let value = scanner.scanInt() {
-            if zeroOK && value < 0 {
-                return .left("\(label.capitalized) cannot be negative")
-            } else if !zeroOK && value <= 0 {
+        if let value = scanner.scanUInt64() {
+            if !zeroOK && value == 0 {
                 return .left("\(label.capitalized) must be greater than zero")
+            } else if value > Int.max {
+                return .left("\(label.capitalized) is too large")
             }
-            values.append(value)
+            values.append(Int(value))
         } else {
             return .left("Expected space separated integers for \(label)")
         }
@@ -34,19 +34,21 @@ func parseIntList(_ text: String, label: String, zeroOK: Bool = false, emptyOK: 
 func parseRep(_ text: String, label: String) -> Either<String, Int> {
     let scanner = Scanner(string: text)
     
-    let rep = scanner.scanInt()
+    let rep = scanner.scanUInt64()
     if rep == nil {
         return .left("Expected a number for \(label)")
     }
-    if rep! <= 0 {
+    if rep! == 0 {
         return .left("\(label.capitalized) must be greater than zero")
+    } else if rep! > Int.max {
+        return .left("\(label.capitalized) is too large")
     }
 
     if !scanner.isAtEnd {
         return .left("\(label.capitalized) should be just a number")
     }
     
-    return .right(rep!)
+    return .right(Int(rep!))
 }
 
 // Rep = Int?
@@ -56,19 +58,21 @@ func parseOptionalRep(_ text: String, label: String) -> Either<String, Int?> {
         return .right(nil)
     }
     
-    let rep = scanner.scanInt()
+    let rep = scanner.scanUInt64()
     if rep == nil {
         return .left("Expected a number for \(label)")
     }
-    if rep! <= 0 {
+    if rep! == 0 {
         return .left("\(label.capitalized) must be greater than zero")
+    } else if rep! > Int.max {
+        return .left("\(label.capitalized) is too large")
     }
 
     if !scanner.isAtEnd {
         return .left("\(label.capitalized) should be just a number")
     }
     
-    return .right(rep!)
+    return .right(Int(rep!))
 }
 
 // RepList = Int (Space Int)*
@@ -76,11 +80,13 @@ func parseRepList(_ text: String, label: String, emptyOK: Bool = false) -> Eithe
     var reps: [Int] = []
     let scanner = Scanner(string: text)
     while !scanner.isAtEnd {
-        if let rep = scanner.scanInt() {
-            if rep <= 0 {
+        if let rep = scanner.scanUInt64() {
+            if rep == 0 {
                 return .left("\(label.capitalized) must be greater than zero")
+            } else if rep > Int.max {
+                return .left("\(label.capitalized) is too large")
             }
-            reps.append(rep)
+            reps.append(Int(rep))
         } else {
             return .left("Expected space separated integers for \(label)")
         }
@@ -97,31 +103,84 @@ func parseRepList(_ text: String, label: String, emptyOK: Bool = false) -> Eithe
     return .right(reps)
 }
 
+// FixedRepRanges = Int+ ('x' Int)?
+// Int = [0-9]+
+func parseFixedRepRanges(_ text: String, label: String) -> Either<String, [FixedReps]> {
+    func parseFixedReps(_ scanner: Scanner) -> Either<String, FixedReps> {
+        let reps = scanner.scanUInt64()
+        if reps == nil {
+            return .left("Expected a number for \(label)")
+        }
+        if reps! == 0 {
+            return .left("\(label.capitalized) must be greater than zero")
+        } else if reps! > Int.max {
+            return .left("\(label.capitalized) is too large")
+        }
+
+        return .right(FixedReps(Int(reps!)))
+    }
+    
+    var reps: [FixedReps] = []
+    let scanner = Scanner(string: text)
+    while !scanner.isAtEnd {
+        switch parseFixedReps(scanner) {
+        case .right(let rep): reps.append(rep)
+        case .left(let err): return .left(err)
+        }
+        
+        if scanner.scanString("x") != nil {
+            if let n = scanner.scanUInt64(), n > 0 {
+                if n < 1000 {
+                    reps = reps.duplicate(x: Int(n))
+                    break
+                } else {
+                    return .left("repeat count is too large")
+                }
+            } else {
+                return .left("x should be followed by the number of times to duplicate")
+            }
+        }
+    }
+    
+    if !scanner.isAtEnd {
+        return .left("\(label.capitalized) should be rep followed by an optional xN to repeat")
+    }
+
+    if reps.isEmpty {
+        return .left("\(label.capitalized) needs at least one rep")
+    }
+    
+    return .right(reps)
+}
+
 // RepRanges = RepRange+ ('x' Int)?
 // RepRange = Int ('-' Int)?
-// Int = [0-9]+
 func parseRepRanges(_ text: String, label: String) -> Either<String, [RepRange]> {
     func parseRepRange(_ scanner: Scanner) -> Either<String, RepRange> {
-        let min = scanner.scanInt()
+        let min = scanner.scanUInt64()
         if min == nil {
             return .left("Expected a number for \(label) followed by optional '-max'")
         }
-        if min! <= 0 {
+        if min! == 0 {
             return .left("\(label.capitalized) must be greater than zero")
+        } else if min! > Int.max {
+            return .left("\(label.capitalized) is too large")
         }
-        
+
         if scanner.scanString("-") != nil {
-            let max = scanner.scanInt()
+            let max = scanner.scanUInt64()
             if max == nil {
                 return .left("Expected a number for \(label) followed by optional '-max'")
             }
             if min! > max! {
                 return .left("\(label.capitalized) min reps cannot be greater than max reps")
+            } else if max! > Int.max {
+                return .left("\(label.capitalized) is too large")
             }
-            return .right(RepRange(min: min!, max: max!))
+            return .right(RepRange(min: Int(min!), max: Int(max!)))
         }
 
-        return .right(RepRange(min!))
+        return .right(RepRange(Int(min!)))
     }
     
     var reps: [RepRange] = []
@@ -133,9 +192,13 @@ func parseRepRanges(_ text: String, label: String) -> Either<String, [RepRange]>
         }
         
         if scanner.scanString("x") != nil {
-            if let n = scanner.scanInt(), n > 0 {
-                reps = reps.duplicate(x: n)
-                break
+            if let n = scanner.scanUInt64(), n > 0 {
+                if n < 1000 {
+                    reps = reps.duplicate(x: Int(n))
+                    break
+                } else {
+                    return .left("repeat count is too large")
+                }
             } else {
                 return .left("x should be followed by the number of times to duplicate")
             }
@@ -156,15 +219,17 @@ func parseRepRanges(_ text: String, label: String) -> Either<String, [RepRange]>
 // Reps = Int+ ('x' Int)?
 func parseReps(_ text: String, label: String, emptyOK: Bool = false) -> Either<String, [Int]> {
     func parseRep(_ scanner: Scanner) -> Either<String, Int> {
-        let rep = scanner.scanInt()
+        let rep = scanner.scanUInt64()
         if rep == nil {
             return .left("Expected a number for \(label)")
         }
-        if rep! <= 0 {
+        if rep! == 0 {
             return .left("\(label.capitalized) must be greater than zero")
+        } else if rep! > Int.max {
+            return .left("\(label.capitalized) is too large")
         }
-        
-        return .right(rep!)
+
+        return .right(Int(rep!))
     }
     
     let scanner = Scanner(string: text)
@@ -180,9 +245,13 @@ func parseReps(_ text: String, label: String, emptyOK: Bool = false) -> Either<S
         }
         
         if scanner.scanString("x") != nil {
-            if let n = scanner.scanInt(), n > 0 {
-                reps = reps.duplicate(x: n)
-                break
+            if let n = scanner.scanUInt64(), n > 0 {
+                if n < 1000 {
+                    reps = reps.duplicate(x: Int(n))
+                    break
+                } else {
+                    return .left("repeat count is too large")
+                }
             } else {
                 return .left("x should be followed by the number of times to duplicate")
             }
@@ -222,9 +291,13 @@ func parsePercents(_ text: String, label: String) -> Either<String, [WeightPerce
         }
         
         if scanner.scanString("x") != nil {
-            if let n = scanner.scanInt(), n > 0 {
-                percents = percents.duplicate(x: n)
-                break
+            if let n = scanner.scanUInt64(), n > 0 {
+                if n < 1000 {
+                    percents = percents.duplicate(x: Int(n))
+                    break
+                } else {
+                    return .left("repeat count is too large")
+                }
             } else {
                 return .left("x should be followed by the number of times to duplicate")
             }
@@ -282,9 +355,13 @@ func parseTimes(_ text: String, label: String, zeroOK: Bool = false) -> Either<S
         }
         
         if scanner.scanString("x") != nil {
-            if let n = scanner.scanInt(), n > 0 {
-                times = times.duplicate(x: n)
-                break
+            if let n = scanner.scanUInt64(), n > 0 {
+                if n < 1000 {
+                    times = times.duplicate(x: Int(n))
+                    break
+                } else {
+                    return .left("repeat count is too large")
+                }
             } else {
                 return .left("x should be followed by the number of times to duplicate")
             }
