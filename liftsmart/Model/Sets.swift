@@ -58,50 +58,59 @@ struct FixedReps: CustomDebugStringConvertible, Equatable, Storable {
 
 struct RepRange: CustomDebugStringConvertible, Equatable, Storable {
     let min: Int
-    let max: Int
+    let max: Int?   // missing means min+
     
-    init(_ reps: Int) {
-        self.min = reps
-        self.max = reps
-    }
-    
-    init(min: Int, max: Int) {
+    init(min: Int, max: Int?) {
         self.min = min
         self.max = max
     }
     
     var label: String {
         get {
-            if min < max {
-                return "\(min)-\(max) reps"
-            } else {
-                if min == 1 {
-                    return "1 rep"
+            if let max = self.max {
+                if min < max {
+                    return "\(min)-\(max) reps"
                 } else {
-                    return "\(min) reps"
+                    if min == 1 {
+                        return "1 rep"
+                    } else {
+                        return "\(min) reps"
+                    }
                 }
+            } else {
+                return "\(min)+ reps"
             }
         }
     }
     
     var editable: String {
         get {
-            if min < max {
-                return "\(min)-\(max)"
+            if let max = self.max {
+                if min < max {
+                    return "\(min)-\(max)"
+                } else {
+                    return "\(min)"
+                }
             } else {
-                return "\(min)"
+                return "\(min)+"
             }
         }
     }
     
     init(from store: Store) {
         self.min = store.getInt("min")
-        self.max = store.getInt("max")
+        if store.hasKey("max") {
+            self.max = store.getInt("max")
+        } else {
+            self.max = nil
+        }
     }
     
     func save(_ store: Store) {
         store.addInt("min", min)
-        store.addInt("max", max)
+        if let max = self.max {
+            store.addInt("max", max)
+        }
     }
 
     var debugDescription: String {

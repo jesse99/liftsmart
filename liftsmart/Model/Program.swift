@@ -203,7 +203,7 @@ func home() -> Program {
     // Lower
     // progression: https://old.reddit.com/r/bodyweightfitness/wiki/exercises/squat
     func splitSquats() -> Exercise {
-        let warmup = RepsSet(reps: RepRange(4), percent: WeightPercent(0.0), restSecs: 90)
+        let warmup = RepsSet(reps: RepRange(min: 4, max: 4), percent: WeightPercent(0.0), restSecs: 90)
         let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 3*60)
         let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
         let modality = Modality(Apparatus.bodyWeight, sets)

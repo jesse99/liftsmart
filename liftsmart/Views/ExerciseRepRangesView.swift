@@ -127,11 +127,20 @@ struct ExerciseRepRangesView: View {
         
         let range = getRepRange()
         let expect = expected()
-        for reps in max(range.min - 6, 0)...range.max {
-            let str = reps == expect ? "•• \(reps) Reps ••" : "\(reps) Reps"
-            let text = Text(str)
-            
-            buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
+        if let max = range.max {
+            for reps in Swift.max(range.min - 6, 0)...max {
+                let str = reps == expect ? "•• \(reps) Reps ••" : "\(reps) Reps"
+                let text = Text(str)
+                
+                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
+            }
+        } else {
+            for reps in max(range.min - 3, 0)...max(range.min + 3, 0) {
+                let str = reps == expect ? "•• \(reps) Reps ••" : "\(reps) Reps"
+                let text = Text(str)
+                
+                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
+            }
         }
         
         buttons.append(.cancel(Text("Cancel"), action: {}))
@@ -271,7 +280,7 @@ struct ExerciseRepRangesView: View {
         }
 
 //        ASSERT(false)
-        return RepsSet(reps: RepRange(5))
+        return RepsSet(reps: RepRange(min: 5, max: 5))
     }
 
     private func getRepRange() -> RepRange {
@@ -285,10 +294,14 @@ struct ExerciseRepRangesView: View {
             let i = self.exercise().current!.setIndex - warmups.count
             if i < exercise().expected.reps.count {
                 let expected = exercise().expected.reps[i]
-                if expected < reps.max {
-                    return RepRange(min: expected, max: reps.max)
+                if let max = reps.max {
+                    if expected < max {
+                        return RepRange(min: expected, max: max)
+                    } else {
+                        return RepRange(min: expected, max: expected)
+                    }
                 } else {
-                    return RepRange(expected)
+                    return RepRange(min: expected, max: nil)
                 }
             } else {
                 return reps
@@ -388,8 +401,14 @@ struct ExerciseRepRangesView: View {
         func shouldTrackHistory() -> Bool {
             // TODO: also true if apparatus is barbell, dumbbell, or machine
             let (_, worksets, _) = self.getSets()
-            if let reps = worksets.first?.reps, reps.min < reps.max {
-                return true
+            if let reps = worksets.first?.reps {
+                if let max = reps.max {
+                    if reps.min < max {
+                        return true
+                    }
+                } else {
+                    return true
+                }
             }
             return false
         }

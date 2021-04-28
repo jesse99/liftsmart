@@ -154,17 +154,23 @@ func parseFixedRepRanges(_ text: String, label: String) -> Either<String, [Fixed
 }
 
 // RepRanges = RepRange+ ('x' Int)?
-// RepRange = Int ('-' Int)?
+// RepRange = UnboundedReps | BoundedReps
+// UnboundedReps = Int '+'
+// BoundedReps = Int ('-' Int)?
 func parseRepRanges(_ text: String, label: String) -> Either<String, [RepRange]> {
     func parseRepRange(_ scanner: Scanner) -> Either<String, RepRange> {
         let min = scanner.scanUInt64()
         if min == nil {
-            return .left("Expected a number for \(label) followed by optional '-max'")
+            return .left("Expected a number for \(label) followed by optional '+' or '-INT'")
         }
         if min! == 0 {
             return .left("\(label.capitalized) must be greater than zero")
         } else if min! > Int.max {
             return .left("\(label.capitalized) is too large")
+        }
+
+        if scanner.scanString("+") != nil {
+            return .right(RepRange(min: Int(min!), max: nil))
         }
 
         if scanner.scanString("-") != nil {
@@ -180,7 +186,7 @@ func parseRepRanges(_ text: String, label: String) -> Either<String, [RepRange]>
             return .right(RepRange(min: Int(min!), max: Int(max!)))
         }
 
-        return .right(RepRange(Int(min!)))
+        return .right(RepRange(min: Int(min!), max: Int(min!)))
     }
     
     var reps: [RepRange] = []

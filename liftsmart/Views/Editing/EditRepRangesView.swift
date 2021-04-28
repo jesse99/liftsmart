@@ -34,6 +34,7 @@ struct EditRepRangesView: View {
                             self.showHelp = true
                         }).font(.callout).padding(.trailing)
                     }.padding(.leading)
+                    Divider()
                     HStack {
                         Button("Work Sets", action: self.onWorkSets).font(.callout)
                         Spacer()
@@ -42,6 +43,7 @@ struct EditRepRangesView: View {
                             self.showHelp = true
                         }).font(.callout).padding(.trailing)
                     }.padding(.leading)
+                    Divider()
                     HStack {
                         Button("Backoff", action: self.onBackoff).font(.callout)
                         Spacer()
