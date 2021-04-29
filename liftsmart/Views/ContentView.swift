@@ -12,8 +12,8 @@ struct ContentView: View {
                 .font(.title)
                 .tabItem {
                     VStack {
-                        Image("first")
-                        Text("Workouts")
+                        Image(systemName: "figure.walk")
+                        Text("Workouts" + self.display.edited)
                     }
                 }
                 .tag(0)
@@ -21,7 +21,9 @@ struct ContentView: View {
                 .font(.title)
                 .tabItem {
                     VStack {
-                        Image("second")
+                        // TODO: Would be great if this was color coded when not selected but that seems to require
+                        // some work, see https://stackoverflow.com/questions/60803755/change-color-of-image-icon-in-tabitems-in-swiftui
+                        Image(systemName: self.logsName())
                         Text("Logs")
                     }
                 }
@@ -30,11 +32,21 @@ struct ContentView: View {
                 .font(.title)
                 .tabItem {
                     VStack {
-                        Image("first")
+                        Image(systemName: "gearshape.fill")
                         Text("Settings")
                     }
                 }
                 .tag(2)
+        }
+    }
+    
+    private func logsName() -> String {
+        if numLogErrors > 0 {
+            return "exclamationmark.triangle.fill"
+        } else if numLogWarnings > 0 {
+            return "drop.triangle.fill"
+        } else {
+            return "text.bubble"
         }
     }
 }

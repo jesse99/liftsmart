@@ -11,15 +11,28 @@ struct LogLine {
 }
 
 var logLines: [LogLine] = []    // newest are at end
+var numLogErrors = 0
+var numLogWarnings = 0
 
 func log(_ level: LogLevel, _ message: String) {
     while let line = logLines.first, line.seconds > 10*60 {
+        if line.level == .Error {
+            numLogErrors -= 1
+        } else if line.level == .Warning {
+            numLogWarnings -= 1
+        }
         logLines.remove(at: 0)
     }
 
     let elapsed = Date().timeIntervalSince1970 - startTime
     let entry = LogLine(seconds: elapsed, level: level, line: message)
     logLines.append(entry)
+    
+    if entry.level == .Error {
+        numLogErrors += 1
+    } else if entry.level == .Warning {
+        numLogWarnings += 1
+    }
 
 #if targetEnvironment(simulator)
 let timestamp = entry.timeStr()
