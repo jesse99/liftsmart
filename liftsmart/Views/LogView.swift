@@ -1,5 +1,6 @@
 //  Created by Jesse Jones on 4/24/21.
 //  Copyright © 2021 MushinApps. All rights reserved.
+import MessageUI
 import SwiftUI
 
 struct LogEntry: Identifiable {
@@ -8,9 +9,56 @@ struct LogEntry: Identifiable {
     let id: Int
 }
 
+// From https://stackoverflow.com/questions/56784722/swiftui-send-email
+struct MailView: UIViewControllerRepresentable {
+    let payload: String
+    @Binding var result: Result<MFMailComposeResult, Error>?
+    @Environment(\.presentationMode) var presentation
+
+    class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
+        @Binding var presentation: PresentationMode
+        @Binding var result: Result<MFMailComposeResult, Error>?
+
+        init(presentation: Binding<PresentationMode>, result: Binding<Result<MFMailComposeResult, Error>?>) {
+            _presentation = presentation
+            _result = result
+        }
+
+        func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+            defer {
+                $presentation.wrappedValue.dismiss()
+            }
+            guard error == nil else {
+                self.result = .failure(error!)
+                return
+            }
+            self.result = .success(result)
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(presentation: presentation, result: $result)
+    }
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<MailView>) -> MFMailComposeViewController {
+        let composer = MFMailComposeViewController()
+        composer.mailComposeDelegate = context.coordinator
+
+        let data = self.payload.data(using: .utf8)!    // safe because strings are already Unicode
+        composer.addAttachmentData(data, mimeType: "text/plain", fileName: "liftsmart.log")
+        
+        return composer
+    }
+
+    func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: UIViewControllerRepresentableContext<MailView>) {
+    }
+}
+
 struct LogView: View {
     let logs: [LogLine]
     @State var show = LogLevel.Info
+    @State var result: Result<MFMailComposeResult, Error>? = nil
+    @State var isShowingMailView = false
 
     init(_ logs: [LogLine]) {
         self.logs = logs
@@ -22,13 +70,21 @@ struct LogView: View {
             List(self.getEntries()) {entry in
                 Text(entry.message).font(.headline).foregroundColor(entry.color)
             }
-            Menu(self.showStr()) {
-                Button("Cancel", action: {})
-                Button(buttonStr(.Debug), action: {self.show = .Debug})
-                Button(buttonStr(.Info), action: {self.show = .Info})
-                Button(buttonStr(.Warning), action: {self.show = .Warning})
-                Button(buttonStr(.Error), action: {self.show = .Error})
-            }.font(.callout).padding(.leading)
+            HStack {
+                Button("Email", action: onEmail).font(.callout)
+                    .padding(.leading)
+                    .disabled(!self.canEmail())
+                    .sheet(isPresented: self.$isShowingMailView) {MailView(payload: self.getPayload(), result: self.$result)
+                }
+                Spacer()
+                Menu(self.showStr()) {
+                    Button("Cancel", action: {})
+                    Button(buttonStr(.Debug), action: {self.show = .Debug})
+                    Button(buttonStr(.Info), action: {self.show = .Info})
+                    Button(buttonStr(.Warning), action: {self.show = .Warning})
+                    Button(buttonStr(.Error), action: {self.show = .Error})
+                }.font(.callout).padding(.trailing)
+            }.padding(.bottom)
         }
     }
     
@@ -72,14 +128,45 @@ struct LogView: View {
     func showStr() -> String {
         switch self.show {
         case .Error:
-            return "Show only errors"
+            return "Only errors"
         case.Warning:
-            return "Show warning and above"
+            return "Warning and above"
         case .Info:
-            return "Show info and above"
+            return "Info and above"
         case .Debug:
-            return "Show all"
+            return "All"
         }
+    }
+    
+    func canEmail() -> Bool {
+        return MFMailComposeViewController.canSendMail()
+    }
+    
+    func onEmail() {
+        self.isShowingMailView = true
+    }
+    
+    func getPayload() -> String {
+        var payload = ""
+        payload.reserveCapacity(30*self.logs.count)
+        
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "?"
+        payload += "Version: \(version)\n"
+
+        let build = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "?"
+        payload += "Build: \(build)\n\n"
+        
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.locale = Locale.current
+        payload += "Date: \(formatter.string(from: Date()))\n"
+
+        for log in self.logs {
+            payload += "\(log.timeStr()) \(log.level) \(log.line)\n"
+        }
+
+        return payload
     }
 }
 
