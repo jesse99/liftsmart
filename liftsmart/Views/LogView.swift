@@ -90,16 +90,33 @@ struct LogView: View {
     
     func getEntries() -> [LogEntry] {
         func toEntry(_ index: Int, _ log: LogLine) -> LogEntry {
+            var color: UIColor
             switch log.level {
             case .Debug:
-                return LogEntry(message: log.timeStr() + "  " + log.line, color: .gray, id: index)
+                color = .gray
             case .Error:
-                return LogEntry(message: log.timeStr() + "  " + log.line, color: .red, id: index)
+                color = .red
             case .Info:
-                return LogEntry(message: log.timeStr() + "  " + log.line, color: .black, id: index)
+                color = .black
             case.Warning:
-                return LogEntry(message: log.timeStr() + "  " + log.line, color: .orange, id: index)
+                color = .orange
             }
+
+            if !log.current {
+                switch log.level {
+                case .Debug:
+                    color = color.lighten(byPercentage: 0.3) ?? .lightGray
+                case .Error:
+                    color = color.shade(byPercentage: 0.6) ?? .lightGray
+                case .Info:
+                    color = color.lighten(byPercentage: 0.7) ?? .lightGray
+                case.Warning:
+                    color = color.shade(byPercentage: 0.4) ?? .lightGray
+                }
+            }
+            
+            let message = log.timeStr() + "  " + log.line
+            return LogEntry(message: message, color: Color(color), id: index)
         }
         
         func filterIn(_ log: LogLine) -> Bool {
@@ -171,12 +188,17 @@ struct LogView: View {
 }
 
 struct LogView_Previews: PreviewProvider {
-    static let l0 = LogLine(seconds: 0.0, level: .Info, line: "Started up")
-    static let l1 = LogLine(seconds: 1.0, level: .Info, line: "Starting Skullcrushers")
-    static let l2 = LogLine(seconds: 1.5, level: .Error, line: "Crushed head")
-    static let l3 = LogLine(seconds: 2.0, level: .Info, line: "Stopped")
+    static let l1 = LogLine(1.0, .Info, "Started up", current: false)
+    static let l2 = LogLine(1.1, .Debug, "No one cares", current: false)
+    static let l3 = LogLine(1.2, .Warning, "Meltdown imminent", current: false)
+    static let l4 = LogLine(2.0, .Error, "Containment failure", current: false)
+    static let l5 = LogLine(0.0, .Info, "Started up")
+    static let l6 = LogLine(0.1, .Debug, "Loaded stores")
+    static let l7 = LogLine(1.0, .Info, "Starting Skullcrushers")
+    static let l8 = LogLine(1.5, .Error, "Crushed head")
+    static let l9 = LogLine(2.0, .Info, "Stopped")
 
     static var previews: some View {
-        LogView([l0, l1, l2, l3])
+        LogView([l1, l2, l3, l4, l5, l6, l7, l8, l9])
     }
 }

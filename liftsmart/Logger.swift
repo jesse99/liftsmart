@@ -1,13 +1,35 @@
 //  Created by Jesse Jones on 4/18/21.
 //  Copyright © 2021 MushinApps. All rights reserved.
 import Foundation
+import SwiftUI
 
 enum LogLevel: Int {case Error; case Warning; case Info; case Debug}
 
-struct LogLine {
+struct LogLine: Storable {
     let seconds: TimeInterval   // since program started
     let level: LogLevel
     let line: String
+    let current: Bool           // true if the log line is for this run of the app
+    
+    init(_ seconds: TimeInterval, _ level: LogLevel, _ line: String, current: Bool = true) {
+        self.seconds = seconds
+        self.level = level
+        self.line = line
+        self.current = current
+    }
+    
+    init(from store: Store) {
+        self.seconds = store.getDbl("seconds")
+        self.level = LogLevel(rawValue: store.getInt("level")) ?? .Info
+        self.line = store.getStr("line")
+        self.current = false
+    }
+    
+    func save(_ store: Store) {
+        store.addDbl("seconds", seconds)
+        store.addInt("level", level.rawValue)
+        store.addStr("line", line)
+    }
 }
 
 var logLines: [LogLine] = []    // newest are at end
@@ -25,7 +47,7 @@ func log(_ level: LogLevel, _ message: String) {
     }
 
     let elapsed = Date().timeIntervalSince1970 - startTime
-    let entry = LogLine(seconds: elapsed, level: level, line: message)
+    let entry = LogLine(elapsed, level, message)
     logLines.append(entry)
     
     if entry.level == .Error {
@@ -71,6 +93,52 @@ extension LogLine {
         case .Debug:
             return "DBG "
         }
+    }
+}
+
+func saveLogs() {
+    let store = Store()
+
+    let app = UIApplication.shared.delegate as! AppDelegate
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .secondsSince1970
+    do {
+        store.addObjArray("lines", logLines)
+        store.addInt("numLogErrors", numLogErrors)
+        store.addInt("numLogWarnings", numLogWarnings)
+
+        let data = try encoder.encode(store)
+        app.saveEncoded(data as AnyObject, to: "logs")
+    } catch {
+        log(.Error, "Failed to save logs: \(error.localizedDescription)")
+    }
+}
+
+func clearLogs() {
+    let store = Store()
+
+    let app = UIApplication.shared.delegate as! AppDelegate
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .secondsSince1970
+    do {
+        let lines: [LogLine] = []
+        store.addObjArray("lines", lines)
+        store.addInt("numLogErrors", 0)
+        store.addInt("numLogWarnings", 0)
+
+        let data = try encoder.encode(store)
+        app.saveEncoded(data as AnyObject, to: "logs")
+    } catch {
+        log(.Error, "Failed to save logs: \(error.localizedDescription)")
+    }
+}
+
+func loadLogs() {
+    let app = UIApplication.shared.delegate as! AppDelegate
+    if let store = app.loadStore(from: "logs") {
+        logLines = store.getObjArray("lines")
+        numLogErrors = store.getInt("numLogErrors")
+        numLogWarnings = store.getInt("numLogWarnings")
     }
 }
 

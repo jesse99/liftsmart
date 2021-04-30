@@ -113,6 +113,8 @@ class Display: ObservableObject {
     @Published private(set) var errColor = Color.black
 
     init() {
+        loadLogs()
+        
         var savedFName = "program11"     // historical
         let app = UIApplication.shared.delegate as! AppDelegate
         if let store = app.loadStore(from: "current-program") {
@@ -525,6 +527,12 @@ class Display: ObservableObject {
             storeFixedWeights(app, to: "fws")
             storeUserNotes(app, to: "userNotes")
             storePrograms(app, to: "programs")
+            
+            if numLogErrors > 0 {
+                saveLogs()
+            } else {
+                clearLogs()
+            }
         }
         
         let errors = self.transactions.last?.errors

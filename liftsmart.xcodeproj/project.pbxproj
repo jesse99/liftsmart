@@ -64,6 +64,7 @@
 		37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */; };
 		37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D0F8E52516C6A7000FAAC7 /* Either.swift */; };
 		37DE5532263B835000473C53 /* Asserts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE5531263B835000473C53 /* Asserts.swift */; };
+		37DE5538263C775A00473C53 /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE5537263C775A00473C53 /* UIColorExtension.swift */; };
 		37E83136245E248500A135C7 /* Current.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E83135245E248500A135C7 /* Current.swift */; };
 		37FB6E7E24686BC600EB4916 /* Modality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FB6E7D24686BC600EB4916 /* Modality.swift */; };
 		37FB6E8124687A4300EB4916 /* Apparatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FB6E8024687A4300EB4916 /* Apparatus.swift */; };
@@ -145,6 +146,7 @@
 		37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMaxRepsView.swift; sourceTree = "<group>"; };
 		37D0F8E52516C6A7000FAAC7 /* Either.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Either.swift; sourceTree = "<group>"; };
 		37DE5531263B835000473C53 /* Asserts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asserts.swift; sourceTree = "<group>"; };
+		37DE5537263C775A00473C53 /* UIColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtension.swift; sourceTree = "<group>"; };
 		37E83135245E248500A135C7 /* Current.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Current.swift; sourceTree = "<group>"; };
 		37FB6E7D24686BC600EB4916 /* Modality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modality.swift; sourceTree = "<group>"; };
 		37FB6E8024687A4300EB4916 /* Apparatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apparatus.swift; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 				37881BD0244FF80A00CFB411 /* SequenceExtensions.swift */,
 				3781EB4225FDB45900348E87 /* StringExtension.swift */,
 				3766CA5F24B00DD200EF604A /* TimeIntervalExtension.swift */,
+				37DE5537263C775A00473C53 /* UIColorExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -491,6 +494,7 @@
 				37881BD32455FA7400CFB411 /* DoubleExtensions.swift in Sources */,
 				373209DF25AA288B00EBD64F /* ExerciseFixedRepsView.swift in Sources */,
 				3781EB4325FDB45900348E87 /* StringExtension.swift in Sources */,
+				37DE5538263C775A00473C53 /* UIColorExtension.swift in Sources */,
 				37E83136245E248500A135C7 /* Current.swift in Sources */,
 				371C81A4262CE4290074DA8A /* ExerciseRepTargetView.swift in Sources */,
 				376AF38324CCE7AD00AEAE1C /* EditNoteView.swift in Sources */,
