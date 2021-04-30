@@ -538,7 +538,7 @@ class Display: ObservableObject {
             // 2) init methods are called many more times than you might naively expect so we
             // can't simply push and pop them,
             if !self.transactions.contains(where: {$0.name == name}) {
-                log(.Debug, "Begin \(name)")
+                log(.Info, "Begin \(name)")
                 self.transactions.append(Transaction(name, self))
             } else {
                 let names = self.transactions.reversed().map {$0.name}
@@ -547,7 +547,7 @@ class Display: ObservableObject {
             }
             return
         case .RollbackTransaction(let name):
-            log(.Debug, "Rollback \(name)")
+            log(.Info, "Rollback \(name)")
             ASSERT_EQ(name, self.transactions.last!.name, "rollback")
             self.program = self.transactions.last!.program
             self.history = self.transactions.last!.history
@@ -556,7 +556,7 @@ class Display: ObservableObject {
             let _ = self.transactions.popLast()
             update()    // state may have changed back so we need to trigger an update
         case .ConfirmTransaction(let name):
-            log(.Debug, "Confirming \(name)")
+            log(.Info, "Confirming \(name)")
             ASSERT_EQ(name, self.transactions.last!.name, "confirm")
             ASSERT(!errors!.hasError, "no error")
             let _ = self.transactions.popLast()
@@ -564,9 +564,11 @@ class Display: ObservableObject {
 
         // Exercise
         case .AdvanceCurrent(let exercise):
+            log(.Debug, "AdvanceCurrent \(exercise.name)")
             exercise.current!.setIndex += 1
             update()
         case .AppendCurrent(let exercise, let reps, let percent):
+            log(.Debug, "AppendCurrent \(exercise.name) reps: \(reps) percent: \(String(describing: percent))")
             exercise.current!.actualReps.append(reps)
             if let percent = percent {
                 exercise.current!.actualPercents.append(percent)
@@ -576,94 +578,116 @@ class Display: ObservableObject {
             exercise.current!.setIndex += 1
             update()
         case .CopyExercise(let exercises):
+            log(.Debug, "CopyExercise \(exercises.map({$0.name}).joined(separator: " "))")
             exerciseClipboard = exercises
         case .DefaultApparatus(let workout, let exercise, let apparatus):
             if let use = useOriginalApparatus(workout, exercise, apparatus) {
+                log(.Debug, "DefaultApparatus \(workout.name) \(exercise.name) original apparatus: \(use)")
                 exercise.modality.apparatus = use
             } else {
+                log(.Debug, "DefaultApparatus \(workout.name) \(exercise.name) new apparatus: \(apparatus)")
                 exercise.modality.apparatus = apparatus
             }
             update()
         case .DefaultSets(let workout, let exercise, let sets):
             if let use = useOriginalSets(workout, exercise, sets) {
+                log(.Debug, "DefaultSets \(workout.name) \(exercise.name) original sets: \(use)")
                 exercise.modality = Modality(exercise.modality.apparatus, use)
             } else {
+                log(.Debug, "DefaultSets \(workout.name) \(exercise.name) new sets: \(sets)")
                 exercise.modality = Modality(exercise.modality.apparatus, sets)
             }
             update()
         case .ResetCurrent(let exercise):
+            log(.Debug, "ResetCurrent \(exercise.name)")
             let current = Current(weight: exercise.expected.weight)
             exercise.current = current
             update()
         case .SetApparatus(let exercise, let apparatus):
+            log(.Debug, "SetApparatus \(exercise.name) apparatus: \(apparatus)")
             exercise.modality.apparatus = apparatus
             update()
         case .SetCompleted(let exercise, let completed):
+            log(.Debug, "SetCompleted \(exercise.name) completed: \(completed)")
             exercise.current!.completed = completed
             update()
         case .SetExerciseName(let workout, let exercise, let name):
+            log(.Debug, "SetExerciseName \(workout.name) \(exercise.name) name: \(name)")
             ASSERT_NIL(checkExerciseName(workout, name), "SetExerciseName")
             exercise.name = name
             update()
         case .SetExerciseFormalName(let exercise, let name):
+            log(.Debug, "SetExerciseFormalName \(exercise.name) name: \(name)")
             ASSERT_NIL(checkFormalName(name), "checkFormalName")
             exercise.formalName = name
             update()
         case .SetExpectedReps(let exercise, let reps):
+            log(.Debug, "SetExpectedReps \(exercise.name) reps: \(reps)")
             exercise.expected.reps = reps
             update()
         case .SetExpectedWeight(let exercise, let weight):
+            log(.Debug, "SetExpectedWeight \(exercise.name) weight: \(weight)")
             exercise.expected.weight = weight
             update()
         case .SetSets(let exercise, let sets):
+            log(.Debug, "SetSets \(exercise.name) sets: \(sets)")
             exercise.modality = Modality(exercise.modality.apparatus, sets)
             update()
         case .ToggleEnableExercise(let exercise):
+            log(.Debug, "ToggleEnableExercise \(exercise.name)")
             exercise.enabled = !exercise.enabled
             update()
         case .ValidateDurations(let durations, let target, let rest):
+            log(.Debug, "ValidateDurations durations: \(durations) target: \(target) rest: \(rest)")
             if let err = checkDurationsSets(durations, target, rest) {
                 errors!.add(key: "set durations sets", error: err)
             } else {
                 errors!.reset(key: "set durations sets")
             }
         case .ValidateExpectedRepList(let expected):
+            log(.Debug, "ValidateExpectedRepList expected: \(expected)")
             if let err = checkExpectedRepList(expected) {
                 errors!.add(key: "set expected reps list", error: err)
             } else {
                 errors!.reset(key: "set expected reps list")
             }
         case .ValidateFixedReps(let reps, let rest):
+            log(.Debug, "ValidateFixedReps reps: \(reps) rest: \(rest)")
             if let err = checkFixedReps(reps, rest) {
                 errors!.add(key: "set fixed reps sets", error: err)
             } else {
                 errors!.reset(key: "set fixed reps sets")
             }
         case .ValidateFormalName(let name):
+            log(.Debug, "ValidateFormalName name: \(name)")
             if let err = checkFormalName(name) {
                 errors!.add(key: "set formal name", warning: err)
             } else {
                 errors!.reset(key: "set formal name")
             }
         case .ValidateOptionalRep(let label, let target):
+            log(.Debug, "ValidateOptionalRep label: \(label) target: \(target)")
             if let err = checkOptionalRep(label, target) {
                 errors!.add(key: "set optional \(label) rep", error: err)
             } else {
                 errors!.reset(key: "set optional \(label) rep")
             }
         case .ValidateRep(let label, let target):
+            log(.Debug, "ValidateRep label: \(label) target: \(target)")
             if let err = checkRep(label, target) {
                 errors!.add(key: "set \(label) rep", error: err)
             } else {
                 errors!.reset(key: "set \(label) rep")
             }
         case .ValidateRepRanges(let reps, let percent, let rest, let expected):
+            log(.Debug, "ValidateRepRanges reps: \(reps) percent: \(percent) rest: \(rest) expected: \(String(describing: expected))")
             if let err = checkRepRanges(reps, percent, rest, expected) {
                 errors!.add(key: "set rep ranges", error: err)
             } else {
                 errors!.reset(key: "set rep ranges")
             }
         case .ValidateRest(let rest):
+            log(.Debug, "ValidateRest rest: \(rest)")
             if let err = checkRest(rest) {
                 errors!.add(key: "set rest", error: err)
             } else {
@@ -672,6 +696,7 @@ class Display: ObservableObject {
 
         // Fixed Weights
         case .AddFixedWeightRange(let name, let first, let step, let max):
+            log(.Debug, "AddFixedWeightRange name: \(name) first: \(first) step: \(step) max: \(max)")
             if self.fixedWeights[name] == nil {
                 self.fixedWeights[name] = FixedWeightSet([])
             }
@@ -690,9 +715,11 @@ class Display: ObservableObject {
             }
             update()
         case .ActivateFixedWeightSet(let name, let exercise):
+            log(.Debug, "ValidateRest name: \(name) exercise: \(exercise.name)")
             exercise.modality.apparatus = .fixedWeights(name: name)
             update()
         case .AddFixedWeight(let name, let weight):
+            log(.Debug, "AddFixedWeight name: \(name) weight: \(weight)")
             if let fws = self.fixedWeights[name] {
                 if let index = fws.weights.firstIndex(where: {$0 > weight}) {
                     fws.weights.insert(weight, at: index)
@@ -704,30 +731,37 @@ class Display: ObservableObject {
             }
             update()
         case .DeactivateFixedWeightSet(let exercise):
+            log(.Debug, "DeactivateFixedWeightSet \(exercise.name)")
             exercise.modality.apparatus = .fixedWeights(name: nil)
             update()
         case .DeleteFixedWeight(let name, let index):
+            log(.Debug, "DeleteFixedWeight name: \(name) index: \(index)")
             self.fixedWeights[name]?.weights.remove(at: index)
             update()
         case .DeleteFixedWeightSet(let name):
+            log(.Debug, "DeleteFixedWeightSet name: \(name)")
             self.fixedWeights[name] = nil
             update()
         case .SetFixedWeightSet(let name, let weights):
+            log(.Debug, "SetFixedWeightSet name: \(name) weights: \(weights)")
             fixedWeights[name] = FixedWeightSet(weights)
             update()
         case .ValidateFixedWeight(let name, let weight):
+            log(.Debug, "ValidateFixedWeight name: \(name) weight: \(weight)")
             if let err = checkFixedWeight(name, weight) {
                 errors!.add(key: "set fixed weight", error: err)
             } else {
                 errors!.reset(key: "set fixed weight")
             }
         case .ValidateFixedWeightRange(let first, let step, let max):
+            log(.Debug, "ValidateFixedWeightRange first: \(first) step: \(step) max: \(max)")
             if let err = checkFixedWeightSetRange(first, step, max) {
                 errors!.add(key: "set fixed weight sets range", error: err)
             } else {
                 errors!.reset(key: "set fixed weight sets range")
             }
         case .ValidateFixedWeightSetName(let originalName, let name):
+            log(.Debug, "ValidateFixedWeightSetName originalName: \(originalName) name: \(name)")
             if let err = checkFixedWeightSetName(name), name != originalName {
                 errors!.add(key: "set fixed weight sets names", error: err)
             } else {
@@ -736,6 +770,7 @@ class Display: ObservableObject {
 
         // History
         case .AppendHistory(let workout, let exercise):
+            log(.Debug, "AppendHistory \(workout.name) \(exercise.name)")
             self.history.append(workout, exercise)
             if !workout.weeks.isEmpty && self.program.blockStart == nil {
                 let delta = workout.weeks.first! - 1
@@ -745,29 +780,36 @@ class Display: ObservableObject {
             saveState()     // most state changes happen via edit views so confirm takes care of the save, but this one is different
             update()
         case .DeleteAllHistory(let workout, let exercise):
+            log(.Debug, "DeleteAllHistory \(workout.name) \(exercise.name)")
             self.history.deleteAll(workout, exercise)
             update()
         case .DeleteHistory(let workout, let exercise, let record):
+            log(.Debug, "DeleteAllHistory \(workout.name) \(exercise.name) record: \(record)")
             self.history.delete(workout, exercise, record)
             update()
         case .SetHistoryNote(let record, let text):
+            log(.Debug, "SetHistoryNote record: \(record) text: \(text)")
             record.note = text
             update()
         case .SetHistoryWeight(let record, let weight):
+            log(.Debug, "SetHistoryWeight record: \(record) weight: \(weight)")
             record.weight = weight
             update()
 
         // Misc
         case .NoOp:
-            break
+            log(.Debug, "NoOp")
         case .SetUserNote(let formalName, let note):
+            log(.Debug, "SetUserNote formalName: \(formalName) note: \(String(describing: note))")
             userNotes[formalName] = note
             update()
         case .TimePassed:
             // Enough time has passed that UIs should be refreshed.
+            log(.Debug, "TimePassed")
             update()
 
         case .ValidateWeight(let weight, let subtype):
+            log(.Debug, "ValidateWeight weight: \(weight) subtype: \(subtype)")
             if let err = checkWeight(weight) {
                 errors!.add(key: "set \(subtype)", error: err)
             } else {
@@ -776,18 +818,22 @@ class Display: ObservableObject {
 
         // Program
         case .AddWorkout(let name):
+            log(.Debug, "AddWorkout name: \(name)")
             ASSERT_NIL(checkWorkoutName(name), "AddWorkout")
             let workout = Workout(name, [], days: [])
             self.program.workouts.append(workout)
             update()
         case .DeleteWorkout(let workout):
+            log(.Debug, "DeleteWorkout \(workout.name)")
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             self.program.workouts.remove(at: index)
             update()
         case .EnableWorkout(let workout, let enable):
+            log(.Debug, "EnableWorkout \(workout.name) enable: \(enable)")
             workout.enabled = enable
             update()
         case .SetCurrentWeek(let week):
+            log(.Debug, "SetCurrentWeek week: \(String(describing: week))")
             if let w = week {
                 self.program.blockStart = Calendar.current.date(byAdding: .weekOfYear, value: -(w - 1), to: Date())
 //                log(.Info, "Current week is now \(self.program.currentWeek()!)")    // may not be week (depending on that and numWeeks)
@@ -796,18 +842,21 @@ class Display: ObservableObject {
             }
             update()
         case .ValidateCurrentWeek(let text):
+            log(.Debug, "ValidateCurrentWeek text: \(text)")
             if let err = checkCurrentWeek(text) {
                 errors!.add(key: "set current week", error: err)
             } else {
                 errors!.reset(key: "set current week")
             }
         case .MoveWorkout(let workout, let by):
+            log(.Debug, "MoveWorkout \(workout.name) by: \(by)")
             ASSERT_NE(by, 0, "MoveWorkout")
             let index = self.program.workouts.firstIndex(where: {$0 === workout})!
             let _ = self.program.workouts.remove(at: index)
             self.program.workouts.insert(workout, at: index + by)
             update()
         case .ValidateWorkoutName(let name, let workout):
+            log(.Debug, "MoveWorkout name: \(name) workout: \(workout?.name ?? "nil")")
             if let workout = workout, workout.name == name {
                 errors!.reset(key: "add workout")
                 return
@@ -820,6 +869,7 @@ class Display: ObservableObject {
 
         // Programs
         case .ActivateProgram(let name):
+            log(.Debug, "ActivateProgram name: \(name)")
             ASSERT_NE(name, self.program.name, "ActivateProgram")
             ASSERT_NOT_NIL(self.programs[name], "ActivateProgram")
             let fname = programNameToFName(name)
@@ -830,6 +880,7 @@ class Display: ObservableObject {
                 update()
             }
         case .AddProgram(let program):
+            log(.Debug, "AddProgram program: \(program.name)")
             ASSERT_NE(program.name, self.program.name, "AddProgram")
             ASSERT_NIL(self.programs[program.name], "AddProgram")
             let fname = programNameToFName(program.name)
@@ -838,6 +889,7 @@ class Display: ObservableObject {
             self.programs[program.name] = fname
             update()
         case .DeleteProgram(let name):
+            log(.Debug, "DeleteProgram name: \(name)")
             ASSERT_NE(name, self.program.name, "DeleteProgram")
             let fname = programNameToFName(name)
             if let url = fileNameToURL(fname) {
@@ -846,9 +898,11 @@ class Display: ObservableObject {
                     self.programs[name] = nil
                     update()
                 } catch {
+                    log(.Warning, "Failed to delete \(name): \(error.localizedDescription)")
                 }
             }
         case .RenameProgram(let oldName, let newName):
+            log(.Debug, "RenameProgram oldName: \(oldName) newName: \(newName)")
             ASSERT_NE(oldName, newName, "RenameProgram")
             ASSERT_NOT_NIL(self.programs[oldName], "RenameProgram")
             ASSERT_NIL(self.programs[newName], "RenameProgram")
@@ -866,8 +920,10 @@ class Display: ObservableObject {
                     update()
                 }
             } catch {
+                log(.Error, "Failed to rename \(oldName) to \(newName): \(error.localizedDescription)")
             }
         case .ValidateProgramName(let oldName, let newName):
+            log(.Debug, "ValidateProgramName oldName: \(oldName) newName: \(newName)")
             if !oldName.isBlankOrEmpty() && oldName == newName {
                 errors!.reset(key: "add program")
             } else {
@@ -880,17 +936,21 @@ class Display: ObservableObject {
 
         // Workout
         case .AddExercise(let workout, let exercise):
+            log(.Debug, "AddExercise \(workout.name) exercise: \(exercise.name)")
             workout.exercises.append(exercise)
             update()
         case .DelExercise(let workout, let exercise):
+            log(.Debug, "DelExercise \(workout.name) exercise: \(exercise.name)")
             let index = workout.exercises.firstIndex(where: {$0 === exercise})!
             workout.exercises.remove(at: index)
             update()
         case .MoveExercise(let workout, let exercise, let by):
+            log(.Debug, "MoveExercise \(workout.name) exercise: \(exercise.name) by: \(by)")
             let index = workout.exercises.firstIndex(where: {$0 === exercise})!
             workout.moveExercise(index, by: by)
             update()
         case .PasteExercise(let workout):
+            log(.Debug, "PasteExercise \(workout.name)")
             for exercise in self.exerciseClipboard {
                 let exercise = exercise.copy()     // copy so pasting twice doesn't add the same exercise
                 exercise.name = newExerciseName(workout, exercise.name)
@@ -898,16 +958,20 @@ class Display: ObservableObject {
             }
             update()
         case .SetWeeks(let workout, let weeks):
+            log(.Debug, "SetWeeks \(workout.name) weeks: \(weeks)")
             workout.weeks = weeks.sorted()
             update()
         case .SetWorkoutName(let workout, let name):
+            log(.Debug, "SetWorkoutName \(workout.name) name: \(name)")
             ASSERT_NIL(checkWorkoutName(name), "SetWorkoutName")
             workout.name = name
             update()
         case .ToggleWorkoutDay(let workout, let day):
+            log(.Debug, "ToggleWorkoutDay \(workout.name) day: \(day)")
             workout.days[day.rawValue] = !workout.days[day.rawValue]
             update()
         case .ValidateExerciseName(let workout, let exercise, let name):
+            log(.Debug, "ValidateExerciseName \(workout.name) \(String(describing: exercise?.name)) name: \(name)")
             if let exercise = exercise, exercise.name == name {
                 errors!.reset(key: "add exercise")
                 return
@@ -918,6 +982,7 @@ class Display: ObservableObject {
                 errors!.reset(key: "add exercise")
             }
         case .ValidateWeeks(let weeks):
+            log(.Debug, "ValidateWeeks weeks: \(weeks)")
             if let err = checkWeeks(weeks) {
                 errors!.add(key: "add weeks", error: err)
             } else {
