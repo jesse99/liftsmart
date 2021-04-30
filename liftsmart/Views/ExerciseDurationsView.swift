@@ -241,12 +241,7 @@ struct ExerciseDurationsView: View {
     }
     
     func getNoteLabel() -> String {
-        let targetSecs = self.targetSecs()
-        if !targetSecs.isEmpty {    // TODO: maybe if have target and progression path
-            return getPreviouslabel(self.display, workout(), exercise())
-        } else {
-            return ""
-        }
+        return getPreviouslabel(self.display, workout(), exercise())
     }
 }
 

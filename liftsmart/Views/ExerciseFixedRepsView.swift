@@ -224,20 +224,7 @@ struct ExerciseFixedRepsView: View {
     }
     
     func getNoteLabel() -> String {
-        func shouldTrackHistory() -> Bool {
-            // TODO: also true if apparatus is barbell, dumbbell, or machine
-//            let worksets = self.getWorkSets()
-//            if let reps = worksets.first?.reps, reps.min < reps.max {
-//                return true
-//            }
-            return false
-        }
-        
-        if shouldTrackHistory() {
-            return getPreviouslabel(self.display, workout(), exercise())
-        } else {
-            return ""
-        }
+        return getPreviouslabel(self.display, workout(), exercise())
     }
 
     private func getRepsSet(_ delta: Int = 0) -> FixedRepsSet {

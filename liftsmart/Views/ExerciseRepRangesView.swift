@@ -18,7 +18,7 @@ func getPreviouslabel(_ display: Display, _ workout: Workout, _ exercise: Exerci
             break
         }
     }
-    return count > 0 ? "Same previous x\(count)" : ""
+    return count > 0 ? "Done this \(count)x" : ""
 }
 
 struct ExerciseRepRangesView: View {
