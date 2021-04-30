@@ -71,12 +71,6 @@ class Program: CustomDebugStringConvertible, Storable {
         let result: Program = store.getObj("self")
         return result
     }
-        
-    func restore(_ original: Program) {
-        self.name = original.name
-        self.workouts = original.workouts
-        self.notes = original.notes
-    }
     
     // Largest week number in workouts.
     func numWeeks() -> Int? {

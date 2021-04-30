@@ -75,15 +75,6 @@ class Exercise: Hashable, Identifiable, Storable {
         nextID += 1
         return result
     }
-        
-    func restore(_ original: Exercise) {
-        ASSERT_EQ(self.id, original.id)
-        self.name = original.name
-        self.enabled = original.enabled
-        self.formalName = original.formalName
-        self.modality = original.modality
-        self.expected = original.expected
-    }
     
     func isBodyWeight() -> Bool {
         switch self.modality.apparatus {
