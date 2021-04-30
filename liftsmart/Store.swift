@@ -21,64 +21,64 @@ public class Store: Codable, CustomStringConvertible {
     }
     
     public func addBool(_ key: String, _ value: Bool) {
-        assert(!key.isEmpty, "addBool key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addBool key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         store[key] = .bool(value)
     }
     
     public func addBoolArray(_ key: String, _ value: [Bool]) {
-        assert(!key.isEmpty, "addBoolArray key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addBoolArray key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         let v = value.map {Value.bool($0)}
         store[key] = .array(v)
     }
 
     public func addDate(_ key: String, _ value: Date) {
-        assert(!key.isEmpty, "addDate key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addDate key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         store[key] = .date(value)
     }
     
     public func addDateArray(_ key: String, _ value: [Date]) {
-        assert(!key.isEmpty, "addDateArray key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addDateArray key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         let v = value.map {Value.date($0)}
         store[key] = .array(v)
     }
     
     public func addDbl(_ key: String, _ value: Double) {
-        assert(!key.isEmpty, "addDbl key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
-        assert(!value.isNaN, "\(key) is NaN")
-        assert(!value.isInfinite, "\(key) is Inf")
+        ASSERT(!key.isEmpty, "addDbl key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!value.isNaN, "\(key) is NaN")
+        ASSERT(!value.isInfinite, "\(key) is Inf")
         store[key] = .double(value)
     }
     
     public func addDblArray(_ key: String, _ value: [Double]) {
-        assert(!key.isEmpty, "addDblArray key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
-        assert(value.all {!$0.isNaN}, "\(key) has a NaN")
-        assert(value.all {!$0.isInfinite}, "\(key) has an Inf")
+        ASSERT(!key.isEmpty, "addDblArray key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(value.all {!$0.isNaN}, "\(key) has a NaN")
+        ASSERT(value.all {!$0.isInfinite}, "\(key) has an Inf")
         let v = value.map {Value.double($0)}
         store[key] = .array(v)
     }
     
     public func addInt(_ key: String, _ value: Int) {
-        assert(!key.isEmpty, "addInt key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addInt key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         store[key] = .int(value)
     }
     
     public func addIntArray(_ key: String, _ value: [Int]) {
-        assert(!key.isEmpty, "addIntArray key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addIntArray key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         let v = value.map {Value.int($0)}
         store[key] = .array(v)
     }
     
     public func addObj(_ key: String, _ value: Storable) {
-        assert(!key.isEmpty, "addObj key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addObj key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         
         let inner = Store()
         value.save(inner)
@@ -86,8 +86,8 @@ public class Store: Codable, CustomStringConvertible {
     }
     
     public func addObjArray(_ key: String, _ value: [Storable]) {
-        assert(!key.isEmpty, "addObjArray key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addObjArray key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         
         var v: [Value] = []
         for e in value {
@@ -100,14 +100,14 @@ public class Store: Codable, CustomStringConvertible {
     }
     
     public func addStr(_ key: String, _ value: String) {
-        assert(!key.isEmpty, "addStr key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addStr key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         store[key] = .string(value)
     }
     
     public func addStrArray(_ key: String, _ value: [String]) {
-        assert(!key.isEmpty, "addStrArray key was empty")
-        assert(!store.keys.contains(key), "store already contains \(key)")
+        ASSERT(!key.isEmpty, "addStrArray key was empty")
+        ASSERT(!store.keys.contains(key), "store already contains \(key)")
         let v = value.map {Value.string($0)}
         store[key] = .array(v)
     }
@@ -122,7 +122,7 @@ public class Store: Codable, CustomStringConvertible {
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -136,14 +136,14 @@ public class Store: Codable, CustomStringConvertible {
                 } else if let d = ifMissing {
                     return d
                 } else {
-                    assert(false); abort()
+                    ASSERT(false, "\(x) isn't a bool"); abort()
                 }
             }
             return result
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
 
@@ -153,7 +153,7 @@ public class Store: Codable, CustomStringConvertible {
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -167,14 +167,14 @@ public class Store: Codable, CustomStringConvertible {
                 } else if let d = ifMissing {
                     return d
                 } else {
-                    assert(false); abort()
+                    ASSERT(false, "\(x) isn't a date"); abort()
                 }
             }
             return result
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -184,7 +184,7 @@ public class Store: Codable, CustomStringConvertible {
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -198,14 +198,14 @@ public class Store: Codable, CustomStringConvertible {
                 } else if let d = ifMissing {
                     return d
                 } else {
-                    assert(false, "\(key) is missing"); abort()
+                    ASSERT(false, "\(key) is missing"); abort()
                 }
             }
             return result
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -215,7 +215,7 @@ public class Store: Codable, CustomStringConvertible {
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -229,14 +229,14 @@ public class Store: Codable, CustomStringConvertible {
                 } else if let d = ifMissing {
                     return d
                 } else {
-                    assert(false); abort()
+                    ASSERT(false, "\(x) isn't an int"); abort()
                 }
             }
             return result
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -247,7 +247,7 @@ public class Store: Codable, CustomStringConvertible {
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -263,14 +263,14 @@ public class Store: Codable, CustomStringConvertible {
                 } else if let d = ifMissing {
                     return d
                 } else {
-                    assert(false); abort()
+                    ASSERT(false, "\(x) isn't an object"); abort()
                 }
             }
             return result
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -280,7 +280,7 @@ public class Store: Codable, CustomStringConvertible {
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
@@ -294,14 +294,14 @@ public class Store: Codable, CustomStringConvertible {
                 } else if let d = ifMissing {
                     return d
                 } else {
-                    assert(false); abort()
+                    ASSERT(false, "\(x) isn't a string"); abort()
                 }
             }
             return result
         } else if let d = ifMissing {
             return d
         } else {
-            assert(false, "\(key) is missing"); abort()
+            ASSERT(false, "\(key) is missing"); abort()
         }
     }
     
