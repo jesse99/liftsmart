@@ -193,12 +193,12 @@ func initSubLabels(_ display: Display, _ completions: [ExerciseCompletions], _ e
             }
         }
         
-        if entry.workout.weeks.isEmpty {
-            entry.subLabel += " (any week)"
-        } else {
-            let weeks = (entry.workout.weeks.map {"\($0)"}).joined(separator: " ")
-            entry.subLabel += " (\(weeks))"
-        }
+//        if entry.workout.weeks.isEmpty {
+//            entry.subLabel += " (any week)"
+//        } else {
+//            let weeks = (entry.workout.weeks.map {"\($0)"}).joined(separator: " ")
+//            entry.subLabel += " (\(weeks))"
+//        }
 
         result[i] = entry
     }
@@ -256,12 +256,12 @@ struct ProgramView: View {
     }
     
     func getTitle() -> String {
-        if let start = display.program.blockStart, let num = display.program.numWeeks() {
-            let todaysWeek = currentWeek(blockStart: start, currentDate: Date(), numWeeks: num)
-            return "\(self.display.program.name) Workouts \(todaysWeek)"
-        } else {
+//        if let start = display.program.blockStart, let num = display.program.numWeeks() {
+//            let todaysWeek = currentWeek(blockStart: start, currentDate: Date(), numWeeks: num)
+//            return "\(self.display.program.name) Workouts \(todaysWeek)"
+//        } else {
             return "\(self.display.program.name) Workouts"
-        }
+//        }
     }
 
     private func getEntries() -> [ProgramEntry] {
