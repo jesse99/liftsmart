@@ -983,6 +983,14 @@ let defaultNotes: [String: String] = [
             "Using your fingers raise the bar as far as possible."],
         links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/finger-curls"]),
     
+    "Finger Stretch": noteToMarkdown(
+        notes: [
+            "Wrap a rubber band around your fingers.",
+            "Spread your fingers out.",
+            "Do ten reps.",
+            "If you're doing Wrist Extension or Flexion then use that arm position."],
+        links: ["AAoS": "https://orthoinfo.aaos.org/globalassets/pdfs/a00790_therapeutic-exercise-program-for-epicondylitis_final.pdf"]),
+    
     "Fire Hydrant Hip Circle": noteToMarkdown(
         notes: [
             "Get on your hands and knees.",
@@ -1014,6 +1022,16 @@ let defaultNotes: [String: String] = [
             "The toes of the elevated foot should be pointed straight upwards (or backwards to also stretch the calf).",
             "Gently lean forward until you feel your hamstrings stretch."],
         links: ["Link": "http://www.floota.com/HamstringStretch.html"]),
+    
+    "Forearm Supination & Pronation": noteToMarkdown(
+        notes: [
+            "Sit in a chair with your arm resting on a table or your thigh with your palm facing sideways.",
+            "To start with use no weight and bend your elbow so that your arm forms a 90 degree angle.",
+            "Slowly turn your palm upwards, to the side, down, and back to the side.",
+            "Keep your forearm in place the entire time.",
+            "Do 30 reps. After you can do 30 reps over two days with no increase in pain increase the weight.",
+            "Once three pounds is OK gradually start straightening your arm out."],
+        links: ["Link": "https://www.acefitness.org/education-and-resources/lifestyle/exercise-library/31/wrist-supination-and-pronation/", "AAoS": "https://orthoinfo.aaos.org/globalassets/pdfs/a00790_therapeutic-exercise-program-for-epicondylitis_final.pdf"]),
     
     "Forward Lunge Stretch": noteToMarkdown(
         notes: [
@@ -2534,6 +2552,12 @@ let defaultNotes: [String: String] = [
             "As you come up extend your hands and touch your toes."],
         links: ["Video": "https://www.youtube.com/watch?v=AT6zWvOI6_o"]),
     
+    "Stress Ball Squeeze": noteToMarkdown(
+        notes: [
+            "Squeeze a rubber stress ball for either 10 reps or 30s.",
+            "If you're doing Wrist Extension or Flexion then use that arm position."],
+        links: ["Link": "https://www.hip.fit/e/stress-ball-squeeze", "AAoS": "https://orthoinfo.aaos.org/globalassets/pdfs/a00790_therapeutic-exercise-program-for-epicondylitis_final.pdf"]),
+    
     "Sumo Deadlift": noteToMarkdown(
         notes: [
             "Take a wide stance with knees pushed out.",
@@ -2775,6 +2799,46 @@ let defaultNotes: [String: String] = [
             "Slowly raise the dumbbell up as far as it will go.",
             "Bend only at the wrist."],
         links: ["Link": "https://www.muscleandstrength.com/exercises/one-arm-seated-dumbbell-wrist-curl.html"]),
+    
+    "Wrist Extension": noteToMarkdown(
+        notes: [
+            "Sit in a chair with your arm resting on a table or your thigh with your palm facing down.",
+            "To start with use no weight and bend your elbow so that your arm forms a 90 degree angle.",
+            "Bend your wrist downwards 90 degrees and then up as far as you can.",
+            "Hold for a one count and then use a three count to slowly lower the weight back down.",
+            "Keep your forearm in place the entire time.",
+            "Do 30 reps. After you can do 30 reps over two days with no increase in pain increase the weight.",
+            "Once three pounds is OK gradually start straightening your arm out."],
+        links: ["Link": "https://www.saintlukeskc.org/health-library/wrist-extension-strength", "AAoS": "https://orthoinfo.aaos.org/globalassets/pdfs/a00790_therapeutic-exercise-program-for-epicondylitis_final.pdf"]),
+    
+    "Wrist Extension Stretch": noteToMarkdown(
+        notes: [
+            "Extend your arm out with the palm facing down.",
+            "Use your other hand to pull your fingers and palm up and towards your body.",
+            "Don't lock your elbow.",
+            "Hold the stretch for 15s. Repeat 5x.",
+            "Do this up to 4x a day, especially before activities that involve gripping."],
+        links: ["Link": "https://www.topendsports.com/medicine/stretches/wrist-extension.htm", "AAoS": "https://orthoinfo.aaos.org/globalassets/pdfs/a00790_therapeutic-exercise-program-for-epicondylitis_final.pdf"]),
+    
+    "Wrist Flexion": noteToMarkdown(
+        notes: [
+            "Sit in a chair with your arm resting on a table or your thigh with your palm facing up.",
+            "To start with use no weight and bend your elbow so that your arm forms a 90 degree angle.",
+            "Bend your wrist upwards as far as you can.",
+            "Hold for a one count and then use a three count to slowly lower the weight back down.",
+            "Keep your forearm in place the entire time.",
+            "Do 30 reps. After you can do 30 reps over two days with no increase in pain increase the weight.",
+            "Once three pounds is OK gradually start straightening your arm out."],
+        links: ["Link": "https://www.saintlukeskc.org/health-library/wrist-flexion-strength", "AAoS": "https://orthoinfo.aaos.org/globalassets/pdfs/a00790_therapeutic-exercise-program-for-epicondylitis_final.pdf"]),
+    
+    "Wrist Flexion Stretch": noteToMarkdown(
+        notes: [
+            "Extend your arm out with the palm facing down.",
+            "Use your other hand to pull your fingers and palm down and towards your body.",
+            "Don't lock your elbow.",
+            "Hold the stretch for 15s. Repeat 5x.",
+            "Do this up to 4x a day, especially before activities that involve gripping."],
+        links: ["Link": "https://www.topendsports.com/medicine/stretches/wrist-flexion.htm", "AAoS": "https://orthoinfo.aaos.org/globalassets/pdfs/a00790_therapeutic-exercise-program-for-epicondylitis_final.pdf"]),
     
     "Wrist Mobility": noteToMarkdown(
         notes: [

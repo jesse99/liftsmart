@@ -90,15 +90,12 @@ Worked out 35 times.
 3x in the last week, 10x in the last month\
 \
 \
+\'95 Review new notes\
+\'95 Do a commit\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Add golfer\'92s elbow rehab\
-	- add notes for anything missing\
-	- install on phone\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Merge back into master\
+\cf11 \'95 Edit workout name should use cap words\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Get rid of Programs.swift\
-\'95 Work on fixed weight apparatus:\
+\cf11 \'95 Work on fixed weight apparatus:\
 	- probably want to make FixedWeightSet.weights private\
 		` then can keep the weights sorted\
 		` and have methods like findClosestBelow\
@@ -113,24 +110,32 @@ Worked out 35 times.
 		` handle case where have activated set but it was deleted\
 	- somehow support magnets/extra weights\
 		` maybe show this with sections, see https://subscription.packtpub.com/book/mobile/9781838981860/2/ch02lvl1sec23/adding-sections-to-a-list\
-\'95 DurationsView should include weight if it\'92s non-zero\
-	- probably getSubTitle\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Delete workout should have a confirm\
-\'95 Edit workout name should use cap words\
+\cf11 \'95\'a0Support dumbbells\
+\'95 Delete workout should have a confirm\
+\'95 Support workout notes?\
+	- eg elbow rehab is 6-12 weeks\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 DurationsView should include weight if it\'92s non-zero\
+	- probably getSubTitle\
 \'95 ExerciseMaxRepsView.lastReps is problematic\
 	- maybe do something lame and use completed[1]?\
 	- moot if we switch reps picker to use arrows?\
 \'95 EditTextView should show errors\
-\'95 Can replace Either with Result\
-\'95 Should there be a Copy All option for exercises?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Get rid of Programs.swift\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Should there be a Copy All option for exercises?\
 	- would be really nice for moving exercises to a different program\
 \'95 EditRepRanges should use \'93xN\'94 syntax when there are more than 3 identical labels\
 \'95\'a0Don\'92t use 100% for weight labels if every set is 100%\
 \'95\'a0Think about redoing Edit views to use an internal Stateful class\
 	- tho that doesn\'92t really mix well with Binding\
 \'95\'a0Make sure ActionSheet\'92s have the right title\
-\'95 Text views can be combined together with +\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Can replace Either with Result\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
+\cf11 \'95 Text views can be combined together with +\
 	- allows for stuff like bolding or coloring a word\
 	- https://www.hackingwithswift.com/quick-start/swiftui/how-to-combine-text-views-together\
 \'95 Start using isEmptyOrBlank\
@@ -273,7 +278,7 @@ Goals\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f3\b\fs60 \cf11 History Tab
-\fs48 \
+\fs48 \cf11 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\b0 \cf11 should this have a way to see exercises that are not currently used?\
@@ -281,7 +286,7 @@ Goals\
 
 \f3\b\fs60 \cf11 \
 Advise Tab
-\fs48 \
+\fs48 \cf11 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\b0 \cf11 tell them if they are on track?\
@@ -290,7 +295,7 @@ can we make the tab red if advise is pending?\
 
 \f3\b\fs60 \cf11 \
 Settings Tab
-\fs48 \
+\fs48 \cf11 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 
 \f2\b0 \cf11 DoB\
