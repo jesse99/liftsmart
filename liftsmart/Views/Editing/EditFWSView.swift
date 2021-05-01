@@ -67,7 +67,7 @@ struct EditFWSView: View {
                         self.showEditActions = true
                     }
             }
-            .sheet(isPresented: self.$showEdit) {EditTextView(self.display, title: "\(self.name) Weight", content: friendlyWeight(self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]), validator: self.onValidWeight, sender: self.onEditedWeight)}
+            .sheet(isPresented: self.$showEdit) {EditTextView(self.display, title: "\(self.name) Weight", content: friendlyWeight(self.display.fixedWeights[self.originalName]![self.selection!.index]), validator: self.onValidWeight, sender: self.onEditedWeight)}
             Spacer()
             Text(self.display.errMesg).foregroundColor(self.display.errColor).font(.callout)
 
@@ -96,14 +96,14 @@ struct EditFWSView: View {
             } else {
                 return Alert(
                     title: Text("Confirm delete all"),
-                    message: Text("\(self.display.fixedWeights[self.originalName]!.weights.count) weights"),
+                    message: Text("\(self.display.fixedWeights[self.originalName]!.count) weights"),
                     primaryButton: .destructive(Text("Delete")) {self.doDeleteAll()},
                     secondaryButton: .default(Text("Cancel")))
             }}
     }
 
     private func getEntries() -> [ListEntry] {
-        let weights = display.fixedWeights[self.originalName]?.weights ?? []
+        let weights = display.fixedWeights[self.originalName] ?? FixedWeightSet()
         return weights.mapi {ListEntry(friendlyUnitsWeight($1), .black, $0)}
     }
     
@@ -124,7 +124,7 @@ struct EditFWSView: View {
 
     func onValidWeight(_ text: String) -> Action {
         if let newWeight = Double(text) {
-            let originalWeight = self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]
+            let originalWeight = self.display.fixedWeights[self.originalName]![self.selection!.index]
             if abs(newWeight - originalWeight) <= 0.01 {
                 return .ValidateWeight("3435534", "weight") // bit of a hack but we need to clear the error key
             }
@@ -135,7 +135,7 @@ struct EditFWSView: View {
     
     func onEditedWeight(_ text: String) -> Action {
         let newWeight = Double(text)!
-        let originalWeight = self.display.fixedWeights[self.originalName]!.weights[self.selection!.index]
+        let originalWeight = self.display.fixedWeights[self.originalName]![self.selection!.index]
         if abs(newWeight - originalWeight) <= 0.01 {
             return .NoOp
         }
@@ -149,7 +149,7 @@ struct EditFWSView: View {
     }
     
     func doDeleteAll() {
-        self.display.send(.SetFixedWeightSet(self.originalName, []))
+        self.display.send(.SetFixedWeightSet(self.originalName, FixedWeightSet()))
     }
     
     func onDelete() {
@@ -177,7 +177,7 @@ struct EditFWSView: View {
 
     func onOK() {
         if self.name != self.originalName {
-            let weights = self.display.fixedWeights[self.originalName]?.weights ?? []
+            let weights = self.display.fixedWeights[self.originalName] ?? FixedWeightSet()
             self.display.send(.DeleteFixedWeightSet(self.originalName))
             self.display.send(.SetFixedWeightSet(self.name, weights))
         }

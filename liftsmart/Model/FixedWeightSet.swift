@@ -3,8 +3,10 @@
 import Foundation
 
 /// List of arbitrary weights, e.g. for dumbbells or a cable machine.
-class FixedWeightSet: CustomDebugStringConvertible, Storable {
-    var weights: [Double]
+class FixedWeightSet: CustomDebugStringConvertible, Sequence, Storable {
+    init() {
+        self.weights = []
+    }
     
     init(_ weights: [Double]) {
         self.weights = weights
@@ -24,13 +26,44 @@ class FixedWeightSet: CustomDebugStringConvertible, Storable {
     func save(_ store: Store) {
         store.addDblArray("weights", self.weights)
     }
+    
+    // TODO: should have methods like findClosestBelow and findClosestAbove
+    
+    func add(_ weight: Double) {
+        if let index = self.weights.firstIndex(where: {$0 >= weight}) {
+            if self.weights[index] != weight {            // ValidateFixedWeightRange allows overlapping ranges so we need to test for dupes
+                self.weights.insert(weight, at: index)
+            }
+        } else {
+            self.weights.append(weight)
+        }
+    }
+    
+    func remove(at: Int) {
+        self.weights.remove(at: at)
+    }
+    
+    var count: Int {
+        get {return self.weights.count}
+    }
+    
+    // Weights are guaranteed to be sorted.
+    subscript(index: Int) -> Double {
+        get {
+            return self.weights[index]
+        }
+    }
+    
+    func makeIterator() -> Array<Double>.Iterator {
+        return self.weights.makeIterator()
+    }
 
     var debugDescription: String {
         get {
             let limit = 4
             
             var result = ""
-            for i in 0...min(weights.count, limit) {
+            for i in 0...Swift.min(weights.count, limit) {
                 if !result.isEmpty {
                     result += ", "
                 }
@@ -43,4 +76,6 @@ class FixedWeightSet: CustomDebugStringConvertible, Storable {
             return result
         }
     }
+
+    private var weights: [Double]
 }

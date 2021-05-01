@@ -157,7 +157,7 @@ struct EditFWSsView: View {
     }
     
     func onAdded(_ name: String) -> Action {
-        return .SetFixedWeightSet(name, [])
+        return .SetFixedWeightSet(name, FixedWeightSet())
     }
 
     func onCancel() {

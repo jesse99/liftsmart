@@ -53,7 +53,7 @@ enum Action {
     case DeactivateFixedWeightSet(Exercise)
     case DeleteFixedWeight(String, Int)
     case DeleteFixedWeightSet(String)
-    case SetFixedWeightSet(String, [Double])
+    case SetFixedWeightSet(String, FixedWeightSet)
     case ValidateFixedWeight(String, String)
     case ValidateFixedWeightRange(String, String, String)   // first, step, max
     case ValidateFixedWeightSetName(String, String)
@@ -137,8 +137,7 @@ class Display: ObservableObject {
             self.fixedWeights = ["Dumbbells": FixedWeightSet([5, 10, 20, 25, 35]), "Cable machine": FixedWeightSet([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])]
             let names = store.getStrArray("fwsKeys")
             for (i, name) in names.enumerated() {
-                let weights = store.getDblArray("fwsValues-\(i)")
-                self.fixedWeights[name] = FixedWeightSet(weights)
+                self.fixedWeights[name] = store.getObj("fwsWeights-\(i)", ifMissing: FixedWeightSet())
             }
         } else {
             // We'll seed the fixedWeights with something semi-useful and more
@@ -388,7 +387,7 @@ class Display: ObservableObject {
                     return "Weight should be larger than zero"
                 }
                 
-                let weights = self.fixedWeights[name]?.weights ?? []
+                let weights = self.fixedWeights[name] ?? FixedWeightSet()
                 if weights.contains(where: {abs(weight - $0) <= 0.01}) {
                     return "Weight already exists"
                 }
@@ -476,7 +475,7 @@ class Display: ObservableObject {
                 let weights = Array(self.fixedWeights.values)
                 store.addStrArray("fwsKeys", names)
                 for i in 0..<weights.count {
-                    store.addDblArray("fwsValues-\(i)", weights[i].weights)
+                    store.addObj("fwsWeights-\(i)", weights[i])
                 }
 
                 let encoder = JSONEncoder()
@@ -712,13 +711,7 @@ class Display: ObservableObject {
             
             var weight = first
             while weight <= max {
-                if let index = fws.weights.firstIndex(where: {$0 >= weight}) {
-                    if fws.weights[index] != weight {   // ValidateFixedWeightRange allows overlapping ranges so we need to test for dupes
-                        fws.weights.insert(weight, at: index)
-                    }
-                } else {
-                    fws.weights.append(weight)
-                }
+                fws.add(weight)
                 weight += step
             }
             update()
@@ -729,11 +722,7 @@ class Display: ObservableObject {
         case .AddFixedWeight(let name, let weight):
             log(.Debug, "AddFixedWeight name: \(name) weight: \(weight)")
             if let fws = self.fixedWeights[name] {
-                if let index = fws.weights.firstIndex(where: {$0 > weight}) {
-                    fws.weights.insert(weight, at: index)
-                } else {
-                    fws.weights.append(weight)  // ValidateFixedWeight will ensure no dupes
-                }
+                fws.add(weight)
             } else {
                 self.fixedWeights[name] = FixedWeightSet([weight])
             }
@@ -744,7 +733,7 @@ class Display: ObservableObject {
             update()
         case .DeleteFixedWeight(let name, let index):
             log(.Debug, "DeleteFixedWeight name: \(name) index: \(index)")
-            self.fixedWeights[name]?.weights.remove(at: index)
+            self.fixedWeights[name]?.remove(at: index)
             update()
         case .DeleteFixedWeightSet(let name):
             log(.Debug, "DeleteFixedWeightSet name: \(name)")
@@ -752,7 +741,7 @@ class Display: ObservableObject {
             update()
         case .SetFixedWeightSet(let name, let weights):
             log(.Debug, "SetFixedWeightSet name: \(name) weights: \(weights)")
-            fixedWeights[name] = FixedWeightSet(weights)
+            fixedWeights[name] = weights
             update()
         case .ValidateFixedWeight(let name, let weight):
             log(.Debug, "ValidateFixedWeight name: \(name) weight: \(weight)")
