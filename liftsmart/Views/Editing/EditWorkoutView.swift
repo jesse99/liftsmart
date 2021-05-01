@@ -30,6 +30,7 @@ struct EditWorkoutView: View {
                     TextField("", text: self.$name)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
+                        .autocapitalization(.words)
                         .disableAutocorrection(false)
                         .onChange(of: self.name, perform: self.onEditedName)
                 }.padding(.leading)
