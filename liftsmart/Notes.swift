@@ -2804,7 +2804,7 @@ let defaultNotes: [String: String] = [
         notes: [
             "Sit in a chair with your arm resting on a table or your thigh with your palm facing down.",
             "To start with use no weight and bend your elbow so that your arm forms a 90 degree angle.",
-            "Bend your wrist downwards 90 degrees and then up as far as you can.",
+            "Bend your wrist upwards as far as you can.",
             "Hold for a one count and then use a three count to slowly lower the weight back down.",
             "Keep your forearm in place the entire time.",
             "Do 30 reps. After you can do 30 reps over two days with no increase in pain increase the weight.",

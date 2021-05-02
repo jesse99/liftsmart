@@ -85,6 +85,40 @@ class Exercise: Hashable, Identifiable, Storable {
         }
     }
 
+    func getClosest(_ display: Display, _ target: Double) -> Either<String, Double> {
+        switch self.modality.apparatus {
+        case .fixedWeights(name: let name):
+            if let name = name {
+                if let fws = display.fixedWeights[name] {
+                    return .right(fws.getClosest(target))
+                } else {
+                    return .left("There is no fixed weight set named \(name)")
+                }
+            } else {
+                return .left("No fixed weights activated")
+            }
+        default:
+            return .right(target)
+        }
+    }
+    
+    func getClosestBelow(_ display: Display, _ target: Double) -> Either<String, Double> {
+        switch self.modality.apparatus {
+        case .fixedWeights(name: let name):
+            if let name = name {
+                if let fws = display.fixedWeights[name] {
+                    return .right(fws.getClosestBelow(target))
+                } else {
+                    return .left("There is no fixed weight set named \(name)")
+                }
+            } else {
+                return .left("No fixed weights activated")
+            }
+        default:
+            return .right(target)
+        }
+    }
+
     func shouldReset() -> Bool {
         if let current = self.current {
             // 1) If it's been a long time since the user began the exercise then start over.

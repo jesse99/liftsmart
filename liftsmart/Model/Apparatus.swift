@@ -15,11 +15,6 @@ enum Apparatus: Equatable {
     /// This is used for dumbbels, kettlebells, cable machines, etc. Name references a FixedWeights object.
     /// If name is nil then the user hasn't activated a FixedWeight set yet.
     case fixedWeights(name: String?)
-
-    /// In general we want to treat single and paired dumbbells the same (users want to think about the 60 pound dumbbell
-    /// not that they are actually lifting 120 pounds). But for stuff like acheivements we want to know how much they
-    /// actually did lift.
-//    case dumbbells(weights: [Double], magnets: [Double], paired: Bool)
 }
 
 extension Apparatus: Storable {

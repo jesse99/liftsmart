@@ -39,8 +39,9 @@ struct ExerciseRepTargetView: View {
                 Spacer()
             
                 Group {
-                    Text(self.getTitle()).font(.title)        // Set 1
-                    Text(self.getSubTitle()).font(.headline)  // Expecting 10 reps (20 left)
+                    Text(self.getTitle()).font(.title)          // Set 1
+                    Text(self.getSubTitle()).font(.headline)    // Expecting 10 reps (20 left)
+                    Text(self.getSubSubTitle()).font(.headline) // 10 lbs
                     Spacer()
                 }
 
@@ -170,7 +171,8 @@ struct ExerciseRepTargetView: View {
                 self.display.send(.SetSets(self.exercise(), sets))
             }
         default:
-            ASSERT(false, "exercise must use repTarget sets")
+//            ASSERT(false, "exercise must use repTarget sets")
+            break
         }
         self.popView()
     }
@@ -239,6 +241,16 @@ struct ExerciseRepTargetView: View {
         }
     }
 
+    func getSubSubTitle() -> String {
+        let exercise = self.exercise()
+        switch exercise.getClosest(self.display, exercise.expected.weight) {
+        case .right(let weight):
+            return weight >= 0.1 ? friendlyUnitsWeight(weight) : ""
+        case .left(let err):
+            return err
+        }
+    }
+
     func getStartLabel() -> String {
         let target = self.getTarget()
         let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
@@ -259,7 +271,7 @@ struct ExerciseRepTargetView: View {
         case .repTarget(target: let target, rest: _):
             return target
         default:
-            ASSERT(false, "exercise must use repTarget sets")
+//            ASSERT(false, "exercise must use repTarget sets")
             return 0
         }
     }
@@ -269,7 +281,7 @@ struct ExerciseRepTargetView: View {
         case .repTarget(target: _, rest: let rest):
             return rest
         default:
-            ASSERT(false, "exercise must use repTarget sets") 
+//            ASSERT(false, "exercise must use repTarget sets")
             return 0
         }
     }

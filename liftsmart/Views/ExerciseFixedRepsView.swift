@@ -39,7 +39,7 @@ struct ExerciseFixedRepsView: View {
                 
                     Text(self.getSetTitle()).font(.title)         // WorkSet 1 of 3
                     Text(self.getPercentTitle()).font(.headline)  // 75% of 120 lbs
-                    Spacer().frame(height: 25)
+                    Spacer().frame(height: 20)
 
                     Text(self.getRepsTitle()).font(.title)        // 3-5 reps @ 120 lbs
                     Text(self.getPlatesTitle()).font(.headline)   // 25 + 10 + 2.5
@@ -194,13 +194,29 @@ struct ExerciseFixedRepsView: View {
         }
     }
     
+    func getWeightSuffix(_ percent: WeightPercent) -> Either<String, String> {
+        let exercise = self.exercise()
+        let closest = exercise.getClosestBelow(self.display, exercise.expected.weight*percent)
+        switch closest {
+        case .right(let weight):
+            let suffix = percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+            return .right(suffix)
+        case .left(let err):
+            return .left(err)
+        }
+    }
+    
     func getPercentTitle() -> String {
         if !exercise().overridePercent.isEmpty {
             return exercise().overridePercent
         } else if inProgress() {
             let percent = getRepsSet().percent
-            let display = percent.value >= 0.01 && percent.value <= 0.99
-            return display ? "\(percent.label) of \(exercise().expected.weight) lbs" : ""
+            switch self.getWeightSuffix(percent) {
+            case .right(let suffix):
+                return !suffix.isEmpty ? "\(percent.label) of \(exercise().expected.weight) lbs" : ""
+            case .left(let err):
+                return err
+            }
         } else {
             return ""
         }
@@ -209,12 +225,14 @@ struct ExerciseFixedRepsView: View {
     func getRepsTitle() -> String {
         var title = ""
         if inProgress() {
-            let percent = getRepsSet().percent
-            let weight = exercise().expected.weight * percent
-            
             let reps = expected()
-            title = reps == 1 ? "1 rep" : "\(reps) reps"
-            title += percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+            let percent = getRepsSet().percent
+            switch self.getWeightSuffix(percent) {
+            case .right(let suffix):
+                title = (reps == 1 ? "1 rep" : "\(reps) reps") + suffix
+            case .left(_):
+                title = reps == 1 ? "1 rep" : "\(reps) reps"
+            }
         }
         return title
     }

@@ -37,20 +37,23 @@ struct ExerciseDurationsView: View {
                 Text(exercise().name + self.display.edited).font(.largeTitle)   // Burpees
                 Spacer()
             
-                Text(self.getTitle()).font(.title)         // Set 1 of 1
-                Text(self.getSubTitle()).font(.headline)   // 60s
+                Text(self.getTitle()).font(.title)          // Set 1 of 1
+                Text(self.getSubTitle()).font(.headline)    // 60s
+                Text(self.getSubSubTitle()).font(.headline) // 10 lbs
                 Spacer()
 
-                Button(self.getNextLabel(), action: onNext)
-                    .font(.system(size: 40.0))
-                    .sheet(isPresented: self.$startModal, onDismiss: self.onNextCompleted) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(), secondDuration: self.restSecs())}
-                Spacer().frame(height: 50)
+                Group {
+                    Button(self.getNextLabel(), action: onNext)
+                        .font(.system(size: 40.0))
+                        .sheet(isPresented: self.$startModal, onDismiss: self.onNextCompleted) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(), secondDuration: self.restSecs())}
+                    Spacer().frame(height: 50)
 
-                Button("Start Timer", action: onStartTimer)
-                    .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
-                Spacer()
-                Text(self.getNoteLabel()).font(.callout)   // Same previous x3
+                    Button("Start Timer", action: onStartTimer)
+                        .font(.system(size: 20.0))
+                        .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
+                    Spacer()
+                    Text(self.getNoteLabel()).font(.callout)   // Same previous x3
+                }
             }
 
             Divider()
@@ -231,6 +234,16 @@ struct ExerciseDurationsView: View {
         }
     }
     
+    func getSubSubTitle() -> String {
+        let exercise = self.exercise()
+        switch exercise.getClosest(self.display, exercise.expected.weight) {
+        case .right(let weight):
+            return weight >= 0.1 ? friendlyUnitsWeight(weight) : ""
+        case .left(let err):
+            return err
+        }
+    }
+
     func getNextLabel() -> String {
         let durations = self.durations()
         if (exercise().current!.setIndex == durations.count) {

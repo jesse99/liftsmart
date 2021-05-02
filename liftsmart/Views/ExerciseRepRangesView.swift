@@ -349,19 +349,41 @@ struct ExerciseRepRangesView: View {
         }
     }
     
+    func getWeightSuffix(_ percent: WeightPercent) -> Either<String, String> {
+        var closest: Either<String, Double>
+        let exercise = self.exercise()
+
+        switch stage() {
+        case .warmup:
+            closest = exercise.getClosest(self.display, exercise.expected.weight*percent)
+        case .workset:
+            closest = exercise.getClosestBelow(self.display, exercise.expected.weight*percent)
+        case .backoff:
+            closest = exercise.getClosest(self.display, exercise.expected.weight*percent)
+        case .done:
+            return .right("")
+        }
+        
+        switch closest {
+        case .right(let weight):
+            let suffix = percent.value >= 0.01 && weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+            return .right(suffix)
+        case .left(let err):
+            return .left(err)
+        }
+    }
+    
     func getPercentTitle() -> String {
         if !exercise().overridePercent.isEmpty {
             return exercise().overridePercent
         }
         
-        switch stage() {
-        case .done:
-            return ""
-            
-        default:
-            let percent = getRepsSet().percent
-            let suffix = weightSuffix(percent, exercise().expected.weight)
+        let percent = getRepsSet().percent
+        switch self.getWeightSuffix(percent) {
+        case .right(let suffix):
             return !suffix.isEmpty ? "\(percent.label) of \(exercise().expected.weight) lbs" : ""
+        case .left(let err):
+            return err
         }
     }
     
@@ -372,8 +394,12 @@ struct ExerciseRepRangesView: View {
             
         default:
             let percent = getRepsSet().percent
-            let suffix = weightSuffix(percent, exercise().expected.weight)
-            return getRepRange().label + suffix
+            switch self.getWeightSuffix(percent) {
+            case .right(let suffix):
+                return getRepRange().label + suffix
+            case .left(_):
+                return getRepRange().label
+            }
         }
     }
     

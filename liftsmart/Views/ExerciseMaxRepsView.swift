@@ -54,8 +54,8 @@ struct ExerciseMaxRepsView: View {
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
-                                let completed = self.exercise().current!.completed
-                                self.display.send(.SetExpectedReps(self.exercise(), completed))
+                                let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
+                                self.display.send(.SetExpectedReps(self.exercise(), [completed]))
                                 self.popView()}),
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
@@ -222,7 +222,7 @@ struct ExerciseMaxRepsView: View {
     }
     
     func expected() -> Int? {
-        if let expected = exercise().expected.reps.first {
+        if let expected = exercise().expected.reps.first, expected > 0 {
             let restSecs = self.getRestSecs()
             if exercise().current!.setIndex < restSecs.count {
                 let remaining = Double(expected - (self.exercise().current!.completed.first ?? 0))
@@ -248,19 +248,30 @@ struct ExerciseMaxRepsView: View {
         }
     }
     
+    func getWeightSuffix() -> Either<String, String> {
+        let exercise = self.exercise()
+        switch exercise.getClosest(self.display, exercise.expected.weight) {
+        case .right(let weight):
+            let suffix = weight >= 0.1 ? " @ " + friendlyUnitsWeight(weight) : ""
+            return .right(suffix)
+        case .left(let err):
+            return .left(err)
+        }
+    }
+        
     func getSubTitle() -> String {
         if exercise().current!.setIndex >= self.getRestSecs().count {
             return  ""
         } else {
-            var suffix = ""
-            if exercise().expected.weight > 0.0 {
-                suffix = " @ " + friendlyUnitsWeight(exercise().expected.weight)
-            }
-
-            if let target = expected() {
-                return  "\(target)+ reps \(suffix)"
-            } else {
-                return  "AMRAP \(suffix)"
+            switch self.getWeightSuffix() {
+            case .right(let suffix):
+                if let target = expected() {
+                    return  "\(target)+ reps \(suffix)"
+                } else {
+                    return  "AMRAP \(suffix)"
+                }
+            case .left(let err):
+                return err
             }
         }
     }
@@ -284,7 +295,7 @@ struct ExerciseMaxRepsView: View {
             }
 
         } else {
-            if let expected = exercise().expected.reps.first {
+            if let expected = exercise().expected.reps.first, expected > 0 {
                 if exercise().current!.setIndex < restSecs.count {
                     return "Expecting \(expected) total reps"
                 } else {

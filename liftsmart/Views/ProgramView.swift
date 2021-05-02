@@ -325,7 +325,7 @@ func previewDisplay() -> Display {
         }
         
         func squats() -> Exercise {
-            let warmup = RepsSet(reps: RepRange(min: 4, max: 4), percent: WeightPercent(0.0), restSecs: 90)
+            let warmup = RepsSet(reps: RepRange(min: 4, max: 4), percent: WeightPercent(0.1), restSecs: 90)
             let work = RepsSet(reps: RepRange(min: 4, max: 8), restSecs: 3*60)
             let sets = Sets.repRanges(warmups: [warmup], worksets: [work, work, work], backoffs: [])
 //            let modality = Modality(Apparatus.bodyWeight, sets)
