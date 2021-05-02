@@ -69,8 +69,6 @@ struct ExerciseRepRangesView: View {
 
                 Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
-                    .actionSheet(isPresented: $updateRepsDone) {
-                        ActionSheet(title: Text("Reps Completed"), buttons: repsDoneButtons())}
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
@@ -81,7 +79,10 @@ struct ExerciseRepRangesView: View {
                                 self.popView()
                             }))}
                     .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
-                
+                    .sheet(isPresented: $updateRepsDone) {
+                        RepsPickerView(initial: self.expected(), dismissed: self.onRepsPressed)
+                    }
+
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
@@ -122,32 +123,6 @@ struct ExerciseRepRangesView: View {
         return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
     }
 
-    func repsDoneButtons() -> [ActionSheet.Button] {
-        var buttons: [ActionSheet.Button] = []
-        
-        let range = getRepRange()
-        let expect = expected()
-        if let max = range.max {
-            for reps in Swift.max(range.min - 6, 0)...max {
-                let str = reps == expect ? "•• \(reps) Reps ••" : "\(reps) Reps"
-                let text = Text(str)
-                
-                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
-            }
-        } else {
-            for reps in max(range.min - 3, 0)...max(range.min + 3, 0) {
-                let str = reps == expect ? "•• \(reps) Reps ••" : "\(reps) Reps"
-                let text = Text(str)
-                
-                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
-            }
-        }
-        
-        buttons.append(.cancel(Text("Cancel"), action: {}))
-
-        return buttons
-    }
-    
     func onRepsPressed(_ reps: Int) {
         let percent = getRepsSet().percent
         self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", percent.value))
@@ -263,6 +238,9 @@ struct ExerciseRepRangesView: View {
     
     private func getRepsSet(_ delta: Int = 0) -> RepsSet {
         var i = self.exercise().current!.setIndex + delta
+        if i < 0 {
+            i = 0
+        }
 
         let (warmups, worksets, backoffs) = self.getSets()
         if i < warmups.count {

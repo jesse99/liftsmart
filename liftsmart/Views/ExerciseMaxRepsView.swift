@@ -49,8 +49,6 @@ struct ExerciseMaxRepsView: View {
 
                 Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
-                    .actionSheet(isPresented: $updateRepsDone) {
-                        ActionSheet(title: Text("Reps Completed"), buttons: repsDoneButtons())}
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
@@ -61,7 +59,11 @@ struct ExerciseMaxRepsView: View {
                                 self.popView()
                             }))}
                     .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
-                
+                    .sheet(isPresented: $updateRepsDone) {
+                        let expected = self.expected() ?? 1
+                        RepsPickerView(initial: expected, dismissed: self.onRepsPressed)
+                    }
+
                 Spacer().frame(height: 50)
 
                 Button("Start Timer", action: onStartTimer)
@@ -102,39 +104,6 @@ struct ExerciseMaxRepsView: View {
         return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
     }
 
-    func repsDoneButtons() -> [ActionSheet.Button] {
-        var buttons: [ActionSheet.Button] = []
-                
-        if let last = self.lastReps {
-            let delta = 12  // we'll show +/- this many reps versus expected
-            let target = expected() ?? 0
-            for reps in max(last - delta, 1)...(last + 2) {
-                // TODO: better to use bold() or underline() but they don't do anything
-                let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
-                let text = Text(str)
-                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
-            }
-
-        } else if let target = expected() {
-            let delta = 10
-            for reps in max(target - delta, 1)...(target + delta) {
-                let str = reps == target ? "•• \(reps) Reps ••" : "\(reps) Reps"
-                let text = Text(str)
-                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
-            }
-            
-        } else {
-            for reps in 1...40 {
-                let text = Text("\(reps) Reps")
-                buttons.append(.default(text, action: {() -> Void in self.onRepsPressed(reps)}))
-            }
-        }
-        
-        buttons.append(.cancel(Text("Cancel"), action: {}))
-
-        return buttons
-    }
-    
     func onRepsPressed(_ reps: Int) {
         self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", nil))
         self.startTimer = startDuration(-1) > 0

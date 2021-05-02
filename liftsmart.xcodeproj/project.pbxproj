@@ -21,6 +21,7 @@
 		37412F592482426D00FA78A7 /* ExerciseDurationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */; };
 		37412F5B2482D5C400FA78A7 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37412F5A2482D5C400FA78A7 /* WorkoutView.swift */; };
 		37455C0024AB07B200C26AD0 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37455BFF24AB07B200C26AD0 /* HistoryView.swift */; };
+		3747385B263F1D54003EACEB /* RepsPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3747385A263F1D54003EACEB /* RepsPickerView.swift */; };
 		374896D5254F31C60030D7B2 /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374896D4254F31C60030D7B2 /* PickerView.swift */; };
 		374896E92550E1E70030D7B2 /* EditDurationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374896E82550E1E70030D7B2 /* EditDurationsView.swift */; };
 		374F97DD248C25A50062EE0B /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374F97DC248C25A50062EE0B /* DateExtension.swift */; };
@@ -100,6 +101,7 @@
 		37412F582482426D00FA78A7 /* ExerciseDurationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDurationsView.swift; sourceTree = "<group>"; };
 		37412F5A2482D5C400FA78A7 /* WorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
 		37455BFF24AB07B200C26AD0 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		3747385A263F1D54003EACEB /* RepsPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepsPickerView.swift; sourceTree = "<group>"; };
 		374896D4254F31C60030D7B2 /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		374896E82550E1E70030D7B2 /* EditDurationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDurationsView.swift; sourceTree = "<group>"; };
 		374F97DC248C25A50062EE0B /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
@@ -257,6 +259,7 @@
 				374896D4254F31C60030D7B2 /* PickerView.swift */,
 				378D567324830271006A041C /* ProgramView.swift */,
 				376E9C55262BC546007BBB50 /* ProgramsView.swift */,
+				3747385A263F1D54003EACEB /* RepsPickerView.swift */,
 				378D567524842C95006A041C /* TimerView.swift */,
 				37412F5A2482D5C400FA78A7 /* WorkoutView.swift */,
 			);
@@ -467,6 +470,7 @@
 				37D0F8E62516C6A7000FAAC7 /* Either.swift in Sources */,
 				372D2233249E8D1B0024C8F3 /* Store.swift in Sources */,
 				37FB6E8324687A6B00EB4916 /* Sets.swift in Sources */,
+				3747385B263F1D54003EACEB /* RepsPickerView.swift in Sources */,
 				37FB6E8B246B52ED00EB4916 /* Program.swift in Sources */,
 				376987BF244B95D30021D0FB /* AppDelegate.swift in Sources */,
 				37DE5532263B835000473C53 /* Asserts.swift in Sources */,
