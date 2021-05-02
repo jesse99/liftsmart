@@ -111,7 +111,7 @@ struct EditExerciseView: View {
 
         self._name = State(initialValue: exercise.name)
         self._formalName = State(initialValue: exercise.formalName.isEmpty ? "none" : exercise.formalName)
-        self._weight = State(initialValue: String(format: "%.3f", exercise.expected.weight))
+        self._weight = State(initialValue: friendlyWeight(exercise.expected.weight))
         self._sets = State(initialValue: exercise.modality.sets)
         self._expectedReps = State(initialValue: exercise.expected.reps)
 

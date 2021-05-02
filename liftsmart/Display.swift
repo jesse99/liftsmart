@@ -518,7 +518,7 @@ class Display: ObservableObject {
                 }
             }
             
-            log(.Info, "Saving state")
+            log(.Debug, "Saving state")
             let fname = saveCurentProgram()
             let app = UIApplication.shared.delegate as! AppDelegate
             app.storeObject(self.program, to: fname)
