@@ -40,8 +40,8 @@ struct WorkoutEntry: Identifiable {
             let min = getExpectedReps(index) ?? sets.reps.reps
             let max = sets.reps.reps
             let reps = RepRange(min: min, max: max)
-            let set = RepsSet(reps: reps, percent: sets.percent, restSecs: sets.restSecs)
-            let suffix = weightSuffix(sets.percent, exercise.expected.weight)
+            let set = RepsSet(reps: reps, restSecs: sets.restSecs)
+            let suffix = weightSuffix(WeightPercent(1.0), exercise.expected.weight)
             if !suffix.isEmpty {
                 return set.reps.editable + suffix   // 3x5 @ 120 lbs
             } else {

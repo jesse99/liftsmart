@@ -29,13 +29,13 @@ func getApparatusLabel(_ apparatus: Apparatus) -> String {
 func getSetsHelp(_ sets: Sets) -> String {
     switch sets {
     case .durations(_, targetSecs: _):
-        return "Fixed number of sets where each set is done for a time interval."
+        return "Each set is done for a time interval."
     case .fixedReps(_):
-        return "Fixed number of sets where each set has a fixed number of reps."
+        return "Sets and reps are both fixed. No support for weight percentages."
     case .maxReps(restSecs: _, targetReps: _):
-        return "Fixed number of sets doing as many reps as possible for each set."
+        return "As many reps as possible for each set."
     case .repRanges(warmups: _, worksets: _, backoffs: _):
-        return "Fixed number of sets where each set has a min and max number of reps with optional warmup and backoff sets."
+        return "Has optional warmup and backoff sets. Reps are within a specified range and weight percentages can be used."
     case .repTarget(target: _, rest: _):
         return "As many sets as required to do target reps."
     }

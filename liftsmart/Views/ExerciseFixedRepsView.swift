@@ -38,7 +38,6 @@ struct ExerciseFixedRepsView: View {
                     Spacer()
                 
                     Text(self.getSetTitle()).font(.title)         // WorkSet 1 of 3
-                    Text(self.getPercentTitle()).font(.headline)  // 75% of 120 lbs
                     Spacer().frame(height: 20)
 
                     Text(self.getRepsTitle()).font(.title)        // 3-5 reps @ 120 lbs
@@ -106,8 +105,7 @@ struct ExerciseFixedRepsView: View {
 
     func updateReps() {
         let reps = expected()
-        let percent = getRepsSet().percent
-        self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", percent.value))
+        self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", 1.0))
 
         self.startTimer = startDuration(-1) > 0
         let completed = self.exercise().current!.completed + [reps]
@@ -206,28 +204,11 @@ struct ExerciseFixedRepsView: View {
         }
     }
     
-    func getPercentTitle() -> String {
-        if !exercise().overridePercent.isEmpty {
-            return exercise().overridePercent
-        } else if inProgress() {
-            let percent = getRepsSet().percent
-            switch self.getWeightSuffix(percent) {
-            case .right(let suffix):
-                return !suffix.isEmpty ? "\(percent.label) of \(exercise().expected.weight) lbs" : ""
-            case .left(let err):
-                return err
-            }
-        } else {
-            return ""
-        }
-    }
-    
     func getRepsTitle() -> String {
         var title = ""
         if inProgress() {
             let reps = expected()
-            let percent = getRepsSet().percent
-            switch self.getWeightSuffix(percent) {
+            switch self.getWeightSuffix(WeightPercent(1.0)) {
             case .right(let suffix):
                 title = (reps == 1 ? "1 rep" : "\(reps) reps") + suffix
             case .left(_):
