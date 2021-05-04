@@ -388,7 +388,7 @@ class Display: ObservableObject {
                 }
                 
                 let weights = self.fixedWeights[name] ?? FixedWeightSet()
-                if weights.contains(where: {abs(weight - $0) <= 0.01}) {
+                if weights.weights.contains(where: {abs(weight - $0) <= 0.01}) {
                     return "Weight already exists"
                 }
             } else {
@@ -711,7 +711,7 @@ class Display: ObservableObject {
             
             var weight = first
             while weight <= max {
-                fws.add(weight)
+                fws.weights.add(weight)
                 weight += step
             }
             update()
@@ -722,7 +722,7 @@ class Display: ObservableObject {
         case .AddFixedWeight(let name, let weight):
             log(.Debug, "AddFixedWeight name: \(name) weight: \(weight)")
             if let fws = self.fixedWeights[name] {
-                fws.add(weight)
+                fws.weights.add(weight)
             } else {
                 self.fixedWeights[name] = FixedWeightSet([weight])
             }
@@ -733,7 +733,7 @@ class Display: ObservableObject {
             update()
         case .DeleteFixedWeight(let name, let index):
             log(.Debug, "DeleteFixedWeight name: \(name) index: \(index)")
-            self.fixedWeights[name]?.remove(at: index)
+            self.fixedWeights[name]?.weights.remove(at: index)
             update()
         case .DeleteFixedWeightSet(let name):
             log(.Debug, "DeleteFixedWeightSet name: \(name)")
