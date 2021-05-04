@@ -2,23 +2,23 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+// Note that, in general, we can only report what the user has done because he may do something
+// different then what we think he should.
 func getPreviouslabel(_ display: Display, _ workout: Workout, _ exercise: Exercise) -> String {
+    let records = display.history.exercise(workout, exercise).reversed()
+    guard let text = records.first?.label, !text.isEmpty else {
+        return ""
+    }
+    
     var count = 0
-    var actual = ""
-    for record in display.history.exercise(workout, exercise).reversed() {
-        if actual.isEmpty {
-            if record.label.isEmpty {
-                break
-            }
-            actual = record.label
-            count = 1
-        } else if record.label == actual {
+    for record in records {
+        if record.label == text {
             count += 1
         } else {
             break
         }
     }
-    return count > 0 ? "Done this \(count)x" : ""
+    return "Did \(text) \(count)x"
 }
 
 struct ExerciseRepRangesView: View {
