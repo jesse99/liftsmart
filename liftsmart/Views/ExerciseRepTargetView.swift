@@ -52,7 +52,6 @@ struct ExerciseRepTargetView: View {
                         Alert(title: Text("Do you want to updated expected reps?"),
                             primaryButton:   .default(Text("Yes"), action: self.onUpdateExpected),
                             secondaryButton: .default(Text("No"),  action: self.popView))}
-                    .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
                     .sheet(isPresented: $updateRepsDone) {
                         let expected = self.exercise().expected.reps.at(exercise().current!.setIndex) ?? 1
                         RepsPickerView(initial: expected, min: 1, dismissed: self.onRepsPressed)
@@ -65,6 +64,7 @@ struct ExerciseRepTargetView: View {
                     .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
+                    .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
             }
 
             Divider()

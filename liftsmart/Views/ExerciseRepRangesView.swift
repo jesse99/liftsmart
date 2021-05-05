@@ -78,7 +78,6 @@ struct ExerciseRepRangesView: View {
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
                             }))}
-                    .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
                     .sheet(isPresented: $updateRepsDone) {
                         RepsPickerView(initial: self.expected(), dismissed: self.onRepsPressed)
                     }
@@ -90,6 +89,7 @@ struct ExerciseRepRangesView: View {
                     .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
+                    .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
             }
 
             Divider()
@@ -128,6 +128,7 @@ struct ExerciseRepRangesView: View {
         self.display.send(.AppendCurrent(self.exercise(), "\(reps) reps", percent.value))
 
         self.startTimer = startDuration(-1) > 0
+        print("repsPressed self.startTimer: \(self.startTimer)")
 
         let completed = self.exercise().current!.completed + [reps]
         self.display.send(.SetCompleted(self.exercise(), completed))
@@ -190,6 +191,7 @@ struct ExerciseRepRangesView: View {
         case .warmup:
             self.display.send(.AdvanceCurrent(self.exercise()))
             self.startTimer = startDuration(-1) > 0
+            print("warmup self.startTimer: \(self.startTimer)")
 
             let count = self.exercise().modality.sets.numSets()!
             self.underway = count > 1 && exercise().current!.setIndex > 0

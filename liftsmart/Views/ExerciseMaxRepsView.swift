@@ -58,7 +58,6 @@ struct ExerciseMaxRepsView: View {
                             secondaryButton: .default(Text("No"), action: {
                                 self.popView()
                             }))}
-                    .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
                     .sheet(isPresented: $updateRepsDone) {
                         let expected = self.expected() ?? 1
                         RepsPickerView(initial: expected, dismissed: self.onRepsPressed)
@@ -71,6 +70,7 @@ struct ExerciseMaxRepsView: View {
                     .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
+                    .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
             }
 
             Divider()
