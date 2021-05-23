@@ -47,13 +47,16 @@ enum Action {
     case ValidateRepRanges(String, String, String, String?) // reps, percent, rest, expected
     
     // Fixed Weights
+    case AddExtraWeight(String, Double)
     case AddFixedWeightRange(String, Double, Double, Double)   // fws name, first, step, max
     case ActivateFixedWeightSet(String, Exercise)
     case AddFixedWeight(String, Double)
     case DeactivateFixedWeightSet(Exercise)
+    case DeleteExtraWeight(String, Int)
     case DeleteFixedWeight(String, Int)
     case DeleteFixedWeightSet(String)
     case SetFixedWeightSet(String, FixedWeightSet)
+    case ValidateExtraWeight(String, String)
     case ValidateFixedWeight(String, String)
     case ValidateFixedWeightRange(String, String, String)   // first, step, max
     case ValidateFixedWeightSetName(String, String)
@@ -379,6 +382,23 @@ class Display: ObservableObject {
                     return err
                 }
             }
+        }
+        
+        func checkExtraWeight(_ name: String, _ str: String) -> String? {
+            if let weight = Double(str) {
+                if weight <= 0.0 {
+                    return "Weight should be larger than zero"
+                }
+                
+                let weights = self.fixedWeights[name] ?? FixedWeightSet()
+                if weights.extra.contains(where: {abs(weight - $0) <= 0.01}) {
+                    return "Weight already exists"
+                }
+            } else {
+                return "Weight should be a floating point number"
+            }
+            
+            return nil
         }
         
         func checkFixedWeight(_ name: String, _ str: String) -> String? {
@@ -719,6 +739,14 @@ class Display: ObservableObject {
             log(.Debug, "ValidateRest name: \(name) exercise: \(exercise.name)")
             exercise.modality.apparatus = .fixedWeights(name: name)
             update()
+        case .AddExtraWeight(let name, let weight):
+            log(.Debug, "AddExtraWeight name: \(name) weight: \(weight)")
+            if let fws = self.fixedWeights[name] {
+                fws.extra.add(weight)
+            } else {
+                self.fixedWeights[name] = FixedWeightSet([], extra: [weight])
+            }
+            update()
         case .AddFixedWeight(let name, let weight):
             log(.Debug, "AddFixedWeight name: \(name) weight: \(weight)")
             if let fws = self.fixedWeights[name] {
@@ -730,6 +758,10 @@ class Display: ObservableObject {
         case .DeactivateFixedWeightSet(let exercise):
             log(.Debug, "DeactivateFixedWeightSet \(exercise.name)")
             exercise.modality.apparatus = .fixedWeights(name: nil)
+            update()
+        case .DeleteExtraWeight(let name, let index):
+            log(.Debug, "DeleteExtraWeight name: \(name) index: \(index)")
+            self.fixedWeights[name]?.extra.remove(at: index)
             update()
         case .DeleteFixedWeight(let name, let index):
             log(.Debug, "DeleteFixedWeight name: \(name) index: \(index)")
@@ -743,6 +775,13 @@ class Display: ObservableObject {
             log(.Debug, "SetFixedWeightSet name: \(name) weights: \(weights)")
             fixedWeights[name] = weights
             update()
+        case .ValidateExtraWeight(let name, let weight):
+            log(.Debug, "ValidateExtraWeight name: \(name) weight: \(weight)")
+            if let err = checkExtraWeight(name, weight) {
+                errors!.add(key: "set extra weight", error: err)
+            } else {
+                errors!.reset(key: "set extra weight")
+            }
         case .ValidateFixedWeight(let name, let weight):
             log(.Debug, "ValidateFixedWeight name: \(name) weight: \(weight)")
             if let err = checkFixedWeight(name, weight) {
