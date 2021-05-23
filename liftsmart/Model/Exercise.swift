@@ -119,6 +119,19 @@ class Exercise: Hashable, Identifiable, Storable {
         }
     }
 
+    func advanceWeight(_ display: Display) -> Double? {
+        switch self.modality.apparatus {
+        case .bodyWeight:
+            return nil
+            
+        case .fixedWeights(name: let name):
+            if let name = name, let fws = display.fixedWeights[name] {
+                return fws.getClosestAbove(self.expected.weight)
+            }
+            return nil
+        }
+    }
+
     func shouldReset() -> Bool {
         if let current = self.current {
             // 1) If it's been a long time since the user began the exercise then start over.

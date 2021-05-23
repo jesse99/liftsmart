@@ -31,6 +31,7 @@ struct ExerciseRepRangesView: View {
     @State var noteModal = false
     @State var editModal = false
     @State var updateExpected = false
+    @State var advanceWeight = false
     @State var updateRepsDone = false
     @State var underway: Bool
     @ObservedObject var display: Display
@@ -71,18 +72,19 @@ struct ExerciseRepRangesView: View {
                     .font(.system(size: 40.0))
                     .alert(isPresented: $updateExpected) { () -> Alert in
                         Alert(title: Text("Do you want to updated expected reps?"),
-                            primaryButton: .default(Text("Yes"), action: {
-                                let completed = self.exercise().current!.completed
-                                self.display.send(.SetExpectedReps(self.exercise(), completed))
-                                self.popView()}),
-                            secondaryButton: .default(Text("No"), action: {
-                                self.popView()
-                            }))}
+                            primaryButton: .default(Text("Yes"), action: {self.doAdvanceReps()}),
+                            secondaryButton: .default(Text("No"), action: {self.popView()})
+                        )}
                     .sheet(isPresented: $updateRepsDone) {
                         RepsPickerView(initial: self.expected(), dismissed: self.onRepsPressed)
                     }
 
                 Spacer().frame(height: 50)
+                    .alert(isPresented: $advanceWeight) { () -> Alert in
+                        Alert(title: Text("Do you want to advance the weight?"),
+                            primaryButton: .default(Text("Yes"), action: {self.doAdvanceWeight()}),
+                            secondaryButton: .default(Text("No"), action: {self.popView()})
+                        )}
 
                 Button("Start Timer", action: onStartTimer)
                     .font(.system(size: 20.0))
@@ -204,10 +206,62 @@ struct ExerciseRepRangesView: View {
                 self.updateRepsDone = false
                 self.startTimer = false
                 self.updateExpected = true
+                
+            } else if self.canAdvanceWeight() {
+                self.updateRepsDone = false
+                self.startTimer = false
+                self.advanceWeight = true
 
             } else {
                 self.popView()
             }
+        }
+    }
+    
+    private func doAdvanceWeight() {
+        let weight = self.exercise().advanceWeight(self.display)!
+        self.display.send(.SetExpectedWeight(self.exercise(), weight))
+        
+        let (_, worksets, _) = self.getSets()
+        let reps = worksets.map({$0.reps.min})
+        self.display.send(.SetExpectedReps(self.exercise(), reps))
+        
+        self.popView()
+    }
+    
+    private func canAdvanceWeight() -> Bool {
+        let completed = self.exercise().current!.completed
+        let (_, worksets, _) = self.getSets()
+        if self.exercise().advanceWeight(self.display) != nil && completed.count >= worksets.count {
+            for i in 0..<worksets.count {
+                if let maxReps = worksets[i].reps.max {
+                    if completed[i] < maxReps {
+                        return false
+                    }
+                } else {
+                    return false    // set is min to inf
+                }
+            }
+            return true
+        }
+        
+        return false
+    }
+    
+    private func doAdvanceReps() {
+        let completed = self.exercise().current!.completed
+        self.display.send(.SetExpectedReps(self.exercise(), completed))
+        
+        if canAdvanceWeight() {
+            self.updateExpected = false
+            
+            // Swiftui doesn't seem to like back to back alerts so we wait a bit
+            // before showing the second one.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.advanceWeight = true
+            }
+        } else {
+            self.popView()
         }
     }
     
