@@ -48,7 +48,8 @@ class liftsmartTests: XCTestCase {
         display = Display(program, history)
         
         resetDate() // sun week 1
-//        printDate(date)
+        let epoch = overrideNow!
+        printDate(epoch)
         XCTAssertEqual(actual(), "Upper/tomorrow/blue••Lower/in 11 days/black••Rest/in 14 days/black")
 
         advanceTo(.monday) // week 1
@@ -66,9 +67,15 @@ class liftsmartTests: XCTestCase {
         advanceTo(.thursday) // week 2
         XCTAssertEqual(actual(), "Upper/in 11 days/black••Lower/today/red••Rest/in 3 days/black")
 
-        // TODO: fix assert
-        // TODO: would be nice to advance to a particular week day
-        // TODO: probably want to just complete each exercise (could skip one or two)
+        advanceTo(.saturday) // week 2
+        XCTAssertEqual(actual(), "Upper/in 9 days/black••Lower/in 19 days/black••Rest/tomorrow/blue")
+
+        advanceTo(.sunday) // week 3
+        XCTAssertEqual(actual(), "Upper/in 8 days/black••Lower/in 18 days/black••Rest/today/orange")
+
+        advanceTo(.monday) // week 3
+        XCTAssertEqual(actual(), "Upper/in 7 days/black••Lower/in 17 days/black••Rest/today/orange")
+
         // TODO: may want a few more intermediate days
         
         // TODO: what happens if complete week 2 workout first?
@@ -112,16 +119,19 @@ class liftsmartTests: XCTestCase {
             overrideNow = Calendar.current.date(byAdding: .day, value: 1, to: overrideNow!)!
             let weekday = Calendar.current.component(.weekday, from: overrideNow!)  // 1 based, sunday is first
             if weekday - 1 == day.rawValue {
-//                printDate(overrideNow!)
+                printDate(overrideNow!)
                 break
             }
         }
     }
     
     private func printDate(_ date: Date) {
-        let dateFormatterPrint = DateFormatter()
-        dateFormatterPrint.dateFormat = "EEEE, MMM d, yyyy"
-        print(dateFormatterPrint.string(from: date))
+//        let dateFormatterPrint = DateFormatter()
+//        dateFormatterPrint.dateFormat = "EEEE, MMM d, yyyy"
+//
+//        let time = dateFormatterPrint.string(from: date)
+//        let week = Calendar.current.component(.weekOfYear, from: overrideNow!)
+//        print("\(time) week=\(week)")
     }
 
     private struct Label: CustomStringConvertible {

@@ -36,8 +36,9 @@ extension Date {
 
 fileprivate func weeksBetween(from: Date, to: Date) -> Int {
     ASSERT_EQ(from.compare(to), .orderedAscending)
-    let calendar = Calendar.current
-    return calendar.dateComponents([.weekOfYear], from: from, to: to).weekOfYear ?? 0 // TODO: this might break down when new years start, need to special case where weeks are descending
+    let fromWeek = Calendar.current.component(.weekOfYear, from: from)
+    let toWeek = Calendar.current.component(.weekOfYear, from: to)
+    return toWeek - fromWeek
 }
 
 // blockStart is an arbitrary week within week 1.
@@ -47,7 +48,8 @@ fileprivate func weeksBetween(from: Date, to: Date) -> Int {
 func currentWeek(blockStart: Date, currentDate: Date, numWeeks: Int) -> Int {
     ASSERT_EQ(blockStart.compare(currentDate), .orderedAscending)
     let weeks = weeksBetween(from: blockStart, to: currentDate)
-    return (weeks % numWeeks) + 1
+    let week = (weeks % numWeeks) + 1
+    return week
 }
 
 // Weeks are the normal 1-based week indexes.

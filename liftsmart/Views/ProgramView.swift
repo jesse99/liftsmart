@@ -178,11 +178,7 @@ func initSubLabels(_ display: Display, _ completions: [ExerciseCompletions], _ e
 
         // If the workout can be performed on any day (including days on which other workouts are scheduled),
         } else if isAnyDay(entry.workout.days) && thisWeek {
-            if completion.latest != nil {
-                entry.subLabel = "today"
-            } else {
-                entry.subLabel = "never started"
-            }
+            entry.subLabel = "today"
             entry.subColor = .orange
 
         // If the workout is scheduled for today,

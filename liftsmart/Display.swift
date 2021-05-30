@@ -818,6 +818,11 @@ class Display: ObservableObject {
                 let delta = workout.weeks.first! - 1
                 let date = Calendar.current.date(byAdding: .weekOfYear, value: -delta, to: now())
                 self.program.blockStart = date
+                if let d = date {
+                    print("setting blockStart to week \(Calendar.current.component(.weekOfYear, from: d))")
+                } else {
+                    print("failed setting blockStart to week")
+                }
             }
             saveState()     // most state changes happen via edit views so confirm takes care of the save, but this one is different
             update()
@@ -877,10 +882,12 @@ class Display: ObservableObject {
         case .SetCurrentWeek(let week):
             log(.Debug, "SetCurrentWeek week: \(String(describing: week))")
             if let w = week {
-                self.program.blockStart = Calendar.current.date(byAdding: .weekOfYear, value: -(w - 1), to: Date())
+                self.program.blockStart = Calendar.current.date(byAdding: .weekOfYear, value: -(w - 1), to: now())
+                print("setting blockStart to week \(Calendar.current.component(.weekOfYear, from: now()))")
 //                log(.Info, "Current week is now \(self.program.currentWeek()!)")    // may not be week (depending on that and numWeeks)
             } else {
                 self.program.blockStart = nil
+                print("setting blockStart to nil")
             }
             update()
         case .ValidateCurrentWeek(let text):
