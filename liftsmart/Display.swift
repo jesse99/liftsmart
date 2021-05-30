@@ -4,6 +4,12 @@ import Foundation
 import struct SwiftUI.Color // note that, in general, Display should not depend on view stuff
 import class SwiftUI.UIApplication
 
+var overrideNow: Date? = nil
+
+func now() -> Date {
+    return overrideNow ?? Date()
+}
+
 func newExerciseName(_ workout: Workout, _ name: String) -> String {
     let count = workout.exercises.count({$0.name.starts(with: name)})
     if count == 0 {
@@ -810,7 +816,7 @@ class Display: ObservableObject {
             self.history.append(workout, exercise)
             if !workout.weeks.isEmpty && self.program.blockStart == nil {
                 let delta = workout.weeks.first! - 1
-                let date = Calendar.current.date(byAdding: .weekOfYear, value: -delta, to: Date())
+                let date = Calendar.current.date(byAdding: .weekOfYear, value: -delta, to: now())
                 self.program.blockStart = date
             }
             saveState()     // most state changes happen via edit views so confirm takes care of the save, but this one is different

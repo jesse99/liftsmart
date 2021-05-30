@@ -19,10 +19,10 @@ class liftsmartTests: XCTestCase {
         history = History()
         display = Display(program, history)
         
-        date = epoch() // sun, mon, tues, wed, thurs
+        resetDate() // sun, mon, tues, wed, thurs
         XCTAssertEqual(actual(), "Upper/tomorrow/blue••Lower/in 4 days/black")
 
-        addDays(1) // mon, tues, wed, thurs
+        advanceTo(.monday) // mon, tues, wed, thurs
         XCTAssertEqual(actual(), "Upper/today/red••Lower/in 3 days/black")
 
         complete("Upper", "Curls")
@@ -47,16 +47,30 @@ class liftsmartTests: XCTestCase {
         history = History()
         display = Display(program, history)
         
-        date = epoch() // sun
+        resetDate() // sun week 1
+//        printDate(date)
         XCTAssertEqual(actual(), "Upper/tomorrow/blue••Lower/in 11 days/black••Rest/in 14 days/black")
 
-        addDays(1) // mon
+        advanceTo(.monday) // week 1
         XCTAssertEqual(actual(), "Upper/today/red••Lower/in 10 days/black••Rest/in 13 days/black")
 
         complete("Upper", "Curls")
         XCTAssertEqual(actual(), "Upper/completed/black••Lower/in 10 days/black••Rest/in 13 days/black")
         
+        advanceTo(.friday) // week 1
+        XCTAssertEqual(actual(), "Upper/today/red••Lower/in 6 days/black••Rest/in 9 days/black")
+
+        complete("Upper", "Curls")
+        XCTAssertEqual(actual(), "Upper/completed/black••Lower/in 6 days/black••Rest/in 9 days/black")
+
+        advanceTo(.thursday) // week 2
+        XCTAssertEqual(actual(), "Upper/in 11 days/black••Lower/today/red••Rest/in 3 days/black")
+
+        // TODO: fix assert
+        // TODO: would be nice to advance to a particular week day
         // TODO: probably want to just complete each exercise (could skip one or two)
+        // TODO: may want a few more intermediate days
+        
         // TODO: what happens if complete week 2 workout first?
         // TODO: what happens if we do week 2 and then week 1?
         // TODO: what if there is no week 1?
@@ -80,19 +94,34 @@ class liftsmartTests: XCTestCase {
         let workout = program.workouts.first(where: {$0.name == workoutName})!
         let exercise = workout.exercises.first(where: {$0.name == exerciseName})!
         exercise.current = Current(weight: 0.0)
-        exercise.current!.startDate = date
-        history.append(workout, exercise)
+        exercise.current!.startDate = overrideNow!
+
+        display.send(.AppendHistory(workout, exercise))
+        overrideNow = Calendar.current.date(byAdding: .minute, value: 1, to: overrideNow!)!  // make sure time has advanced a little bit
     }
     
     // For the sake of consistency we'll start all dates from this point.
-    private func epoch() -> Date {
+    private func resetDate() {
         let calendar = Calendar.current
         let components = DateComponents(calendar: calendar, year: 2021, month: 5, day: 2)   // sunday
-        return calendar.date(from: components)!
+        overrideNow = calendar.date(from: components)!
     }
     
-    private func addDays(_ count: Int) {
-        date = Calendar.current.date(byAdding: .day, value: count, to: date)!
+    private func advanceTo(_ day: WeekDay) {
+        while true {
+            overrideNow = Calendar.current.date(byAdding: .day, value: 1, to: overrideNow!)!
+            let weekday = Calendar.current.component(.weekday, from: overrideNow!)  // 1 based, sunday is first
+            if weekday - 1 == day.rawValue {
+//                printDate(overrideNow!)
+                break
+            }
+        }
+    }
+    
+    private func printDate(_ date: Date) {
+        let dateFormatterPrint = DateFormatter()
+        dateFormatterPrint.dateFormat = "EEEE, MMM d, yyyy"
+        print(dateFormatterPrint.string(from: date))
     }
 
     private struct Label: CustomStringConvertible {
@@ -113,7 +142,7 @@ class liftsmartTests: XCTestCase {
 
     private func actual() -> String {
         let (entries2, completions) = initEntries(display)
-        let entries = initSubLabels(display, completions, entries2, date)
+        let entries = initSubLabels(display, completions, entries2)
         let labels = entries.map({Label($0.workout.name, $0.subLabel, $0.subColor).description})
         return labels.joined(separator: "••")
     }
@@ -121,5 +150,4 @@ class liftsmartTests: XCTestCase {
     private var program: Program!
     private var history: History!
     private var display: Display!
-    private var date: Date!
 }
