@@ -59,6 +59,8 @@ class liftsmartTests: XCTestCase {
         // TODO: probably want to just complete each exercise (could skip one or two)
         // TODO: what happens if complete week 2 workout first?
         // TODO: what happens if we do week 2 and then week 1?
+        // TODO: what if there is no week 1?
+        // TODO: what if there is no week 2?
     }
     
     private func createProgram() -> Program {

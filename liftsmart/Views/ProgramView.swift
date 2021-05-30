@@ -132,7 +132,7 @@ func initSubLabels(_ display: Display, _ completions: [ExerciseCompletions], _ e
     let cal = Calendar.current
     let weekday = cal.component(.weekday, from: now)
     let todaysWorkouts = entries.filter({$0.workout.days[weekday - 1]})  // workouts that should be performed today
-    var todaysWeek: Int? = nil
+    var todaysWeek = 1
     if let start = display.program.blockStart, let num = display.program.numWeeks() {
         todaysWeek = currentWeek(blockStart: start, currentDate: Date(), numWeeks: num)
     }
@@ -141,7 +141,7 @@ func initSubLabels(_ display: Display, _ completions: [ExerciseCompletions], _ e
     for i in 0..<entries.count {
         var entry = entries[i]
         let completion = completions[i]
-        let thisWeek = entry.workout.weeks.isEmpty || (todaysWeek != nil && entry.workout.weeks.contains(todaysWeek!))
+        let thisWeek = entry.workout.weeks.isEmpty || entry.workout.weeks.contains(todaysWeek)
 
         var doneRecently = false
         if let last = completion.latest {
