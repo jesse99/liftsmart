@@ -34,7 +34,7 @@ class Program: CustomDebugStringConvertible, Storable {
     var name: String
     var workouts: [Workout]
     var notes: [EditNote]
-    var blockStart: Date?
+    var blockStart: Date?       // this is a date within week 1
 
     init(_ name: String, _ workouts: [Workout]) {
         self.name = name

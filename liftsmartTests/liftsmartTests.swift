@@ -1,5 +1,6 @@
 //  Created by Jesse Jones on 4/18/20.
 //  Copyright © 2020 MushinApps. All rights reserved.
+import SwiftUI
 import XCTest
 @testable import liftsmart
 
@@ -12,152 +13,111 @@ class liftsmartTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
-    // Scheduled are the days that the workout is scheduled for relative to today.
-    // So [0] means it's scheduled for the current weekday.
-    // And [1, 3] means that it is scheduled for tomorrow and again 3 days from the current date.
-    func weekdays(_ now: Date, _ scheduled: [Int]) -> [WeekDay] {
-        var days: [WeekDay] = []
+    // Upper on Monday and Friday. Lower on Thursday.
+    func testBasicLabels() throws {
+        program = createProgram()
+        history = History()
+        display = Display(program, history)
         
-        for delta in scheduled {
-            let d = Calendar.current.date(byAdding: .day, value: delta, to: now)!
-            let weekday = Calendar.current.component(.weekday, from: d)
-            days.append(WeekDay(rawValue: weekday - 1)!)
-        }
+        date = epoch() // sun, mon, tues, wed, thurs
+        XCTAssertEqual(actual(), "Upper/tomorrow/blue••Lower/in 4 days/black")
+
+        addDays(1) // mon, tues, wed, thurs
+        XCTAssertEqual(actual(), "Upper/today/red••Lower/in 3 days/black")
+
+        complete("Upper", "Curls")
+        XCTAssertEqual(actual(), "Upper/completed/black••Lower/in 3 days/black")
         
-        return days
+        // TODO: could also test in progress
     }
 
-    // ages are in hours
-    func getEntries(age0: Int?, age1: Int?, scheduled: [Int]) -> ProgramEntry {
-        let now = Date()
-        let curls = Exercise("Curls", "Hammer Curls", Modality(Apparatus.bodyWeight, Sets.maxReps(restSecs: [90])))
-        let pullups = Exercise("Pullup", "Pullup", Modality(Apparatus.bodyWeight, Sets.maxReps(restSecs: [90])))
-        let workout = createWorkout("Workout", [curls, pullups], days: weekdays(now, scheduled)).unwrap()
+    // Upper on Monday and Friday on week 1.
+    // Lower on Thursday on week 2.
+    // Rest on week 3.
+    func testWeeklyLabels() throws {
+        program = createProgram()
+
+        let upper = program.workouts.first(where: {$0.name == "Upper"})!
+        upper.weeks = [1]
+        let lower = program.workouts.first(where: {$0.name == "Lower"})!
+        lower.weeks = [2]
+        let rest = Workout("Rest", [], days: [], weeks: [3])
+        program.workouts.append(rest)
 
         history = History()
-        if let age = age0 {
-            curls.current = Current(weight: 0.0)
-            curls.current?.startDate = Calendar.current.date(byAdding: .hour, value: -age, to: now)!
-            history.append(workout, curls)
-        }
-        if let age = age1 {
-            pullups.current = Current(weight: 0.0)
-            pullups.current?.startDate = Calendar.current.date(byAdding: .hour, value: -age, to: now)!
-            history.append(workout, pullups)
-        }
+        display = Display(program, history)
+        
+        date = epoch() // sun
+        XCTAssertEqual(actual(), "Upper/tomorrow/blue••Lower/in 11 days/black••Rest/in 14 days/black")
 
-        let program = Program("Program", [workout])
-        let (entries, completions) = initEntries(program)
-        XCTAssertEqual(entries.count, 1)    // one workout so one entry
+        addDays(1) // mon
+        XCTAssertEqual(actual(), "Upper/today/red••Lower/in 10 days/black••Rest/in 13 days/black")
 
-        return initSubLabels(completions, entries, now)[0]
+        complete("Upper", "Curls")
+        XCTAssertEqual(actual(), "Upper/completed/black••Lower/in 10 days/black••Rest/in 13 days/black")
+        
+        // TODO: probably want to just complete each exercise (could skip one or two)
+        // TODO: what happens if complete week 2 workout first?
+        // TODO: what happens if we do week 2 and then week 1?
+    }
+    
+    private func createProgram() -> Program {
+        let sets = Sets.maxReps(restSecs: [90, 90, 0])
+        let modality = Modality(Apparatus.bodyWeight, sets)
+        let curls = Exercise("Curls", "Hammer Curls", modality)
+        let upper = Workout("Upper", [curls], days: [.monday, .friday])
+
+        let squats = Exercise("Squats", "Dumbbell Single Leg Split Squat", modality)
+        let lower = Workout("Lower", [squats], days: [.thursday])
+        
+        let program = Program("Test", [upper, lower])
+        return program
+    }
+    
+    private func complete(_ workoutName: String, _ exerciseName: String) {
+        let workout = program.workouts.first(where: {$0.name == workoutName})!
+        let exercise = workout.exercises.first(where: {$0.name == exerciseName})!
+        exercise.current = Current(weight: 0.0)
+        exercise.current!.startDate = date
+        history.append(workout, exercise)
+    }
+    
+    // For the sake of consistency we'll start all dates from this point.
+    private func epoch() -> Date {
+        let calendar = Calendar.current
+        let components = DateComponents(calendar: calendar, year: 2021, month: 5, day: 2)   // sunday
+        return calendar.date(from: components)!
+    }
+    
+    private func addDays(_ count: Int) {
+        date = Calendar.current.date(byAdding: .day, value: count, to: date)!
     }
 
-    func testProgramLabels() throws {
-        // no history
-        var entry = getEntries(age0: nil, age1: nil, scheduled: [])
-        XCTAssertEqual(entry.subLabel, "never started")
-
-        entry = getEntries(age0: nil, age1: nil, scheduled: [0])
-        XCTAssertEqual(entry.subLabel, "today")
-
-        entry = getEntries(age0: nil, age1: nil, scheduled: [-1])
-        XCTAssertEqual(entry.subLabel, "in 6 days")
-
-        entry = getEntries(age0: nil, age1: nil, scheduled: [-2])
-        XCTAssertEqual(entry.subLabel, "in 5 days")
-
-        entry = getEntries(age0: nil, age1: nil, scheduled: [1])
-        XCTAssertEqual(entry.subLabel, "tomorrow")
-
-        entry = getEntries(age0: nil, age1: nil, scheduled: [2])
-        XCTAssertEqual(entry.subLabel, "in 2 days")
+    private struct Label: CustomStringConvertible {
+        let workout: String       // Upper, Lower, etc
+        var subLabel: String      // in progress, today, in 3 days, etc
+        var subColor: Color       // red, orange, black
         
-        // really old history
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [])
-        XCTAssertEqual(entry.subLabel, "today")
-
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [0])
-        XCTAssertEqual(entry.subLabel, "today")
-
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [-1])
-        XCTAssertEqual(entry.subLabel, "in 6 days")
-
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [-2])
-        XCTAssertEqual(entry.subLabel, "in 5 days")
-
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [1])
-        XCTAssertEqual(entry.subLabel, "tomorrow")
-
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [2])
-        XCTAssertEqual(entry.subLabel, "in 2 days")
-
-        // no history and multiple scheduled
-        entry = getEntries(age0: nil, age1: nil, scheduled: [0, 2, 4])
-        XCTAssertEqual(entry.subLabel, "today")
-
-        entry = getEntries(age0: nil, age1: nil, scheduled: [1, 3, 5])
-        XCTAssertEqual(entry.subLabel, "tomorrow")
-
-        entry = getEntries(age0: nil, age1: nil, scheduled: [2, 4, 6])
-        XCTAssertEqual(entry.subLabel, "in 2 days")
-
-        // really old history and multiple scheduled
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [0, 2, 4])
-        XCTAssertEqual(entry.subLabel, "today")
-
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [1, 3, 5])
-        XCTAssertEqual(entry.subLabel, "tomorrow")
-
-        entry = getEntries(age0: 30*24, age1: 29*24, scheduled: [2, 4, 6])
-        XCTAssertEqual(entry.subLabel, "in 2 days")
-
-        // completed today
-        entry = getEntries(age0: 1, age1: 1, scheduled: [])
-        XCTAssertEqual(entry.subLabel, "completed")
-
-        entry = getEntries(age0: 1, age1: 1, scheduled: [0])
-        XCTAssertEqual(entry.subLabel, "completed")
-
-        entry = getEntries(age0: 1, age1: 1, scheduled: [-1])    // odd case
-        XCTAssertEqual(entry.subLabel, "completed")
-
-        entry = getEntries(age0: 1, age1: 1, scheduled: [1])     // odd case
-        XCTAssertEqual(entry.subLabel, "completed")
-
-        entry = getEntries(age0: 5, age1: 5, scheduled: [1])
-        XCTAssertEqual(entry.subLabel, "tomorrow")
-
-        entry = getEntries(age0: 5, age1: 5, scheduled: [2])
-        XCTAssertEqual(entry.subLabel, "in 2 days")
-        
-        // partially completed
-        entry = getEntries(age0: 1, age1: nil, scheduled: [])
-        XCTAssertEqual(entry.subLabel, "in progress")
-
-        entry = getEntries(age0: 1, age1: nil, scheduled: [0])
-        XCTAssertEqual(entry.subLabel, "in progress")
-
-        entry = getEntries(age0: 1, age1: nil, scheduled: [-1])    // odd case
-        XCTAssertEqual(entry.subLabel, "in progress")
-
-        entry = getEntries(age0: 1, age1: nil, scheduled: [1])     // odd case
-        XCTAssertEqual(entry.subLabel, "in progress")
-
-        entry = getEntries(age0: 5, age1: nil, scheduled: [1])
-        XCTAssertEqual(entry.subLabel, "tomorrow")
-
-        entry = getEntries(age0: 5, age1: nil, scheduled: [2])
-        XCTAssertEqual(entry.subLabel, "in 2 days")
-
-        // days
-        entry = getEntries(age0: 3*24, age1: 2*24, scheduled: [0, 2])
-        XCTAssertEqual(entry.subLabel, "today")
-
-        entry = getEntries(age0: 3*24, age1: 2*24, scheduled: [1, 3])
-        XCTAssertEqual(entry.subLabel, "tomorrow")
-
-        entry = getEntries(age0: 3*24, age1: 2*24, scheduled: [2, 5])
-        XCTAssertEqual(entry.subLabel, "in 2 days")
+        init(_ w: String, _ s: String, _ c: Color) {
+            workout = w
+            subLabel = s
+            subColor = c
+        }
+    
+        public var description: String {
+            return "\(workout)/\(subLabel)/\(subColor)"
+        }
     }
+
+    private func actual() -> String {
+        let (entries2, completions) = initEntries(display)
+        let entries = initSubLabels(display, completions, entries2, date)
+        let labels = entries.map({Label($0.workout.name, $0.subLabel, $0.subColor).description})
+        return labels.joined(separator: "••")
+    }
+    
+    private var program: Program!
+    private var history: History!
+    private var display: Display!
+    private var date: Date!
 }

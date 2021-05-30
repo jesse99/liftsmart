@@ -169,7 +169,7 @@ class Display: ObservableObject {
     }
     
     // For testing
-    init(_ program: Program, _ history: History, _ weights: [String: FixedWeightSet], _ programs: [String: String]) {
+    init(_ program: Program, _ history: History, _ weights: [String: FixedWeightSet] = [:], _ programs: [String: String] = [:]) {
         self.program = program
         self.history = history
         self.fixedWeights = weights
