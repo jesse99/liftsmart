@@ -133,15 +133,18 @@ class FixedWeightSet: Storable {
     }
     
     func getClosestBelow(_ target: Double) -> Double {
-        if let index = self.weights.firstIndex(where: {$0 > target}), index > 0 {
-            return self.weights[index - 1]
-        } else {
-            return 0.0
+        if let index = self.weights.firstIndex(where: {$0 >= target}) {
+            if self.weights[index] == target {
+                return self.weights[index]
+            } else if index > 0 {
+                return self.weights[index - 1]
+            }
         }
+        return 0.0
     }
     
     func getClosestAbove(_ target: Double) -> Double? {
-        if let index = self.weights.firstIndex(where: {$0 > target}) {
+        if let index = self.weights.firstIndex(where: {$0 >= target}) {
             return self.weights[index]
         } else {
             return nil
