@@ -63,7 +63,7 @@ class\cf3  \cf4 Exercise\cf3 : \cf6 Hashable\cf3 , \cf6 Identifiable\cf3  \{\
 \f1\fs36 \cf10 \expnd0\expndtw0\kerning0
 \ul \ulc10 \
 \pard\pardeftab720\partightenfactor0
-{\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/creating-and-combining-views"}}{\fldrslt \cf10 \ulc10 https://developer.apple.com/tutorials/swiftui/creating-and-combining-views}}\
+{\field{\*\fldinst{HYPERLINK "https://developer.apple.com/tutorials/swiftui/creating-and-combining-views"}}{\fldrslt \cf10 https://developer.apple.com/tutorials/swiftui/creating-and-combining-views}}\
 \pard\pardeftab720\partightenfactor0
 
 \fs24 \cf10 \
@@ -90,28 +90,27 @@ Worked out 35 times.
 3x in the last week, 10x in the last month\
 \
 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Not sure program view is saying expected days correctly nearing end of cycle\
-	- eg sat (should have been week 5) said rest was due tomorrow\
-	- lower and upper were missing week 6\
-	- just before rest week said stuff was scheduled into the rest week\
+\'95 Didn\'92t see 52.5 lbs in work sets on bench press\
+\'95 Ask physio guy about adding new exercises to lower\
+	- eg Step Ups and Calf Raises\
+\'95\'a0Pullups shouldn\'92t use rep target?\
 \'95 Get rid of Programs.swift\
 \'95\'a0Exercises should be global to a program\
 	- EditProgramView should have workouts and exercises buttons?\
 	  and no add button\
 	- EditWorkoutView should have a picker when adding exercise\
 	- stuff like history shouldn\'92t associate an exercise with a workout\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95 Didn\'92t get a warning for split squats when dumbbells had no weights\
+\'95 How does setting current week work?\
+	- make sure that it works when entering weird values\
+\'95 Didn\'92t get a warning for split squats when dumbbells had no weights\
 \'95 Work on fixed weight apparatus:\
 	- somehow support magnets/extra weights\
 		` maybe show this with sections, see https://subscription.packtpub.com/book/mobile/9781838981860/2/ch02lvl1sec23/adding-sections-to-a-list\
-				\cf11 case AddExtraWeight(String, Double)\
+				case AddExtraWeight(String, Double)\
 				case DeleteExtraWeight(String, Int)\
 				case ValidateExtraWeight(String, String)\
 				\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
-\cf11 				class FixedWeightSet: Storable \{\
+				class FixedWeightSet: Storable \{\
 				    var weights: FixedWeights\
 				    var extra: FixedWeights\
 				    var extraAdds: Int      \
@@ -139,9 +138,8 @@ Worked out 35 times.
 				Allow one extra weight\
 				Allow two extra weights\
 				\
-				getClosest (update this method)\cf11 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
-\cf11 \'95\'a0Log view should probably scroll to end:\
+				getClosest (update this method)\
+\'95\'a0Log view should probably scroll to end:\
 	- see https://stackoverflow.com/questions/57258846/how-to-make-a-swiftui-list-scroll-automatically\
 \'95 Delete workout should have a confirm\
 \'95 Support workout notes?\
@@ -214,10 +212,10 @@ Worked out 35 times.
 \f1\fs36 \cf10 \expnd0\expndtw0\kerning0
 \ul https://www.raywenderlich.com/7242045-swift-package-manager-for-ios}}
 \f1\fs36 \cf10 \expnd0\expndtw0\kerning0
-\ul \ulc10 \
+\ul \
 \pard\pardeftab720\partightenfactor0
 {\field{\*\fldinst{HYPERLINK "https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/"}}{\fldrslt 
-\fs38 \cf10 \ulc10 https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/}}
+\fs38 \cf10 https://artsy.github.io/blog/2019/01/05/its-time-to-use-spm/}}
 \f2\fs48 \cf11 \kerning1\expnd0\expndtw0 \ulnone \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab816\pardirnatural\partightenfactor0
 \cf11 	\

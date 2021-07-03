@@ -76,8 +76,9 @@ class liftsmartTests: XCTestCase {
         advanceTo(.monday) // week 3
         XCTAssertEqual(actual(), "Upper/in 7 days/black••Lower/in 17 days/black••Rest/today/orange")
 
-        // TODO: may want a few more intermediate days
-        
+        advanceTo(.sunday) // week 1
+        XCTAssertEqual(actual(), "Upper/tomorrow/blue••Lower/in 11 days/black••Rest/in 14 days/black")
+
         // TODO: what happens if complete week 2 workout first?
         // TODO: what happens if we do week 2 and then week 1?
         // TODO: what if there is no week 1?

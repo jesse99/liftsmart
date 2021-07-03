@@ -485,6 +485,14 @@ let defaultNotes: [String: String] = [
             "Rotate your torso keeping back and arms straight."],
         links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/standing-cable-wood-chop"]),
     
+    "Calf Wall Stretch": noteToMarkdown(
+        notes: [
+            "Stand facing a wall and place both palms on the wall at about eye level.",
+            "Extend your injured leg back behind you with the toe pointed slightly inward.",
+            "Slowly lean into the wall until you feel a stretch in your calf.",
+            "Keep both heels on the ground the entire time."],
+        links: ["Link": "https://myhealth.alberta.ca/Health/aftercareinformation/pages/conditions.aspx?hwid=bo1613"]),
+    
     "Calf Press": noteToMarkdown(
         notes: [
             "Adjust the seat so that your legs are only slightly bent at the start position.",
@@ -1016,11 +1024,12 @@ let defaultNotes: [String: String] = [
     
     "Foot Elevated Hamstring Stretch": noteToMarkdown(
         notes: [
-            "Stand facing an elevated surface.",
+            "Stand facing an elevated surface (ideally about 15\" high).",
             "Place one foot onto the surface keeping your knee straight.",
             "The foot on the ground should be pointed sraight ahead.",
             "The toes of the elevated foot should be pointed straight upwards (or backwards to also stretch the calf).",
-            "Gently lean forward until you feel your hamstrings stretch."],
+            "Gently lean forward until you feel your hamstrings stretch.",
+            "Bend at the waist: don't roll your shoulders forward."],
         links: ["Link": "http://www.floota.com/HamstringStretch.html"]),
     
     "Forearm Supination & Pronation": noteToMarkdown(
@@ -1893,6 +1902,14 @@ let defaultNotes: [String: String] = [
             "Then raise your chest upwards moving your shoulder blades apart."],
         links: ["Video": "http://www.cornell.edu/video/push-up-plus"]),
     
+    "Quad Sets": noteToMarkdown(
+        notes: [
+            "Sit on the floor with your injured leg stretched out in front of you.",
+            "Tighten the muscles on top of your thigh causing your knee to press into the floor.",
+            "Hold for 10s.",
+            "If you feel discomfort you can add a rolled up towel under your knee."],
+        links: ["Link": "https://myhealth.alberta.ca/Health/Pages/conditions.aspx?hwid=zm5023&lang=en-ca"]),
+    
     "Quadruped Double Traverse Abduction": noteToMarkdown(
         notes: [
             "Crouch down on all fours.",
@@ -2282,13 +2299,11 @@ let defaultNotes: [String: String] = [
     
     "Side Lying Abduction": noteToMarkdown(
         notes: [
-            "Lay down on your side with your bottom leg bent in front of you and your top leg straight.",
-            "Use one hand to support your head and place the other hand on the floor next to your bottom leg.",
-            "Brace your core and lift your upper leg slightly.",
-            "Keep your upper leg straight.",
-            "Don't let your toes turn outwards or rotate towards the ground.",
-            "Hold for 3s and slowly lower your leg."],
-        links: ["Link": "https://squatuniversity.com/2017/05/30/how-to-fix-it-band-pain/"]),
+            "Lay down on your side with a forearm supporting your head.",
+            "Keeping both legs straight raise your free leg into the air.",
+            "Stop lifting once you begin to feel tension in your hips.",
+            "Go slowly and keep your back straight."],
+        links: ["Link": "https://www.verywellfit.com/side-lying-hip-abductions-techniques-benefits-variations-4783963"]),
     
     "Side Lying Hip Raise": noteToMarkdown(
         notes: [
@@ -2474,12 +2489,19 @@ let defaultNotes: [String: String] = [
     
     "Standing Dumbbell Calf Raises": noteToMarkdown(
         notes: [
+            "Stand up straight and cross one leg over the other.",
+            "Raise the arm on the same side as your back leg high into the air.",
+            "Bend towards the side with your arm down until you feel the stretch."],
+        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/standing-dumbbell-calf-raise"]),
+    
+    "Standing IT Band Stretch": noteToMarkdown(
+        notes: [
             "Stand upright while holding two dumbbells.",
             "Place the balls of your feet on a board 2-3\" high.",
             "Raise your heels as high as possible.",
             "Lower your heels to the floor.",
             "To hit all the muscles equally keep your toes pointed straight out."],
-        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/standing-dumbbell-calf-raise"]),
+        links: ["Link": "https://www.msn.com/en-us/health/exercise/strength/standing-it-band-stretch/ss-BBtOhqi"]),
     
     "Standing One Arm Cable Row": noteToMarkdown(
         notes: [
@@ -2490,9 +2512,11 @@ let defaultNotes: [String: String] = [
     
     "Standing Quad Stretch": noteToMarkdown(
         notes: [
-            "Stand next to a wall or some other support.",
-            "Place one hand on the support.",
-            "With the other hand grab your ankle and pull your foot back to your butt."],
+            "Stand at a right angle to a wall.",
+            "Extend your arm straight out and use the wall for support.",
+            "With the other hand grab your ankle and pull your foot back to your butt.",
+            "Don't arch or twist your back.",
+            "Keep your knees together."],
         links: ["Link": "http://www.exrx.net/Stretches/Quadriceps/Standing.html"]),
     
     "Standing Triceps Press": noteToMarkdown(
@@ -2521,13 +2545,20 @@ let defaultNotes: [String: String] = [
             "Lift the bar off the pins just as if you were doing a deadlift."],
         links: ["Link": "http://jasonferruggia.com/mythbusting-improve-grip-strength-deadlifting/", "Grip": "https://stronglifts.com/deadlift/grip/"]),
     
+    "Step-ups (Intro)": noteToMarkdown(
+        notes: [
+            "Place one foot on a support 3-5\" high.",
+            "Keep your other foor flat on the floor and then slowly raise that foot off the ground.",
+            "Slowly lower your foot back onto the ground."],
+        links: ["Rehab": "https://theprehabguys.com/step-ups"]),
+    
     "Step-ups": noteToMarkdown(
         notes: [
             "Place one foot on a high object.",
             "Place all of your weight on that object and step up onto the object.",
             "Minimize pushing with your back leg.",
             "Difficulty can be increased by using a higher step or by holding dumbbells."],
-        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/dumbbell-step-ups", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat"]),
+        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/dumbbell-step-ups", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/exercises/squat", "Rehab": "https://theprehabguys.com/step-ups"]),
     
     "Stiff-Legged Deadlift": noteToMarkdown(
         notes: [
@@ -2542,6 +2573,13 @@ let defaultNotes: [String: String] = [
             "Push up through the shoulders, elevating your shoulder blades.",
             "Squeeze your legs together and point your toes up."],
         links: ["Video": "https://www.youtube.com/watch?v=m64XxmNHjfs", "Progression": "https://www.reddit.com/r/bodyweightfitness/wiki/move/phase4/handstand"]),
+    
+    "Straight Leg Raise": noteToMarkdown(
+        notes: [
+            "Lie on your back with your good leg pulled back.",
+            "Raise your other leg into the air keeping it straight.",
+            "Move slowly both up and down."],
+        links: ["Link": "https://www.verywellhealth.com/how-to-the-straight-leg-raise-2696526"]),
     
     "Straight Leg Situp": noteToMarkdown(
         notes: [
