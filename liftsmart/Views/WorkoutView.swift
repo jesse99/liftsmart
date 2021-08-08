@@ -83,11 +83,11 @@ struct WorkoutEntry: Identifiable {
             sets = worksets.mapi(getRepsLabel)
             limit = 5
 
-        case .repTarget(target: let target, rest: _):
+        case .repTotal(total: let total, rest: _):
             if exercise.expected.reps.isEmpty {
-                sets = ["\(target) reps"]
+                sets = ["\(total) reps"]
             } else {
-                sets = ["\(target) reps over \(exercise.expected.reps.count) sets"]
+                sets = ["\(total) reps over \(exercise.expected.reps.count) sets"]
             }
         }
         

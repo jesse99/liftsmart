@@ -12,8 +12,8 @@ func getSetsLabel(_ sets: Sets) -> String {
         return "Max Reps"
     case .repRanges(warmups: _, worksets: _, backoffs: _):
         return "Rep Ranges"
-    case .repTarget(target: _, rest: _):
-        return "Rep Target"
+    case .repTotal(total: _, rest: _):
+        return "Rep Total"
     }
 }
 
@@ -36,8 +36,8 @@ func getSetsHelp(_ sets: Sets) -> String {
         return "As many reps as possible for each set."
     case .repRanges(warmups: _, worksets: _, backoffs: _):
         return "Has optional warmup and backoff sets. Reps are within a specified range and weight percentages can be used."
-    case .repTarget(target: _, rest: _):
-        return "As many sets as required to do target reps."
+    case .repTotal(total: _, rest: _):
+        return "As many sets as required to do total reps."
     }
 }
 
@@ -80,8 +80,8 @@ func defaultRepRanges() -> Sets {
     return Sets.repRanges(warmups: [], worksets: [work, work, work], backoffs: [])
 }
 
-func defaultRepTarget() -> Sets {
-    return Sets.repTarget(target: 15, rest: 60)
+func defaultRepTotal() -> Sets {
+    return Sets.repTotal(total: 15, rest: 60)
 }
 
 // TODO: Wasn't read as true when a State variable. Likely because of the way state variables
@@ -164,7 +164,7 @@ struct EditExerciseView: View {
                         Button("Fixed Reps", action: {self.onChangeSets(defaultFixedReps())})
                         Button("Max Reps", action: {self.onChangeSets(defaultMaxReps())})
                         Button("Rep Ranges", action: {self.onChangeSets(defaultRepRanges())})
-                        Button("Rep Target", action: {self.onChangeSets(defaultRepTarget())})
+                        Button("Rep Total", action: {self.onChangeSets(defaultRepTotal())})
                         Button("Cancel", action: {})
                     }.font(.callout).padding(.leading)
                     Spacer()
@@ -326,8 +326,8 @@ struct EditExerciseView: View {
             return AnyView(EditMaxRepsView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         case .repRanges(warmups: _, worksets: _, backoffs: _):
             return AnyView(EditRepRangesView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
-        case .repTarget(target: _, rest: _):
-            return AnyView(EditRepTargetView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
+        case .repTotal(total: _, rest: _):
+            return AnyView(EditRepTotalView(self.display, self.exercise.name, self.$sets, self.$expectedReps))
         }
     }
     

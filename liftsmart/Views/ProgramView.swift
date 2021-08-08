@@ -370,7 +370,7 @@ func previewDisplay() -> Display {
         }
         
         func pullups() -> Exercise {
-            let sets = Sets.repTarget(target: 15, rest: 120)
+            let sets = Sets.repTotal(total: 15, rest: 120)
             let modality = Modality(Apparatus.bodyWeight, sets)
             let e = Exercise("Pullups", "Pullups", modality)
             e.current = Current(weight: 0.0)

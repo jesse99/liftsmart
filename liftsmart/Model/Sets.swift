@@ -277,8 +277,8 @@ enum Sets: CustomDebugStringConvertible, Equatable {
     /// Used for stuff like 3x5 squat or 3x8-12 lat pulldown.
     case repRanges(warmups: [RepsSet], worksets: [RepsSet], backoffs: [RepsSet])
     
-    /// Do target reps spread across as many sets as neccesary.
-    case repTarget(target: Int, rest: Int)
+    /// Do total reps spread across as many sets as neccesary.
+    case repTotal(total: Int, rest: Int)
 
 //    case untimed(restSecs: [Int])
     
@@ -301,10 +301,10 @@ enum Sets: CustomDebugStringConvertible, Equatable {
             case .repRanges(warmups: _, worksets: let worksets, backoffs: _):
                 sets = worksets.map({$0.debugDescription})
 
-            case .repTarget(target: let target, rest: _):
-                sets = ["\(target) reps"]
+            case .repTotal(total: let total, rest: _):
+                sets = ["\(total) reps"]
 
-            //            case .untimed(restSecs: let secs):
+//            case .untimed(restSecs: let secs):
 //                sets = Array(repeating: "untimed", count: secs.count)
             }
             
@@ -341,8 +341,12 @@ extension Sets: Storable {
         case "repRanges":
             self = .repRanges(warmups: store.getObjArray("warmups"), worksets: store.getObjArray("worksets"), backoffs: store.getObjArray("backoffs"))
 
-        case "repTarget":
-            self = .repTarget(target: store.getInt("target"), rest: store.getInt("rest"))
+        case "repTarget", "repTotal":
+            if store.hasKey("total") {
+                self = .repTotal(total: store.getInt("total"), rest: store.getInt("rest"))
+            } else {
+                self = .repTotal(total: store.getInt("target"), rest: store.getInt("rest"))
+            }
             
         default:
             ASSERT(false, "loading apparatus had unknown type: \(tname)"); abort()
@@ -373,9 +377,9 @@ extension Sets: Storable {
             store.addObjArray("worksets", worksets)
             store.addObjArray("backoffs", backoffs)
 
-        case .repTarget(target: let target, rest: let rest):
-            store.addStr("type", "repTarget")
-            store.addInt("target", target)
+        case .repTotal(total: let total, rest: let rest):
+            store.addStr("type", "repTotal")
+            store.addInt("total", total)
             store.addInt("rest", rest)
         }
     }
@@ -394,7 +398,7 @@ extension Sets: Storable {
         case .repRanges(warmups: let warmups, worksets: let worksets, backoffs: let backoffs):
             return warmups.count + worksets.count + backoffs.count
 
-        case .repTarget(target: _, rest: _):
+        case .repTotal(total: _, rest: _):
             return nil
         }
     }
@@ -410,7 +414,7 @@ extension Sets: Storable {
                 return 2
             case .repRanges(warmups: _, worksets: _, backoffs: _):
                 return 3
-            case .repTarget(target: _, rest: _):
+            case .repTotal(total: _, rest: _):
                 return 4
             }
         }

@@ -1030,7 +1030,7 @@ let defaultNotes: [String: String] = [
             "The toes of the elevated foot should be pointed straight upwards (or backwards to also stretch the calf).",
             "Gently lean forward until you feel your hamstrings stretch.",
             "Bend at the waist: don't roll your shoulders forward."],
-        links: ["Link": "http://www.floota.com/HamstringStretch.html"]),
+        links: ["Link": "https://www.healthpro.ie/inside-exercise/exercise-guide/stretching/stretches-for-swimming/standing-hamstring-stretch-leg-elevated"]),
     
     "Forearm Supination & Pronation": noteToMarkdown(
         notes: [
@@ -1965,7 +1965,7 @@ let defaultNotes: [String: String] = [
             "Feet can be spread outward.",
             "Push one kettlebell into the floor and row the other to your side.",
             "Lower the kettlebell and row the other one."],
-        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/alternating-renegade-row"]),
+        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/alternating-renegade-row", "Tips": "https://www.menshealth.com/fitness/a27178801/renegade-row-form/", "Video": "https://www.youtube.com/watch?v=LccyTxiUrhg"]),
     
     "Rest": noteToMarkdown(
         notes: [
@@ -2489,18 +2489,18 @@ let defaultNotes: [String: String] = [
     
     "Standing Dumbbell Calf Raises": noteToMarkdown(
         notes: [
-            "Stand up straight and cross one leg over the other.",
-            "Raise the arm on the same side as your back leg high into the air.",
-            "Bend towards the side with your arm down until you feel the stretch."],
-        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/standing-dumbbell-calf-raise"]),
-    
-    "Standing IT Band Stretch": noteToMarkdown(
-        notes: [
             "Stand upright while holding two dumbbells.",
             "Place the balls of your feet on a board 2-3\" high.",
             "Raise your heels as high as possible.",
             "Lower your heels to the floor.",
             "To hit all the muscles equally keep your toes pointed straight out."],
+        links: ["Link": "http://www.bodybuilding.com/exercises/detail/view/name/standing-dumbbell-calf-raise"]),
+    
+    "Standing IT Band Stretch": noteToMarkdown(
+        notes: [
+            "Stand up straight and cross one leg over the other.",
+            "Raise the arm on the same side as your back leg high into the air.",
+            "Bend towards the side with your arm down until you feel the stretch."],
         links: ["Link": "https://www.msn.com/en-us/health/exercise/strength/standing-it-band-stretch/ss-BBtOhqi"]),
     
     "Standing One Arm Cable Row": noteToMarkdown(

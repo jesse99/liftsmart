@@ -2,7 +2,7 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-struct ExerciseRepTargetView: View {
+struct ExerciseRepTotalView: View {
     let workoutIndex: Int
     let exerciseID: Int
     var timer = RestartableTimer(every: TimeInterval.hours(RecentHours/2))
@@ -124,9 +124,9 @@ struct ExerciseRepTargetView: View {
     }
     
     func onNextOrDone() {
-        let target = self.getTarget()
+        let total = self.getTotal()
         let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
-        let remaining = completed < target ? target - completed : 0
+        let remaining = completed < total ? total - completed : 0
         if remaining > 0 {
             self.updateRepsDone = true
         } else if self.exercise().current!.completed != self.exercise().expected.reps {
@@ -143,14 +143,14 @@ struct ExerciseRepTargetView: View {
         self.display.send(.SetExpectedReps(self.exercise(), completed))
         
         switch exercise().modality.sets {
-        case .repTarget(target: let target, rest: let rest):
-            let total = completed.reduce(0, {$0 + $1})
-            if total > target {
-                let sets = Sets.repTarget(target: total, rest: rest)
+        case .repTotal(total: let total, rest: let rest):
+            let repsCompleted = completed.reduce(0, {$0 + $1})
+            if repsCompleted > total {
+                let sets = Sets.repTotal(total: repsCompleted, rest: rest)
                 self.display.send(.SetSets(self.exercise(), sets))
             }
         default:
-//            ASSERT(false, "exercise must use repTarget sets")
+//            ASSERT(false, "exercise must use repTotal sets")
             break
         }
         self.popView()
@@ -164,9 +164,9 @@ struct ExerciseRepTargetView: View {
     
     func getTimerTitle() -> String {
         if durationModal {
-            let target = self.getTarget()
-            let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
-            let remaining = completed < target ? target - completed : 0
+            let total = self.getTotal()
+            let repsCompleted = self.exercise().current!.completed.reduce(0, {$0 + $1})
+            let remaining = repsCompleted < total ? total - repsCompleted : 0
             if remaining > 0 {
                 return "On set \(exercise().current!.setIndex+1)"
             } else {
@@ -199,8 +199,8 @@ struct ExerciseRepTargetView: View {
     }
     
     func getTitle() -> String {
-        let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
-        if completed < self.getTarget() {
+        let repsCompleted = self.exercise().current!.completed.reduce(0, {$0 + $1})
+        if repsCompleted < self.getTotal() {
             return "Set \(exercise().current!.setIndex+1)"
         } else {
             return "Finished"
@@ -208,9 +208,9 @@ struct ExerciseRepTargetView: View {
     }
     
     func getSubTitle() -> String {
-        let target = self.getTarget()
-        let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
-        let remaining = completed < target ? target - completed : 0
+        let total = self.getTotal()
+        let repsCompleted = self.exercise().current!.completed.reduce(0, {$0 + $1})
+        let remaining = repsCompleted < total ? total - repsCompleted : 0
         if let expected = self.exercise().expected.reps.at(exercise().current!.setIndex), expected < remaining {
             return "Expecting \(expected) reps (\(remaining) left)"
         } else if remaining > 0 {
@@ -231,9 +231,9 @@ struct ExerciseRepTargetView: View {
     }
 
     func getStartLabel() -> String {
-        let target = self.getTarget()
-        let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
-        let remaining = completed < target ? target - completed : 0
+        let total = self.getTotal()
+        let repsCompleted = self.exercise().current!.completed.reduce(0, {$0 + $1})
+        let remaining = repsCompleted < total ? total - repsCompleted : 0
         if remaining == 0 {
             return "Done"
         } else {
@@ -245,28 +245,28 @@ struct ExerciseRepTargetView: View {
         return getPreviouslabel(self.display, workout(), exercise())
     }
     
-    private func getTarget() -> Int {
+    private func getTotal() -> Int {
         switch exercise().modality.sets {
-        case .repTarget(target: let target, rest: _):
-            return target
+        case .repTotal(total: let total, rest: _):
+            return total
         default:
-//            ASSERT(false, "exercise must use repTarget sets")
+//            ASSERT(false, "exercise must use repTotal sets")
             return 0
         }
     }
 
     private func getRestSecs() -> Int {
         switch exercise().modality.sets {
-        case .repTarget(target: _, rest: let rest):
+        case .repTotal(total: _, rest: let rest):
             return rest
         default:
-//            ASSERT(false, "exercise must use repTarget sets")
+//            ASSERT(false, "exercise must use repTotal sets")
             return 0
         }
     }
 }
 
-struct ExerciseRepTargetView_Previews: PreviewProvider {
+struct ExerciseRepTotalView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workoutIndex = 0
     static let workout = display.program.workouts[workoutIndex]
@@ -274,7 +274,7 @@ struct ExerciseRepTargetView_Previews: PreviewProvider {
 
     static var previews: some View {
         ForEach(["iPhone XS"], id: \.self) { deviceName in
-            ExerciseRepTargetView(display, workoutIndex, exercise.id)
+            ExerciseRepTotalView(display, workoutIndex, exercise.id)
                 .previewDevice(PreviewDevice(rawValue: deviceName))
         }
     }

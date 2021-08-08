@@ -10,8 +10,8 @@
 		3704511D26220C9900ADFF93 /* EditExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3704511C26220C9900ADFF93 /* EditExerciseView.swift */; };
 		370451232623C38B00ADFF93 /* ExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 370451222623C38B00ADFF93 /* ExerciseView.swift */; };
 		3714DA9924FADE47007DFB45 /* ExerciseRepRangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */; };
-		371C81A4262CE4290074DA8A /* ExerciseRepTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371C81A3262CE4290074DA8A /* ExerciseRepTargetView.swift */; };
-		371C81AA262CF2040074DA8A /* EditRepTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371C81A9262CF2040074DA8A /* EditRepTargetView.swift */; };
+		371C81A4262CE4290074DA8A /* ExerciseRepTotalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371C81A3262CE4290074DA8A /* ExerciseRepTotalView.swift */; };
+		371C81AA262CF2040074DA8A /* EditRepTotalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371C81A9262CF2040074DA8A /* EditRepTotalView.swift */; };
 		371C81B02634D9230074DA8A /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371C81AF2634D9230074DA8A /* LogView.swift */; };
 		372D2231249744B70024C8F3 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2230249744B70024C8F3 /* History.swift */; };
 		372D2233249E8D1B0024C8F3 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372D2232249E8D1B0024C8F3 /* Store.swift */; };
@@ -90,8 +90,8 @@
 		3704511C26220C9900ADFF93 /* EditExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditExerciseView.swift; sourceTree = "<group>"; };
 		370451222623C38B00ADFF93 /* ExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseView.swift; sourceTree = "<group>"; };
 		3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRepRangesView.swift; sourceTree = "<group>"; };
-		371C81A3262CE4290074DA8A /* ExerciseRepTargetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRepTargetView.swift; sourceTree = "<group>"; };
-		371C81A9262CF2040074DA8A /* EditRepTargetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepTargetView.swift; sourceTree = "<group>"; };
+		371C81A3262CE4290074DA8A /* ExerciseRepTotalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRepTotalView.swift; sourceTree = "<group>"; };
+		371C81A9262CF2040074DA8A /* EditRepTotalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRepTotalView.swift; sourceTree = "<group>"; };
 		371C81AF2634D9230074DA8A /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		372D2230249744B70024C8F3 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
 		372D2232249E8D1B0024C8F3 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
@@ -251,7 +251,7 @@
 				373209DE25AA288B00EBD64F /* ExerciseFixedRepsView.swift */,
 				37C5951D248C1FF400F36C7A /* ExerciseMaxRepsView.swift */,
 				3714DA9824FADE47007DFB45 /* ExerciseRepRangesView.swift */,
-				371C81A3262CE4290074DA8A /* ExerciseRepTargetView.swift */,
+				371C81A3262CE4290074DA8A /* ExerciseRepTotalView.swift */,
 				370451222623C38B00ADFF93 /* ExerciseView.swift */,
 				37455BFF24AB07B200C26AD0 /* HistoryView.swift */,
 				371C81AF2634D9230074DA8A /* LogView.swift */,
@@ -294,7 +294,7 @@
 				379461FA251FB962006774A0 /* EditProgramView.swift */,
 				37B87507258E8C0E0097FA9F /* EditRepRangesView.swift */,
 				37B8750D258EAD230097FA9F /* EditRepsSetView.swift */,
-				371C81A9262CF2040074DA8A /* EditRepTargetView.swift */,
+				371C81A9262CF2040074DA8A /* EditRepTotalView.swift */,
 				37B9DEB525FE8B96001654AF /* EditTextView.swift */,
 				379461FD251FF98D006774A0 /* EditWorkoutView.swift */,
 			);
@@ -493,14 +493,14 @@
 				37455C0024AB07B200C26AD0 /* HistoryView.swift in Sources */,
 				3714DA9924FADE47007DFB45 /* ExerciseRepRangesView.swift in Sources */,
 				37FB6E8724687D0F00EB4916 /* Exercise.swift in Sources */,
-				371C81AA262CF2040074DA8A /* EditRepTargetView.swift in Sources */,
+				371C81AA262CF2040074DA8A /* EditRepTotalView.swift in Sources */,
 				3756D25525AA5FA90004A99F /* EditFixedRepsView.swift in Sources */,
 				37881BD32455FA7400CFB411 /* DoubleExtensions.swift in Sources */,
 				373209DF25AA288B00EBD64F /* ExerciseFixedRepsView.swift in Sources */,
 				3781EB4325FDB45900348E87 /* StringExtension.swift in Sources */,
 				37DE5538263C775A00473C53 /* UIColorExtension.swift in Sources */,
 				37E83136245E248500A135C7 /* Current.swift in Sources */,
-				371C81A4262CE4290074DA8A /* ExerciseRepTargetView.swift in Sources */,
+				371C81A4262CE4290074DA8A /* ExerciseRepTotalView.swift in Sources */,
 				376AF38324CCE7AD00AEAE1C /* EditNoteView.swift in Sources */,
 				37B87508258E8C0E0097FA9F /* EditRepRangesView.swift in Sources */,
 				37C5951E248C1FF400F36C7A /* ExerciseMaxRepsView.swift in Sources */,

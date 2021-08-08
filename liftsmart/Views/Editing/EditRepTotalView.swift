@@ -2,12 +2,12 @@
 //  Copyright © 2021 MushinApps. All rights reserved.
 import SwiftUI
 
-struct EditRepTargetView: View {
+struct EditRepTotalView: View {
     let name: String
     let sets: Binding<Sets>
     let expectedReps: Binding<[Int]>
     @State var expected: String
-    @State var target: String
+    @State var total: String
     @State var rest: String
     @State var showHelp = false
     @State var helpText = ""
@@ -25,13 +25,13 @@ struct EditRepTargetView: View {
         self._expected = State(initialValue: reps.joined(separator: " "))
         
         switch sets.wrappedValue {
-        case .repTarget(target: let target, rest: let rest):
+        case .repTotal(total: let total, rest: let rest):
             self._rest = State(initialValue: restToStr(rest))
-            self._target = State(initialValue: "\(target)")
+            self._total = State(initialValue: "\(total)")
         default:
             self._rest = State(initialValue: "")
-            self._target = State(initialValue: "")
-            ASSERT(false, "expected repTarget")
+            self._total = State(initialValue: "")
+            ASSERT(false, "expected repTotal")
         }
     }
 
@@ -59,13 +59,13 @@ struct EditRepTargetView: View {
                     Button("?", action: onExpectedHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 HStack {
-                    Text("Target Reps:").font(.headline)
-                    TextField("", text: self.$target)
+                    Text("Total Reps:").font(.headline)
+                    TextField("", text: self.$total)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.numberPad)
                         .disableAutocorrection(true)
-                        .onChange(of: self.target, perform: self.onEditedTarget)
-                    Button("?", action: onTargetHelp).font(.callout).padding(.trailing)
+                        .onChange(of: self.total, perform: self.onEditedTotal)
+                    Button("?", action: onTotalHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
             }
             Spacer()
@@ -93,12 +93,12 @@ struct EditRepTargetView: View {
     }
     
     func onEditedExpected(_ text: String) {
-        // TODO: complain if expected sum > target?
+        // TODO: complain if expected sum > total?
         self.display.send(.ValidateExpectedRepList(text))
     }
     
-    func onEditedTarget(_ text: String) {
-        self.display.send(.ValidateRep("target", text))
+    func onEditedTotal(_ text: String) {
+        self.display.send(.ValidateRep("total", text))
     }
 
     private func onRestHelp() {
@@ -111,7 +111,7 @@ struct EditRepTargetView: View {
         self.showHelp = true
     }
         
-    func onTargetHelp() {
+    func onTotalHelp() {
         self.helpText = "Number of reps to do across arbitrary number of sets."
         self.showHelp = true
     }
@@ -126,9 +126,9 @@ struct EditRepTargetView: View {
             self.expectedReps.wrappedValue = expected
         }
 
-        let target = parseRep(self.target, label: "target").unwrap()
+        let total = parseRep(self.total, label: "total").unwrap()
         let rest = parseTimes(self.rest, label: "rest", zeroOK: true).unwrap()[0]
-        let msets = Sets.repTarget(target: target, rest: rest)
+        let msets = Sets.repTotal(total: total, rest: rest)
         if msets != self.sets.wrappedValue {
             self.sets.wrappedValue = msets
         }
@@ -137,7 +137,7 @@ struct EditRepTargetView: View {
     }
 }
 
-struct EditRepTargetView_Previews: PreviewProvider {
+struct EditRepTotalView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
     static let exercise = workout.exercises.first(where: {$0.name == "Pullups"})!
@@ -145,7 +145,7 @@ struct EditRepTargetView_Previews: PreviewProvider {
     static let expectedReps = Binding.constant(exercise.expected.reps)
 
     static var previews: some View {
-        EditRepTargetView(display, exercise.name, sets, expectedReps)
+        EditRepTotalView(display, exercise.name, sets, expectedReps)
     }
 }
 
