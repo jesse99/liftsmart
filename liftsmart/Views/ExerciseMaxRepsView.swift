@@ -50,7 +50,7 @@ struct ExerciseMaxRepsView: View {
                 Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
                     .alert(isPresented: $updateExpected) { () -> Alert in
-                        Alert(title: Text("Do you want to updated expected reps?"),
+                        Alert(title: Text("Do you want to update expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {
                                 let completed = self.exercise().current!.completed.reduce(0, {$0 + $1})
                                 self.display.send(.SetExpectedReps(self.exercise(), [completed]))

@@ -49,7 +49,7 @@ struct ExerciseRepTotalView: View {
                 Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
                     .alert(isPresented: $updateExpected) { () -> Alert in
-                        Alert(title: Text("Do you want to updated expected reps?"),
+                        Alert(title: Text("Do you want to update expected and total reps?"),
                             primaryButton:   .default(Text("Yes"), action: self.onUpdateExpected),
                             secondaryButton: .default(Text("No"),  action: self.popView))}
                     .sheet(isPresented: $updateRepsDone) {

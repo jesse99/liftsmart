@@ -71,7 +71,7 @@ struct ExerciseRepRangesView: View {
                 Button(self.getStartLabel(), action: onNextOrDone)
                     .font(.system(size: 40.0))
                     .alert(isPresented: $updateExpected) { () -> Alert in
-                        Alert(title: Text("Do you want to updated expected reps?"),
+                        Alert(title: Text("Do you want to update expected reps?"),
                             primaryButton: .default(Text("Yes"), action: {self.doAdvanceReps()}),
                             secondaryButton: .default(Text("No"), action: {self.popView()})
                         )}

@@ -49,6 +49,7 @@ enum Action {
     case ValidateFormalName(String)
     case ValidateOptionalRep(String, String)        // label, rep
     case ValidateRep(String, String)                // label, rep
+    case ValidateRepTotal(String, String)           // expected reps, total reps
     case ValidateRest(String)
     case ValidateRepRanges(String, String, String, String?) // reps, percent, rest, expected
     
@@ -718,6 +719,39 @@ class Display: ObservableObject {
                 errors!.add(key: "set rep ranges", error: err)
             } else {
                 errors!.reset(key: "set rep ranges")
+            }
+        case .ValidateRepTotal(let expected, let total):
+            log(.Debug, "ValidateRepTotal expected: \(expected) total: \(total)")
+            let parsedExpected = parseRepList(expected, label: "expected", emptyOK: true)
+            let parsedTotal = parseRep(total, label: "total")
+
+            var mismatch: String? = nil
+            if parsedExpected.isRight() && parsedTotal.isRight() {
+                let totalExpected = parsedExpected.unwrap().reduce(0, {$0 + $1})
+                if totalExpected > 0 && totalExpected != parsedTotal.unwrap() {
+                    mismatch = "Expected is \(totalExpected) reps which does not match total"
+                }
+            }
+            
+            var mesg = ""
+            if parsedExpected.isLeft() {
+                mesg += parsedExpected.left()
+            }
+
+            if parsedTotal.isLeft() {
+                if !mesg.isEmpty {mesg += ", "}
+                mesg += parsedTotal.left()
+            }
+
+            if mismatch != nil {
+                if !mesg.isEmpty {mesg += ", "}
+                mesg += mismatch!
+            }
+
+            if mesg.isEmpty {
+                errors!.reset(key: "set rep total")
+            } else {
+                errors!.add(key: "set rep total", error: mesg)
             }
         case .ValidateRest(let rest):
             log(.Debug, "ValidateRest rest: \(rest)")

@@ -55,7 +55,7 @@ struct EditRepTotalView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.default)
                         .disableAutocorrection(true)
-                        .onChange(of: self.expected, perform: self.onEditedExpected)
+                        .onChange(of: self.expected, perform: self.onEditedExpectedOrTotal)
                     Button("?", action: onExpectedHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
                 HStack {
@@ -64,7 +64,7 @@ struct EditRepTotalView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.numberPad)
                         .disableAutocorrection(true)
-                        .onChange(of: self.total, perform: self.onEditedTotal)
+                        .onChange(of: self.total, perform: self.onEditedExpectedOrTotal)
                     Button("?", action: onTotalHelp).font(.callout).padding(.trailing)
                 }.padding(.leading)
             }
@@ -92,15 +92,10 @@ struct EditRepTotalView: View {
         self.display.send(.ValidateRest(text))
     }
     
-    func onEditedExpected(_ text: String) {
-        // TODO: complain if expected sum > total?
-        self.display.send(.ValidateExpectedRepList(text))
+    func onEditedExpectedOrTotal(_ text: String) {
+        self.display.send(.ValidateRepTotal(self.expected, self.total))
     }
     
-    func onEditedTotal(_ text: String) {
-        self.display.send(.ValidateRep("total", text))
-    }
-
     private func onRestHelp() {
         self.helpText = restHelpText
         self.showHelp = true
