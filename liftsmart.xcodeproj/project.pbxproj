@@ -35,7 +35,7 @@
 		376987C5244B95D50021D0FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 376987C4244B95D50021D0FB /* Assets.xcassets */; };
 		376987C8244B95D50021D0FB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 376987C7244B95D50021D0FB /* Preview Assets.xcassets */; };
 		376987CB244B95D50021D0FB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 376987C9244B95D50021D0FB /* LaunchScreen.storyboard */; };
-		376987D6244B95D50021D0FB /* liftsmartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987D5244B95D50021D0FB /* liftsmartTests.swift */; };
+		376987D6244B95D50021D0FB /* programTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376987D5244B95D50021D0FB /* programTests.swift */; };
 		376AF37924CC018C00AEAE1C /* Notes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376AF37824CC018C00AEAE1C /* Notes.swift */; };
 		376AF37B24CC053000AEAE1C /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376AF37A24CC053000AEAE1C /* NoteView.swift */; };
 		376AF37E24CCB0AB00AEAE1C /* MDText in Frameworks */ = {isa = PBXBuildFile; productRef = 376AF37D24CCB0AB00AEAE1C /* MDText */; };
@@ -118,7 +118,7 @@
 		376987CA244B95D50021D0FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		376987CC244B95D50021D0FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		376987D1244B95D50021D0FB /* liftsmartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = liftsmartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		376987D5244B95D50021D0FB /* liftsmartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = liftsmartTests.swift; sourceTree = "<group>"; };
+		376987D5244B95D50021D0FB /* programTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = programTests.swift; sourceTree = "<group>"; };
 		376987D7244B95D50021D0FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		376AF37824CC018C00AEAE1C /* Notes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
 		376AF37A24CC053000AEAE1C /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
@@ -236,7 +236,7 @@
 		376987D4244B95D50021D0FB /* liftsmartTests */ = {
 			isa = PBXGroup;
 			children = (
-				376987D5244B95D50021D0FB /* liftsmartTests.swift */,
+				376987D5244B95D50021D0FB /* programTests.swift */,
 				376987D7244B95D50021D0FB /* Info.plist */,
 			);
 			path = liftsmartTests;
@@ -512,7 +512,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				376987D6244B95D50021D0FB /* liftsmartTests.swift in Sources */,
+				376987D6244B95D50021D0FB /* programTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
