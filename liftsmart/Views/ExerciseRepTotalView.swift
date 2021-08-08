@@ -211,7 +211,7 @@ struct ExerciseRepTotalView: View {
         let total = self.getTotal()
         let repsCompleted = self.exercise().current!.completed.reduce(0, {$0 + $1})
         let remaining = repsCompleted < total ? total - repsCompleted : 0
-        if let expected = self.exercise().expected.reps.at(exercise().current!.setIndex), expected < remaining {
+        if let expected = self.exercise().expected.reps.at(exercise().current!.setIndex), remaining > 0 {
             return "Expecting \(expected) reps (\(remaining) left)"
         } else if remaining > 0 {
             return "\(remaining) reps left"
