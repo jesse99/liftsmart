@@ -51,6 +51,10 @@ class FixedWeights: CustomDebugStringConvertible, Sequence, Storable {
         }
     }
     
+    var last: Double? {
+        return self.weights.last
+    }
+    
     func firstIndex(where predicate: (Double) -> Bool) -> Int? {
         return self.weights.firstIndex(where: predicate)
     }
@@ -140,6 +144,9 @@ class FixedWeightSet: Storable {
                 return self.weights[index - 1]
             }
         }
+        if let last = self.weights.last, last < target {
+            return last
+        }
         return 0.0
     }
     
@@ -147,6 +154,9 @@ class FixedWeightSet: Storable {
         if let index = self.weights.firstIndex(where: {$0 >= target}) {
             return self.weights[index]
         } else {
+            if let last = self.weights.last, last < target {
+                return last
+            }
             return nil
         }
     }
