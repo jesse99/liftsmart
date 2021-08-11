@@ -408,14 +408,26 @@ struct ExerciseRepRangesView: View {
     }
     
     func getPercentTitle() -> String {
-        if !exercise().overridePercent.isEmpty {
-            return exercise().overridePercent
+        let exercise = self.exercise()
+        if !exercise.overridePercent.isEmpty {
+            return exercise.overridePercent
         }
         
         let percent = getRepsSet().percent
+        if case .workset = stage() {
+            let (_, worksets, _) = self.getSets()
+            if worksets.all({$0.percent.label == "100%"}) {
+                if case .right(let weight) = exercise.getClosestBelow(self.display, exercise.expected.weight), abs(weight - exercise.expected.weight) < 1 {
+                    return ""
+                } else {
+                    return "Expecting \(friendlyUnitsWeight(exercise.expected.weight))"
+                }
+            }
+        }
+        
         switch self.getWeightSuffix(percent) {
         case .right(let suffix):
-            return !suffix.isEmpty ? "\(percent.label) of \(exercise().expected.weight) lbs" : ""
+            return !suffix.isEmpty ? "\(percent.label) of \(exercise.expected.weight) lbs" : ""
         case .left(let err):
             return err
         }
