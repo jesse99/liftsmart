@@ -53,6 +53,7 @@ struct ExerciseRepRangesView: View {
     }
     
     var body: some View {
+        let pt = self.getPercentTitle()
         VStack {
             Group {     // we're using groups to work around the 10 item limit in VStacks
                 Group {
@@ -60,8 +61,10 @@ struct ExerciseRepRangesView: View {
                     Spacer()
                 
                     Text(self.getSetTitle()).font(.title)         // WorkSet 1 of 3
-                    Text(self.getPercentTitle()).font(.headline)  // 75% of 120 lbs
-                    Spacer().frame(height: 25)
+                    if !pt.isEmpty {
+                        Text(pt).font(.headline)                  // 75% of 120 lbs
+                        Spacer().frame(height: 25)
+                    }
 
                     Text(self.getRepsTitle()).font(.title)        // 3-5 reps @ 120 lbs
                     Text(self.getPlatesTitle()).font(.headline)   // 25 + 10 + 2.5
