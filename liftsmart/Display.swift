@@ -201,16 +201,6 @@ class Display: ObservableObject {
             return nil
         }
 
-        func checkFormalName(_ name: String) -> String? {
-            // We'll allow blank and empty names.
-            if name.isBlankOrEmpty() {
-                return nil
-            } else if (userNotes[name] ?? defaultNotes[name]) == nil {
-                return "There is no note for that formal name"
-            }
-            return nil
-        }
-
         func checkWorkoutName(_ name: String) -> String? {
             if name.isBlankOrEmpty() {
                 return "Workout name cannot be empty"
@@ -652,7 +642,6 @@ class Display: ObservableObject {
             update()
         case .SetExerciseFormalName(let exercise, let name):
             log(.Debug, "SetExerciseFormalName \(exercise.name) name: \(name)")
-            ASSERT_NIL(checkFormalName(name), "checkFormalName")
             exercise.formalName = name
             update()
         case .SetExpectedReps(let exercise, let reps):
@@ -694,11 +683,7 @@ class Display: ObservableObject {
             }
         case .ValidateFormalName(let name):
             log(.Debug, "ValidateFormalName name: \(name)")
-            if let err = checkFormalName(name) {
-                errors!.add(key: "set formal name", warning: err)
-            } else {
-                errors!.reset(key: "set formal name")
-            }
+            errors!.reset(key: "set formal name")
         case .ValidateOptionalRep(let label, let target):
             log(.Debug, "ValidateOptionalRep label: \(label) target: \(target)")
             if let err = checkOptionalRep(label, target) {
