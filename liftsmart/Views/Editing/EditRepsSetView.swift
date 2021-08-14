@@ -2,6 +2,14 @@
 //  Copyright © 2020 MushinApps. All rights reserved.
 import SwiftUI
 
+func extJoin(_ values: [String]) -> String {
+    if values.count > 1 && values.all({$0 == values[0]}) {
+        return values[0] + " x\(values.count)"
+    } else {
+        return values.joined(separator: " ")
+    }
+}
+
 struct EditRepsSetView: View {
     enum Kind {case Warmup; case WorkSets; case Backoff}
 
@@ -34,7 +42,7 @@ struct EditRepsSetView: View {
             case .WorkSets:
                 newSets = work
                 self.setsName = "Work Sets"
-                self._expected = State(initialValue: expectedReps.wrappedValue.map({$0.description}).joined(separator: " "))
+                self._expected = State(initialValue: extJoin(expectedReps.wrappedValue.map({$0.description})))
             case .Backoff:
                 newSets = back
                 self.setsName = "Backoff"
@@ -45,11 +53,11 @@ struct EditRepsSetView: View {
         }
         self.kind = kind
 
-        self._reps = State(initialValue: newSets.map({$0.reps.editable}).joined(separator: " "))
-        self._percents = State(initialValue: newSets.map({$0.percent.editable}).joined(separator: " "))
-        self._rests = State(initialValue: newSets.map({restToStr($0.restSecs)}).joined(separator: " "))
+        self._reps = State(initialValue: extJoin(newSets.map({$0.reps.editable})))
+        self._percents = State(initialValue: extJoin(newSets.map({$0.percent.editable})))
+        self._rests = State(initialValue: extJoin(newSets.map({restToStr($0.restSecs)})))
     }
-
+    
     var body: some View {
         VStack {
             Text("\(self.name) \(self.setsName)\(self.display.edited)").font(.largeTitle).font(.largeTitle)
