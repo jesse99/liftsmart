@@ -91,10 +91,17 @@ Worked out 35 times.
 \
 \
 \'95\'a0Exercises should be global to a program\
-	- EditProgramView should have workouts and exercises buttons?\
+	- move exercises into program\
+	- need to be able to load old-style workouts\
+	- EditProgramView should have workouts and exercises buttons\
 	  and no add button\
 	- EditWorkoutView should have a picker when adding exercise\
-	- stuff like history shouldn\'92t associate an exercise with a workout\
+	- work on history\
+		completed should be part of workout and keyed by exercise.name\
+		records should be keyed by exercise.name\
+		history.record.reps should be an enum so we don\'92t lose info\
+	- note that history won\'92t be imported\
+\'95\'a0Don\'92t ask user to advance weight if already at max (fixed) weight.\
 \'95 How does setting current week work?\
 	- make sure that it works when entering weird values\
 \'95 Didn\'92t get a warning for split squats when dumbbells had no weights\
@@ -172,6 +179,8 @@ Worked out 35 times.
 	- support alternate weeks, maybe with a mesocycle\
 \'95\'a0ios 14 supports MenuPickerStyle and InlinePickerStyle\
 \'95\'a0Should expected be saved separately from program?\
+\'95 Might want a way to merge history records, e.g. renaming exercise from\
+  \'93Squat\'94 to \'93Heavy Squat\'94.\
 \'95\'a0Should exercise history include difficulty?\
 \'95 Can do a better job reserving space for keyboard?\
 	- see https://quickbirdstudios.com/blog/swiftui-architecture-redux-mvvm/#:~:text=Instead%20of%20UIKit's%20rather%20imperative,every%20time%20the%20state%20changes.\
