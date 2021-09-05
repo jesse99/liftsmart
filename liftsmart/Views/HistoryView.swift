@@ -99,7 +99,8 @@ struct HistoryView: View {
     }
     
     func exercise() -> Exercise {
-        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        let instance = self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        return self.display.program.exercises.first(where: {$0.name == instance.name})!
     }
 
     private func getEntries() -> ([HistoryEntry], Bool) {

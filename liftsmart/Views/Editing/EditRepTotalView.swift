@@ -134,8 +134,7 @@ struct EditRepTotalView: View {
 
 struct EditRepTotalView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises.first(where: {$0.name == "Pullups"})!
+    static let exercise = display.program.exercises.first(where: {$0.name == "Pullups"})!
     static let sets = Binding.constant(exercise.modality.sets)
     static let expectedReps = Binding.constant(exercise.expected.reps)
 

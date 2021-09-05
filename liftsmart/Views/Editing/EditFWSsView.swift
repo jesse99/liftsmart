@@ -114,7 +114,8 @@ struct EditFWSsView: View {
             var uses: [String] = []
             
             for workout in self.display.program.workouts {
-                for exercise in workout.exercises {
+                for instance in workout.exercises {
+                    let exercise = self.display.program.exercises.first(where: {$0.name == instance.name})!
                     switch exercise.modality.apparatus {
                     case .fixedWeights(name: let n):
                         if n == name {
@@ -174,7 +175,7 @@ struct EditFWSsView: View {
 struct EditFWSsView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[1]
-    static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
+    static let exercise = display.program.exercises.first(where: {$0.name == "Split Squat"})!
 
     static var previews: some View {
         EditFWSsView(display, exercise)

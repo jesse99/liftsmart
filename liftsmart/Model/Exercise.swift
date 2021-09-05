@@ -8,13 +8,13 @@ var nextID: Int = 0
 /// include history or achievement information.
 class Exercise: Hashable, Identifiable, Storable {
     var name: String             // "Heavy Bench"
-    var enabled: Bool            // true if the user wants to perform this workout
+    var enabled: Bool            // true if the user wants to perform this exercise within this workout
     var formalName: String       // "Bench Press"
     var modality: Modality
     var expected: Expected
     var current: Current? = nil // this is reset to nil if it's been too long since the user was doing the exercise
     var overridePercent = ""    // used to replace the normal weight percent label in exercise views with custom text
-    var id: Int                 // used for hashing
+//    var id: Int                 // used for hashing
 
     init(_ name: String, _ formalName: String, _ modality: Modality, _ expected: Expected = Expected(weight: 0.0), overridePercent: String = "") {
         self.name = name
@@ -23,8 +23,8 @@ class Exercise: Hashable, Identifiable, Storable {
         self.modality = modality
         self.expected = expected
         self.overridePercent = overridePercent
-        self.id = nextID
-        nextID += 1
+//        self.id = nextID
+//        nextID += 1
     }
         
     required init(from store: Store) {
@@ -39,11 +39,11 @@ class Exercise: Hashable, Identifiable, Storable {
             self.current = nil
         }
         self.overridePercent = store.getStr("overridePercent")
-        self.id = store.getInt("id")
-        
-        if self.id >= nextID {
-            nextID = self.id + 1
-        }
+//        self.id = store.getInt("id")
+//        
+//        if self.id >= nextID {
+//            nextID = self.id + 1
+//        }
     }
     
     func save(_ store: Store) {
@@ -56,10 +56,10 @@ class Exercise: Hashable, Identifiable, Storable {
             store.addObj("current", c)
         }
         store.addStr("overridePercent", overridePercent)
-        store.addInt("id", id)
+//        store.addInt("id", id)
     }
     
-    func clone() -> Exercise {
+    func clone() -> Exercise {  // TODO: do we need this?
         let store = Store()
         store.addObj("self", self)
         let result: Exercise = store.getObj("self")
@@ -69,12 +69,12 @@ class Exercise: Hashable, Identifiable, Storable {
     // We're using clone as a unique id into a program so that views can find the correct
     // objects as display.program changes from things like RollbackTransaction. But
     // sometimes we do need a new copy of an exercise which this method is for,
-    func copy() -> Exercise {
-        let result = self.clone()
-        result.id = nextID
-        nextID += 1
-        return result
-    }
+//    func copy() -> Exercise {
+//        let result = self.clone()
+//        result.id = nextID
+//        nextID += 1
+//        return result
+//    }
     
     func isBodyWeight() -> Bool {
         switch self.modality.apparatus {

@@ -139,8 +139,7 @@ struct EditFixedRepsView: View {
 
 struct EditFixedRepsView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises.first(where: {$0.name == "Foam Rolling"})!
+    static let exercise = display.program.exercises.first(where: {$0.name == "Foam Rolling"})!
     static var sets = Binding.constant(exercise.modality.sets)
     static let expectedReps = Binding.constant(exercise.expected.reps)
 

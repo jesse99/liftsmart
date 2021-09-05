@@ -126,8 +126,7 @@ struct EditDurationsView: View {
 
 struct EditDurationsView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises.first(where: {$0.name == "Planks"})!
+    static let exercise = display.program.exercises.first(where: {$0.name == "Planks"})!
     static var sets = Binding.constant(exercise.modality.sets)
 
     static var previews: some View {

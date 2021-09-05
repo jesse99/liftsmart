@@ -7,8 +7,8 @@ struct EditWorkoutView: View {
     @State var name: String
     @State var weeks: String
     @State var showEditActions: Bool = false
-    @State var selection: Exercise? = nil
-    @State var showSheet: Bool = false
+    @State var selection: ExerciseInstance? = nil
+//    @State var showSheet: Bool = false
     @ObservedObject var display: Display
     @Environment(\.presentationMode) private var presentationMode
     
@@ -77,14 +77,14 @@ struct EditWorkoutView: View {
                 Spacer()
                 Spacer()
                 Button("Paste", action: self.onPaste).font(.callout).disabled(self.display.exerciseClipboard.isEmpty)
-                Button("Add", action: self.onAdd).font(.callout)
+//                Button("Add", action: self.onAdd).font(.callout)
                 Button("OK", action: onOK).font(.callout).disabled(self.display.hasError)
             }
             .padding()
         }
         .actionSheet(isPresented: $showEditActions) {
             ActionSheet(title: Text(self.selection!.name), buttons: editButtons())}
-        .sheet(isPresented: self.$showSheet) {EditTextView(self.display, title: "Exercise Name", content: "", caps: .words, validator: {return .ValidateExerciseName(self.workout, nil, $0)}, sender: {return .AddExercise(self.workout, self.defaultExercise($0))})}
+//        .sheet(isPresented: self.$showSheet) {EditTextView(self.display, title: "Exercise Name", content: "", caps: .words, validator: {return .ValidateExerciseName(self.workout, nil, $0)}, sender: {return .AddInstance(self.workout, self.defaultExercise($0))})}
     }
         
     func editButtons() -> [ActionSheet.Button] {
@@ -112,43 +112,43 @@ struct EditWorkoutView: View {
         return buttons
     }
     
-    func onAdd() {
-        self.showSheet = true
-    }
+//    func onAdd() {
+//        self.showSheet = true
+//    }
 
     func onToggleDay(_ day: WeekDay) {
         self.display.send(.ToggleWorkoutDay(self.workout, day))
     }
 
     private func onToggleEnabled() {
-        self.display.send(.ToggleEnableExercise(self.selection!))
+        self.display.send(.ToggleEnableInstance(self.selection!))
     }
 
     private func onCopy() {
-        self.display.send(.CopyExercise([self.selection!]))
+        self.display.send(.CopyInstance([self.selection!]))
     }
 
     private func onCopyAll() {
-        self.display.send(.CopyExercise(self.workout.exercises))
+        self.display.send(.CopyInstance(self.workout.exercises))
     }
 
     private func onPaste() {
-        self.display.send(.PasteExercise(self.workout))
+        self.display.send(.PasteInstance(self.workout))
     }
 
     private func onDelete() {
-        self.display.send(.DelExercise(self.workout, self.selection!))
+        self.display.send(.DelInstance(self.workout, self.selection!))
     }
 
     private func onDeleteAll() {
         let exercises = self.workout.exercises
         for exercise in exercises {
-            self.display.send(.DelExercise(self.workout, exercise))
+            self.display.send(.DelInstance(self.workout, exercise))
         }
     }
 
     private func onMove(by: Int) {
-        self.display.send(.MoveExercise(self.workout, self.selection!, by))
+        self.display.send(.MoveInstance(self.workout, self.selection!, by))
     }
     
     func onEditedName(_ text: String) {
@@ -163,11 +163,6 @@ struct EditWorkoutView: View {
         let modifier = self.workout.days[day.rawValue] ? "Remove " : "Add "
         let label = String(describing: day)
         return modifier + label
-    }
-    
-    func defaultExercise(_ name: String) -> Exercise {
-        let modality = Modality(defaultBodyWeight(), defaultRepRanges())
-        return Exercise(name, "None", modality)
     }
     
     func daysStr(_ days: [Bool]) -> String {

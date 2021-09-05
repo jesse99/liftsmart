@@ -17,7 +17,8 @@ struct ExerciseDurationsView: View {
     
     init(_ display: Display, _ workoutIndex: Int, _ exerciseID: Int) {
         let workout = display.program.workouts[workoutIndex]
-        let exercise = workout.exercises.first(where: {$0.id == exerciseID})!
+        let instance = workout.exercises.first(where: {$0.id == exerciseID})!
+        let exercise = display.program.exercises.first(where: {$0.name == instance.name})!
         if exercise.shouldReset() {
             // Note that we have to be careful with state changes within View init methods
             // because init is called multiple times. Here we'll reset current if it's been
@@ -85,7 +86,8 @@ struct ExerciseDurationsView: View {
     }
     
     func exercise() -> Exercise {
-        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        let instance = self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        return self.display.program.exercises.first(where: {$0.name == instance.name})!
     }
     
 //    var workout: Workout {

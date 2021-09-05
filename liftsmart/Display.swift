@@ -31,7 +31,6 @@ enum Action {
     // Exercise
     case AdvanceCurrent(Exercise)
     case AppendCurrent(Exercise, String, Double?)
-    case CopyExercise([Exercise])
     case DefaultApparatus(Workout, Exercise, Apparatus) // these two are used to (re)set the exercise to a default value
     case DefaultSets(Workout, Exercise, Sets)
     case ResetCurrent(Exercise)
@@ -42,7 +41,6 @@ enum Action {
     case SetExpectedReps(Exercise, [Int])
     case SetExpectedWeight(Exercise, Double)
     case SetSets(Exercise, Sets)
-    case ToggleEnableExercise(Exercise)
     case ValidateDurations(String, String, String)  // durations, target, rest
     case ValidateExpectedRepList(String)
     case ValidateFixedReps(String, String)          // reps, rest
@@ -98,12 +96,14 @@ enum Action {
     case ValidateProgramName(String, String)    // old name, new name
 
     // Workout
-    case AddExercise(Workout, Exercise)
-    case DelExercise(Workout, Exercise)
-    case MoveExercise(Workout, Exercise, Int)
-    case PasteExercise(Workout)
+    case AddInstance(Workout, ExerciseInstance)
+    case CopyInstance([ExerciseInstance])
+    case DelInstance(Workout, ExerciseInstance)
+    case MoveInstance(Workout, ExerciseInstance, Int)
+    case PasteInstance(Workout)
     case SetWeeks(Workout, [Int])
     case SetWorkoutName(Workout, String)
+    case ToggleEnableInstance(ExerciseInstance)
     case ToggleWorkoutDay(Workout, WeekDay)
     case ValidateExerciseName(Workout, Exercise?, String)
     case ValidateWeeks(String)
@@ -117,7 +117,7 @@ class Display: ObservableObject {
     private(set) var userNotes: [String: String] = [:]    // this overrides defaultNotes
     private(set) var fixedWeights: [String: FixedWeightSet]
     private(set) var programs: [String: String]     // program name => file name
-    private(set) var exerciseClipboard: [Exercise] = []
+    private(set) var exerciseClipboard: [ExerciseInstance] = []
     @Published private(set) var edited = ""         // above should be published but that doesn't work well with classes so we use this lame string to publish chaanges
     @Published private(set) var errMesg = ""        // set when an Action cannot be performed
     @Published private(set) var errColor = Color.black
@@ -601,9 +601,6 @@ class Display: ObservableObject {
             }
             exercise.current!.setIndex += 1
             update()
-        case .CopyExercise(let exercises):
-            log(.Debug, "CopyExercise \(exercises.map({$0.name}).joined(separator: " "))")
-            exerciseClipboard = exercises
         case .DefaultApparatus(let workout, let exercise, let apparatus):
             if let use = useOriginalApparatus(workout, exercise, apparatus) {
                 log(.Debug, "DefaultApparatus \(workout.name) \(exercise.name) original apparatus: \(use)")
@@ -655,10 +652,6 @@ class Display: ObservableObject {
         case .SetSets(let exercise, let sets):
             log(.Debug, "SetSets \(exercise.name) sets: \(sets)")
             exercise.modality = Modality(exercise.modality.apparatus, sets)
-            update()
-        case .ToggleEnableExercise(let exercise):
-            log(.Debug, "ToggleEnableExercise \(exercise.name)")
-            exercise.enabled = !exercise.enabled
             update()
         case .ValidateDurations(let durations, let target, let rest):
             log(.Debug, "ValidateDurations durations: \(durations) target: \(target) rest: \(rest)")
@@ -1003,26 +996,29 @@ class Display: ObservableObject {
             }
 
         // Workout
-        case .AddExercise(let workout, let exercise):
-            log(.Debug, "AddExercise \(workout.name) exercise: \(exercise.name)")
-            workout.exercises.append(exercise)
+        case .AddInstance(let workout, let instance):
+            log(.Debug, "AddInstance \(workout.name) instance: \(instance.name)")
+            workout.exercises.append(instance)
             update()
-        case .DelExercise(let workout, let exercise):
-            log(.Debug, "DelExercise \(workout.name) exercise: \(exercise.name)")
-            let index = workout.exercises.firstIndex(where: {$0 === exercise})!
+        case .CopyInstance(let instances):
+            log(.Debug, "CopyInstance \(instances.map({$0.name}).joined(separator: " "))")
+            exerciseClipboard = instances
+        case .DelInstance(let workout, let instance):
+            log(.Debug, "DelInstance \(workout.name) instance: \(instance.name)")
+            let index = workout.exercises.firstIndex(where: {$0 === instance})!
             workout.exercises.remove(at: index)
             update()
-        case .MoveExercise(let workout, let exercise, let by):
-            log(.Debug, "MoveExercise \(workout.name) exercise: \(exercise.name) by: \(by)")
-            let index = workout.exercises.firstIndex(where: {$0 === exercise})!
+        case .MoveInstance(let workout, let instance, let by):
+            log(.Debug, "MoveInstance \(workout.name) instance: \(instance.name) by: \(by)")
+            let index = workout.exercises.firstIndex(where: {$0 === instance})!
             workout.moveExercise(index, by: by)
             update()
-        case .PasteExercise(let workout):
-            log(.Debug, "PasteExercise \(workout.name)")
-            for exercise in self.exerciseClipboard {
-                let exercise = exercise.copy()     // copy so pasting twice doesn't add the same exercise
-                exercise.name = newExerciseName(workout, exercise.name)
-                workout.exercises.append(exercise)
+        case .PasteInstance(let workout):
+            log(.Debug, "PasteInstance \(workout.name)")
+            for instance in self.exerciseClipboard {
+                let instance = instance.copy()     // copy so pasting twice doesn't add the same instance
+                instance.name = newExerciseName(workout, instance.name)
+                workout.exercises.append(instance)
             }
             update()
         case .SetWeeks(let workout, let weeks):
@@ -1033,6 +1029,10 @@ class Display: ObservableObject {
             log(.Debug, "SetWorkoutName \(workout.name) name: \(name)")
             ASSERT_NIL(checkWorkoutName(name), "SetWorkoutName")
             workout.name = name
+            update()
+        case .ToggleEnableInstance(let instance):
+            log(.Debug, "ToggleEnableInstance \(instance.name)")
+            instance.enabled = !instance.enabled
             update()
         case .ToggleWorkoutDay(let workout, let day):
             log(.Debug, "ToggleWorkoutDay \(workout.name) day: \(day)")
@@ -1066,11 +1066,8 @@ class Display: ObservableObject {
     }
     
     private func findOriginalExercise(_ transaction: Transaction, _ workout: Workout, _ exercise: Exercise) -> Exercise? {
-        if let originalWorkout = transaction.program.workouts.first(where: {$0.name == workout.name}) {
-            let originalExercise = originalWorkout.exercises.first(where: {$0.name == exercise.name})
-            return originalExercise
-        }
-        return nil
+        let originalExercise = transaction.program.exercises.first(where: {$0.name == exercise.name})
+        return originalExercise
     }
     
     // When setting apparatus or sets the user may switch back to what he originally had. In this

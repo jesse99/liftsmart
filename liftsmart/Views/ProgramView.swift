@@ -59,8 +59,9 @@ func initEntries(_ display: Display) -> ([ProgramEntry], [ExerciseCompletions]) 
     for (index, workout) in display.program.workouts.enumerated() {
         if workout.enabled {
             var dates: [Date] = []
-            for exercise in workout.exercises {
-                if exercise.enabled {
+            for instance in workout.exercises {
+                if instance.enabled {
+                    let exercise = display.program.exercises.first(where: {$0.name == instance.name})!
                     if let completed = exercise.dateCompleted(workout, display.history) {
                         dates.append(completed)
                     }
@@ -94,7 +95,7 @@ func initSubLabels(_ display: Display, _ completions: [ExerciseCompletions], _ e
     }
 
     func ageInDays(_ workout: Workout) -> Double {
-        if let completed = workout.dateCompleted(display.history) {
+        if let completed = display.program.dateCompleted(display.history, workout) {
             return now().daysSinceDate(completed.0)
         } else {
             // If the workout has never been completed then we'll just use a really old date
@@ -293,11 +294,11 @@ struct ProgramView: View {
 func previewDisplay() -> Display {
     func previewHistory(_ program: Program) -> History {
         let history = History()
-        history.append(program.workouts[0], program.workouts[0].exercises[0])
-        history.append(program.workouts[1], program.workouts[1].exercises[0])
+        history.append(program.workouts[0], program.exercises[0])
+        history.append(program.workouts[1], program.exercises[1])
 
         // This stuff is for HistoryView.
-        let exercise = program.workouts[0].exercises.first(where: {$0.name == "Curls"})!
+        let exercise = program.exercises.first(where: {$0.name == "Curls"})!
         exercise.current = Current(weight: 0.0)
         exercise.current?.startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())!
         exercise.current!.setIndex = 1
@@ -386,12 +387,13 @@ func previewDisplay() -> Display {
             return Exercise("Foam Rolling", "IT-Band Foam Roll", modality)
         }
 
+        let exercises = [planks(), curls(), formRolling(), pullups(), burpees(), squats()]
         let workouts = [
-            createWorkout("Temp1", [planks(), curls(), formRolling(), pullups()], day: .friday).unwrap(),
-            createWorkout("Cardio", [burpees(), squats()], day: nil).unwrap(),
-            createWorkout("Lower", [burpees(), squats()], day: .wednesday).unwrap(),
-            createWorkout("Upper", [planks(), curls()], day: .monday).unwrap()]
-        return Program("Split", workouts)
+            Workout("Temp1", ["Planks", "Curls", "Foam Rolling", "Pullups"], day: .friday),
+            Workout("Cardio", ["Burpees", "Split Squat"], day: nil),
+            Workout("Lower", ["Burpees", "Split Squat"], day: .wednesday),
+            Workout("Upper", ["Planks", "Curls"], day: .monday)]
+        return Program("Split", exercises, workouts)
     }
 
     let program = previewProgram()

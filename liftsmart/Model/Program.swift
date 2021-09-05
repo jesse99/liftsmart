@@ -32,17 +32,20 @@ struct EditNote: CustomDebugStringConvertible, Storable {
 /// For example, three workouts each week.
 class Program: CustomDebugStringConvertible, Storable {
     var name: String
+    var exercises: [Exercise]   // names must be unique, TODO: probably want to sort these by name
     var workouts: [Workout]
     var notes: [EditNote]
     var blockStart: Date?       // this is a date within week 1
 
-    init(_ name: String, _ workouts: [Workout]) {
+    init(_ name: String, _ exercises: [Exercise], _ workouts: [Workout]) {
         self.name = name
+        self.exercises = exercises
         self.workouts = workouts
         self.notes = []
         self.blockStart = nil
         
         self.addNote("Created")
+        self.invariant()
     }
         
     required init(from store: Store) {
@@ -54,10 +57,25 @@ class Program: CustomDebugStringConvertible, Storable {
         } else {
             self.blockStart = nil
         }
+
+        if store.hasKey("exercises") {
+            self.exercises = store.getObjArray("exercises")
+        } else {
+            self.exercises = []
+            for w in self.workouts {
+                for e in w.oldExercises {
+                    if !self.exercises.contains(where: {$0.name == e.name}) {
+                        self.exercises.append(e)
+                    }
+                }
+            }
+        }
+        self.invariant()
     }
     
     func save(_ store: Store) {
         store.addStr("name", name)
+        store.addObjArray("exercises", exercises)
         store.addObjArray("workouts", workouts)
         store.addObjArray("notes", notes)
         if let date = blockStart {
@@ -89,6 +107,50 @@ class Program: CustomDebugStringConvertible, Storable {
     var debugDescription: String {
         get {
             return self.name
+        }
+    }
+
+    // Partial is true if not all exercises were completed on that date.
+    func dateCompleted(_ history: History, _ workout: Workout) -> (date: Date, partial: Bool)? {
+        func lastCompleted() -> Date? {
+            var date: Date? = nil
+            for exercise in self.exercises {
+                if let candidate = exercise.dateCompleted(workout, history) {
+                    if date == nil || candidate.compare(date!) == .orderedDescending {
+                        date = candidate
+                    }
+                }
+            }
+            return date
+        }
+        
+        let date: Date? = lastCompleted()
+        var partial = false
+
+        if let latest = date {
+            for exercise in self.exercises {
+                let calendar = Calendar.current
+                if let completed = exercise.dateCompleted(workout, history) {
+                    if !calendar.isDate(completed, inSameDayAs: latest) {   // this won't be exactly right if anyone is crazy enough to do workouts at midnight
+                        partial = true
+                    }
+                } else {
+                    partial = true
+                }
+            }
+        }
+
+        return date != nil ? (date!, partial) : nil
+    }
+    
+    private func invariant() {
+        let names = exercises.map {$0.name}
+        ASSERT(names.count == exercises.count, "exercise names must be unique")
+
+        for w in self.workouts {
+            for e in w.exercises {
+                ASSERT(self.exercises.contains(where: {$0.name == e.name}), "\(e.name) isn't in the program")
+            }
         }
     }
 }
@@ -260,18 +322,20 @@ func home() -> Program {
         let modality = Modality(Apparatus.bodyWeight, sets)
         return Exercise("Triceps Press", "Standing Triceps Press", modality, Expected(weight: 8.2, reps: [11, 11, 11]))
     }
+    
+    let exercises = [formRolling(), ironCross(), vSit(), frog(), fireHydrant(), mountain(), cossack(), piriformis(), shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch(), splitSquats(), lunge(), planks(), pushup(), reversePlank(), curls(), latRaise(), tricepPress()]
 
 //    let cardio = createWorkout("Cardio", [squats1(), squats2(), squats3(), squats4()], day: nil).unwrap()
-    let rehab = createWorkout("Rehab", [shoulderFlexion(), bicepsStretch(), externalRotation(), sleeperStretch()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
-    let mobility = createWorkout("Mobility", [formRolling(), ironCross(), vSit(), frog(), fireHydrant(), mountain(), cossack(), piriformis()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
 //    let complex = createWorkout("Complex", [perry()], days: [.saturday, .sunday, .tuesday, .thursday, .friday]).unwrap()
-    let lower = createWorkout("Lower", [splitSquats(), lunge()], days: [.tuesday, .thursday, .saturday]).unwrap()
-    let upper = createWorkout("Upper", [planks(), pushup(), reversePlank(), curls(), latRaise(), tricepPress()], days: [.friday, .sunday]).unwrap()
-
+    let rehab = Workout("Rehab", ["Shoulder Flexion", "Biceps Stretch", "External Rotation", "Sleeper Stretch"], days: [.saturday, .sunday, .tuesday, .thursday, .friday])
+    let mobility = Workout("Mobility", ["Foam Rolling", "Bent-knee Iron Cross", "Roll-over into V-sit", "Rocking Frog Stretch", "Fire Hydrant Hip Circle", "Mountain Climber", "Cossack Squat", "Piriformis Stretch"], days: [.saturday, .sunday, .tuesday, .thursday, .friday])
+    let lower = Workout("Lower", ["Split Squat", "Lunge"], days: [.tuesday, .thursday, .saturday])
+    let upper = Workout("Upper", ["Front Plank", "Pushup", "Reverse Plank", "Curls", "Lateral Raise", "Triceps Press"], days: [.friday, .sunday])
+                 
     let workouts = [rehab, mobility, lower, upper]
-    return Program("Home", workouts)
+    return Program("Home", exercises, workouts)
 }
 
 func defaultProgram(_ name: String) -> Program {
-    return Program(name, [])
+    return Program(name, [], [])
 }

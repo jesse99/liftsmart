@@ -164,8 +164,7 @@ struct EditRepsSetView: View {
 
 struct EditRepsSetView_Previews: PreviewProvider {
     static let display = previewDisplay()
-    static let workout = display.program.workouts[1]
-    static let exercise = workout.exercises.first(where: {$0.name == "Split Squat"})!
+    static let exercise = display.program.exercises.first(where: {$0.name == "Split Squat"})!
     static let sets = Binding.constant(exercise.modality.sets)
     static let expectedReps = Binding.constant(exercise.expected.reps)
 

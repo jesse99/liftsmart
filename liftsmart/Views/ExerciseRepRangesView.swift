@@ -39,7 +39,8 @@ struct ExerciseRepRangesView: View {
     
     init(_ display: Display, _ workoutIndex: Int, _ exerciseID: Int) {
         let workout = display.program.workouts[workoutIndex]
-        let exercise = workout.exercises.first(where: {$0.id == exerciseID})!
+        let instance = workout.exercises.first(where: {$0.id == exerciseID})!
+        let exercise = display.program.exercises.first(where: {$0.name == instance.name})!
         if exercise.shouldReset() {
             display.send(.ResetCurrent(exercise), updateUI: false)
         }
@@ -89,9 +90,9 @@ struct ExerciseRepRangesView: View {
                             secondaryButton: .default(Text("No"), action: {self.popView()})
                         )}
 
-                Button("Start Timer", action: onStartTimer)
-                    .font(.system(size: 20.0))
-                    .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
+//                Button("Start Timer", action: onStartTimer)
+//                    .font(.system(size: 20.0))
+//                    .sheet(isPresented: self.$durationModal) {TimerView(title: self.getTimerTitle(), duration: self.timerDuration())}
                 Spacer()
                 Text(self.getNoteLabel()).font(.callout)   // Same previous x3
                     .sheet(isPresented: self.$startTimer) {TimerView(title: self.getTimerTitle(), duration: self.startDuration(-1))}
@@ -125,7 +126,8 @@ struct ExerciseRepRangesView: View {
     }
     
     func exercise() -> Exercise {
-        return self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        let instance = self.workout().exercises.first(where: {$0.id == self.exerciseID})!
+        return self.display.program.exercises.first(where: {$0.name == instance.name})!
     }
 
     func onRepsPressed(_ reps: Int) {

@@ -7,12 +7,14 @@ var workoutEntryId = 0
 struct WorkoutEntry: Identifiable {
     let id: Int
     let exercise: Exercise
+    let instance: ExerciseInstance
     var label: String
     var color: Color
 
-    init(_ workout: Workout, _ exercise: Exercise, _ history: History) {
+    init(_ program: Program, _ workout: Workout, _ instance: ExerciseInstance, _ history: History) {
         self.id = workoutEntryId
-        self.exercise = exercise
+        self.exercise = program.exercises.first(where: {$0.name == instance.name})!
+        self.instance = instance
         self.label = WorkoutEntry.getLabel(workout, exercise)
         self.color = WorkoutEntry.getColor(workout, exercise, history)
         workoutEntryId += 1
@@ -131,7 +133,7 @@ struct WorkoutView: View {
     var body: some View {
         VStack {
             List(self.getEntries()) {entry in
-                NavigationLink(destination: ExerciseView(self.display, self.workoutIndex, entry.exercise.id)) {
+                NavigationLink(destination: ExerciseView(self.display, self.workoutIndex, entry.instance.id)) {
                     VStack(alignment: .leading) {
                         Text(entry.exercise.name).font(.headline).foregroundColor(entry.color)
                         if !entry.label.isEmpty {
@@ -169,9 +171,9 @@ struct WorkoutView: View {
     private func getEntries() -> [WorkoutEntry] {
         ASSERT(display.program.workouts.first(where: {$0 === workout()}) != nil, "program doesn't have workout \(workout().name)")
         var entries: [WorkoutEntry] = []
-        for exercise in workout().exercises {
-            if exercise.enabled {
-                entries.append(WorkoutEntry(workout(), exercise, display.history))
+        for instance in workout().exercises {
+            if instance.enabled {
+                entries.append(WorkoutEntry(display.program, workout(), instance, display.history))
             }
         }
         return entries

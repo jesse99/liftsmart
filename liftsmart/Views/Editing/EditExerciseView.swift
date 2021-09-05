@@ -375,7 +375,7 @@ struct EditExerciseView: View {
 struct EditExerciseView_Previews: PreviewProvider {
     static let display = previewDisplay()
     static let workout = display.program.workouts[0]
-    static let exercise = workout.exercises.first(where: {$0.name == "Planks"})!
+    static let exercise = display.program.exercises.first(where: {$0.name == "Planks"})!
 
     static var previews: some View {
         EditExerciseView(display, workout, exercise)
